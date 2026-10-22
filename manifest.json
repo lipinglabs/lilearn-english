@@ -1,15 +1,36 @@
 {
+  "id": "./",
   "name": "李旻泽的英语冒险",
   "short_name": "英语冒险",
+  "description": "3-6 岁幼儿英语启蒙小游戏：数字、颜色、形状、空间、大小比较",
+  "lang": "zh-CN",
+  "dir": "ltr",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#87CEEB",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#fdf7ec",
   "theme_color": "#87CEEB",
+  "prefer_related_applications": false,
+  "categories": ["education", "kids", "games"],
   "icons": [
     {
-      "src": "icon.png",
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

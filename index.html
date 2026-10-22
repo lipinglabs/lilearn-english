@@ -6,14 +6,26 @@
 <meta name="theme-color" content="#87CEEB" />
 <title>英语启蒙乐园</title>
 
-<!-- PWA：添加到手机主屏幕 -->
+<!-- ============================================================
+     PWA：添加到手机主屏幕后必须「无地址栏」全屏运行
+     ------------------------------------------------------------
+     Android（Chrome / Edge）认的是 manifest.json 的 display:standalone
+     ＋ 192px 以上图标 ＋ service worker；三者缺一样，系统只会建一个
+     普通书签，点开就还是浏览器（地址栏照旧）。
+     iOS（Safari）认的是 apple-mobile-web-app-capable=yes ＋
+     180×180 的 apple-touch-icon；meta 必须在 <head> 里、且早于内容。
+     ============================================================ -->
 <link rel="manifest" href="manifest.json" />
-<link rel="icon" href="icon.png" type="image/png" />
-<link rel="apple-touch-icon" href="icon.png" />
+<meta name="application-name" content="英语冒险" />
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="英语冒险" />
+<meta name="format-detection" content="telephone=no, email=no, address=no" />
 <style>
   /* ==========================================================
      设计基调：柔和线条、温暖打光、温和过渡（见 RULES.md）
@@ -51,6 +63,16 @@
     -webkit-user-select: none;
     user-select: none;
     touch-action: manipulation;
+  }
+
+  /* 全屏（standalone）时避开刘海、圆角与 Home 指示条：有安全区就用安全区，没有就用原内边距 */
+  @supports (padding: env(safe-area-inset-top)) {
+    body {
+      padding-top: max(clamp(8px, 1.6vh, 18px), env(safe-area-inset-top));
+      padding-bottom: max(clamp(10px, 2.2vh, 24px), env(safe-area-inset-bottom));
+      padding-left: max(clamp(10px, 2.4vw, 30px), env(safe-area-inset-left));
+      padding-right: max(clamp(10px, 2.4vw, 30px), env(safe-area-inset-right));
+    }
   }
 
   [hidden] { display: none !important; }
@@ -1488,6 +1510,20 @@
 
   .sheet-btn:active { transform: scale(.96); }
 
+  /* 「还没有令牌」小链接：只给家长看，不抢主按钮的视线 */
+  .sheet-link {
+    align-self: flex-start;
+    padding: 2px 0;
+    border: 0;
+    background: none;
+    color: #b98a4e;
+    font-size: clamp(11px, 2.9vw, 12.5px);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
   .star-total {
     margin-top: -2px;
     margin-bottom: 2px;
@@ -2354,7 +2390,7 @@
 <div id="cloudSheet" class="sheet" hidden>
   <div class="sheet-card">
     <div class="sheet-title">云存档</div>
-    <p class="sheet-tip">在每台设备的这里粘贴同一个访问令牌，进度就会自动同步。</p>
+    <p class="sheet-tip">每台设备只需在这里粘贴一次同一个访问令牌，之后的同步全自动，不会再打扰你。</p>
     <input id="cloudToken" class="sheet-input" type="password" autocomplete="off"
            spellcheck="false" placeholder="粘贴访问令牌">
     <div id="cloudStatus" class="sheet-status"></div>
@@ -2362,7 +2398,8 @@
       <button id="cloudConnect" class="sheet-btn primary" type="button">连接云存档</button>
       <button id="cloudClose" class="sheet-btn" type="button">关闭</button>
     </div>
-    <p class="sheet-note">令牌只保存在本机浏览器，不会写进网页或代码仓库；两台设备用同一个令牌即可共用一份存档。</p>
+    <button id="cloudGetToken" class="sheet-link" type="button">还没有令牌？点这里生成（需登录你自己的账号）</button>
+    <p class="sheet-note">令牌只保存在本机浏览器，不会写进网页或代码仓库。两台设备粘同一个令牌就共用一份存档；填好一次之后，每次通关自动上传、每次打开自动拉取，全程静默。</p>
   </div>
 </div>
 <div id="toast" class="toast" hidden></div>
@@ -5105,6 +5142,11 @@ window.VOICE_BANK = {
     token: '', gistId: '', state: 'off', lastSync: 0, busy: false, timer: 0, msg: ''
   };
 
+  /* 静默同步相关（RULES §五.6）：轮询句柄、失败重试次数 */
+  var cloudPoll = 0;
+  var cloudRetry = 0;
+  var CLOUD_POLL_MS = 60000;
+
   function cloudLoad() {
     try {
       var raw = localStorage.getItem(CLOUD_KEY);
@@ -5264,11 +5306,13 @@ window.VOICE_BANK = {
       var changed = JSON.stringify(merged) !== JSON.stringify(normalizeProgress(progress));
       applyProgress(merged);
       cloud.lastSync = Date.now();
+      cloudRetry = 0;
       cloudPersist();
       cloudState('synced');
       return changed;
     }).catch(function (err) {
       cloudState('error', err && err.status === 401 ? '令牌无效或已过期' : '同步失败，稍后自动重试');
+      cloudRetryLater();
       return false;
     });
   }
@@ -5289,11 +5333,13 @@ window.VOICE_BANK = {
     }).then(function () {
       cloud.busy = false;
       cloud.lastSync = Date.now();
+      cloudRetry = 0;
       cloudPersist();
       cloudState('synced');
     }).catch(function (err) {
       cloud.busy = false;
       cloudState('error', err && err.status === 401 ? '令牌无效或已过期' : '同步失败，稍后自动重试');
+      cloudRetryLater();
     });
   }
 
@@ -5323,8 +5369,10 @@ window.VOICE_BANK = {
       applyProgress(merged);
       return cloudWriteGist().then(function () {
         cloud.lastSync = Date.now();
+        cloudRetry = 0;
         cloudPersist();
         cloudState('synced', '已连接，进度已同步');
+        cloudStartSilent();          // 之后全程静默，不再需要家长操作
         return true;
       });
     }).catch(function (err) {
@@ -5340,12 +5388,55 @@ window.VOICE_BANK = {
   }
 
   function cloudDisconnect() {
+    clearInterval(cloudPoll);
+    cloudPoll = 0;
     cloud.token = '';
     cloud.gistId = '';
     cloud.lastSync = 0;
     cloudPersist();
     cloudState('off', '已断开云存档');
   }
+
+  /* ---------------- 静默同步引擎（RULES §五.6） ----------------
+     令牌只要填过一次，之后全在后台自己完成，家长再也不会被弹窗打扰：
+       启动时拉一次 → 每次通关推一次 → 每 60 秒拉一次
+       → 切回前台拉一次 → 网络恢复时推一次
+     失败不弹窗、不打断游戏，按 15s / 30s / 60s / 120s 退避重试。
+     令牌未配置时整个引擎不启动（云按钮保持「未开启」的灰点）。
+  */
+  function cloudSilentPull() {
+    if (document.hidden) return;
+    if (!cloud.token || !cloud.gistId || cloud.busy) return;
+    cloudPull();
+  }
+
+  function cloudRetryLater() {
+    if (!cloud.token || !cloud.gistId) return;
+    if (cloudRetry >= 4) return;                    // 连续失败 4 次就安静下来，等下次联网/回前台
+    var delay = [15000, 30000, 60000, 120000][cloudRetry] || 120000;
+    cloudRetry++;
+    setTimeout(function () {
+      if (!cloud.token || !cloud.gistId) return;
+      if (document.hidden) { cloudRetry--; return; }
+      cloudPush();
+    }, delay);
+  }
+
+  function cloudStartSilent() {
+    clearInterval(cloudPoll);
+    cloudPoll = 0;
+    if (!cloud.token || !cloud.gistId) return;
+    cloudPoll = setInterval(cloudSilentPull, CLOUD_POLL_MS);
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) cloudSilentPull();
+  });
+  window.addEventListener('online', function () {
+    cloudRetry = 0;
+    if (!cloud.token || !cloud.gistId) return;
+    cloudPush();
+  });
 
   function isIslandUnlocked(index) { return index <= progress.unlockedIsland; }
 
@@ -9782,6 +9873,21 @@ window.VOICE_BANK = {
   var cloudStatusEl = document.getElementById('cloudStatus');
   var btnCloudConnect = document.getElementById('cloudConnect');
   var btnCloudClose = document.getElementById('cloudClose');
+  var btnCloudGetToken = document.getElementById('cloudGetToken');
+
+  /*
+   * 生成令牌的入口：GitHub 的「新建经典令牌」页支持用 URL 预填范围与备注，
+   * scopes=gist 表示**只给云存档（Gist）读写**，绝不给仓库权限。
+   * 家长点「创建」后复制 ghp_ 开头那串，粘回本页面即可。
+   */
+  var CLOUD_TOKEN_URL =
+    'https://github.com/settings/tokens/new?scopes=gist&description=lilearn-english-save';
+
+  if (btnCloudGetToken) {
+    btnCloudGetToken.addEventListener('click', function () {
+      window.open(CLOUD_TOKEN_URL, '_blank', 'noopener');
+    });
+  }
 
   /*
    * 可选：把访问令牌直接写在这里，任何设备打开就自动连上云存档，无需设置。
@@ -9816,7 +9922,7 @@ window.VOICE_BANK = {
       var t = cloud.lastSync
         ? new Date(cloud.lastSync).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
         : '';
-      text = '已同步' + (t ? '（' + t + '）' : '');
+      text = '进度已自动同步' + (t ? '（' + t + '）' : '');
     } else if (cloud.state === 'error') {
       text = cloud.msg || '同步失败';
       bad = true;
@@ -9887,9 +9993,18 @@ window.VOICE_BANK = {
   updateCloudBadge();
   updateCloudStatus();
   if (cloud.token) {
-    if (cloud.gistId) cloudPull();
+    if (cloud.gistId) { cloudPull(); cloudStartSilent(); }
     else cloudConnect(cloud.token);
   }
+
+  // 注册 Service Worker：Android Chrome 必须靠它才把站点当成「可安装应用」，
+  // 否则「添加到主屏幕」只是普通书签，点开照样带地址栏。注册后才能真正全屏沉浸。
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () { /* 注册失败静默降级 */ });
+    });
+  }
+
   Object.keys(bank).forEach(getAudio);
 
   window.Game = {
