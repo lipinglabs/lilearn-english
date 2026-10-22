@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**172** 条（英文 166 + 中文 6）
+总条目：**174** 条（英文 168 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -8,7 +8,9 @@
 | `yes` | en | Yes! Great job! | 已存在 |
 | `star` | en | You got a star! | 已存在 |
 | `again` | en | Oops, try again. | 已存在 |
-| `win` | en | Wow! You did it! You are a math superstar! | 已存在 |
+| `win1` | en | Awesome! Level complete! | 待生成 |
+| `win2` | en | Wow! You are a superstar! | 待生成 |
+| `win3` | en | Fantastic! You did it! | 待生成 |
 | `coming` | en | Coming soon! | 已存在 |
 | `n11` | en | Eleven | 已存在 |
 | `n12` | en | Twelve | 已存在 |
@@ -168,8 +170,8 @@
 | `ws_square` | en | Where is the square? | 已存在 |
 | `fs_triangle` | en | Find the triangle | 已存在 |
 | `ws_triangle` | en | Where is the triangle? | 已存在 |
-| `fs_rectangle` | en | Find the rectangle | 待生成 |
-| `ws_rectangle` | en | Where is the rectangle? | 待生成 |
+| `fs_rectangle` | en | Find the rectangle | 已存在 |
+| `ws_rectangle` | en | Where is the rectangle? | 已存在 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

@@ -132,9 +132,22 @@
 - 题库有 4 种形状但选项栏只有 3 个槽位 → 每题抽「正确形状 + 2 个干扰形状」（RULES §二.11）。
 - 答对只出星星（无人声），答错抖动 + 温柔女声 + 重洗。
 
+
+## 二·H、英文通关夸奖：与学科无关（RULES §1.11）
+
+早期版本把通关英文写死成一句带 **math** 的夸奖。第 1 岛是数字没问题，但第 2 岛是形状、
+以后还有动物岛，再喊数学就完全不合理。现在已彻底解绑：
+
+- 固定 3 句通用语，**每次通关随机播一句、且不连续重复**：
+  `Awesome! Level complete!` / `Wow! You are a superstar!` / `Fantastic! You did it!`
+- 播放入口唯一：`playLevelComplete()`（挂在 `window.playLevelComplete`）；
+  通关流程统一为 `playRandomPraise(playLevelComplete)` —— 先中文女童音随机鼓励，再英文通用夸奖。
+- **所有岛、所有关卡共用这一套**，新增关卡不必再生成通关语音（省额度）。
+- `audit()` 增加机器校验：英文文本里出现 `math/maths/mathematics` 直接判自检失败、拒绝合成。
+
 ## 三、语音方案
 
-全部语音由**豆包语音合成大模型 2.0**生成后以 base64 内联，共 **172 条**（英文 166 + 中文 6），页面运行时不请求任何接口。文本清单与状态见 `voice/manifest.md`（由 `tools/gen_voice_doubao.py` 自动生成）。
+全部语音由**豆包语音合成大模型 2.0**生成后以 base64 内联，共 **174 条**（英文 168 + 中文 6），页面运行时不请求任何接口。文本清单与状态见 `voice/manifest.md`（由 `tools/gen_voice_doubao.py` 自动生成）。
 
 | 用途 | 音色 | 控制方式 |
 | --- | --- | --- |
@@ -170,7 +183,7 @@
 ```
 index.html                 单文件应用（地图 + 岛屿 + 关卡 + 内联语音 + 内联 3D 图，约 1.4 MB）
 RULES.md                   开发铁律
-voice/*.mp3                172 条语音源文件（豆包 2.0 生成）
+voice/*.mp3                174 条语音源文件（豆包 2.0 生成）
 assets/fruit/*.png         10 张 3D 图标（4 水果 + 奖杯 + 数字 1–5，微软 Fluent Emoji 3D，MIT）
 assets/*.png               界面预览图
 tools/gen_voice_doubao.py  批量合成 + 注入页面
@@ -216,7 +229,7 @@ Game.phase;               // idle / intro / asking / judging / done
 - 通关：彩带 90 片、🏆 显示、`praise_*` 与 `win` 均播放、进度写入 `cleared["1-1"]` 并解锁第 2 关；
 - 解锁链路：通关第 1 关后第 2 关解锁、第 2 岛仍锁；标记通关第 5 关后第 2 岛解锁；刷新页面进度保留；
 - 三个视图均无英文字母（含 `aria-label`）、无滚动溢出、控制台无报错；
-- 172 条语音全部可在浏览器解码。
+- 174 条语音全部可在浏览器解码。
 
 ## 八、已知限制
 

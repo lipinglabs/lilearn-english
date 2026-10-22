@@ -73,7 +73,10 @@ PHRASES: dict[str, tuple[str, str, int, str]] = {
     "yes": ("Yes! Great job!", "en", -6, EN_PRAISE),
     "star": ("You got a star!", "en", -6, EN_PRAISE),
     "again": ("Oops, try again.", "en", -8, EN_ASK),
-    "win": ("Wow! You did it! You are a math superstar!", "en", -6, EN_PRAISE),
+    # 英文通关夸奖：必须与学科无关（RULES §1.11）。旧句 "You are a math superstar!" 已废弃。
+    "win1": ("Awesome! Level complete!", "en", -6, EN_PRAISE),
+    "win2": ("Wow! You are a superstar!", "en", -6, EN_PRAISE),
+    "win3": ("Fantastic! You did it!", "en", -6, EN_PRAISE),
     "coming": ("Coming soon!", "en", -6, EN_ASK),
 }
 
@@ -204,7 +207,7 @@ CHUNK = 4000
 
 
 def audit() -> list[str]:
-    """去重自检（RULES §1.8）+ 复合数字拼写自检（RULES §1.10）。"""
+    """去重自检（RULES §1.8）+ 复合数字拼写（§1.10）+ 学科无关（§1.11）。"""
     problems: list[str] = []
     seen_text: dict[tuple[str, str], str] = {}
     for key, (text, lang, _rate, _ins) in PHRASES.items():
@@ -217,6 +220,11 @@ def audit() -> list[str]:
         # 英文文本禁止出现阿拉伯数字：21 会被读成 "two one"，破坏 twenty-one 的连读
         if lang == "en" and any(ch.isdigit() for ch in text):
             problems.append(f"英文文本含阿拉伯数字（须写成 Twenty-one 这类连字符单词）：{key}「{text}」")
+        # 英文文本禁止绑定具体学科：第 2 岛起不再是数学岛（RULES §1.11）
+        if lang == "en":
+            for word in ("math", "maths", "mathematics"):
+                if word in norm:
+                    problems.append(f"英文文本含限学科词「{word}」：{key}「{text}」（RULES §1.11）")
     return problems
 
 
