@@ -1,8 +1,17 @@
 # 开发调试产物
 shot-*.png
+lv1-*.png
+m1-*.png
+diag-*.png
+_*.json
+_*.err
 _check.js
 _*.html
 /test.mp3
 tools/probe.js
 tools/probe2.js
+tools/probe_level1.js
+tools/diag.js
+tools/audio_check.js
+tools/push_via_api.py
 .workbuddy/
