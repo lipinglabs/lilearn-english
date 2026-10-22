@@ -61,6 +61,12 @@ FRUITS = {
     "grape": "grapes",
 }
 
+# 第 2 关（W2）：16–20 与数量
+NUMBERS_W2 = (16, 17, 18, 19, 20)
+NUM_WORDS_W2 = {
+    16: "sixteen", 17: "seventeen", 18: "eighteen", 19: "nineteen", 20: "twenty",
+}
+
 # key -> (文本, 语种, 语速, 情绪指令)
 PHRASES: dict[str, tuple[str, str, int, str]] = {
     "intro": ("Welcome to the English adventure! Let's play!", "en", -8, EN_PRAISE),
@@ -81,6 +87,24 @@ for _n in NUMBERS:
     for _f, _plural in FRUITS.items():
         PHRASES[f"q_{_n}_{_f}"] = (f"Find {NUM_WORDS[_n]} {_plural}", "en", -10, EN_ASK)
 
+# ---- 第 2 关（W2，16–20）语音 ----
+# 题型 A：只听数字，在三个水果堆里找出对应数量 → n16..n20
+# 题型 B：听短句找水果标牌 → b_{num}_{fruit} = "Find seventeen bananas."
+# 题型 C：数字喂食机 → c_{num}_{fruit} = "Feed me twenty strawberries."
+#
+# 复用规则（去重自检的依据）：
+#   · 题型 A 的 "Sixteen." 若与第 1 关 n11..n15 同格式，新生成 n16..n20（数字不重叠，无重复文本）。
+#   · 题型 B 的 "Find seventeen bananas." 与第 1 关题型 C 的 q_17_banana 文本完全相同，
+#     因此 B 直接复用 q_* 条目（前提：q_* 已扩展到 16–20），不新增重复文本。
+#   · 题型 C 的 "Feed me ..." 是全新句型，每个 (数字, 水果) 组合各一条，共 20 条。
+for _n in NUMBERS_W2:
+    PHRASES[f"n{_n}"] = (NUM_WORDS_W2[_n].capitalize(), "en", -10, EN_ASK)
+
+for _n in NUMBERS_W2:
+    for _f, _plural in FRUITS.items():
+        PHRASES[f"q_{_n}_{_f}"] = (f"Find {NUM_WORDS_W2[_n]} {_plural}", "en", -10, EN_ASK)
+        PHRASES[f"c_{_n}_{_f}"] = (f"Feed me {NUM_WORDS_W2[_n]} {_plural}", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
@@ -94,10 +118,43 @@ for _i, _text in enumerate(PRAISES, start=1):
 
 ROOT = Path(__file__).resolve().parent.parent
 VOICE_DIR = ROOT / "voice"
+MANIFEST_PATH = VOICE_DIR / "manifest.md"
 HTML_PATH = ROOT / "index.html"
 MARK_START = "/* VOICE_BANK_START */"
 MARK_END = "/* VOICE_BANK_END */"
 CHUNK = 4000
+
+
+def audit() -> list[str]:
+    """去重自检（RULES §1.8）：返回问题列表，空列表才算通过。"""
+    problems: list[str] = []
+    seen_text: dict[tuple[str, str], str] = {}
+    for key, (text, lang, _rate, _ins) in PHRASES.items():
+        norm = " ".join(text.strip().lower().split())
+        prev = seen_text.get((lang, norm))
+        if prev:
+            problems.append(f"文本重复：{prev} 与 {key} 都是「{text}」")
+        else:
+            seen_text[(lang, norm)] = key
+    return problems
+
+
+def write_manifest() -> None:
+    """把本关全部语音文本写成清单，供人工核对（RULES §1.8）。"""
+    lines = [
+        "# 语音文本清单（自动生成，勿手改）",
+        "",
+        f"总条目：**{len(PHRASES)}** 条（英文 "
+        f"{sum(1 for v in PHRASES.values() if v[1] == 'en')} + 中文 "
+        f"{sum(1 for v in PHRASES.values() if v[1] == 'zh')}）",
+        "",
+        "| key | 语种 | 文本 | 状态 |",
+        "| --- | --- | --- | --- |",
+    ]
+    for key, (text, lang, _rate, _ins) in PHRASES.items():
+        state = "已存在" if (VOICE_DIR / f"{key}.mp3").exists() else "待生成"
+        lines.append(f"| `{key}` | {lang} | {text} | {state} |")
+    MANIFEST_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def build_payload(text: str, speaker: str, rate: int, instruction: str,
@@ -220,10 +277,30 @@ def main() -> int:
     parser.add_argument("--inject-only", action="store_true")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--only", nargs="*", help="只处理指定 key")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="只做去重自检 + 打印清单 + 统计待生成条数，不调用任何接口")
     args = parser.parse_args()
 
     VOICE_DIR.mkdir(exist_ok=True)
+
+    problems = audit()
+    write_manifest()
+    print(f"清单已写出：{MANIFEST_PATH.relative_to(ROOT)}（共 {len(PHRASES)} 条）")
+    if problems:
+        print("去重自检未通过：", file=sys.stderr)
+        for p in problems:
+            print("  · " + p, file=sys.stderr)
+        return 1
+    print("去重自检通过：无重复文本。")
+
     targets = [k for k in PHRASES if not args.only or k in args.only]
+    todo = [k for k in targets if args.force or not (VOICE_DIR / f"{k}.mp3").exists()]
+    print(f"本次待生成 {len(todo)} 条，跳过已存在 {len(targets) - len(todo)} 条。")
+
+    if args.dry_run:
+        for k in todo:
+            print(f"  · {k:<16} {PHRASES[k][1]}  {PHRASES[k][0]}")
+        return 0
 
     if not args.inject_only:
         api_key = os.environ.get("DOUBAO_API_KEY", "").strip()
@@ -232,18 +309,16 @@ def main() -> int:
             return 2
 
         zh_speaker = None
-        if any(PHRASES[k][1] == "zh" for k in targets):
+        if any(PHRASES[k][1] == "zh" for k in todo):
             zh_speaker = pick_chinese_speaker(api_key)
 
-        done = skipped = failed = 0
+        done = 0
+        failed_by_key: list[tuple[str, str]] = []
         total_bytes = 0
-        for key in targets:
+        # 单条失败立即跳过并记录，绝不重试（RULES §1.9：配额是钱）
+        for key in todo:
             text, lang, rate, instruction = PHRASES[key]
             target = VOICE_DIR / f"{key}.mp3"
-            if target.exists() and not args.force:
-                skipped += 1
-                total_bytes += target.stat().st_size
-                continue
             speaker = zh_speaker if lang == "zh" else EN_SPEAKER
             ov = OVERRIDES.get(key, {})
             try:
@@ -252,26 +327,32 @@ def main() -> int:
                                    sample_rate=ov.get("sr", 24000),
                                    bit_rate=ov.get("br"))
             except RuntimeError as exc:
-                failed += 1
+                failed_by_key.append((key, str(exc)))
                 print(f"  ✗ {key:<16} {exc}")
+                continue
+            if not audio:
+                failed_by_key.append((key, "空音频"))
+                print(f"  ✗ {key:<16} 空音频")
                 continue
             target.write_bytes(audio)
             done += 1
             total_bytes += len(audio)
             print(f"  ✓ {key:<16} {len(audio):>6} 字节  {speaker[:28]:<28} {text[:38]}")
 
-        print(f"\n新生成 {done} 条，跳过已存在 {skipped} 条，失败 {failed} 条，"
-              f"语音总量 {total_bytes} 字节")
-        if failed:
-            print("存在失败条目，未注入页面。修正后重跑会跳过已成功的条目。", file=sys.stderr)
-            return 1
+        print(f"\n新生成 {done} 条，失败 {len(failed_by_key)} 条，"
+              f"新增语音 {total_bytes} 字节")
+        if failed_by_key:
+            print("失败清单（未重试，稍后一起处理）：", file=sys.stderr)
+            for k, e in failed_by_key:
+                print(f"  · {k}：{e[:160]}", file=sys.stderr)
 
     missing = [k for k in PHRASES if not (VOICE_DIR / f"{k}.mp3").exists()]
     if missing:
-        print(f"缺少语音文件：{missing}", file=sys.stderr)
+        print(f"缺少语音文件，未注入：{missing}", file=sys.stderr)
         return 1
 
     bank = {k: (VOICE_DIR / f"{k}.mp3").read_bytes() for k in PHRASES}
+
     inject(to_js(bank))
     print(f"已注入 {len(bank)} 条语音到 index.html")
     return 0

@@ -19,7 +19,8 @@ MARK_END = "/* FRUIT_IMG_END */"
 CHUNK = 4000
 
 ORDER = ["apple", "banana", "strawberry", "grape", "trophy",
-         "digit1", "digit2", "digit3", "digit4", "digit5"]
+         "digit0", "digit1", "digit2", "digit3", "digit4",
+         "digit5", "digit6", "digit7", "digit8", "digit9"]
 
 
 def main() -> int:
