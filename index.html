@@ -440,21 +440,6 @@
 
   .ask-display { display: grid; place-items: center; max-width: 100%; max-height: 100%; }
 
-  .num-bubble {
-    display: grid;
-    place-items: center;
-    padding: clamp(6px, 1.4vh, 18px) clamp(24px, 5vw, 60px);
-    border-radius: clamp(20px, 3.6vmin, 38px);
-    background: linear-gradient(180deg, #ffffff, #fff6e6);
-    border: 2px solid rgba(255, 213, 150, .9);
-    box-shadow: 0 12px 28px rgba(196, 158, 108, .18), inset 0 -4px 0 rgba(255, 226, 176, .5);
-    font-weight: 900;
-    font-size: clamp(88px, min(32vw, 25vh), 220px);
-    line-height: 1.04;
-    color: #e08a3c;
-    animation: pop .5s cubic-bezier(.2, 1.6, .42, 1) both;
-  }
-
   .pile { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; line-height: 1.06; margin: 0 auto; }
   .pile span { flex: none; width: 1em; height: 1em; display: grid; place-items: center; }
 
@@ -500,6 +485,56 @@
   @keyframes badge-wiggle {
     0%, 100% { transform: rotate(-7deg) scale(1); }
     50% { transform: rotate(7deg) scale(1.06); }
+  }
+
+  /* 题型 B「听名词找水果」：大喇叭 + 问号泡，提示竖起耳朵听 */
+  .listen-wrap {
+    position: relative;
+    display: grid;
+    place-items: center;
+    animation: pop .5s cubic-bezier(.2, 1.6, .42, 1) both;
+  }
+
+  .listen-horn {
+    display: grid;
+    place-items: center;
+    width: clamp(110px, min(42vw, 26vh), 210px);
+    height: clamp(110px, min(42vw, 26vh), 210px);
+    border-radius: 50%;
+    background: linear-gradient(180deg, #ffffff, #fff3dd);
+    border: 3px solid rgba(255, 206, 138, .95);
+    box-shadow: 0 14px 30px rgba(196, 158, 108, .22), inset 0 -6px 0 rgba(255, 224, 172, .55);
+    animation: horn-bounce 1.5s ease-in-out infinite;
+  }
+
+  .listen-horn svg {
+    width: 56%;
+    height: 56%;
+    color: #f0a63c;
+    filter: drop-shadow(0 4px 8px rgba(196, 140, 60, .3));
+  }
+
+  .listen-bubble {
+    position: absolute;
+    top: -2%;
+    right: 6%;
+    display: grid;
+    place-items: center;
+    width: clamp(34px, 9vw, 56px);
+    height: clamp(34px, 9vw, 56px);
+    border-radius: 50%;
+    background: #ff9d6b;
+    border: 2.5px solid #fff;
+    box-shadow: 0 6px 14px rgba(220, 120, 80, .35);
+    color: #fff;
+    font-weight: 900;
+    font-size: clamp(20px, 5.4vw, 34px);
+    animation: badge-wiggle 2.2s ease-in-out infinite;
+  }
+
+  @keyframes horn-bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
   }
 
   @keyframes pop {
@@ -550,13 +585,6 @@
     height: 100%;
     font-size: clamp(32px, min(14vw, 10vh), 68px);
     line-height: 1;
-  }
-
-  .option.num-opt .slot {
-    font-weight: 900;
-    color: #6f8fa6;
-    font-size: clamp(34px, 14vh, 78px);
-    font-size: 40cqw;
   }
 
   /* 方案B：果堆 + 巨大数字标签 */
@@ -1891,8 +1919,28 @@ window.VOICE_BANK = {
   function renderDisplay(q) {
     askDisplay.innerHTML = '';
 
-    if (q.type === 'A' || q.type === 'B') {
+    // 三种题型显示区各不相同，防止看屏幕就知道答案：
+    //   A 听数字找实物 → 果堆（数量即线索，语音报数字）
+    //   B 听名词找水果 → 只给大喇叭"仔细听"提示，答案完全靠语音（f_xxx），
+    //     屏幕绝不出示任何水果，否则孩子直接看图配对，听力练习失效
+    //   C 听指令找果堆 → 单个大水果 + 放大镜，答案靠语音（q_xxx_fruit）
+    if (q.type === 'A') {
       askDisplay.appendChild(pileNode(q.fruit, q.num, 'display'));
+      return;
+    }
+
+    if (q.type === 'B') {
+      var listen = document.createElement('div');
+      listen.className = 'listen-wrap';
+      var horn = document.createElement('div');
+      horn.className = 'listen-horn';
+      horn.appendChild(svgIcon('speaker'));
+      var bubble = document.createElement('span');
+      bubble.className = 'listen-bubble';
+      bubble.textContent = '?';
+      listen.appendChild(horn);
+      listen.appendChild(bubble);
+      askDisplay.appendChild(listen);
       return;
     }
 
