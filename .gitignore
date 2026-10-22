@@ -15,3 +15,10 @@ tools/diag.js
 tools/audio_check.js
 tools/push_via_api.py
 .workbuddy/
+tools/doubao_tts_test.py
+fw-*.png
+mfw-*.png
+mob-*.png
+tools/probe_framework.js
+tools/shot_types.js
+tools/diag_fruit.js
