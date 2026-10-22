@@ -22,3 +22,9 @@ mob-*.png
 tools/probe_framework.js
 tools/shot_types.js
 tools/diag_fruit.js
+tools/sample_praise.py
+tools/measure_emotion.js
+tools/doubao_probe.py
+tools/sample_praise2.py
+_p_*.mp3
+_probe.mp3

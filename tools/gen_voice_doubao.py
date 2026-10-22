@@ -40,7 +40,17 @@ ZH_CANDIDATES = [
 EN_ASK = "用温柔、清晰、鼓励的语气朗读，像在教小朋友说英语。"
 EN_PRAISE = "用非常开心、兴奋、夸张的语气朗读，像在夸奖一个三岁的小朋友。"
 
-ZH_PRAISE = "用活泼、可爱、亲切的语气朗读，像小女孩在夸奖好朋友。"
+ZH_PRAISE = (
+    "用非常开心、惊喜的语气说这句话，像妈妈看到孩子闯关成功时脱口而出的夸奖。"
+    "要带笑意，语速自然偏快，句尾明显上扬，音量比平时大一点，真实口语，不要播音腔。"
+)
+
+# 中文鼓励（= 试听样本 A 的配置）：儿童绘本 2.0 + 音调 +3 + 48kHz/160kbps
+PRAISE_PITCH = 3
+PRAISE_SR = 48000
+PRAISE_BR = 160000
+OVERRIDES = {f"praise_{i}": {"pitch": PRAISE_PITCH, "sr": PRAISE_SR, "br": PRAISE_BR}
+             for i in range(1, 7)}
 
 NUMBERS = (11, 12, 13, 14, 15)
 NUM_WORDS = {11: "eleven", 12: "twelve", 13: "thirteen", 14: "fourteen", 15: "fifteen"}
@@ -90,19 +100,30 @@ MARK_END = "/* VOICE_BANK_END */"
 CHUNK = 4000
 
 
-def build_payload(text: str, speaker: str, rate: int, instruction: str) -> dict:
-    return {
-        "user": {"uid": "lilearn-english"},
-        "req_params": {
-            "text": text,
-            "speaker": speaker,
-            "audio_params": {"format": "mp3", "sample_rate": 24000, "speech_rate": rate},
-            "additions": json.dumps(
-                {"disable_markdown_filter": True}, ensure_ascii=False
-            ),
-            "context_texts": [instruction],
-        },
+def build_payload(text: str, speaker: str, rate: int, instruction: str,
+                  pitch: int = 0, sample_rate: int = 24000,
+                  bit_rate: int | None = None) -> dict:
+    """注意：context_texts 必须放进 additions 的 JSON 字符串里。
+
+    实测放在 req_params 顶层会被服务端静默忽略（时长与无指令完全一致），
+    放进 additions 后才真正生效（+30% 时长差异）。见 RULES.md。
+    """
+    additions: dict = {"disable_markdown_filter": True}
+    if instruction:
+        additions["context_texts"] = [instruction]
+
+    req: dict = {
+        "text": text,
+        "speaker": speaker,
+        "audio_params": {"format": "mp3", "sample_rate": sample_rate, "speech_rate": rate},
+        "additions": json.dumps(additions, ensure_ascii=False),
     }
+    if bit_rate:
+        req["audio_params"]["bit_rate"] = bit_rate
+    if pitch:
+        req["post_process"] = {"pitch": pitch}
+
+    return {"user": {"uid": "lilearn-english"}, "req_params": req}
 
 
 def parse_frames(raw_text: str) -> bytes:
@@ -126,9 +147,12 @@ def parse_frames(raw_text: str) -> bytes:
     return bytes(audio)
 
 
-def synthesize(api_key: str, text: str, speaker: str, rate: int, instruction: str) -> bytes:
+def synthesize(api_key: str, text: str, speaker: str, rate: int, instruction: str,
+               pitch: int = 0, sample_rate: int = 24000,
+               bit_rate: int | None = None) -> bytes:
     body = json.dumps(
-        build_payload(text, speaker, rate, instruction), ensure_ascii=False
+        build_payload(text, speaker, rate, instruction, pitch, sample_rate, bit_rate),
+        ensure_ascii=False,
     ).encode("utf-8")
     request = urllib.request.Request(
         ENDPOINT,
@@ -221,8 +245,12 @@ def main() -> int:
                 total_bytes += target.stat().st_size
                 continue
             speaker = zh_speaker if lang == "zh" else EN_SPEAKER
+            ov = OVERRIDES.get(key, {})
             try:
-                audio = synthesize(api_key, text, speaker, rate, instruction)
+                audio = synthesize(api_key, text, speaker, rate, instruction,
+                                   pitch=ov.get("pitch", 0),
+                                   sample_rate=ov.get("sr", 24000),
+                                   bit_rate=ov.get("br"))
             except RuntimeError as exc:
                 failed += 1
                 print(f"  ✗ {key:<16} {exc}")
