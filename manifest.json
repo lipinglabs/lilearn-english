@@ -1,0 +1,15 @@
+{
+  "name": "李旻泽的英语冒险",
+  "short_name": "英语冒险",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#87CEEB",
+  "theme_color": "#87CEEB",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

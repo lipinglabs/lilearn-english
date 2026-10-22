@@ -28,3 +28,8 @@ tools/doubao_probe.py
 tools/sample_praise2.py
 _p_*.mp3
 _probe.mp3
+_portrait.jpg
+_cutout.png
+_zoom*.png
+_sizes.png
+tools/check_pwa.js
