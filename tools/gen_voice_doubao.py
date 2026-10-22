@@ -174,6 +174,15 @@ for _item, _noun in (("car", "car"), ("balloon", "balloon")):
     for _c, _word in COLOR_WORDS.items():
         PHRASES[f"mk_{_item}_{_c}"] = (f"Make the {_noun} {_word}", "en", -10, EN_ASK)
 
+# ---- 第 2 岛第 1 关（L2-W1，基础形状）语音 ----
+# 题型 A/C：听指令找形状 → "Find the circle."
+# 题型 B：生活物品联想 → "Where is the triangle?"
+# 只 6 条：3 个形状 × 2 个句型，覆盖全部 12 轮。
+W1S_SHAPES = ("circle", "square", "triangle", "rectangle")
+for _s in W1S_SHAPES:
+    PHRASES[f"fs_{_s}"] = (f"Find the {_s}", "en", -10, EN_ASK)
+    PHRASES[f"ws_{_s}"] = (f"Where is the {_s}?", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**164** 条（英文 158 + 中文 6）
+总条目：**172** 条（英文 166 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -121,39 +121,39 @@
 | `fb_yellow` | en | Find the yellow apple | 已存在 |
 | `col_green` | en | Green | 已存在 |
 | `fb_green` | en | Find the green apple | 已存在 |
-| `c_12_apple` | en | Feed me twelve apples | 待生成 |
-| `c_12_banana` | en | Feed me twelve bananas | 待生成 |
-| `c_12_strawberry` | en | Feed me twelve strawberries | 待生成 |
-| `c_12_grape` | en | Feed me twelve grapes | 待生成 |
-| `c_22_apple` | en | Feed me twenty-two apples | 待生成 |
-| `c_22_banana` | en | Feed me twenty-two bananas | 待生成 |
-| `c_22_strawberry` | en | Feed me twenty-two strawberries | 待生成 |
-| `c_22_grape` | en | Feed me twenty-two grapes | 待生成 |
-| `c_28_apple` | en | Feed me twenty-eight apples | 待生成 |
-| `c_28_banana` | en | Feed me twenty-eight bananas | 待生成 |
-| `c_28_strawberry` | en | Feed me twenty-eight strawberries | 待生成 |
-| `c_28_grape` | en | Feed me twenty-eight grapes | 待生成 |
-| `pb_red_apple` | en | Put the red apple in the red basket | 待生成 |
-| `pb_red_strawberry` | en | Put the red strawberry in the red basket | 待生成 |
-| `pb_red_grape` | en | Put the red grape in the red basket | 待生成 |
-| `pb_blue_apple` | en | Put the blue apple in the blue basket | 待生成 |
-| `pb_blue_strawberry` | en | Put the blue strawberry in the blue basket | 待生成 |
-| `pb_blue_grape` | en | Put the blue grape in the blue basket | 待生成 |
-| `pb_yellow_apple` | en | Put the yellow apple in the yellow basket | 待生成 |
-| `pb_yellow_strawberry` | en | Put the yellow strawberry in the yellow basket | 待生成 |
-| `pb_yellow_grape` | en | Put the yellow grape in the yellow basket | 待生成 |
-| `fc_2_red` | en | Find two red apples | 待生成 |
-| `fc_2_blue` | en | Find two blue apples | 待生成 |
-| `fc_2_yellow` | en | Find two yellow apples | 待生成 |
-| `fc_3_red` | en | Find three red apples | 待生成 |
-| `fc_3_blue` | en | Find three blue apples | 待生成 |
-| `fc_3_yellow` | en | Find three yellow apples | 待生成 |
-| `fc_4_red` | en | Find four red apples | 待生成 |
-| `fc_4_blue` | en | Find four blue apples | 待生成 |
-| `fc_4_yellow` | en | Find four yellow apples | 待生成 |
-| `fc_5_red` | en | Find five red apples | 待生成 |
-| `fc_5_blue` | en | Find five blue apples | 待生成 |
-| `fc_5_yellow` | en | Find five yellow apples | 待生成 |
+| `c_12_apple` | en | Feed me twelve apples | 已存在 |
+| `c_12_banana` | en | Feed me twelve bananas | 已存在 |
+| `c_12_strawberry` | en | Feed me twelve strawberries | 已存在 |
+| `c_12_grape` | en | Feed me twelve grapes | 已存在 |
+| `c_22_apple` | en | Feed me twenty-two apples | 已存在 |
+| `c_22_banana` | en | Feed me twenty-two bananas | 已存在 |
+| `c_22_strawberry` | en | Feed me twenty-two strawberries | 已存在 |
+| `c_22_grape` | en | Feed me twenty-two grapes | 已存在 |
+| `c_28_apple` | en | Feed me twenty-eight apples | 已存在 |
+| `c_28_banana` | en | Feed me twenty-eight bananas | 已存在 |
+| `c_28_strawberry` | en | Feed me twenty-eight strawberries | 已存在 |
+| `c_28_grape` | en | Feed me twenty-eight grapes | 已存在 |
+| `pb_red_apple` | en | Put the red apple in the red basket | 已存在 |
+| `pb_red_strawberry` | en | Put the red strawberry in the red basket | 已存在 |
+| `pb_red_grape` | en | Put the red grape in the red basket | 已存在 |
+| `pb_blue_apple` | en | Put the blue apple in the blue basket | 已存在 |
+| `pb_blue_strawberry` | en | Put the blue strawberry in the blue basket | 已存在 |
+| `pb_blue_grape` | en | Put the blue grape in the blue basket | 已存在 |
+| `pb_yellow_apple` | en | Put the yellow apple in the yellow basket | 已存在 |
+| `pb_yellow_strawberry` | en | Put the yellow strawberry in the yellow basket | 已存在 |
+| `pb_yellow_grape` | en | Put the yellow grape in the yellow basket | 已存在 |
+| `fc_2_red` | en | Find two red apples | 已存在 |
+| `fc_2_blue` | en | Find two blue apples | 已存在 |
+| `fc_2_yellow` | en | Find two yellow apples | 已存在 |
+| `fc_3_red` | en | Find three red apples | 已存在 |
+| `fc_3_blue` | en | Find three blue apples | 已存在 |
+| `fc_3_yellow` | en | Find three yellow apples | 已存在 |
+| `fc_4_red` | en | Find four red apples | 已存在 |
+| `fc_4_blue` | en | Find four blue apples | 已存在 |
+| `fc_4_yellow` | en | Find four yellow apples | 已存在 |
+| `fc_5_red` | en | Find five red apples | 已存在 |
+| `fc_5_blue` | en | Find five blue apples | 已存在 |
+| `fc_5_yellow` | en | Find five yellow apples | 已存在 |
 | `mk_car_red` | en | Make the car red | 已存在 |
 | `mk_car_blue` | en | Make the car blue | 已存在 |
 | `mk_car_yellow` | en | Make the car yellow | 已存在 |
@@ -162,6 +162,14 @@
 | `mk_balloon_blue` | en | Make the balloon blue | 已存在 |
 | `mk_balloon_yellow` | en | Make the balloon yellow | 已存在 |
 | `mk_balloon_green` | en | Make the balloon green | 已存在 |
+| `fs_circle` | en | Find the circle | 已存在 |
+| `ws_circle` | en | Where is the circle? | 已存在 |
+| `fs_square` | en | Find the square | 已存在 |
+| `ws_square` | en | Where is the square? | 已存在 |
+| `fs_triangle` | en | Find the triangle | 已存在 |
+| `ws_triangle` | en | Where is the triangle? | 已存在 |
+| `fs_rectangle` | en | Find the rectangle | 待生成 |
+| `ws_rectangle` | en | Where is the rectangle? | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
