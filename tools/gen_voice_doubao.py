@@ -260,6 +260,33 @@ add("cb_tri_in", "The triangle is in the square.", "en", -10, EN_ASK)
 add("cb_circle_in", "The circle is in the square.", "en", -10, EN_ASK)
 add("cb_circle_on", "The circle is on the square.", "en", -10, EN_ASK)
 
+# ---- 第 2 岛第 5 关（L2-W5，形状与空间终极考验）语音 ----
+# 本关是综合关：教学复习 4 个形状 + 4 个方位，答题把形状与空间组合。
+# 复用策略（RULES §1.8 去重自检的依据）：
+#   · 方位单词 in / on → 复用 t_in / t_on；under / behind → 复用 u_under / u_behind
+#   · 整句 "The ball is in the box." / "on the box" → 复用 s_in / s_on
+#   · 题型 B 三句（圆苹果 / 三角披萨 / 长方书 放进正方形）→ 复用 cb_apple_in / cb_pizza_in / cb_book_in
+#   · 题型 A 的 in / on 陈述 → 复用 cb_star_in_circle / cb_star_on_circle
+#   · 题型 C 的三角 & 圆形陈述 → 复用 cb_tri_on / cb_tri_in / cb_circle_in / cb_circle_on
+#   · 教学过渡 → 复用 t_ready
+# 因此真正新增只有 15 条（形状名称 4 + 触摸提问 2 + 开场 1 + 方位整句/提问 4 +
+#   星星在圈后 1 + 长方形两句 2 + "Where is the star?" 1）。
+add("p5_tut_intro", "Let's look at the shapes.", "en", -10, EN_ASK)
+add("p5_circle", "This is a circle.", "en", -12, EN_ASK)
+add("p5_square", "This is a square.", "en", -12, EN_ASK)
+add("p5_triangle", "This is a triangle.", "en", -12, EN_ASK)
+add("p5_rectangle", "This is a rectangle.", "en", -12, EN_ASK)
+add("p5_touch_triangle", "Can you touch the triangle?", "en", -10, EN_ASK)
+add("p5_touch_rectangle", "Can you touch the rectangle?", "en", -10, EN_ASK)
+add("p5_where_star", "Where is the star?", "en", -10, EN_ASK)
+add("p5_star_behind_circle", "The star is behind the circle.", "en", -10, EN_ASK)
+add("p5_under_ball", "The ball is under the table.", "en", -10, EN_ASK)
+add("p5_behind_ball", "The ball is behind the table.", "en", -10, EN_ASK)
+add("p5_ask_under", "Can you put the ball under the table?", "en", -10, EN_ASK)
+add("p5_ask_behind", "Can you put the ball behind the table?", "en", -10, EN_ASK)
+add("p5_rect_behind", "The rectangle is behind the square.", "en", -10, EN_ASK)
+add("p5_rect_on", "The rectangle is on the square.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
