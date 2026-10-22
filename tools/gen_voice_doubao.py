@@ -186,6 +186,27 @@ for _s in W1S_SHAPES:
     PHRASES[f"fs_{_s}"] = (f"Find the {_s}", "en", -10, EN_ASK)
     PHRASES[f"ws_{_s}"] = (f"Where is the {_s}?", "en", -10, EN_ASK)
 
+# ---- 第 2 岛第 2 关（L2-W2，空间方位 in / on）语音 ----
+# 教学三步：先给单词、再给整句、再提问；答题复用同一批整句，避免重复文本。
+# 单词首次出现放慢（-12），整句与提问用常规 -10，感叹句用 -8。
+PHRASES["t_in"] = ("Listen. In.", "en", -12, EN_ASK)
+PHRASES["t_on"] = ("Listen. On.", "en", -12, EN_ASK)
+PHRASES["s_in"] = ("The ball is in the box.", "en", -10, EN_ASK)
+PHRASES["s_on"] = ("The ball is on the box.", "en", -10, EN_ASK)
+PHRASES["s_beside"] = ("The ball is next to the box.", "en", -10, EN_ASK)
+PHRASES["t_in_ask"] = ("Can you put the ball in the box?", "en", -10, EN_ASK)
+PHRASES["t_on_ask"] = ("Can you put the ball on the box?", "en", -10, EN_ASK)
+PHRASES["t_show_in"] = ("Show me in.", "en", -10, EN_ASK)
+PHRASES["t_show_on"] = ("Show me on.", "en", -10, EN_ASK)
+PHRASES["t_ready"] = ("You are ready! Let's play!", "en", -8, EN_PRAISE)
+PHRASES["p_where"] = ("Where is the ball?", "en", -10, EN_ASK)
+PHRASES["s_cat_on"] = ("The cat is on the plate.", "en", -10, EN_ASK)
+PHRASES["s_cat_in"] = ("The cat is in the box.", "en", -10, EN_ASK)
+PHRASES["pt_apple"] = ("Put the apple on the table.", "en", -10, EN_ASK)
+PHRASES["pt_book"] = ("Put the book on the table.", "en", -10, EN_ASK)
+PHRASES["pt_cup"] = ("Put the cup on the table.", "en", -10, EN_ASK)
+PHRASES["yesno"] = ("Yes or No?", "en", -8, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

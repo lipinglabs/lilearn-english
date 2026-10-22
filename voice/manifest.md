@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**174** 条（英文 168 + 中文 6）
+总条目：**191** 条（英文 185 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -8,9 +8,9 @@
 | `yes` | en | Yes! Great job! | 已存在 |
 | `star` | en | You got a star! | 已存在 |
 | `again` | en | Oops, try again. | 已存在 |
-| `win1` | en | Awesome! Level complete! | 待生成 |
-| `win2` | en | Wow! You are a superstar! | 待生成 |
-| `win3` | en | Fantastic! You did it! | 待生成 |
+| `win1` | en | Awesome! Level complete! | 已存在 |
+| `win2` | en | Wow! You are a superstar! | 已存在 |
+| `win3` | en | Fantastic! You did it! | 已存在 |
 | `coming` | en | Coming soon! | 已存在 |
 | `n11` | en | Eleven | 已存在 |
 | `n12` | en | Twelve | 已存在 |
@@ -172,6 +172,23 @@
 | `ws_triangle` | en | Where is the triangle? | 已存在 |
 | `fs_rectangle` | en | Find the rectangle | 已存在 |
 | `ws_rectangle` | en | Where is the rectangle? | 已存在 |
+| `t_in` | en | Listen. In. | 待生成 |
+| `t_on` | en | Listen. On. | 待生成 |
+| `s_in` | en | The ball is in the box. | 待生成 |
+| `s_on` | en | The ball is on the box. | 待生成 |
+| `s_beside` | en | The ball is next to the box. | 待生成 |
+| `t_in_ask` | en | Can you put the ball in the box? | 待生成 |
+| `t_on_ask` | en | Can you put the ball on the box? | 待生成 |
+| `t_show_in` | en | Show me in. | 待生成 |
+| `t_show_on` | en | Show me on. | 待生成 |
+| `t_ready` | en | You are ready! Let's play! | 待生成 |
+| `p_where` | en | Where is the ball? | 待生成 |
+| `s_cat_on` | en | The cat is on the plate. | 待生成 |
+| `s_cat_in` | en | The cat is in the box. | 待生成 |
+| `pt_apple` | en | Put the apple on the table. | 待生成 |
+| `pt_book` | en | Put the book on the table. | 待生成 |
+| `pt_cup` | en | Put the cup on the table. | 待生成 |
+| `yesno` | en | Yes or No? | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
