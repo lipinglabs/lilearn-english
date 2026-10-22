@@ -33,3 +33,13 @@ _cutout.png
 _zoom*.png
 _sizes.png
 tools/check_pwa.js
+tools/probe_bank.js
+tools/probe_reshuffle.js
+_*.log
+bank-*.png
+m2-*.png
+m-*.png
+d-*.png
+fd-*.png
+fm-*.png
+live-*.png

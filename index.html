@@ -1956,7 +1956,14 @@ window.VOICE_BANK = {
   function reshuffleOptions(q) {
     if (!q || !q.options) return;
     var correctOpt = q.options[q.correct];
-    shuffle(q.options);
+    var before = q.options.slice();
+    // 3 个选项有 1/6 概率洗回原序，孩子看到的位置没变；
+    // 这里强制“必须换一个排列”，最多重试 8 次。
+    for (var attempt = 0; attempt < 8; attempt++) {
+      shuffle(q.options);
+      var same = q.options.every(function (o, i) { return o === before[i]; });
+      if (!same) break;
+    }
     q.correct = q.options.indexOf(correctOpt);
   }
 
