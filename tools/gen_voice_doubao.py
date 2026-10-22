@@ -105,6 +105,34 @@ for _n in NUMBERS_W2:
         PHRASES[f"q_{_n}_{_f}"] = (f"Find {NUM_WORDS_W2[_n]} {_plural}", "en", -10, EN_ASK)
         PHRASES[f"c_{_n}_{_f}"] = (f"Feed me {NUM_WORDS_W2[_n]} {_plural}", "en", -10, EN_ASK)
 
+# ---- 第 3 关（W3，21–29 与短句组合）语音 ----
+# 铁律（RULES §1.10）：21–29 一律写成 Twenty-one … Twenty-nine，
+# 文本里绝不允许出现阿拉伯数字，否则 TTS 读成 "two one"，连读节奏就毁了。
+#
+# 题型 A（听数字点数字底板）：n21..n29 = "Twenty-one" … "Twenty-nine"（9 条）
+# 题型 B（听短句找组合图）：q_2..q_5 × 4 水果 = "Find two apples."（16 条）
+#     —— 与第 1 关的 q_11..q_20 共用同一句型模板，文本不重复、可单独复用
+# 题型 C（数数大挑战）：howmany_{fruit} = "How many oranges?"（4 条）
+#     + 复用 n21..n29 读答案，拼成 "How many oranges?" → "Twenty-five."
+#     —— 两段拼接而不是 36 条整句，省 32 条额度，且连读效果与独立数字完全一致
+NUM_WORDS_W3 = {
+    21: "twenty-one", 22: "twenty-two", 23: "twenty-three",
+    24: "twenty-four", 25: "twenty-five", 26: "twenty-six",
+    27: "twenty-seven", 28: "twenty-eight", 29: "twenty-nine",
+}
+SMALL_COUNTS = (2, 3, 4, 5)
+SMALL_WORDS = {2: "two", 3: "three", 4: "four", 5: "five"}
+
+for _n, _word in NUM_WORDS_W3.items():
+    PHRASES[f"n{_n}"] = (_word.capitalize(), "en", -10, EN_ASK)
+
+for _c in SMALL_COUNTS:
+    for _f, _plural in FRUITS.items():
+        PHRASES[f"q_{_c}_{_f}"] = (f"Find {SMALL_WORDS[_c]} {_plural}", "en", -10, EN_ASK)
+
+for _f, _plural in FRUITS.items():
+    PHRASES[f"howmany_{_f}"] = (f"How many {_plural}?", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
@@ -126,7 +154,7 @@ CHUNK = 4000
 
 
 def audit() -> list[str]:
-    """去重自检（RULES §1.8）：返回问题列表，空列表才算通过。"""
+    """去重自检（RULES §1.8）+ 复合数字拼写自检（RULES §1.10）。"""
     problems: list[str] = []
     seen_text: dict[tuple[str, str], str] = {}
     for key, (text, lang, _rate, _ins) in PHRASES.items():
@@ -136,6 +164,9 @@ def audit() -> list[str]:
             problems.append(f"文本重复：{prev} 与 {key} 都是「{text}」")
         else:
             seen_text[(lang, norm)] = key
+        # 英文文本禁止出现阿拉伯数字：21 会被读成 "two one"，破坏 twenty-one 的连读
+        if lang == "en" and any(ch.isdigit() for ch in text):
+            problems.append(f"英文文本含阿拉伯数字（须写成 Twenty-one 这类连字符单词）：{key}「{text}」")
     return problems
 
 
