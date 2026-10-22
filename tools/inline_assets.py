@@ -22,6 +22,25 @@ ORDER = ["apple", "banana", "strawberry", "grape", "trophy",
          "digit0", "digit1", "digit2", "digit3", "digit4",
          "digit5", "digit6", "digit7", "digit8", "digit9"]
 
+# 第 4 关（颜色）染色素材：apple/balloon/car × 4 色（+ 灰）
+COLOR_ORDER = [f"{item}_{c}" for item in ("apple", "balloon", "car")
+               for c in ("red", "blue", "yellow", "green")]
+COLOR_ORDER += ["balloon_gray", "car_gray"]
+
+
+def emit(lines: list[str], bank: str, mapping: dict[str, Path], total_box: list[int]) -> None:
+    lines.append(f"window.{bank} = {{")
+    for key, path in mapping.items():
+        data = path.read_bytes()
+        total_box[0] += len(data)
+        uri = "data:image/png;base64," + base64.b64encode(data).decode("ascii")
+        parts = [uri[i:i + CHUNK] for i in range(0, len(uri), CHUNK)]
+        body = "".join(f'    "{p}" +\n' for p in parts[:-1]) + f'    "{parts[-1]}"'
+        lines.append(f"  {key}:")
+        lines.append(body + ",")
+        print(f"  {key:<16} {len(data):>6} 字节")
+    lines.append("};")
+
 
 def main() -> int:
     files = {p.stem: p for p in FRUIT_DIR.glob("*.png")}
@@ -30,20 +49,20 @@ def main() -> int:
         print(f"缺少水果图：{missing}", file=sys.stderr)
         return 1
 
-    lines = [MARK_START, "window.FRUIT_IMG = {"]
-    total = 0
-    for key in ORDER:
-        data = files[key].read_bytes()
-        total += len(data)
-        uri = "data:image/png;base64," + base64.b64encode(data).decode("ascii")
-        parts = [uri[i:i + CHUNK] for i in range(0, len(uri), CHUNK)]
-        body = "".join(f'    "{p}" +\n' for p in parts[:-1]) + f'    "{parts[-1]}"'
-        lines.append(f"  {key}:")
-        lines.append(body + ",")
-        print(f"  {key:<12} {len(data):>6} 字节")
-    lines.append("};")
+    color_dir = ROOT / "assets" / "color"
+    color_files = {p.stem: p for p in color_dir.glob("*.png")}
+    missing_c = [k for k in COLOR_ORDER if k not in color_files]
+    if missing_c:
+        print(f"缺少颜色图：{missing_c}（先跑 tools/make_colors.py）", file=sys.stderr)
+        return 1
+
+    lines = [MARK_START]
+    total_box = [0]
+    emit(lines, "FRUIT_IMG", {k: files[k] for k in ORDER}, total_box)
+    emit(lines, "COLOR_IMG", {k: color_files[k] for k in COLOR_ORDER}, total_box)
     lines.append(MARK_END)
     snippet = "\n".join(lines)
+    total = total_box[0]
 
     html = HTML_PATH.read_text(encoding="utf-8")
     if MARK_START not in html or MARK_END not in html:

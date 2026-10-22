@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**115** 条（英文 109 + 中文 6）
+总条目：**131** 条（英文 125 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -84,35 +84,51 @@
 | `c_20_strawberry` | en | Feed me twenty strawberries | 已存在 |
 | `q_20_grape` | en | Find twenty grapes | 已存在 |
 | `c_20_grape` | en | Feed me twenty grapes | 已存在 |
-| `n21` | en | Twenty-one | 待生成 |
-| `n22` | en | Twenty-two | 待生成 |
-| `n23` | en | Twenty-three | 待生成 |
-| `n24` | en | Twenty-four | 待生成 |
-| `n25` | en | Twenty-five | 待生成 |
-| `n26` | en | Twenty-six | 待生成 |
-| `n27` | en | Twenty-seven | 待生成 |
-| `n28` | en | Twenty-eight | 待生成 |
-| `n29` | en | Twenty-nine | 待生成 |
-| `q_2_apple` | en | Find two apples | 待生成 |
-| `q_2_banana` | en | Find two bananas | 待生成 |
-| `q_2_strawberry` | en | Find two strawberries | 待生成 |
-| `q_2_grape` | en | Find two grapes | 待生成 |
-| `q_3_apple` | en | Find three apples | 待生成 |
-| `q_3_banana` | en | Find three bananas | 待生成 |
-| `q_3_strawberry` | en | Find three strawberries | 待生成 |
-| `q_3_grape` | en | Find three grapes | 待生成 |
-| `q_4_apple` | en | Find four apples | 待生成 |
-| `q_4_banana` | en | Find four bananas | 待生成 |
-| `q_4_strawberry` | en | Find four strawberries | 待生成 |
-| `q_4_grape` | en | Find four grapes | 待生成 |
-| `q_5_apple` | en | Find five apples | 待生成 |
-| `q_5_banana` | en | Find five bananas | 待生成 |
-| `q_5_strawberry` | en | Find five strawberries | 待生成 |
-| `q_5_grape` | en | Find five grapes | 待生成 |
-| `howmany_apple` | en | How many apples? | 待生成 |
-| `howmany_banana` | en | How many bananas? | 待生成 |
-| `howmany_strawberry` | en | How many strawberries? | 待生成 |
-| `howmany_grape` | en | How many grapes? | 待生成 |
+| `n21` | en | Twenty-one | 已存在 |
+| `n22` | en | Twenty-two | 已存在 |
+| `n23` | en | Twenty-three | 已存在 |
+| `n24` | en | Twenty-four | 已存在 |
+| `n25` | en | Twenty-five | 已存在 |
+| `n26` | en | Twenty-six | 已存在 |
+| `n27` | en | Twenty-seven | 已存在 |
+| `n28` | en | Twenty-eight | 已存在 |
+| `n29` | en | Twenty-nine | 已存在 |
+| `q_2_apple` | en | Find two apples | 已存在 |
+| `q_2_banana` | en | Find two bananas | 已存在 |
+| `q_2_strawberry` | en | Find two strawberries | 已存在 |
+| `q_2_grape` | en | Find two grapes | 已存在 |
+| `q_3_apple` | en | Find three apples | 已存在 |
+| `q_3_banana` | en | Find three bananas | 已存在 |
+| `q_3_strawberry` | en | Find three strawberries | 已存在 |
+| `q_3_grape` | en | Find three grapes | 已存在 |
+| `q_4_apple` | en | Find four apples | 已存在 |
+| `q_4_banana` | en | Find four bananas | 已存在 |
+| `q_4_strawberry` | en | Find four strawberries | 已存在 |
+| `q_4_grape` | en | Find four grapes | 已存在 |
+| `q_5_apple` | en | Find five apples | 已存在 |
+| `q_5_banana` | en | Find five bananas | 已存在 |
+| `q_5_strawberry` | en | Find five strawberries | 已存在 |
+| `q_5_grape` | en | Find five grapes | 已存在 |
+| `howmany_apple` | en | How many apples? | 已存在 |
+| `howmany_banana` | en | How many bananas? | 已存在 |
+| `howmany_strawberry` | en | How many strawberries? | 已存在 |
+| `howmany_grape` | en | How many grapes? | 已存在 |
+| `col_red` | en | Red | 待生成 |
+| `fb_red` | en | Find the red apple | 待生成 |
+| `col_blue` | en | Blue | 待生成 |
+| `fb_blue` | en | Find the blue apple | 待生成 |
+| `col_yellow` | en | Yellow | 待生成 |
+| `fb_yellow` | en | Find the yellow apple | 待生成 |
+| `col_green` | en | Green | 待生成 |
+| `fb_green` | en | Find the green apple | 待生成 |
+| `mk_car_red` | en | Make the car red | 待生成 |
+| `mk_car_blue` | en | Make the car blue | 待生成 |
+| `mk_car_yellow` | en | Make the car yellow | 待生成 |
+| `mk_car_green` | en | Make the car green | 待生成 |
+| `mk_balloon_red` | en | Make the balloon red | 待生成 |
+| `mk_balloon_blue` | en | Make the balloon blue | 待生成 |
+| `mk_balloon_yellow` | en | Make the balloon yellow | 待生成 |
+| `mk_balloon_green` | en | Make the balloon green | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

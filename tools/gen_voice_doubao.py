@@ -133,6 +133,21 @@ for _c in SMALL_COUNTS:
 for _f, _plural in FRUITS.items():
     PHRASES[f"howmany_{_f}"] = (f"How many {_plural}?", "en", -10, EN_ASK)
 
+# ---- 第 4 关（W4，颜色初体验）语音 ----
+# 题型 A：只听颜色名 → col_red / col_blue / col_yellow / col_green（4 条）
+# 题型 B："Find the red apple." → fb_{color}（4 条，本题固定为苹果，靠颜色区分）
+# 题型 C："Make the car red." → mk_{item}_{color}（汽车/气球 × 4 色 = 8 条）
+# 合计 16 条。颜色词全部是单词，无阿拉伯数字（RULES §1.10 自动校验也覆盖本段）。
+COLOR_WORDS = {"red": "red", "blue": "blue", "yellow": "yellow", "green": "green"}
+
+for _c, _word in COLOR_WORDS.items():
+    PHRASES[f"col_{_c}"] = (_word.capitalize(), "en", -10, EN_ASK)
+    PHRASES[f"fb_{_c}"] = (f"Find the {_word} apple", "en", -10, EN_ASK)
+
+for _item, _noun in (("car", "car"), ("balloon", "balloon")):
+    for _c, _word in COLOR_WORDS.items():
+        PHRASES[f"mk_{_item}_{_c}"] = (f"Make the {_noun} {_word}", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
