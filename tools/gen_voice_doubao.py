@@ -80,6 +80,18 @@ PHRASES: dict[str, tuple[str, str, int, str]] = {
     "coming": ("Coming soon!", "en", -6, EN_ASK),
 }
 
+def add(key: str, text: str, lang: str, rate: int, instruction: str) -> None:
+    """新增一条语音文本。
+
+    必须用本函数而不是直接 PHRASES[key] = ...：重复的 key 会静默覆盖旧条目，
+    旧 mp3 又已存在（脚本会跳过合成），结果是新句子永远没有音频、旧句子被换成新文本。
+    """
+    if key in PHRASES:
+        raise ValueError(
+            f"重复的语音 key：{key}（已存在「{PHRASES[key][0]}」）——请换一个唯一 key")
+    PHRASES[key] = (text, lang, rate, instruction)
+
+
 for _n in NUMBERS:
     PHRASES[f"n{_n}"] = (NUM_WORDS[_n].capitalize(), "en", -10, EN_ASK)
 
@@ -206,6 +218,29 @@ PHRASES["pt_apple"] = ("Put the apple on the table.", "en", -10, EN_ASK)
 PHRASES["pt_book"] = ("Put the book on the table.", "en", -10, EN_ASK)
 PHRASES["pt_cup"] = ("Put the cup on the table.", "en", -10, EN_ASK)
 PHRASES["yesno"] = ("Yes or No?", "en", -8, EN_ASK)
+
+# ---- 第 2 岛第 3 关（L2-W3，空间进阶 under / behind）语音 ----
+# 教学与答题共用整句；"You are ready! Let's play!" 直接复用已有 t_ready，不重复生成。
+# 注意：s_cat_on 在第 2 关已是「猫在盘子上」，本关的椅子上图必须另起唯一 key。
+add("u_under", "Listen. Under.", "en", -12, EN_ASK)
+add("u_behind", "Listen. Behind.", "en", -12, EN_ASK)
+add("s_bear_under", "The bear is under the table.", "en", -10, EN_ASK)
+add("s_bear_behind", "The bear is behind the table.", "en", -10, EN_ASK)
+add("u_under_ask", "Can you put the bear under the table?", "en", -10, EN_ASK)
+add("u_behind_ask", "Can you put the bear behind the table?", "en", -10, EN_ASK)
+add("u_show_under", "Show me under.", "en", -10, EN_ASK)
+add("u_show_behind", "Show me behind.", "en", -10, EN_ASK)
+add("p_where_cat", "Where is the cat?", "en", -10, EN_ASK)
+add("s_cat_under", "The cat is under the chair.", "en", -10, EN_ASK)
+add("s_cat_behind", "The cat is behind the chair.", "en", -10, EN_ASK)
+add("s_cat_chair_on", "The cat is on the chair.", "en", -10, EN_ASK)
+add("put_dog_behind", "Put the dog behind the box.", "en", -10, EN_ASK)
+add("put_ball_behind", "Put the ball behind the box.", "en", -10, EN_ASK)
+add("put_book_behind", "Put the book behind the box.", "en", -10, EN_ASK)
+add("s_ball_under", "The ball is under the bed.", "en", -10, EN_ASK)
+add("s_ball_on", "The ball is on the bed.", "en", -10, EN_ASK)
+add("s_boy_behind", "The boy is behind the door.", "en", -10, EN_ASK)
+add("s_boy_under", "The boy is under the door.", "en", -10, EN_ASK)
 
 PRAISES = [
     "李旻泽，你真棒",

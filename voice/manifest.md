@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**191** 条（英文 185 + 中文 6）
+总条目：**210** 条（英文 204 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -172,23 +172,42 @@
 | `ws_triangle` | en | Where is the triangle? | 已存在 |
 | `fs_rectangle` | en | Find the rectangle | 已存在 |
 | `ws_rectangle` | en | Where is the rectangle? | 已存在 |
-| `t_in` | en | Listen. In. | 待生成 |
-| `t_on` | en | Listen. On. | 待生成 |
-| `s_in` | en | The ball is in the box. | 待生成 |
-| `s_on` | en | The ball is on the box. | 待生成 |
-| `s_beside` | en | The ball is next to the box. | 待生成 |
-| `t_in_ask` | en | Can you put the ball in the box? | 待生成 |
-| `t_on_ask` | en | Can you put the ball on the box? | 待生成 |
-| `t_show_in` | en | Show me in. | 待生成 |
-| `t_show_on` | en | Show me on. | 待生成 |
-| `t_ready` | en | You are ready! Let's play! | 待生成 |
-| `p_where` | en | Where is the ball? | 待生成 |
-| `s_cat_on` | en | The cat is on the plate. | 待生成 |
-| `s_cat_in` | en | The cat is in the box. | 待生成 |
-| `pt_apple` | en | Put the apple on the table. | 待生成 |
-| `pt_book` | en | Put the book on the table. | 待生成 |
-| `pt_cup` | en | Put the cup on the table. | 待生成 |
-| `yesno` | en | Yes or No? | 待生成 |
+| `t_in` | en | Listen. In. | 已存在 |
+| `t_on` | en | Listen. On. | 已存在 |
+| `s_in` | en | The ball is in the box. | 已存在 |
+| `s_on` | en | The ball is on the box. | 已存在 |
+| `s_beside` | en | The ball is next to the box. | 已存在 |
+| `t_in_ask` | en | Can you put the ball in the box? | 已存在 |
+| `t_on_ask` | en | Can you put the ball on the box? | 已存在 |
+| `t_show_in` | en | Show me in. | 已存在 |
+| `t_show_on` | en | Show me on. | 已存在 |
+| `t_ready` | en | You are ready! Let's play! | 已存在 |
+| `p_where` | en | Where is the ball? | 已存在 |
+| `s_cat_on` | en | The cat is on the plate. | 已存在 |
+| `s_cat_in` | en | The cat is in the box. | 已存在 |
+| `pt_apple` | en | Put the apple on the table. | 已存在 |
+| `pt_book` | en | Put the book on the table. | 已存在 |
+| `pt_cup` | en | Put the cup on the table. | 已存在 |
+| `yesno` | en | Yes or No? | 已存在 |
+| `u_under` | en | Listen. Under. | 待生成 |
+| `u_behind` | en | Listen. Behind. | 待生成 |
+| `s_bear_under` | en | The bear is under the table. | 待生成 |
+| `s_bear_behind` | en | The bear is behind the table. | 待生成 |
+| `u_under_ask` | en | Can you put the bear under the table? | 待生成 |
+| `u_behind_ask` | en | Can you put the bear behind the table? | 待生成 |
+| `u_show_under` | en | Show me under. | 待生成 |
+| `u_show_behind` | en | Show me behind. | 待生成 |
+| `p_where_cat` | en | Where is the cat? | 待生成 |
+| `s_cat_under` | en | The cat is under the chair. | 待生成 |
+| `s_cat_behind` | en | The cat is behind the chair. | 待生成 |
+| `s_cat_chair_on` | en | The cat is on the chair. | 待生成 |
+| `put_dog_behind` | en | Put the dog behind the box. | 待生成 |
+| `put_ball_behind` | en | Put the ball behind the box. | 待生成 |
+| `put_book_behind` | en | Put the book behind the box. | 待生成 |
+| `s_ball_under` | en | The ball is under the bed. | 待生成 |
+| `s_ball_on` | en | The ball is on the bed. | 待生成 |
+| `s_boy_behind` | en | The boy is behind the door. | 待生成 |
+| `s_boy_under` | en | The boy is under the door. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
