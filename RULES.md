@@ -82,6 +82,10 @@
 6. **星星必须是 SVG 绘制**：无黑色描边（用同色 stroke + round join 圆角），亮金色 `#FFD700`，
    外发光用 `filter: drop-shadow`，点亮后带微弱呼吸动画（`star-glow`）。
 7. 控件图标（返回/重播/重开/放大镜）一律用内联 SVG，禁止 Emoji。
+8. **数字不得以纯文本裸奔**。所有数字展示统一用 `numberSign()`：两枚 3D 键帽数字
+   （`assets/fruit/digit1-5.png`）+ 可选小图标，禁止 `textContent` 直接塞数字。
+9. **选项顺序必须可重排**：每局重排；答错后调用 `reshuffleOptions()` 再次洗牌，
+   保持题目与正确答案不变。禁止让选项位置在一局内固定。
 
 ---
 
