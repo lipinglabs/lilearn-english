@@ -26,6 +26,9 @@ BODY_HUE = {
     "apple": (355, 42),
     "balloon": (345, 45),
     "car": (350, 40),
+    # 第 5 关题型 B 需要彩色水果（香蕉剥皮后是双层色块，染色会串色，故不染）
+    "strawberry": (350, 40),
+    "grape": (285, 40),
 }
 
 COLORS = {
@@ -40,6 +43,17 @@ SOURCES = {
     "apple": ROOT / "assets" / "fruit" / "apple.png",
     "balloon": ROOT / "_base_balloon.png",
     "car": ROOT / "_base_car.png",
+    "strawberry": ROOT / "assets" / "fruit" / "strawberry.png",
+    "grape": ROOT / "assets" / "fruit" / "grape.png",
+}
+
+# 每种素材要输出的颜色（水果只要红/蓝/黄，够题型 B 用，省体积）
+COLORS_FOR = {
+    "apple": ("red", "blue", "yellow", "green"),
+    "balloon": ("red", "blue", "yellow", "green"),
+    "car": ("red", "blue", "yellow", "green"),
+    "strawberry": ("red", "blue", "yellow"),
+    "grape": ("red", "blue", "yellow"),
 }
 
 
@@ -84,7 +98,8 @@ def main() -> int:
             continue
         base = Image.open(src).convert("RGBA")
         body_hue, tol = BODY_HUE[key]
-        for cname, chue in COLORS.items():
+        for cname in COLORS_FOR[key]:
+            chue = COLORS[cname]
             out = recolor(base, body_hue, tol, chue, gray=False)
             out = out.resize((SIZE, SIZE), Image.LANCZOS)
             p = OUT / f"{key}_{cname}.png"

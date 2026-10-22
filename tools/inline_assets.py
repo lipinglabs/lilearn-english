@@ -25,6 +25,9 @@ ORDER = ["apple", "banana", "strawberry", "grape", "trophy",
 # 第 4 关（颜色）染色素材：apple/balloon/car × 4 色（+ 灰）
 COLOR_ORDER = [f"{item}_{c}" for item in ("apple", "balloon", "car")
                for c in ("red", "blue", "yellow", "green")]
+# 第 5 关题型 B 的彩色水果（香蕉剥皮双层色块染色会串色，故不染）
+COLOR_ORDER += [f"{item}_{c}" for item in ("strawberry", "grape")
+                for c in ("red", "blue", "yellow")]
 COLOR_ORDER += ["balloon_gray", "car_gray"]
 
 

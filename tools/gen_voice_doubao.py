@@ -144,6 +144,32 @@ for _c, _word in COLOR_WORDS.items():
     PHRASES[f"col_{_c}"] = (_word.capitalize(), "en", -10, EN_ASK)
     PHRASES[f"fb_{_c}"] = (f"Find the {_word} apple", "en", -10, EN_ASK)
 
+# ---- 第 5 关（W5，游乐场终极考验）语音 ----
+# 题型 A：喂小怪兽 → "Feed me eighteen apples."（复用 c_ 句型；18 已有，故只补 12/22/28）
+# 题型 B：颜色分类 → "Put the red apple in the red basket."（3 色 × 3 种可染色水果）
+# 题型 C：听指令找组合 → "Find three red apples."（数量 2–5 × 3 色）
+# 合计新增 12 + 9 + 12 = 33 条。
+W5_NUMBERS = (12, 18, 22, 28)
+W5_NUM_WORDS = {12: "twelve", 18: "eighteen", 22: "twenty-two", 28: "twenty-eight"}
+W5_COLORS = {"red": "red", "blue": "blue", "yellow": "yellow"}
+W5_FRUITS = {"apple": "apples", "strawberry": "strawberries", "grape": "grapes"}
+# 单数形式单独列，不能用 strings[:-1] 砍 s（strawberries → strawberrie 是错的）
+W5_FRUIT_SINGULAR = {"apple": "apple", "strawberry": "strawberry", "grape": "grape"}
+
+for _n in W5_NUMBERS:
+    for _f, _plural in FRUITS.items():
+        PHRASES[f"c_{_n}_{_f}"] = (f"Feed me {W5_NUM_WORDS[_n]} {_plural}", "en", -10, EN_ASK)
+
+for _c, _cw in W5_COLORS.items():
+    for _f, _plural in W5_FRUITS.items():
+        PHRASES[f"pb_{_c}_{_f}"] = (
+            f"Put the {_cw} {W5_FRUIT_SINGULAR[_f]} in the {_cw} basket",
+            "en", -10, EN_ASK)
+
+for _n in SMALL_COUNTS:
+    for _c, _cw in W5_COLORS.items():
+        PHRASES[f"fc_{_n}_{_c}"] = (f"Find {SMALL_WORDS[_n]} {_cw} apples", "en", -10, EN_ASK)
+
 for _item, _noun in (("car", "car"), ("balloon", "balloon")):
     for _c, _word in COLOR_WORDS.items():
         PHRASES[f"mk_{_item}_{_c}"] = (f"Make the {_noun} {_word}", "en", -10, EN_ASK)
