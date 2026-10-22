@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**210** 条（英文 204 + 中文 6）
+总条目：**225** 条（英文 219 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -189,25 +189,40 @@
 | `pt_book` | en | Put the book on the table. | 已存在 |
 | `pt_cup` | en | Put the cup on the table. | 已存在 |
 | `yesno` | en | Yes or No? | 已存在 |
-| `u_under` | en | Listen. Under. | 待生成 |
-| `u_behind` | en | Listen. Behind. | 待生成 |
-| `s_bear_under` | en | The bear is under the table. | 待生成 |
-| `s_bear_behind` | en | The bear is behind the table. | 待生成 |
-| `u_under_ask` | en | Can you put the bear under the table? | 待生成 |
-| `u_behind_ask` | en | Can you put the bear behind the table? | 待生成 |
-| `u_show_under` | en | Show me under. | 待生成 |
-| `u_show_behind` | en | Show me behind. | 待生成 |
-| `p_where_cat` | en | Where is the cat? | 待生成 |
-| `s_cat_under` | en | The cat is under the chair. | 待生成 |
-| `s_cat_behind` | en | The cat is behind the chair. | 待生成 |
-| `s_cat_chair_on` | en | The cat is on the chair. | 待生成 |
-| `put_dog_behind` | en | Put the dog behind the box. | 待生成 |
-| `put_ball_behind` | en | Put the ball behind the box. | 待生成 |
-| `put_book_behind` | en | Put the book behind the box. | 待生成 |
-| `s_ball_under` | en | The ball is under the bed. | 待生成 |
-| `s_ball_on` | en | The ball is on the bed. | 待生成 |
-| `s_boy_behind` | en | The boy is behind the door. | 待生成 |
-| `s_boy_under` | en | The boy is under the door. | 待生成 |
+| `u_under` | en | Listen. Under. | 已存在 |
+| `u_behind` | en | Listen. Behind. | 已存在 |
+| `s_bear_under` | en | The bear is under the table. | 已存在 |
+| `s_bear_behind` | en | The bear is behind the table. | 已存在 |
+| `u_under_ask` | en | Can you put the bear under the table? | 已存在 |
+| `u_behind_ask` | en | Can you put the bear behind the table? | 已存在 |
+| `u_show_under` | en | Show me under. | 已存在 |
+| `u_show_behind` | en | Show me behind. | 已存在 |
+| `p_where_cat` | en | Where is the cat? | 已存在 |
+| `s_cat_under` | en | The cat is under the chair. | 已存在 |
+| `s_cat_behind` | en | The cat is behind the chair. | 已存在 |
+| `s_cat_chair_on` | en | The cat is on the chair. | 已存在 |
+| `put_dog_behind` | en | Put the dog behind the box. | 已存在 |
+| `put_ball_behind` | en | Put the ball behind the box. | 已存在 |
+| `put_book_behind` | en | Put the book behind the box. | 已存在 |
+| `s_ball_under` | en | The ball is under the bed. | 已存在 |
+| `s_ball_on` | en | The ball is on the bed. | 已存在 |
+| `s_boy_behind` | en | The boy is behind the door. | 已存在 |
+| `s_boy_under` | en | The boy is under the door. | 已存在 |
+| `cb_listen` | en | Listen. Put the star on the circle. | 待生成 |
+| `cb_star_on_circle` | en | The star is on the circle. | 待生成 |
+| `cb_ask_in_square` | en | Can you put the star in the square? | 待生成 |
+| `cb_put_in` | en | Put the star in the circle. | 待生成 |
+| `cb_put_on` | en | Put the star on the circle. | 待生成 |
+| `cb_put_beside` | en | Put the star beside the circle. | 待生成 |
+| `cb_star_in_circle` | en | The star is in the circle. | 待生成 |
+| `cb_star_beside_circle` | en | The star is beside the circle. | 待生成 |
+| `cb_book_in` | en | Put the square book in the square. | 待生成 |
+| `cb_apple_in` | en | Put the round apple in the square. | 待生成 |
+| `cb_pizza_in` | en | Put the triangle pizza in the square. | 待生成 |
+| `cb_tri_on` | en | The triangle is on the square. | 待生成 |
+| `cb_tri_in` | en | The triangle is in the square. | 待生成 |
+| `cb_circle_in` | en | The circle is in the square. | 待生成 |
+| `cb_circle_on` | en | The circle is on the square. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

@@ -242,6 +242,24 @@ add("s_ball_on", "The ball is on the bed.", "en", -10, EN_ASK)
 add("s_boy_behind", "The boy is behind the door.", "en", -10, EN_ASK)
 add("s_boy_under", "The boy is under the door.", "en", -10, EN_ASK)
 
+# ---- 第 2 岛第 4 关（L2-W4，形状 + 空间组合）语音 ----
+# 组合指令：形状词 + 方位词同时出现。教学与答题共用整句；ready 复用 t_ready。
+add("cb_listen", "Listen. Put the star on the circle.", "en", -12, EN_ASK)
+add("cb_star_on_circle", "The star is on the circle.", "en", -10, EN_ASK)
+add("cb_ask_in_square", "Can you put the star in the square?", "en", -10, EN_ASK)
+add("cb_put_in", "Put the star in the circle.", "en", -10, EN_ASK)
+add("cb_put_on", "Put the star on the circle.", "en", -10, EN_ASK)
+add("cb_put_beside", "Put the star beside the circle.", "en", -10, EN_ASK)
+add("cb_star_in_circle", "The star is in the circle.", "en", -10, EN_ASK)
+add("cb_star_beside_circle", "The star is beside the circle.", "en", -10, EN_ASK)
+add("cb_book_in", "Put the square book in the square.", "en", -10, EN_ASK)
+add("cb_apple_in", "Put the round apple in the square.", "en", -10, EN_ASK)
+add("cb_pizza_in", "Put the triangle pizza in the square.", "en", -10, EN_ASK)
+add("cb_tri_on", "The triangle is on the square.", "en", -10, EN_ASK)
+add("cb_tri_in", "The triangle is in the square.", "en", -10, EN_ASK)
+add("cb_circle_in", "The circle is in the square.", "en", -10, EN_ASK)
+add("cb_circle_on", "The circle is on the square.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
