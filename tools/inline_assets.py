@@ -30,6 +30,11 @@ COLOR_ORDER += [f"{item}_{c}" for item in ("strawberry", "grape")
                 for c in ("red", "blue", "yellow")]
 COLOR_ORDER += ["balloon_gray", "car_gray"]
 
+ANIMAL_DIR = ROOT / "assets" / "animal"
+# 第 3 岛（比较与分类）用到的动物：同样来自 microsoft/fluentui-emoji 的 3D 资源，
+# 由 make_animals.py 统一缩放到 192px，禁止调用任何生图接口。
+ANIMAL_ORDER = ["elephant", "mouse", "dog", "cat"]
+
 
 def emit(lines: list[str], bank: str, mapping: dict[str, Path], total_box: list[int]) -> None:
     lines.append(f"window.{bank} = {{")
@@ -59,10 +64,17 @@ def main() -> int:
         print(f"缺少颜色图：{missing_c}（先跑 tools/make_colors.py）", file=sys.stderr)
         return 1
 
+    animal_files = {p.stem: p for p in ANIMAL_DIR.glob("*.png")}
+    missing_a = [k for k in ANIMAL_ORDER if k not in animal_files]
+    if missing_a:
+        print(f"缺少动物图：{missing_a}（先跑 tools/make_animals.py）", file=sys.stderr)
+        return 1
+
     lines = [MARK_START]
     total_box = [0]
     emit(lines, "FRUIT_IMG", {k: files[k] for k in ORDER}, total_box)
     emit(lines, "COLOR_IMG", {k: color_files[k] for k in COLOR_ORDER}, total_box)
+    emit(lines, "ANIMAL_IMG", {k: animal_files[k] for k in ANIMAL_ORDER}, total_box)
     lines.append(MARK_END)
     snippet = "\n".join(lines)
     total = total_box[0]

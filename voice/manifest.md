@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**240** 条（英文 234 + 中文 6）
+总条目：**265** 条（英文 259 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -223,21 +223,46 @@
 | `cb_tri_in` | en | The triangle is in the square. | 已存在 |
 | `cb_circle_in` | en | The circle is in the square. | 已存在 |
 | `cb_circle_on` | en | The circle is on the square. | 已存在 |
-| `p5_tut_intro` | en | Let's look at the shapes. | 待生成 |
-| `p5_circle` | en | This is a circle. | 待生成 |
-| `p5_square` | en | This is a square. | 待生成 |
-| `p5_triangle` | en | This is a triangle. | 待生成 |
-| `p5_rectangle` | en | This is a rectangle. | 待生成 |
-| `p5_touch_triangle` | en | Can you touch the triangle? | 待生成 |
-| `p5_touch_rectangle` | en | Can you touch the rectangle? | 待生成 |
-| `p5_where_star` | en | Where is the star? | 待生成 |
-| `p5_star_behind_circle` | en | The star is behind the circle. | 待生成 |
-| `p5_under_ball` | en | The ball is under the table. | 待生成 |
-| `p5_behind_ball` | en | The ball is behind the table. | 待生成 |
-| `p5_ask_under` | en | Can you put the ball under the table? | 待生成 |
-| `p5_ask_behind` | en | Can you put the ball behind the table? | 待生成 |
-| `p5_rect_behind` | en | The rectangle is behind the square. | 待生成 |
-| `p5_rect_on` | en | The rectangle is on the square. | 待生成 |
+| `p5_tut_intro` | en | Let's look at the shapes. | 已存在 |
+| `p5_circle` | en | This is a circle. | 已存在 |
+| `p5_square` | en | This is a square. | 已存在 |
+| `p5_triangle` | en | This is a triangle. | 已存在 |
+| `p5_rectangle` | en | This is a rectangle. | 已存在 |
+| `p5_touch_triangle` | en | Can you touch the triangle? | 已存在 |
+| `p5_touch_rectangle` | en | Can you touch the rectangle? | 已存在 |
+| `p5_where_star` | en | Where is the star? | 已存在 |
+| `p5_star_behind_circle` | en | The star is behind the circle. | 已存在 |
+| `p5_under_ball` | en | The ball is under the table. | 已存在 |
+| `p5_behind_ball` | en | The ball is behind the table. | 已存在 |
+| `p5_ask_under` | en | Can you put the ball under the table? | 已存在 |
+| `p5_ask_behind` | en | Can you put the ball behind the table? | 已存在 |
+| `p5_rect_behind` | en | The rectangle is behind the square. | 已存在 |
+| `p5_rect_on` | en | The rectangle is on the square. | 已存在 |
+| `l3_tut_big` | en | Look! The elephant is big. | 待生成 |
+| `l3_tut_big_ask` | en | Can you touch the big elephant? | 待生成 |
+| `l3_tut_small` | en | Look! The mouse is small. | 待生成 |
+| `l3_tut_small_ask` | en | Can you touch the small mouse? | 待生成 |
+| `l3_show_big` | en | Show me the big apple. | 待生成 |
+| `l3_find_big_apple` | en | Find the big apple. | 待生成 |
+| `l3_find_small_apple` | en | Find the small apple. | 待生成 |
+| `l3_find_big_balloon` | en | Find the big balloon. | 待生成 |
+| `l3_find_small_balloon` | en | Find the small balloon. | 待生成 |
+| `l3_find_big_car` | en | Find the big car. | 待生成 |
+| `l3_find_small_car` | en | Find the small car. | 待生成 |
+| `l3_find_big_one` | en | Find the big one. | 待生成 |
+| `l3_find_small_one` | en | Find the small one. | 待生成 |
+| `l3_el_big` | en | The elephant is big. | 待生成 |
+| `l3_el_small` | en | The elephant is small. | 待生成 |
+| `l3_dog_big` | en | The dog is big. | 待生成 |
+| `l3_dog_small` | en | The dog is small. | 待生成 |
+| `l3_cat_big` | en | The cat is big. | 待生成 |
+| `l3_cat_small` | en | The cat is small. | 待生成 |
+| `l3_mouse_big` | en | The mouse is big. | 待生成 |
+| `l3_mouse_small` | en | The mouse is small. | 待生成 |
+| `l3_put_big_apple` | en | Put the big apple in the big box. | 待生成 |
+| `l3_put_small_apple` | en | Put the small apple in the small box. | 待生成 |
+| `l3_put_big_balloon` | en | Put the big balloon in the big box. | 待生成 |
+| `l3_put_small_balloon` | en | Put the small balloon in the small box. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

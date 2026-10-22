@@ -287,6 +287,46 @@ add("p5_ask_behind", "Can you put the ball behind the table?", "en", -10, EN_ASK
 add("p5_rect_behind", "The rectangle is behind the square.", "en", -10, EN_ASK)
 add("p5_rect_on", "The rectangle is on the square.", "en", -10, EN_ASK)
 
+# ---- 第 3 岛第 1 关（L3-W1，大与小 Big / Small）语音 ----
+# 本关是第 3 岛「比较与分类」的第一关，big / small 首次出现，必须先教后练。
+# 清单自检（RULES §1.8）：以下 25 条全是新文本，与既有条目无重复；
+#   · 过渡 "You are ready! Let's play!" 复用 t_ready，不重复生成；
+#   · 答错鼓励复用 again；通关夸奖复用 win1/win2/win3；
+#   · 尺寸词 big / small 都是单音节，rate 收到 -10 让孩子听清。
+# 构成：
+#   教学 5 条：大象 big（陈述 + 提问）、老鼠 small（陈述 + 提问）、对比测试 Show me the big apple.
+#   题型 A 6 条：Find the big/small <apple|balloon|car>.
+#   题型 B 10 条：The <elephant|dog|cat|mouse> is <big|small>.（8）+ Find the big/small one.（2）
+#   题型 C 4 条：Put the big/small <apple|balloon> in the big/small box.
+add("l3_tut_big", "Look! The elephant is big.", "en", -10, EN_ASK)
+add("l3_tut_big_ask", "Can you touch the big elephant?", "en", -10, EN_ASK)
+add("l3_tut_small", "Look! The mouse is small.", "en", -10, EN_ASK)
+add("l3_tut_small_ask", "Can you touch the small mouse?", "en", -10, EN_ASK)
+add("l3_show_big", "Show me the big apple.", "en", -10, EN_ASK)
+
+add("l3_find_big_apple", "Find the big apple.", "en", -10, EN_ASK)
+add("l3_find_small_apple", "Find the small apple.", "en", -10, EN_ASK)
+add("l3_find_big_balloon", "Find the big balloon.", "en", -10, EN_ASK)
+add("l3_find_small_balloon", "Find the small balloon.", "en", -10, EN_ASK)
+add("l3_find_big_car", "Find the big car.", "en", -10, EN_ASK)
+add("l3_find_small_car", "Find the small car.", "en", -10, EN_ASK)
+
+add("l3_find_big_one", "Find the big one.", "en", -10, EN_ASK)
+add("l3_find_small_one", "Find the small one.", "en", -10, EN_ASK)
+add("l3_el_big", "The elephant is big.", "en", -10, EN_ASK)
+add("l3_el_small", "The elephant is small.", "en", -10, EN_ASK)
+add("l3_dog_big", "The dog is big.", "en", -10, EN_ASK)
+add("l3_dog_small", "The dog is small.", "en", -10, EN_ASK)
+add("l3_cat_big", "The cat is big.", "en", -10, EN_ASK)
+add("l3_cat_small", "The cat is small.", "en", -10, EN_ASK)
+add("l3_mouse_big", "The mouse is big.", "en", -10, EN_ASK)
+add("l3_mouse_small", "The mouse is small.", "en", -10, EN_ASK)
+
+add("l3_put_big_apple", "Put the big apple in the big box.", "en", -10, EN_ASK)
+add("l3_put_small_apple", "Put the small apple in the small box.", "en", -10, EN_ASK)
+add("l3_put_big_balloon", "Put the big balloon in the big box.", "en", -10, EN_ASK)
+add("l3_put_small_balloon", "Put the small balloon in the small box.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
