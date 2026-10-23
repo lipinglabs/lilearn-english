@@ -2770,6 +2770,9 @@
   // 水果/奖杯/键帽 + 第 4 关染色素材（apple_blue / car_gray …）合并成同一张图库，
   // assetImg('car_red') 与 assetImg('apple') 走同一条取值路径
   var FRUIT_IMG = Object.assign({}, window.FRUIT_IMG || {}, window.COLOR_IMG || {});
+  // 染色图库单列一份：第 3 岛找不同 / 结业关的「颜色」题型要按 lib 精确取图
+  // （此前 b4Img/b5Img 引用了未声明的 COLOR_IMG，颜色题会抛 ReferenceError，这里补上声明）
+  var COLOR_IMG = window.COLOR_IMG || {};
   // 第 3 岛（比较与分类）的动物图：同为 Fluent Emoji 3D 资源，单独一张图库
   var ANIMAL_IMG = window.ANIMAL_IMG || {};
   var SVG_NS = 'http://www.w3.org/2000/svg';
@@ -2872,7 +2875,7 @@
     { icon: '🍎', name: '数字与水果' },
     { icon: '🔺', name: '形状与空间' },
     { icon: '🐘', name: '比较与分类' },
-    { icon: '✋', name: '身体部位' },
+    { icon: '🐮', name: '农场动物' },
     { icon: '🚌', name: '交通工具' },
     { icon: '🍰', name: '食物与饮料' },
     { icon: '☀️', name: '天气与季节' },
@@ -3768,7 +3771,8 @@
     '3-2': { numbers: null,       make: 'makeB2', title: '第 2 关', tutorial: true },
     '3-3': { numbers: null,       make: 'makeB3', title: '第 3 关', tutorial: true },
     '3-4': { numbers: null,       make: 'makeB4', title: '第 4 关', tutorial: true },
-    '3-5': { numbers: null,       make: 'makeB5', title: '第 5 关', tutorial: true }
+    '3-5': { numbers: null,       make: 'makeB5', title: '第 5 关', tutorial: true },
+    '4-1': { numbers: null,       make: 'makeF1', title: '第 1 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3896,6 +3900,7 @@
     if (def && def.make === 'makeB3') return makeQuestionB3(typeIdx, prev);
     if (def && def.make === 'makeB4') return makeQuestionB4(typeIdx, prev);
     if (def && def.make === 'makeB5') return makeQuestionB5(typeIdx, prev);
+    if (def && def.make === 'makeF1') return makeQuestionF1(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -6957,6 +6962,312 @@
     return api;
   })();
 
+  /* ==================== 第 4 岛第 1 关（L4-W1：农场动物 Farm animals） ==================== */
+  /* 目标：把动物图像与发音建立强联系（RULES §三.6 先教后练）。
+     教学：狗 → 猫 → 动手找狗 → 猪 → 牛 → 动手找牛（4 秒小手指）→ 过渡语直接进答题。
+     答题：A 听名字找动物 / B 听叫声找动物 / C 把动物拖进农场（含点选兜底，RULES §二.11）。
+     规则：全中文（只有图片 + 中文 aria-label，§二.1）、答对只音效 + 星星（§1.6）、
+           答错 again 温柔鼓励、通关 playRandomPraise(playLevelComplete)（§1.11）。
+     图片：assets.js 的 ANIMAL_IMG（dog / cat / pig / cow），不调用任何生图接口（§二.13）。 */
+
+  var F1_ANIMALS = ['dog', 'cat', 'pig', 'cow'];
+
+  /** 取动物图（统一 class；禁用原生 drag，避免与指针拖拽流程打架） */
+  function f1Img(animal, cls) {
+    var src = ANIMAL_IMG[animal];
+    if (!src) return null;
+    var img = document.createElement('img');
+    img.src = src; img.alt = ''; img.draggable = false;
+    img.className = cls || 'f1-img';
+    img.dataset.animal = animal;
+    return img;
+  }
+
+  function ensureF1Css() {
+    if (document.getElementById('f1-style')) return;
+    var s = document.createElement('style');
+    s.id = 'f1-style';
+    s.textContent =
+      '.f1-grid{display:grid;gap:12px;width:min(92vw,470px);margin:2vh auto}' +
+      '.f1-grid[data-n="2"]{grid-template-columns:repeat(2,1fr)}' +
+      '.f1-grid[data-n="3"]{grid-template-columns:repeat(3,1fr)}' +
+      '.f1-grid[data-n="4"]{grid-template-columns:repeat(2,1fr)}' +
+      '.f1-tile{background:rgba(255,255,255,.75);border:3px solid #ffd9a0;border-radius:22px;padding:8px;' +
+      'min-height:min(30vw,132px);display:flex;align-items:center;justify-content:center;cursor:pointer;' +
+      'box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease,box-shadow .15s ease}' +
+      '.f1-tile:active{transform:scale(.96)}' +
+      '.f1-tile img{width:100%;max-width:min(30vw,134px);height:auto;object-fit:contain;pointer-events:none}' +
+      '.f1-tile.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.f1-tile.wrong{animation:f1shake .5s;border-color:#f0a0a0}' +
+      '.f1-stage{display:flex;align-items:center;justify-content:center;min-height:42vh;width:100%}' +
+      '.f1-cell{display:flex;align-items:center;justify-content:center;border-radius:20px;padding:6px;' +
+      'cursor:pointer;transition:transform .15s ease,box-shadow .2s ease}' +
+      '.f1-cell img{width:100%;max-width:min(40vw,176px);height:auto;object-fit:contain;pointer-events:none}' +
+      '.f1-stage > .f1-cell img{max-width:min(52vw,224px)}' +
+      '.f1-right{background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.f1-glow{animation:f1glow 1.1s ease-in-out infinite}' +
+      '.f1-shake{animation:f1shake .5s}' +
+      '.f1-gate{width:min(64vw,268px);margin:3vh auto 0;cursor:pointer;border-radius:26px;padding:6px;' +
+      'position:relative;transition:box-shadow .2s ease,transform .15s ease}' +
+      '.f1-gate:active{transform:scale(.98)}' +
+      '.f1-gate.drop-target,.f1-gate.drop-hot{box-shadow:0 0 0 5px rgba(255,200,110,.7)}' +
+      '.f1-gate.right{box-shadow:0 0 0 6px rgba(120,200,140,.85)}' +
+      '.f1-gate svg{width:100%;display:block;filter:drop-shadow(0 8px 14px rgba(200,150,90,.25))}' +
+      '.f1-in-farm{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);' +
+      'width:32%;height:auto;pointer-events:none}' +
+      '.f1-opt-img{width:min(26vw,112px);height:auto;object-fit:contain;pointer-events:none}' +
+      '@keyframes f1shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      '@keyframes f1glow{0%,100%{box-shadow:0 0 0 3px rgba(255,210,120,.45)}' +
+      '50%{box-shadow:0 0 22px 8px rgba(255,210,120,.88)}}';
+    document.head.appendChild(s);
+  }
+
+  /** 题型 A / B：3 只动物的点选宫格（选项栏隐藏，图更大、手指更好点） */
+  function renderF1Grid(q) {
+    ensureF1Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'f1-grid';
+    grid.dataset.n = String(q.options.length);
+    grid.setAttribute('aria-label', '动物图片');
+    q.options.forEach(function (opt, i) {
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'f1-tile';
+      tile.dataset.idx = String(i);
+      tile.dataset.animal = opt.animal;
+      tile.setAttribute('aria-label', '动物图片');
+      var img = f1Img(opt.animal, 'f1-img');
+      if (img) tile.appendChild(img);
+      tile.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(tile.dataset.idx) === state.question.correct, tile);
+      });
+      grid.appendChild(tile);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 C：农场门（投放目标；纯图形，绝无英文字母） */
+  function renderF1Farm(q) {
+    ensureF1Css();
+    askDisplay.innerHTML = '';
+    var farm = document.createElement('div');
+    farm.className = 'f1-gate';
+    farm.dataset.drop = 'f1gate';
+    farm.setAttribute('aria-label', '农场');
+    var svg = svgEl('svg');
+    svg.setAttribute('viewBox', '0 0 120 100');
+    svg.innerHTML =
+      // 草地 + 影子
+      '<ellipse cx="60" cy="92" rx="56" ry="8" fill="#cfe8b8" opacity=".6"/>' +
+      '<ellipse cx="60" cy="95" rx="44" ry="5" fill="#8a6a48" opacity=".10"/>' +
+      // 左边干草垛（农场感）
+      '<rect x="4" y="72" width="24" height="18" rx="7" fill="#f7d47a"/>' +
+      '<path d="M8 77h16M8 82h16M8 87h16" stroke="#e6b954" stroke-width="1.6" stroke-linecap="round"/>' +
+      // 右边木栅栏
+      '<rect x="96" y="64" width="6" height="28" rx="3" fill="#e7b78c"/>' +
+      '<rect x="112" y="64" width="6" height="28" rx="3" fill="#e7b78c"/>' +
+      '<rect x="94" y="70" width="26" height="5" rx="2.5" fill="#eec79f"/>' +
+      '<rect x="94" y="81" width="26" height="5" rx="2.5" fill="#eec79f"/>' +
+      // 谷仓主体
+      '<rect x="26" y="44" width="72" height="48" rx="10" fill="#fbe3cf"/>' +
+      '<rect x="26" y="44" width="72" height="48" rx="10" fill="none" stroke="#e8c3a3" stroke-width="3"/>' +
+      // 屋顶
+      '<path d="M15 46 L62 14 L109 46 Z" fill="#e9826b"/>' +
+      '<path d="M24 45 L62 21 L100 45 Z" fill="#f4a48d"/>' +
+      // 门洞（动物就落在这里）
+      '<rect x="47" y="56" width="30" height="36" rx="9" fill="#b57a58"/>' +
+      '<rect x="47" y="56" width="30" height="36" rx="9" fill="none" stroke="#fff6ea" stroke-width="3"/>' +
+      // 两扇小窗
+      '<rect x="33" y="52" width="10" height="10" rx="3" fill="#cfe8f7"/>' +
+      '<rect x="81" y="52" width="10" height="10" rx="3" fill="#cfe8f7"/>' +
+      // 小旗
+      '<rect x="59" y="4" width="5" height="14" rx="2.5" fill="#cf9d63"/>' +
+      '<path d="M64 5 L81 10 L64 15 Z" fill="#ffcf6a"/>';
+    farm.appendChild(svg);
+    // 点选兜底：先点动物、再点农场 = 投放（RULES §二.11）
+    farm.addEventListener('click', function () {
+      if (state.pickedFruit === null) return;
+      resolveF1C(state.pickedFruit, farm);
+    });
+    askDisplay.appendChild(farm);
+  }
+
+  /** 答对后把动物放进农场门里（视觉反馈；下一题重绘时自动清掉） */
+  function f1PlaceInFarm(animal) {
+    var farm = askDisplay.querySelector('.f1-gate');
+    if (!farm) return;
+    var img = f1Img(animal, 'f1-in-farm');
+    if (img) farm.appendChild(img);
+  }
+
+  /** 出题：0 = 听名字找（A）/ 1 = 听叫声找（B）/ 2 = 拖进农场（C）。都是 1 正 + 2 干扰 */
+  function makeQuestionF1(type, prev) {
+    ensureF1Css();
+    var pickC, sig, guard = 0;
+    do {
+      pickC = F1_ANIMALS[randInt(0, F1_ANIMALS.length - 1)];
+      sig = type + ':' + pickC;
+      guard += 1;
+    } while (prev && prev.sig === sig && guard < 30);
+
+    var others = F1_ANIMALS.filter(function (a) { return a !== pickC; });
+    shuffle(others);
+    var opts = [
+      { kind: 'f1animal', animal: pickC },
+      { kind: 'f1animal', animal: others[0] },
+      { kind: 'f1animal', animal: others[1] }
+    ];
+    var answerOpt = opts[0];
+    shuffle(opts);
+    var correct = opts.indexOf(answerOpt);
+
+    var typeName = type === 0 ? 'F1A' : type === 1 ? 'F1B' : 'F1C';
+    var prefix = type === 0 ? 'l4w1_f_' : type === 1 ? 'l4w1_s_' : 'l4w1_c_';
+    return {
+      type: typeName, sig: sig, animal: pickC,
+      options: opts, correct: correct, audio: [prefix + pickC]
+    };
+  }
+
+  /** 题型 C 判定：点名的动物 + 落在农场门上才算对 */
+  function resolveF1C(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'F1C') return;
+    var onFarm = !!(target && target.dataset && target.dataset.drop === 'f1gate');
+    var ok = onFarm && itemIdx === q.correct;
+    judge(ok, ok ? target : optionEls[itemIdx]);
+  }
+
+  /* 教学（custom 分支）：6 个环节逐个登场 + 两次动手 + 过渡语，收尾仍走 tutFinish() */
+  var runF1Tutorial = (function () {
+    function blank(me) {
+      me.ask = null;
+      me.hintTarget = null;
+      me.hintFrom = null;
+      me.hintTo = null;
+      me.hintToY = 0.5;
+      me.replay = null;
+      clearHint();
+    }
+    function stage(me) {
+      blank(me);
+      askDisplay.innerHTML = '';
+      ensureF1Css();
+      var w = document.createElement('div');
+      w.className = 'f1-stage';
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function cell(animal) {
+      var c = document.createElement('div');
+      c.className = 'f1-cell';
+      c.dataset.animal = animal;
+      var img = f1Img(animal, 'f1-big');
+      if (img) c.appendChild(img);
+      return c;
+    }
+    /** 一个动物单独登场（演示用） */
+    function one(me, animal) {
+      var wrap = stage(me);
+      var c = cell(animal);
+      wrap.appendChild(c);
+      return { entries: [{ key: animal, el: c }] };
+    }
+    /** 多只动物排成宫格（互动用） */
+    function many(me, animals) {
+      var wrap = stage(me);
+      var g = document.createElement('div');
+      g.className = 'f1-grid';
+      g.dataset.n = String(animals.length);
+      g.setAttribute('aria-label', '动物图片');
+      wrap.appendChild(g);
+      var entries = [];
+      animals.forEach(function (a) {
+        var c = cell(a);
+        g.appendChild(c);
+        entries.push({ key: a, el: c });
+      });
+      return { entries: entries };
+    }
+
+    var ACTS = [
+      { type: 'demo', build: function (me) { return one(me, 'dog'); }, hi: 'dog', word: 'l4w1_tut_dog' },
+      { type: 'demo', build: function (me) { return one(me, 'cat'); }, hi: 'cat', word: 'l4w1_tut_cat' },
+      { type: 'ask',  build: function (me) { return many(me, shuffle(['dog', 'cat'])); },
+        ans: 'dog', word: 'l4w1_tut_ask_dog' },
+      { type: 'demo', build: function (me) { return one(me, 'pig'); }, hi: 'pig', word: 'l4w1_tut_pig' },
+      { type: 'demo', build: function (me) { return one(me, 'cow'); }, hi: 'cow', word: 'l4w1_tut_cow' },
+      { type: 'ask',  build: function (me) { return many(me, shuffle(['dog', 'cat', 'pig', 'cow'])); },
+        ans: 'cow', word: 'l4w1_f_cow' },
+      { type: 'outro', build: function (me) { return many(me, shuffle(['dog', 'cat', 'pig', 'cow'])); },
+        word: 'l4w1_tut_done' }
+    ];
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var built = act.build(me);
+
+      if (act.type === 'outro') {
+        // 过渡语由本步自己播；播完直接进答题，不再叠加 t_ready
+        me.replay = function () { say([act.word]); };
+        built.entries.forEach(function (e) { e.el.classList.add('f1-glow'); });
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          tutFinish(me, false);
+        });
+        return;
+      }
+
+      if (act.type === 'demo') {
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          var hiEl = null;
+          built.entries.forEach(function (e) { if (e.key === act.hi) hiEl = e; });
+          if (hiEl) hiEl.el.classList.add('f1-glow');
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+        });
+        return;
+      }
+
+      // 互动：点对才推进；点错抖一下 + 温柔鼓励；4 秒无操作弹小手指（RULES §二.12）
+      var ansEl = null;
+      built.entries.forEach(function (e) { if (e.key === act.ans) ansEl = e; });
+      me.ask = act.ans;
+      me.hintTarget = ansEl ? ansEl.el : null;
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+      built.entries.forEach(function (entry) {
+        entry.el.addEventListener('click', function () {
+          if (state.tut !== me || !me.ask) return;
+          if (entry.key === me.ask) {
+            clearHint();
+            coin();
+            ting();
+            me.ask = null;
+            entry.el.classList.add('f1-right');
+            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 900);
+          } else {
+            entry.el.classList.add('f1-shake');
+            setTimeout(function () { entry.el.classList.remove('f1-shake'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+      });
+    }
+
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
     function stage(me) {
@@ -7125,6 +7436,10 @@
     if (q.type === 'B4') { optionsBar.classList.add('gone'); return; }
     if (q.type === 'B5A' || q.type === 'B5B') { optionsBar.classList.add('gone'); return; }
     if (q.type === 'B5C') { renderB5Gate(q); return; }
+
+    /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
+    if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
+    if (q.type === 'F1C') { renderF1Farm(q); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -7477,6 +7792,7 @@
   function renderOptions(q) {
     if (q.type === 'B4') { renderB4Grid(q); return; }
     if (q.type === 'B5A' || q.type === 'B5B') { renderB5Grid(q); return; }
+    if (q.type === 'F1A' || q.type === 'F1B') { renderF1Grid(q); return; }
     optionEls.forEach(function (btn, i) {
       removeDecor(btn);
       btn.className = 'option';
@@ -7640,6 +7956,11 @@
         // 第 3 岛第 5 关：大小 / 长短物品（题型 C 的拖拽物；A/B 用独立宫格）
         btn.classList.add('b5-opt');
         slot.appendChild(b5ItemNode(opt));
+      } else if (opt.kind === 'f1animal') {
+        // 第 4 岛第 1 关题型 C：可拖进农场的动物
+        btn.classList.add('f1-opt');
+        var f1a = f1Img(opt.animal, 'f1-opt-img');
+        if (f1a) slot.appendChild(f1a);
       } else {
         btn.classList.add('pile-opt');
         slot.appendChild(pileNode(opt.fruit, opt.count, 'opt'));
@@ -7697,6 +8018,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'B5C') {
         // 第 3 岛第 5 关题型 C：物品可拖进游乐场入口
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'F1C') {
+        // 第 4 岛第 1 关题型 C：动物可拖进农场
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -7819,6 +8145,7 @@
       if (q.type === 'B1C') placeInB1Box(q.item.asset, q.size);
       if (q.type === 'B2C') placeInB2Box((q.fruit && q.fruit.id) || q.fruit, q.cmp);
       if (q.type === 'B3C') placeInB3Box(q.obj, q.cmp);
+      if (q.type === 'F1C') f1PlaceInFarm(q.animal);
 
       // 必须先捕获索引：430ms 后 state.roundIndex 会自增，
       // 动画回调若晚于推进执行就会点亮错位/丢失（第 12 轮尤其明显）
@@ -7994,6 +8321,8 @@
         resolveB3C(d.idx, target);
       } else if (d.mode === 'B5C') {
         resolveB5C(d.idx, target);
+      } else if (d.mode === 'F1C') {
+        resolveF1C(d.idx, target);
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
@@ -8828,6 +9157,13 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '4-1': {
+      // 农场动物：狗 → 猫 → 动手找狗 → 猪 → 牛 → 动手找牛（4 秒小手指）→ 过渡语进答题
+      custom: runF1Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -9009,18 +9345,22 @@
     }, 960);
   }
 
-  function tutFinish(me) {
+  /** 教学收尾：统一走这里 → beginRounds()（RULES §三.8）
+   *  readyKey 可指定过渡语；传 false 表示过渡语已由关卡自己播完，直接进答题 */
+  function tutFinish(me, readyKey) {
     if (state.tut !== me) return;
     me.canDrag = false;
     clearHint();
-    say(['t_ready'], function () {
+    function go() {
       if (state.tut !== me) return;
       state.tut = null;
       clearHint();
       askDisplay.innerHTML = '';
       optionsBar.classList.remove('gone');
       beginRounds();
-    });
+    }
+    if (readyKey === false) { go(); return; }
+    say([readyKey || 't_ready'], go);
   }
 
   /** 12 轮答题的统一起点（普通关与教学关共用） */
@@ -9046,7 +9386,8 @@
     if (!q) return null;
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
-        q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C') return q.type;
+        q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
+        q.type === 'F1C') return q.type;
     return null;
   }
 
@@ -9321,6 +9662,12 @@
         return;
       }
 
+      // 第 4 岛第 1 关题型 C：点动物选中，再点农场投放（三岁孩子拖不稳，必须有等价路径）
+      if (q.type === 'F1C') {
+        tapFruit(idx, btn);
+        return;
+      }
+
       // 第 5 关题型 B：先点水果选中，再点篮子投放
       if (q.type === 'W5B') {
         if (state.pickedFruit === null) return;
@@ -9582,7 +9929,7 @@
           cmp: q.cmp || null,
           moreCount: q.moreCount || null,
           lessCount: q.lessCount || null,
-          animal: q.animal ? q.animal.id : null,
+          animal: q.animal ? (q.animal.id || q.animal) : null,
           audio: q.audio[0],
           audios: q.audio.slice(),
           tray: q.tray ? q.tray.map(function (t) { return t.color.id + ':' + t.fruit.id; }) : null,
@@ -9600,6 +9947,7 @@
             if (o.kind === 'b2Pile' || o.kind === 'b2Drag') return o.cmp + ':' + o.count + ':' + (o.fruit ? o.fruit.id : o.asset);
             if (o.kind === 'lsObj' || o.kind === 'b3Drag') return o.cmp + ':' + o.obj;
             if (o.kind === 'lsAnimal') return o.animal;
+            if (o.kind === 'f1animal') return o.animal;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
             if (o.color) return o.color.id;

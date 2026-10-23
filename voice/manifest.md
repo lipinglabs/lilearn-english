@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**340** 条（英文 334 + 中文 6）
+总条目：**358** 条（英文 352 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -318,26 +318,44 @@
 | `l3w4_c_green_yellow` | en | Three green cars and one yellow car. Find the different one. | 已存在 |
 | `l3w4_c_red_yellow` | en | Three red cars and one yellow car. Find the different one. | 已存在 |
 | `l3w4_c_blue_green` | en | Three blue cars and one green car. Find the different one. | 已存在 |
-| `b5_tut_bs1` | en | Look! A big elephant and a small mouse. | 待生成 |
-| `b5_tut_bs2` | en | A big apple and a small apple. | 待生成 |
-| `b5_tut_bs_ask` | en | Find the big elephant. | 待生成 |
-| `b5_tut_ml1` | en | Look! Six apples and two apples. | 待生成 |
-| `b5_tut_ml2` | en | One apple and four apples. | 待生成 |
-| `b5_tut_ml_ask` | en | Find the basket with less apples. | 待生成 |
-| `b5_tut_ls1` | en | Look! A long snake and a short snake. | 待生成 |
-| `b5_tut_ls2` | en | A long train and a short train. | 待生成 |
-| `b5_tut_ls_ask` | en | Find the short train. | 待生成 |
-| `b5_tut_odd1` | en | Three dogs and one cat. The cat is different. | 待生成 |
-| `b5_tut_odd2` | en | Three red balloons and one blue balloon. The blue one is different. | 待生成 |
-| `b5_a_bigger` | en | Which one is bigger? | 待生成 |
-| `b5_a_smaller` | en | Which one is smaller? | 待生成 |
-| `b5_a_longer` | en | Which one is longer? | 待生成 |
-| `b5_a_shorter` | en | Which one is shorter? | 待生成 |
-| `b5_b_odd` | en | Find the odd one out. | 待生成 |
-| `b5_c_big` | en | Put the big one in. | 待生成 |
-| `b5_c_small` | en | Put the small one in. | 待生成 |
-| `b5_c_long` | en | Put the long one in. | 待生成 |
-| `b5_c_short` | en | Put the short one in. | 待生成 |
+| `b5_tut_bs1` | en | Look! A big elephant and a small mouse. | 已存在 |
+| `b5_tut_bs2` | en | A big apple and a small apple. | 已存在 |
+| `b5_tut_bs_ask` | en | Find the big elephant. | 已存在 |
+| `b5_tut_ml1` | en | Look! Six apples and two apples. | 已存在 |
+| `b5_tut_ml2` | en | One apple and four apples. | 已存在 |
+| `b5_tut_ml_ask` | en | Find the basket with less apples. | 已存在 |
+| `b5_tut_ls1` | en | Look! A long snake and a short snake. | 已存在 |
+| `b5_tut_ls2` | en | A long train and a short train. | 已存在 |
+| `b5_tut_ls_ask` | en | Find the short train. | 已存在 |
+| `b5_tut_odd1` | en | Three dogs and one cat. The cat is different. | 已存在 |
+| `b5_tut_odd2` | en | Three red balloons and one blue balloon. The blue one is different. | 已存在 |
+| `b5_a_bigger` | en | Which one is bigger? | 已存在 |
+| `b5_a_smaller` | en | Which one is smaller? | 已存在 |
+| `b5_a_longer` | en | Which one is longer? | 已存在 |
+| `b5_a_shorter` | en | Which one is shorter? | 已存在 |
+| `b5_b_odd` | en | Find the odd one out. | 已存在 |
+| `b5_c_big` | en | Put the big one in. | 已存在 |
+| `b5_c_small` | en | Put the small one in. | 已存在 |
+| `b5_c_long` | en | Put the long one in. | 已存在 |
+| `b5_c_short` | en | Put the short one in. | 已存在 |
+| `l4w1_tut_dog` | en | Look! A dog. Woof woof! | 待生成 |
+| `l4w1_tut_cat` | en | Look! A cat. Meow meow! | 待生成 |
+| `l4w1_tut_pig` | en | Look! A pig. Oink oink! | 待生成 |
+| `l4w1_tut_cow` | en | Look! A cow. Moo moo! | 待生成 |
+| `l4w1_tut_ask_dog` | en | Where is the dog? Touch the dog. | 待生成 |
+| `l4w1_tut_done` | en | You know all the farm animals! Let's play! | 待生成 |
+| `l4w1_f_dog` | en | Find the dog. | 待生成 |
+| `l4w1_f_cat` | en | Find the cat. | 待生成 |
+| `l4w1_f_pig` | en | Find the pig. | 待生成 |
+| `l4w1_f_cow` | en | Find the cow. | 待生成 |
+| `l4w1_s_dog` | en | Woof woof! Who is it? | 待生成 |
+| `l4w1_s_cat` | en | Meow meow! Who is it? | 待生成 |
+| `l4w1_s_pig` | en | Oink oink! Who is it? | 待生成 |
+| `l4w1_s_cow` | en | Moo moo! Who is it? | 待生成 |
+| `l4w1_c_dog` | en | Put the dog in the farm. | 待生成 |
+| `l4w1_c_cat` | en | Put the cat in the farm. | 待生成 |
+| `l4w1_c_pig` | en | Put the pig in the farm. | 待生成 |
+| `l4w1_c_cow` | en | Put the cow in the farm. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

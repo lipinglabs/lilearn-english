@@ -50,6 +50,11 @@ ZH_CANDIDATES = [
 
 EN_ASK = "用温柔、清晰、鼓励的语气朗读，像在教小朋友说英语。"
 EN_PRAISE = "用非常开心、兴奋、夸张的语气朗读，像在夸奖一个三岁的小朋友。"
+# 动物叫声 / 农场主题：要活泼俏皮，叫声像真的在叫，孩子一听就笑
+EN_ANIMAL = (
+    "用活泼、俏皮、有画面感的语气朗读，像在给三岁小朋友介绍小动物。"
+    "模仿动物叫声时要轻快、圆润、带一点上扬的笑意，不要念成字母或生硬的单词。"
+)
 
 ZH_PRAISE = (
     "用非常开心、惊喜的语气说这句话，像妈妈看到孩子闯关成功时脱口而出的夸奖。"
@@ -449,6 +454,33 @@ add("b5_c_big", "Put the big one in.", "en", -10, EN_ASK)
 add("b5_c_small", "Put the small one in.", "en", -10, EN_ASK)
 add("b5_c_long", "Put the long one in.", "en", -10, EN_ASK)
 add("b5_c_short", "Put the short one in.", "en", -10, EN_ASK)
+
+# ---- 第 4 岛第 1 关（L4-W1，农场动物 Farm animals）语音清单 ----
+# 教学 6 条：四个动物逐个登场（名字 + 叫声）+ 第一次动手提问 + 过渡语
+#   （第二次动手的「Find the cow.」直接复用答题 key l4w1_f_cow，不另建同文本条目，RULES §1.12）
+# 答题 12 条：A 听名字找（l4w1_f_*）/ B 听叫声找（l4w1_s_*）/ C 拖进农场（l4w1_c_*）
+# 复用：again（答错）、win1/2/3（通关）、praise_1..6（中文鼓励）；过渡语自带，不用 t_ready。
+add("l4w1_tut_dog", "Look! A dog. Woof woof!", "en", -10, EN_ANIMAL)
+add("l4w1_tut_cat", "Look! A cat. Meow meow!", "en", -10, EN_ANIMAL)
+add("l4w1_tut_pig", "Look! A pig. Oink oink!", "en", -10, EN_ANIMAL)
+add("l4w1_tut_cow", "Look! A cow. Moo moo!", "en", -10, EN_ANIMAL)
+add("l4w1_tut_ask_dog", "Where is the dog? Touch the dog.", "en", -10, EN_ASK)
+add("l4w1_tut_done", "You know all the farm animals! Let's play!", "en", -8, EN_PRAISE)
+
+add("l4w1_f_dog", "Find the dog.", "en", -10, EN_ASK)
+add("l4w1_f_cat", "Find the cat.", "en", -10, EN_ASK)
+add("l4w1_f_pig", "Find the pig.", "en", -10, EN_ASK)
+add("l4w1_f_cow", "Find the cow.", "en", -10, EN_ASK)
+
+add("l4w1_s_dog", "Woof woof! Who is it?", "en", -8, EN_ANIMAL)
+add("l4w1_s_cat", "Meow meow! Who is it?", "en", -8, EN_ANIMAL)
+add("l4w1_s_pig", "Oink oink! Who is it?", "en", -8, EN_ANIMAL)
+add("l4w1_s_cow", "Moo moo! Who is it?", "en", -8, EN_ANIMAL)
+
+add("l4w1_c_dog", "Put the dog in the farm.", "en", -10, EN_ASK)
+add("l4w1_c_cat", "Put the cat in the farm.", "en", -10, EN_ASK)
+add("l4w1_c_pig", "Put the pig in the farm.", "en", -10, EN_ASK)
+add("l4w1_c_cow", "Put the cow in the farm.", "en", -10, EN_ASK)
 
 PRAISES = [
     "李旻泽，你真棒",

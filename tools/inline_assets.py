@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""把 assets/fruit/*.png 以 base64 内联进 index.html（保持单文件）。
+"""把 assets/{fruit,color,animal}/*.png 以 base64 内联进 assets.js（保持静态资源单文件）。
 
 图片来源：microsoft/fluentui-emoji 的 3D 资源（MIT 许可，256×256 RGBA 透明背景）。
+
+⚠️ 物理切割后图库整体搬到 `assets.js`（window.FRUIT_IMG / COLOR_IMG / ANIMAL_IMG），
+index.html 已无 `FRUIT_IMG_START/END` 标记，因此本脚本的目标文件是 assets.js：
+它保留文件头注释，重写三个 window.* 数据块（键名 / 顺序 / 分块规则与切割前完全一致）。
 """
 
 from __future__ import annotations
@@ -12,10 +16,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 FRUIT_DIR = ROOT / "assets" / "fruit"
-HTML_PATH = ROOT / "index.html"
-
-MARK_START = "/* FRUIT_IMG_START */"
-MARK_END = "/* FRUIT_IMG_END */"
+ASSETS_JS_PATH = ROOT / "assets.js"
+HEAD_ANCHOR = "window.FRUIT_IMG = {"
 CHUNK = 4000
 
 ORDER = ["apple", "banana", "strawberry", "grape", "trophy",
@@ -31,9 +33,10 @@ COLOR_ORDER += [f"{item}_{c}" for item in ("strawberry", "grape")
 COLOR_ORDER += ["balloon_gray", "car_gray"]
 
 ANIMAL_DIR = ROOT / "assets" / "animal"
-# 第 3 岛（比较与分类）用到的动物：同样来自 microsoft/fluentui-emoji 的 3D 资源，
-# 由 make_animals.py 统一缩放到 192px，禁止调用任何生图接口。
-ANIMAL_ORDER = ["elephant", "mouse", "dog", "cat"]
+# 动物图：第 3 岛用 elephant/mouse/dog/cat，第 4 岛农场加 pig/cow。
+# 同样来自 microsoft/fluentui-emoji 的 3D 资源，由 make_animals.py 统一缩放到 192px，
+# 禁止调用任何生图接口。
+ANIMAL_ORDER = ["elephant", "mouse", "dog", "cat", "pig", "cow"]
 
 
 def emit(lines: list[str], bank: str, mapping: dict[str, Path], total_box: list[int]) -> None:
@@ -70,23 +73,22 @@ def main() -> int:
         print(f"缺少动物图：{missing_a}（先跑 tools/make_animals.py）", file=sys.stderr)
         return 1
 
-    lines = [MARK_START]
+    lines = []
     total_box = [0]
     emit(lines, "FRUIT_IMG", {k: files[k] for k in ORDER}, total_box)
     emit(lines, "COLOR_IMG", {k: color_files[k] for k in COLOR_ORDER}, total_box)
     emit(lines, "ANIMAL_IMG", {k: animal_files[k] for k in ANIMAL_ORDER}, total_box)
-    lines.append(MARK_END)
-    snippet = "\n".join(lines)
+    snippet = "\n".join(lines) + "\n"
     total = total_box[0]
 
-    html = HTML_PATH.read_text(encoding="utf-8")
-    if MARK_START not in html or MARK_END not in html:
-        print("index.html 缺少水果图标记", file=sys.stderr)
+    src = ASSETS_JS_PATH.read_text(encoding="utf-8")
+    if HEAD_ANCHOR not in src:
+        print("assets.js 缺少 window.FRUIT_IMG 锚点，无法重写", file=sys.stderr)
         return 1
-    head, rest = html.split(MARK_START, 1)
-    _, tail = rest.split(MARK_END, 1)
-    HTML_PATH.write_text(head + snippet + tail, encoding="utf-8")
-    print(f"\n共 {len(ORDER)} 张图、{total} 字节 PNG，已内联至 index.html")
+    head = src.split(HEAD_ANCHOR, 1)[0]
+    ASSETS_JS_PATH.write_text(head + snippet, encoding="utf-8")
+    print(f"\n共 {len(ORDER) + len(COLOR_ORDER) + len(ANIMAL_ORDER)} 张图、{total} 字节 PNG，"
+          f"已内联至 assets.js")
     return 0
 
 

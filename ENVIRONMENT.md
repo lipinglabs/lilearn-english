@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-23（对应 commit `6856e97`）
+> 最后更新：2026-10-23（第 4 岛第 1 关「农场动物」上线；第 3 岛 W4/W5 已完成）
 
 ---
 
@@ -23,10 +23,15 @@
 
 ### 1.1 推送方式（关键，别踩）
 
-- **本机 `git push` 走 HTTPS 会被拦截**（`schannel: failed to receive handshake`）。不要反复重试。
-- 统一走 **GitHub Git Data API**：`POST /git/blobs` → `POST /git/trees`（带 `base_tree`）→ `POST /git/commits` → `PATCH /git/refs/heads/main`。
-- 认证：`gh auth token`（账号 `kh4tzjsjfy-eng`，scope 含 `repo`）。`gh api` 本身畅通，可用于读状态、查 Pages 构建。
-- **务必带 `base_tree`**：否则会把别人的新增文件（如 `review.html`）整棵删掉。推送前先 `GET /git/ref/heads/main` 取当前 SHA。
+- **本机 `git push` 走 HTTPS 会偶发被拦**（`schannel: failed to receive handshake` / 代理 502）。
+  **不要写死循环死磕**：先用 `git ls-remote origin -h refs/heads/main` 探测可达（12s 超时），
+  可达就 `fetch` → `rebase` → `push`，不可达就退避重试；实测十几轮内必有一次成功。
+- 若仓库有**并行会话**在同分支高频提交，`rebase` 加上 `-X ignore-all-space`
+  可躲开对方整体重排缩进造成的假冲突（实测 index.html 有 9000 行纯空白变更）。
+- 备用通道：**GitHub Git Data API**（`POST /git/blobs` → `/git/trees`（带 `base_tree`）→
+  `/git/commits` → `PATCH /git/refs/heads/main`），认证用 `gh auth token`（账号 `kh4tzjsjfy-eng`）。
+- 注意 `RULES.md` §四提到的 `tools/push_via_api.py` **在仓库里并不存在**（历史遗留），以上面两条为准。
+- **务必带 `base_tree`**：否则会把别人的新增文件整棵删掉。推送前先 `GET /git/ref/heads/main` 取当前 SHA。
 
 ### 1.2 部署与缓存
 
@@ -51,9 +56,9 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   327,800 B / 8,842 行   ← 结构 + 样式 + 全部游戏逻辑（316 KB 级，必须保持）
-voice.js   8,347,177 B / 2,551 行   ← window.VOICE_BANK，305 条 base64 mp3
-assets.js    918,828 B /   293 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(4)
+index.html   380,625 B / 9,947 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  10,108,539 B / 3,074 行   ← window.VOICE_BANK，358 条 base64 mp3
+assets.js    980,391 B /   318 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(6)
 ```
 
 **切割前**是 9.5 MB 单文件，iPhone 上解析阻塞主线程导致 1–2 秒卡顿与发热；切割后 `index.html` 降至 327,800 B（−96.6%）。
@@ -86,6 +91,7 @@ function voiceBank() {            // 每次现读 window，避免时序/缓存�
   return (b && typeof b === 'object') ? b : {};
 }
 var FRUIT_IMG = Object.assign({}, window.FRUIT_IMG || {}, window.COLOR_IMG || {});
+var COLOR_IMG = window.COLOR_IMG || {};   // 颜色题型按 lib 精确取图时用（曾漏声明 → 颜色题 ReferenceError）
 var ANIMAL_IMG = window.ANIMAL_IMG || {};
 ```
 
@@ -113,7 +119,7 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本 |
+| `tools/probe_b3.js` / `probe_f1.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟） |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **⚠️ 生成脚本的目标文件仍是 `index.html`**（`HTML_PATH` + `VOICE_BANK_START/END`、`FRUIT_IMG_START/END` 标记）。切割后这些标记已随数据移入 `voice.js` / `assets.js`，**直接运行会报「缺少标记」或注入错位**。新增语音/图片前必须先把脚本的 `HTML_PATH` 改指向 `voice.js` / `assets.js`。
@@ -223,9 +229,12 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 
 ## 6. 当前进度与下一步
 
-- **已完成**：第 1 岛（5 关）、第 2 岛（5 关）、第 3 岛 W1「大与小」/ W2「多与少」/ W3「长与短」。
-- **未完成**：第 3 岛 W4、第 3 岛 W5（结业关）；第 4–12 岛。
-- **文档已知过期**：`README.md` 里「当前进度仅到第 3 岛第 1 关」「第 3 岛第 2 关起尚未制作」等段落已过时，以本文件与 commit 记录为准。
+- **已完成**：第 1 岛（5 关）、第 2 岛（5 关）、第 3 岛（5 关，W4 找不同 / W5 结业复习）、
+  第 4 岛 W1「农场动物」（狗 / 猫 / 猪 / 牛；猪与奶牛的 3D 图由 `tools/make_animals.py` 补下，
+  `ANIMAL_IMG` 现为 6 张）。
+- **未完成**：第 4 岛 W2–W5；第 5–12 岛。
+- **第 4 岛主题**：`ISLANDS[3]` 已按实际内容从「身体部位」改为「农场动物」（图标 🐮）。
+- **文档已知过期**：`README.md` 里「当前进度仅到第 3 岛第 1 关」等段落已过时，以本文件与 commit 记录为准。
 
 ---
 
