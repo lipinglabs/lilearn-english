@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3-3 长/短 · 全新插画速览（51 张）</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --card:#1e222b; --border:#2c323d;
+    --text:#e8eaf0; --muted:#98a0ad; --accent:#ffb547;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+    line-height:1.5;padding:24px 16px 60px}
+  header{max-width:1240px;margin:0 auto 20px}
+  header h1{font-size:19px;margin:0 0 6px}
+  header p{margin:0;color:var(--muted);font-size:13px}
+  .legend{max-width:1240px;margin:0 auto 22px;display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+  .chip{padding:4px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--border)}
+  .chip b{color:var(--accent)}
+  .grid{max-width:1240px;margin:0 auto;display:grid;gap:16px;
+    grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
+  .card h3{margin:0 0 10px;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card h3 .k{color:var(--accent);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+  .card h3 .tag{font-size:11px;padding:1px 8px;border-radius:999px;background:rgba(255,181,71,.15);color:var(--accent)}
+  .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .cell{background:#f6efe4;border:1px solid var(--border);border-radius:10px;padding:8px;text-align:center}
+  .cell .cap{font-size:11px;color:#6b5a4e;margin-bottom:6px}
+  .cell .art{height:96px;display:flex;align-items:center;justify-content:center}
+  .cell svg{width:92%;height:92%}
+  .cmp{margin-top:10px;background:#161a22;border:1px solid var(--border);border-radius:10px;padding:8px;text-align:center}
+  .cmp .cap{font-size:11px;color:var(--muted);margin-bottom:6px}
+  .cmp .art{height:96px;display:flex;align-items:center;justify-content:center}
+  .cmp svg{width:92%;height:92%}
+</style>
+</head>
+<body>
+<header>
+  <h1>第三岛 3-3（长 / 短）· 全新插画速览</h1>
+  <p>共 17 张图（7 物体 × 长/短 + 3 动物）× 3 套画风 = 51 张新图。候选区已改用米色奶白底（贴合游戏实际底色），便于判断暖色描边效果；每张底部附带「原图」作对照。已按 RULES §二.3 改为柔和/温暖/粉彩，无粗黑描边。</p>
+</header>
+<div class="legend">
+  <span class="chip"><b>A</b> 柔光卡通：粉彩 · 白描边 · 暖光高光</span>
+  <span class="chip"><b>B</b> 奶油扁平：无描边 · 双色扁等等</span>
+  <span class="chip"><b>C</b> 暖阳手绘：浅暖细描边 · 柔光</span>
+  <span class="chip">长 / 短形态严格保留，不影响「比长短」玩法</span>
+  <span class="chip">动物的「长」由物种体现：长颈鹿长脖 / 兔子长耳 = 长，乌龟矮短 = 短</span>
+</div>
+<div class="grid" id="grid"></div>
+
+<script src="assets.js"></script>
+<script src="visual_parts.js"></script>
+<script src="art33.js"></script>
+<script>
+var grid = document.getElementById('grid');
+var NAME = {
+  snake:'蛇', rope:'绳子', pencil:'铅笔', bread:'面包', scarf:'围巾', car:'汽车', banana:'香蕉',
+  giraffe:'长颈鹿', rabbit:'兔子', turtle:'乌龟'
+};
+function originalHtml(key){
+  var p = key.split('.');
+  if (p[0]==='LS_OBJECT') return vpLsObjectSvg(p[1], p[2]);
+  if (p[0]==='LS_ANIMAL') return vpLsAnimalSvg(p[1]);
+  return '';
+}
+ART33.ALL17.forEach(function(key){
+  var info = ART33.parseKey(key);
+  var card = document.createElement('div');
+  card.className = 'card';
+  var tag = info.kind === 'obj' ? (info.cmp === 'long' ? '长' : '短') : '长';
+  var title = '<h3><span class="k">'+key+'</span><span class="tag">'+
+    NAME[info.name]+' · '+tag+'</span></h3>';
+  var cands = ART33.STYLE.map(function(st,i){
+    return '<div class="cell"><div class="cap">候选 '+String.fromCharCode(65+i)+' · '+st.name+'</div>'+
+      '<div class="art">'+ART33.wrap(ART33.art33(key,i))+'</div></div>';
+  }).join('');
+  card.innerHTML = title +
+    '<div class="row">'+cands+'</div>' +
+    '<div class="cmp"><div class="cap">原图（当前游戏内样式，仅作对照）</div>'+
+    '<div class="art">'+originalHtml(key)+'</div></div>';
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>
