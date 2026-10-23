@@ -11,7 +11,8 @@ const EDGE = 'C://Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
 const W = parseInt(process.argv[2] || '390', 10), H = parseInt(process.argv[3] || '844', 10);
 const TAG = process.argv[4] || 'f6';
 const PORT = 9675 + (W === 390 ? 0 : 1);
-const URL_ = 'file:///' + path.resolve('index.html').replace(/\\/g, '/');
+// 默认跑本地文件；带 LILEARN_URL 则跑线上（发布后回归用，例：LILEARN_URL=https://lipinglabs.github.io/lilearn-english/index.html）
+const URL_ = process.env.LILEARN_URL || ('file:///' + path.resolve('index.html').replace(/\\/g, '/'));
 
 const proc = spawn(EDGE, ['--headless=new', '--disable-gpu', '--no-first-run',
   '--autoplay-policy=no-user-gesture-required', '--mute-audio',
@@ -85,10 +86,11 @@ let id = 0; const pend = new Map();
 
   await send('Page.navigate', { url: URL_ }, sessionId);
   const boot = async () => {
-    for (let i = 0; i < 200; i++) {
+    // 本地文件秒开；线上首次要把 voice.js(≈15MB) + assets.js 拉完，留足 90s
+    for (let i = 0; i < 600; i++) {
       const r = await send('Runtime.evaluate', { expression: 'typeof window.Game !== "undefined"', returnByValue: true }, sessionId);
       if (r.result.value) break;
-      await sleep(120);
+      await sleep(150);
     }
     await sleep(420);
   };

@@ -59,6 +59,9 @@ f4d-*.png
 f5d-*.png
 f6-*.png
 f6d-*.png
+# 线上回归（LILEARN_URL=... 时 TAG 带 live 后缀）
+f6live-*.png
+f6lived-*.png
 rf*-*.png
 b3-*.png
 
