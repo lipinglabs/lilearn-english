@@ -359,6 +359,39 @@ add("l3w2c_less_banana", "Put the group with less bananas in the less box.", "en
 add("l3w2c_more_grape", "Put the group with more grapes in the more box.", "en", -10, EN_ASK)
 add("l3w2c_less_grape", "Put the group with less grapes in the less box.", "en", -10, EN_ASK)
 
+# ---------------------------------------------------------------------------
+# 第 3 岛第 3 关（L3-W3：长与短 Long / Short）语音清单
+#   · 教学 6 条：长×2 案例（蛇/面包）+ 短×2 案例（铅笔/围巾）+ 两道互动提问（长蛇/短铅笔）
+#   · 题型 A 12 条：l3w3a_{long,short}_{snake,rope,pencil,bread,scarf,car}（两相同物，听 long/short 找对应）
+#   · 题型 B 2 条：l3w3b_long_{giraffe,rabbit}（三动物，听 "long <部位>" 找对应动物）
+#   · 题型 C 2 条：l3w3c_{long,short}_banana（长/短香蕉拖进 Long/Short 箱）
+# 过渡 "You are ready! Let's play!" 复用 t_ready；答错复用 again；通关复用 win1/win2/win3。
+add("l3w3_tut_long1", "Look! The snake is long.", "en", -10, EN_ASK)
+add("l3w3_tut_long2", "The bread is long.", "en", -10, EN_ASK)
+add("l3w3_tut_short1", "Look! The pencil is short.", "en", -10, EN_ASK)
+add("l3w3_tut_short2", "The scarf is short.", "en", -10, EN_ASK)
+add("l3w3_tut_long_ask", "Can you find the long snake?", "en", -10, EN_ASK)
+add("l3w3_tut_short_ask", "Can you find the short pencil?", "en", -10, EN_ASK)
+
+add("l3w3a_long_snake", "Find the long snake.", "en", -10, EN_ASK)
+add("l3w3a_short_snake", "Find the short snake.", "en", -10, EN_ASK)
+add("l3w3a_long_rope", "Find the long rope.", "en", -10, EN_ASK)
+add("l3w3a_short_rope", "Find the short rope.", "en", -10, EN_ASK)
+add("l3w3a_long_pencil", "Find the long pencil.", "en", -10, EN_ASK)
+add("l3w3a_short_pencil", "Find the short pencil.", "en", -10, EN_ASK)
+add("l3w3a_long_bread", "Find the long bread.", "en", -10, EN_ASK)
+add("l3w3a_short_bread", "Find the short bread.", "en", -10, EN_ASK)
+add("l3w3a_long_scarf", "Find the long scarf.", "en", -10, EN_ASK)
+add("l3w3a_short_scarf", "Find the short scarf.", "en", -10, EN_ASK)
+add("l3w3a_long_car", "Find the long car.", "en", -10, EN_ASK)
+add("l3w3a_short_car", "Find the short car.", "en", -10, EN_ASK)
+
+add("l3w3b_long_giraffe", "The giraffe has a long neck. Find the long one.", "en", -10, EN_ASK)
+add("l3w3b_long_rabbit", "The rabbit has long ears. Find the long one.", "en", -10, EN_ASK)
+
+add("l3w3c_long_banana", "Put the long banana in the long box.", "en", -10, EN_ASK)
+add("l3w3c_short_banana", "Put the short banana in the short box.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

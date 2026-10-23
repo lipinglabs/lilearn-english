@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**283** 条（英文 277 + 中文 6）
+总条目：**305** 条（英文 299 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -263,24 +263,46 @@
 | `l3_put_small_apple` | en | Put the small apple in the small box. | 已存在 |
 | `l3_put_big_balloon` | en | Put the big balloon in the big box. | 已存在 |
 | `l3_put_small_balloon` | en | Put the small balloon in the small box. | 已存在 |
-| `l3w2_tut_more` | en | Look! This basket has more apples. | 待生成 |
-| `l3w2_tut_less` | en | This basket has less apples. | 待生成 |
-| `l3w2_tut_more_ask` | en | Can you find the basket with more apples? | 待生成 |
-| `l3w2a_more_banana` | en | Which one has more bananas? | 待生成 |
-| `l3w2a_less_banana` | en | Which one has less bananas? | 待生成 |
-| `l3w2a_more_apple` | en | Which one has more apples? | 待生成 |
-| `l3w2a_less_apple` | en | Which one has less apples? | 待生成 |
-| `l3w2a_more_grape` | en | Which one has more grapes? | 待生成 |
-| `l3w2a_less_grape` | en | Which one has less grapes? | 待生成 |
-| `l3w2b_less_apple` | en | Find the group with less apples. | 待生成 |
-| `l3w2b_less_strawberry` | en | Find the group with less strawberries. | 待生成 |
-| `l3w2b_less_grape` | en | Find the group with less grapes. | 待生成 |
-| `l3w2c_more_apple` | en | Put the group with more apples in the more box. | 待生成 |
-| `l3w2c_less_apple` | en | Put the group with less apples in the less box. | 待生成 |
-| `l3w2c_more_banana` | en | Put the group with more bananas in the more box. | 待生成 |
-| `l3w2c_less_banana` | en | Put the group with less bananas in the less box. | 待生成 |
-| `l3w2c_more_grape` | en | Put the group with more grapes in the more box. | 待生成 |
-| `l3w2c_less_grape` | en | Put the group with less grapes in the less box. | 待生成 |
+| `l3w2_tut_more` | en | Look! This basket has more apples. | 已存在 |
+| `l3w2_tut_less` | en | This basket has less apples. | 已存在 |
+| `l3w2_tut_more_ask` | en | Can you find the basket with more apples? | 已存在 |
+| `l3w2a_more_banana` | en | Which one has more bananas? | 已存在 |
+| `l3w2a_less_banana` | en | Which one has less bananas? | 已存在 |
+| `l3w2a_more_apple` | en | Which one has more apples? | 已存在 |
+| `l3w2a_less_apple` | en | Which one has less apples? | 已存在 |
+| `l3w2a_more_grape` | en | Which one has more grapes? | 已存在 |
+| `l3w2a_less_grape` | en | Which one has less grapes? | 已存在 |
+| `l3w2b_less_apple` | en | Find the group with less apples. | 已存在 |
+| `l3w2b_less_strawberry` | en | Find the group with less strawberries. | 已存在 |
+| `l3w2b_less_grape` | en | Find the group with less grapes. | 已存在 |
+| `l3w2c_more_apple` | en | Put the group with more apples in the more box. | 已存在 |
+| `l3w2c_less_apple` | en | Put the group with less apples in the less box. | 已存在 |
+| `l3w2c_more_banana` | en | Put the group with more bananas in the more box. | 已存在 |
+| `l3w2c_less_banana` | en | Put the group with less bananas in the less box. | 已存在 |
+| `l3w2c_more_grape` | en | Put the group with more grapes in the more box. | 已存在 |
+| `l3w2c_less_grape` | en | Put the group with less grapes in the less box. | 已存在 |
+| `l3w3_tut_long1` | en | Look! The snake is long. | 待生成 |
+| `l3w3_tut_long2` | en | The bread is long. | 待生成 |
+| `l3w3_tut_short1` | en | Look! The pencil is short. | 待生成 |
+| `l3w3_tut_short2` | en | The scarf is short. | 待生成 |
+| `l3w3_tut_long_ask` | en | Can you find the long snake? | 待生成 |
+| `l3w3_tut_short_ask` | en | Can you find the short pencil? | 待生成 |
+| `l3w3a_long_snake` | en | Find the long snake. | 待生成 |
+| `l3w3a_short_snake` | en | Find the short snake. | 待生成 |
+| `l3w3a_long_rope` | en | Find the long rope. | 待生成 |
+| `l3w3a_short_rope` | en | Find the short rope. | 待生成 |
+| `l3w3a_long_pencil` | en | Find the long pencil. | 待生成 |
+| `l3w3a_short_pencil` | en | Find the short pencil. | 待生成 |
+| `l3w3a_long_bread` | en | Find the long bread. | 待生成 |
+| `l3w3a_short_bread` | en | Find the short bread. | 待生成 |
+| `l3w3a_long_scarf` | en | Find the long scarf. | 待生成 |
+| `l3w3a_short_scarf` | en | Find the short scarf. | 待生成 |
+| `l3w3a_long_car` | en | Find the long car. | 待生成 |
+| `l3w3a_short_car` | en | Find the short car. | 待生成 |
+| `l3w3b_long_giraffe` | en | The giraffe has a long neck. Find the long one. | 待生成 |
+| `l3w3b_long_rabbit` | en | The rabbit has long ears. Find the long one. | 待生成 |
+| `l3w3c_long_banana` | en | Put the long banana in the long box. | 待生成 |
+| `l3w3c_short_banana` | en | Put the short banana in the short box. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
