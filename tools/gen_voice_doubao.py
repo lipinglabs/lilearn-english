@@ -661,6 +661,44 @@ add("l4w5_c_cat", "Find the cat that is running.", "en", -10, EN_ASK)
 add("l4w5_c_horse", "Find the horse that is sleeping.", "en", -10, EN_ASK)
 add("l4w5_c_pig", "Find the pig that is eating.", "en", -10, EN_ASK)
 
+# ===== 第 5 岛第 1 关（L5-W1：常见食物）：milk / bread / egg / rice =====
+# 教学 17 条：每个词 2 次演示 + 2 次互动 + 1 条过渡语（双倍量，RULES §三.10）
+add("l5w1_t_milk1", "Look! Milk. It's white.", "en", -10, EN_ASK)
+add("l5w1_t_milk2", "I like to drink milk.", "en", -10, EN_ASK)
+add("l5w1_t_milk3", "Where is the milk? Touch the milk.", "en", -10, EN_ASK)
+add("l5w1_t_milk4", "Which one is milk?", "en", -10, EN_ASK)
+add("l5w1_t_bread1", "Look! Bread. It's soft.", "en", -10, EN_ASK)
+add("l5w1_t_bread2", "This is a piece of bread.", "en", -10, EN_ASK)
+add("l5w1_t_bread3", "Touch the bread.", "en", -10, EN_ASK)
+add("l5w1_t_bread4", "Which one is bread?", "en", -10, EN_ASK)
+add("l5w1_t_egg1", "Look! An egg. It's round.", "en", -10, EN_ASK)
+add("l5w1_t_egg2", "I have an egg for breakfast.", "en", -10, EN_ASK)
+add("l5w1_t_egg3", "Where is the egg?", "en", -10, EN_ASK)
+add("l5w1_t_egg4", "Show me the egg.", "en", -10, EN_ASK)
+add("l5w1_t_rice1", "Look! Rice. It's hot.", "en", -10, EN_ASK)
+add("l5w1_t_rice2", "The rice is hot. It smells good.", "en", -10, EN_ASK)
+add("l5w1_t_rice3", "Touch the rice.", "en", -10, EN_ASK)
+add("l5w1_t_rice4", "Which one is rice?", "en", -10, EN_ASK)
+add("l5w1_t_done", "You know the food! Let's eat!", "en", -8, EN_PRAISE)
+
+# 题型 A：听音找食物（4 条）
+add("l5w1_a_milk", "Find the milk.", "en", -10, EN_ASK)
+add("l5w1_a_bread", "Find the bread.", "en", -10, EN_ASK)
+add("l5w1_a_egg", "Find the egg.", "en", -10, EN_ASK)
+add("l5w1_a_rice", "Find the rice.", "en", -10, EN_ASK)
+
+# 题型 B：听描述找食物（4 条，每条只描述一种食物的属性）
+add("l5w1_b_milk", "It is white. We drink it. What is it?", "en", -10, EN_ASK)
+add("l5w1_b_bread", "It is soft. We eat it in the morning. What is it?", "en", -10, EN_ASK)
+add("l5w1_b_egg", "It is round and white. It is in a shell. What is it?", "en", -10, EN_ASK)
+add("l5w1_b_rice", "It is white and hot. We eat it with a spoon. What is it?", "en", -10, EN_ASK)
+
+# 题型 C：把食物拖到盘子上（4 条）
+add("l5w1_c_milk", "Put the milk on the plate.", "en", -10, EN_ASK)
+add("l5w1_c_bread", "Put the bread on the plate.", "en", -10, EN_ASK)
+add("l5w1_c_egg", "Put the egg on the plate.", "en", -10, EN_ASK)
+add("l5w1_c_rice", "Put the rice on the plate.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

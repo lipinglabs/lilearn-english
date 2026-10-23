@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-23（第 4 岛第 5 关「游乐场 · 听音模仿」上线，第 4 岛收官；`ANIMAL_IMG` 14 张、语音 468 条）
+> 最后更新：2026-10-23（第 5 岛第 1 关「常见食物」上线；`FOOD_IMG` 3 张 + 手写牛奶 SVG、语音 497 条）
 
 ---
 
@@ -14,7 +14,7 @@
 | 线上地址 | https://lipinglabs.github.io/lilearn-english/ |
 | 仓库 | `lipinglabs/lilearn-english`（**public**） |
 | 技术形态 | 纯静态：单页 HTML + 两个数据脚本 + Service Worker。**无构建、无框架、无后端、无 npm 依赖** |
-| 内容规模 | 12 岛 × 5 关框架；已做第 1、2、3 岛全部 + 第 4 岛全部（5 关） |
+| 内容规模 | 12 岛 × 5 关框架；已做第 1–4 岛全部 + 第 5 岛第 1 关 |
 | 部署 | GitHub Pages（源 `main` 分支根目录 `/`，legacy 构建），推送即自动重建 |
 
 ---
@@ -63,9 +63,9 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   491,890 B / 12,386 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  14,151,926 B /  4,247 行   ← window.VOICE_BANK，468 条 base64 mp3
-assets.js  1,293,267 B /    408 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14)
+index.html   533,044 B / 12,976 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  14,974,808 B /  4,494 行   ← window.VOICE_BANK，497 条 base64 mp3
+assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
 ```
 
 **切割前**是 9.5 MB 单文件，iPhone 上解析阻塞主线程导致 1–2 秒卡顿与发热；切割后 `index.html` 降至 327,800 B（−96.6%）。
@@ -121,12 +121,12 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 |---|---|
 | `sw.js` | PWA Service Worker（Android 全屏必需 + 离线可玩） |
 | `manifest.json`、`icons/` | PWA 清单与图标（192/512/maskable/apple-touch-180） |
-| `assets/{fruit,color,animal}/*.png` | 3D 图标源图（Fluent Emoji 3D，MIT），构建期内联 |
-| `voice/*.mp3` | 语音源文件 468 个（`manifest.md` 为目标清单） |
+| `assets/{fruit,color,animal,food}/*.png` | 3D 图标源图（Fluent Emoji 3D，MIT），构建期内联；`food/` 只有 bread / egg / rice（牛奶是手写 SVG） |
+| `voice/*.mp3` | 语音源文件 497 个（`manifest.md` 为目标清单） |
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
-| `tools/make_animals.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的五个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**） |
+| `tools/make_animals.py` / `make_food.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
+| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的六个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**） |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
@@ -184,7 +184,9 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 10. **选项槽位固定 3 个**，题库 >3 时「正确 + 2 干扰」抽取，不得整库塞入。
 11. 拖拽题必须同时支持「点选 + 点目标」等价路径；`<8px` 视为轻点；指针与 click 用 400ms 去重；投放判定用 `elementsFromPoint()`。
 12. **教学互动必须有 4 秒静默小手指**（全局，第 2 岛第 5 关起）：只示范不代替，统一 `armHint/clearHint/showHint`，禁止关卡自写计时器，退出/答对/重开必须清理。
-13. **图片资产只能复用现有图库**（fruit / color / animal）或内联 SVG，**严禁任何生图接口**（Seedream / 即梦等）。
+13. **图片资产只能复用现有图库**（fruit / color / animal / food）或内联 SVG，**严禁任何生图接口**（Seedream / 即梦等）。
+14. **3D 素材要按实际卡片尺寸（80–110px）验语义**：缩小后关键属性还在吗？不在就换手写 SVG；
+    同一个词绝不用两张不同的图；被替换的旧文件要从 `assets/` 与内联脚本的 `*_ORDER` 里一起删掉。
 
 ### 4.3 关卡框架铁律（§三）
 
@@ -200,6 +202,8 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 10. **模仿型交互（相机确认）**：按钮唯一、≥44vw、位置固定，点它永远判对（没有答错分支）；
     演示阶段半透明不可点，只有互动阶段可点。**猜剪影题必须把动作画出来**（速度线 / 向上竖线 / Z），
     且备选动物的剪影要一眼能分开。
+11. **新增图库六处接入**：`make_*.py` → `inline_assets.py` 的 `*_ORDER`/`emit` → `var XXX_IMG` →
+    `xxxImg()` → `snapshot()` 指纹 → 样式定宽。验收 `git diff --numstat assets.js` 必须是 `N 0`。
 
 ### 4.4 工程约定（§四）
 
@@ -249,18 +253,26 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   W4「动物 + 动作短句」（The dog is running / The cat is sleeping / The monkey is eating，
   新增 ✅ / ❌ 对错判断题与「动物 + 动作 + 场景」整幅场景卡）、
   W5「游乐场 · 听音模仿」（结业关：听指令做动作 + 点「我做好啦」相机按钮确认、放大镜剪影猜动物、
-  同一只动物三种动作里找出正在做那件事的那一只）。
-  `ANIMAL_IMG` 现为 14 张，全部由 `tools/make_animals.py` 从 Fluent 3D Emoji 下载缩放，
-  **没有调用过任何生图接口**；W3 的小男孩 / W5 的跳跃小人（跑 / 走 / 跳 / 睡四姿态）与 W4 的 7 张场景背景
-  （草地 / 垫子 / 沙发 / 大树 / 草原 / 床 / 树林）都是手写内联 SVG，
-  肢体用 CSS `transform-box:view-box` 摆动，睡姿的「Z」与相机 / 放大镜也都是 path 而非文字或 emoji 字符。
-- **未完成**：第 5–12 岛（第 5 岛「交通工具」在地图上已解锁，内容未做）。
-- **第 4 岛主题**：`ISLANDS[3]` 为**「动物与动作」**，地图图标已从 🦁 字符换成 3D 狮子 PNG
+  同一只动物三种动作里找出正在做那件事的那一只）；
+  **第 5 岛 W1「常见食物」**（milk / bread / egg / rice：4 个词各 2 演示 + 2 互动、
+  答题 A 听音找食物 / B 听描述找食物 / C 把食物拖到盘子上）。
+  `ANIMAL_IMG` 现为 14 张、`FOOD_IMG` 3 张，全部由 `tools/make_animals.py` / `make_food.py`
+  从 Fluent 3D Emoji 下载缩放，**没有调用过任何生图接口**；
+  手写内联 SVG 的部分：W3 的小男孩 / W5 的跳跃小人（跑 / 走 / 跳 / 睡四姿态）、W4 的 7 张场景背景
+  （草地 / 垫子 / 沙发 / 大树 / 草原 / 床 / 树林），以及第 5 岛的**牛奶杯 / 清水杯 / 倒奶场景 / 煎蛋锅 /
+  盘子 / 热气**（肢体用 CSS `transform-box:view-box` 摆动，睡姿的「Z」与相机 / 放大镜也都是 path，
+  页面里没有任何 emoji 字符充当图形）。
+- **未完成**：第 5 岛 W2–W5；第 6–12 岛（第 5 岛 W1 通关后 W2 已解锁但内容未做）。
+- **第 5 岛主题**：`ISLANDS[4]` 为**「食物与饮料」**，地图图标用 3D 面包 PNG；
+  **原「交通工具」后移到第 6 岛**（`ISLANDS[5]`，仍是 emoji 字符兜底，做那一岛时要换成 3D 素材）。
+- **第 4 岛主题**：`ISLANDS[3]` 为**「动物与动作」**，地图图标为 3D 狮子 PNG
   （RULES §二.5 禁止 emoji 充当配图）——该岛含农场动物、野生动物、动作动词、动作短句、听音模仿五类内容。
 - **教学口径**：从 W2 起按 `RULES.md §三.10`「双倍量」执行——每个新单词 / 新句型 2 次不同演示 + 2 次互动；
   W3 起追加「动画型知识点」要求（动作要真的动起来，跑 / 跳剪影必须能分开）；
   W4 起追加「新交互先示范」（✅ / ❌ 这类新交互必须先由老师示范一次）；
-  W5 起追加 `RULES.md §三.12`「模仿型交互」——相机按钮唯一且永远判对、演示阶段不可点、猜剪影题必须把动作画出来。
+  W5 起追加 `RULES.md §三.12`「模仿型交互」——相机按钮唯一且永远判对、演示阶段不可点、猜剪影题必须把动作画出来；
+  第 5 岛 W1 起追加 `RULES.md §二.14`「素材按实际卡片尺寸验语义」——牛奶的 3D 图缩小后与清水不可分，
+  改为手写 SVG（同一条杯身 path、只换内容物）。
 - **文档已知过期**：`README.md` 里「当前进度仅到第 3 岛第 1 关」等段落已过时，以本文件与 commit 记录为准。
 
 ---

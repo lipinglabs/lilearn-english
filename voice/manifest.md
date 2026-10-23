@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**468** 条（英文 462 + 中文 6）
+总条目：**497** 条（英文 491 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -439,33 +439,62 @@
 | `l4w4_c_cat` | en | Put the cat that is sleeping in the sleeping box. | 已存在 |
 | `l4w4_c_horse` | en | Put the horse that is running in the running box. | 已存在 |
 | `l4w4_c_pig` | en | Put the pig that is sleeping in the sleeping box. | 已存在 |
-| `l4w5_t_cam` | en | This is the camera button. Do your move, then touch the camera. | 待生成 |
-| `l4w5_t_run1` | en | Look! The dog is running. Can you run? | 待生成 |
-| `l4w5_t_run2` | en | Let's run together! Click the camera when you are running! | 待生成 |
-| `l4w5_t_run3` | en | The horse is running too. Can you run fast? | 待生成 |
-| `l4w5_t_run4` | en | Show me running! Run, run, run, then touch the camera. | 待生成 |
-| `l4w5_t_jump1` | en | Look! The frog is jumping. Can you jump? | 待生成 |
-| `l4w5_t_jump2` | en | Jump with me! Click the camera when you jump! | 待生成 |
-| `l4w5_t_jump3` | en | The kangaroo is jumping too. Jump up high! | 待生成 |
-| `l4w5_t_jump4` | en | Show me jumping! Jump, jump, then touch the camera. | 待生成 |
-| `l4w5_t_sleep1` | en | Look! The cat is sleeping. Can you sleep? | 待生成 |
-| `l4w5_t_sleep2` | en | Close your eyes and sleep. Click the camera when you are sleeping! | 待生成 |
-| `l4w5_t_sleep3` | en | The pig is sleeping too. Shh, close your eyes. | 待生成 |
-| `l4w5_t_sleep4` | en | Show me sleeping! Close your eyes, then touch the camera. | 待生成 |
-| `l4w5_t_done` | en | Wow, you did it! Let's play the real game! | 待生成 |
-| `l4w5_a_run_dog` | en | The dog is running. Can you run like a dog? | 待生成 |
-| `l4w5_a_run_horse` | en | The horse is running. Can you run like a horse? | 待生成 |
-| `l4w5_a_jump_frog` | en | The frog is jumping. Can you jump like a frog? | 待生成 |
-| `l4w5_a_jump_kangaroo` | en | The kangaroo is jumping. Can you jump like a kangaroo? | 待生成 |
-| `l4w5_a_sleep_cat` | en | The cat is sleeping. Can you sleep like a cat? | 待生成 |
-| `l4w5_a_sleep_bear` | en | The bear is sleeping. Can you sleep like a bear? | 待生成 |
-| `l4w5_b_run` | en | Listen and guess! Who is running? | 待生成 |
-| `l4w5_b_jump` | en | Listen and guess! Who is jumping? | 待生成 |
-| `l4w5_b_sleep` | en | Listen and guess! Who is sleeping? | 待生成 |
-| `l4w5_c_dog` | en | Find the dog that is eating. | 待生成 |
-| `l4w5_c_cat` | en | Find the cat that is running. | 待生成 |
-| `l4w5_c_horse` | en | Find the horse that is sleeping. | 待生成 |
-| `l4w5_c_pig` | en | Find the pig that is eating. | 待生成 |
+| `l4w5_t_cam` | en | This is the camera button. Do your move, then touch the camera. | 已存在 |
+| `l4w5_t_run1` | en | Look! The dog is running. Can you run? | 已存在 |
+| `l4w5_t_run2` | en | Let's run together! Click the camera when you are running! | 已存在 |
+| `l4w5_t_run3` | en | The horse is running too. Can you run fast? | 已存在 |
+| `l4w5_t_run4` | en | Show me running! Run, run, run, then touch the camera. | 已存在 |
+| `l4w5_t_jump1` | en | Look! The frog is jumping. Can you jump? | 已存在 |
+| `l4w5_t_jump2` | en | Jump with me! Click the camera when you jump! | 已存在 |
+| `l4w5_t_jump3` | en | The kangaroo is jumping too. Jump up high! | 已存在 |
+| `l4w5_t_jump4` | en | Show me jumping! Jump, jump, then touch the camera. | 已存在 |
+| `l4w5_t_sleep1` | en | Look! The cat is sleeping. Can you sleep? | 已存在 |
+| `l4w5_t_sleep2` | en | Close your eyes and sleep. Click the camera when you are sleeping! | 已存在 |
+| `l4w5_t_sleep3` | en | The pig is sleeping too. Shh, close your eyes. | 已存在 |
+| `l4w5_t_sleep4` | en | Show me sleeping! Close your eyes, then touch the camera. | 已存在 |
+| `l4w5_t_done` | en | Wow, you did it! Let's play the real game! | 已存在 |
+| `l4w5_a_run_dog` | en | The dog is running. Can you run like a dog? | 已存在 |
+| `l4w5_a_run_horse` | en | The horse is running. Can you run like a horse? | 已存在 |
+| `l4w5_a_jump_frog` | en | The frog is jumping. Can you jump like a frog? | 已存在 |
+| `l4w5_a_jump_kangaroo` | en | The kangaroo is jumping. Can you jump like a kangaroo? | 已存在 |
+| `l4w5_a_sleep_cat` | en | The cat is sleeping. Can you sleep like a cat? | 已存在 |
+| `l4w5_a_sleep_bear` | en | The bear is sleeping. Can you sleep like a bear? | 已存在 |
+| `l4w5_b_run` | en | Listen and guess! Who is running? | 已存在 |
+| `l4w5_b_jump` | en | Listen and guess! Who is jumping? | 已存在 |
+| `l4w5_b_sleep` | en | Listen and guess! Who is sleeping? | 已存在 |
+| `l4w5_c_dog` | en | Find the dog that is eating. | 已存在 |
+| `l4w5_c_cat` | en | Find the cat that is running. | 已存在 |
+| `l4w5_c_horse` | en | Find the horse that is sleeping. | 已存在 |
+| `l4w5_c_pig` | en | Find the pig that is eating. | 已存在 |
+| `l5w1_t_milk1` | en | Look! Milk. It's white. | 待生成 |
+| `l5w1_t_milk2` | en | I like to drink milk. | 待生成 |
+| `l5w1_t_milk3` | en | Where is the milk? Touch the milk. | 待生成 |
+| `l5w1_t_milk4` | en | Which one is milk? | 待生成 |
+| `l5w1_t_bread1` | en | Look! Bread. It's soft. | 待生成 |
+| `l5w1_t_bread2` | en | This is a piece of bread. | 待生成 |
+| `l5w1_t_bread3` | en | Touch the bread. | 待生成 |
+| `l5w1_t_bread4` | en | Which one is bread? | 待生成 |
+| `l5w1_t_egg1` | en | Look! An egg. It's round. | 待生成 |
+| `l5w1_t_egg2` | en | I have an egg for breakfast. | 待生成 |
+| `l5w1_t_egg3` | en | Where is the egg? | 待生成 |
+| `l5w1_t_egg4` | en | Show me the egg. | 待生成 |
+| `l5w1_t_rice1` | en | Look! Rice. It's hot. | 待生成 |
+| `l5w1_t_rice2` | en | The rice is hot. It smells good. | 待生成 |
+| `l5w1_t_rice3` | en | Touch the rice. | 待生成 |
+| `l5w1_t_rice4` | en | Which one is rice? | 待生成 |
+| `l5w1_t_done` | en | You know the food! Let's eat! | 待生成 |
+| `l5w1_a_milk` | en | Find the milk. | 待生成 |
+| `l5w1_a_bread` | en | Find the bread. | 待生成 |
+| `l5w1_a_egg` | en | Find the egg. | 待生成 |
+| `l5w1_a_rice` | en | Find the rice. | 待生成 |
+| `l5w1_b_milk` | en | It is white. We drink it. What is it? | 待生成 |
+| `l5w1_b_bread` | en | It is soft. We eat it in the morning. What is it? | 待生成 |
+| `l5w1_b_egg` | en | It is round and white. It is in a shell. What is it? | 待生成 |
+| `l5w1_b_rice` | en | It is white and hot. We eat it with a spoon. What is it? | 待生成 |
+| `l5w1_c_milk` | en | Put the milk on the plate. | 待生成 |
+| `l5w1_c_bread` | en | Put the bread on the plate. | 待生成 |
+| `l5w1_c_egg` | en | Put the egg on the plate. | 待生成 |
+| `l5w1_c_rice` | en | Put the rice on the plate. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

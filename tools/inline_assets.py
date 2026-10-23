@@ -36,6 +36,13 @@ ANIMAL_DIR = ROOT / "assets" / "animal"
 # 动物图：第 3 岛用 elephant/mouse/dog/cat，第 4 岛农场加 pig/cow。
 # 同样来自 microsoft/fluentui-emoji 的 3D 资源，由 make_animals.py 统一缩放到 192px，
 # 禁止调用任何生图接口。
+FOOD_DIR = ROOT / "assets" / "food"
+# 食物图（第 5 岛第 1 关）：milk / bread / egg / rice，
+# 同样来自 microsoft/fluentui-emoji 的 3D 资源，由 make_food.py 缩放到 192px，禁止生图。
+# 牛奶没有 3D 图：Fluent 的 glass_of_milk 杯壁偏蓝，缩小后和一杯清水分不开，
+# 已改为手写内联 SVG（index.html 里的 F6_MILK）。这里只留三张 PNG。
+FOOD_ORDER = ["bread", "egg", "rice"]
+
 ANIMAL_ORDER = ["elephant", "mouse", "dog", "cat", "pig", "cow",
                 # 第 4 岛第 2 关（野生动物）
                 "lion", "tiger", "monkey",
@@ -73,6 +80,12 @@ def main() -> int:
         print(f"缺少颜色图：{missing_c}（先跑 tools/make_colors.py）", file=sys.stderr)
         return 1
 
+    food_files = {p.stem: p for p in FOOD_DIR.glob("*.png")}
+    missing_f = [k for k in FOOD_ORDER if k not in food_files]
+    if missing_f:
+        print(f"缺少食物图：{missing_f}（先跑 tools/make_food.py）", file=sys.stderr)
+        return 1
+
     animal_files = {p.stem: p for p in ANIMAL_DIR.glob("*.png")}
     missing_a = [k for k in ANIMAL_ORDER if k not in animal_files]
     if missing_a:
@@ -84,6 +97,7 @@ def main() -> int:
     emit(lines, "FRUIT_IMG", {k: files[k] for k in ORDER}, total_box)
     emit(lines, "COLOR_IMG", {k: color_files[k] for k in COLOR_ORDER}, total_box)
     emit(lines, "ANIMAL_IMG", {k: animal_files[k] for k in ANIMAL_ORDER}, total_box)
+    emit(lines, "FOOD_IMG", {k: food_files[k] for k in FOOD_ORDER}, total_box)
     snippet = "\n".join(lines) + "\n"
     total = total_box[0]
 
@@ -93,7 +107,7 @@ def main() -> int:
         return 1
     head = src.split(HEAD_ANCHOR, 1)[0]
     ASSETS_JS_PATH.write_text(head + snippet, encoding="utf-8")
-    print(f"\n共 {len(ORDER) + len(COLOR_ORDER) + len(ANIMAL_ORDER)} 张图、{total} 字节 PNG，"
+    print(f"\n共 {len(ORDER) + len(COLOR_ORDER) + len(ANIMAL_ORDER) + len(FOOD_ORDER)} 张图、{total} 字节 PNG，"
           f"已内联至 assets.js")
     return 0
 
