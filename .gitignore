@@ -43,3 +43,5 @@ d-*.png
 fd-*.png
 fm-*.png
 live-*.png
+__pycache__/
+*.pyc

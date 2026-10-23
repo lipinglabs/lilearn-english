@@ -20,11 +20,22 @@ import argparse
 import base64
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
 import uuid
 from pathlib import Path
+
+# 走本地代理出网（沙盒 / 企业网常见：git 推送与直连被拦，但 CONNECT 隧道可用）
+_PROXY = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
+if _PROXY:
+    try:
+        urllib.request.install_opener(
+            urllib.request.build_opener(urllib.request.ProxyHandler({"https": _PROXY}))
+        )
+    except Exception:
+        pass
 
 ENDPOINT = "https://openspeech.bytedance.com/api/v3/tts/unidirectional"
 RESOURCE_ID = "seed-tts-2.0"
@@ -392,6 +403,28 @@ add("l3w3b_long_rabbit", "The rabbit has long ears. Find the long one.", "en", -
 add("l3w3c_long_banana", "Put the long banana in the long box.", "en", -10, EN_ASK)
 add("l3w3c_short_banana", "Put the short banana in the short box.", "en", -10, EN_ASK)
 
+# ---- 第 3 岛第 4 关（L3-W4，找不同 Odd one out）语音清单 ----
+# 教学 2 条：演示「3 苹果 + 1 香蕉，香蕉不同」+ 互动「点不同的」（过渡复用 t_ready）
+# 题型 A（动物）6 条：l3w4_a_{majority}_{odd} = "Three <majority> and one <odd>. Find the different one."
+# 题型 B（水果）1 条：l3w4_odd = "Which one is odd?"（不点名水果，多种组合复用同一句）
+# 题型 C（颜色）6 条：l3w4_c_{majority}_{odd} = "Three <颜色> cars and one <颜色> car. Find the different one."
+# 合计 15 条新语音。复用：t_ready（过渡）、again（答错）、win1/2/3（通关）、praise_1..6（中文鼓励）。
+add("l3w4_tut_demo", "Look! Three apples and one banana. The banana is different.", "en", -10, EN_ASK)
+add("l3w4_tut_ask", "Find the different one.", "en", -10, EN_ASK)
+add("l3w4_odd", "Which one is odd?", "en", -10, EN_ASK)
+add("l3w4_a_dog_cat", "Three dogs and one cat. Find the different one.", "en", -10, EN_ASK)
+add("l3w4_a_cat_dog", "Three cats and one dog. Find the different one.", "en", -10, EN_ASK)
+add("l3w4_a_elephant_cat", "Three elephants and one cat. Find the different one.", "en", -10, EN_ASK)
+add("l3w4_a_dog_elephant", "Three dogs and one elephant. Find the different one.", "en", -10, EN_ASK)
+add("l3w4_a_cat_elephant", "Three cats and one elephant. Find the different one.", "en", -10, EN_ASK)
+add("l3w4_a_elephant_dog", "Three elephants and one dog. Find the different one.", "en", -10, EN_ASK)
+add("l3w4_c_red_blue", "Three red cars and one blue car. Find the different one.", "en", -10, EN_ASK)
+add("l3w4_c_blue_red", "Three blue cars and one red car. Find the different one.", "en", -10, EN_ASK)
+add("l3w4_c_yellow_green", "Three yellow cars and one green car. Find the different one.", "en", -10, EN_ASK)
+add("l3w4_c_green_yellow", "Three green cars and one yellow car. Find the different one.", "en", -10, EN_ASK)
+add("l3w4_c_red_yellow", "Three red cars and one yellow car. Find the different one.", "en", -10, EN_ASK)
+add("l3w4_c_blue_green", "Three blue cars and one green car. Find the different one.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
@@ -407,6 +440,7 @@ ROOT = Path(__file__).resolve().parent.parent
 VOICE_DIR = ROOT / "voice"
 MANIFEST_PATH = VOICE_DIR / "manifest.md"
 HTML_PATH = ROOT / "index.html"
+VOICE_JS_PATH = ROOT / "voice.js"
 MARK_START = "/* VOICE_BANK_START */"
 MARK_END = "/* VOICE_BANK_END */"
 CHUNK = 4000
@@ -567,6 +601,40 @@ def inject(snippet: str) -> None:
     HTML_PATH.write_text(head + snippet + tail, encoding="utf-8")
 
 
+def merge_into_voicejs(bank_new: dict[str, bytes]) -> None:
+    """把新生成的语音合并进 voice.js：只追加缺失的 key，绝不删除 / 覆盖已有条目。
+
+    物理切割后语音库整体搬到了 voice.js（window.VOICE_BANK），index.html 已无标记位，
+    因此注入目标改为 voice.js。本函数幂等：已存在的 key 跳过，重复运行不会重复追加。
+    """
+    if not bank_new:
+        print("没有新语音需要合并（全部已存在）")
+        return
+    text = VOICE_JS_PATH.read_text(encoding="utf-8")
+    existing = set(re.findall(r"^\s*([A-Za-z0-9_]+):", text, re.M))
+    if "};" not in text:
+        sys.exit("voice.js 缺少结尾 };，无法合并")
+    head, tail = text.rsplit("};", 1)
+    lines = []
+    inserted = 0
+    for key, data in bank_new.items():
+        if key in existing:
+            continue
+        uri = "data:audio/mpeg;base64," + base64.b64encode(data).decode("ascii")
+        parts = [uri[i:i + CHUNK] for i in range(0, len(uri), CHUNK)] or [""]
+        body = "".join(f'      "{p}" +\n' for p in parts[:-1])
+        body += f'      "{parts[-1]}"'
+        lines.append(f"  {key}:")
+        lines.append(body + ",")
+        inserted += 1
+    if inserted == 0:
+        print("voice.js 已包含全部新 key，无需追加")
+        return
+    snippet = "\n".join(lines) + "\n"
+    VOICE_JS_PATH.write_text(head + snippet + "};" + tail, encoding="utf-8")
+    print(f"已向 voice.js 合并 {inserted} 条新语音（共 {len(existing) + inserted} 条）")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--inject-only", action="store_true")
@@ -641,15 +709,14 @@ def main() -> int:
             for k, e in failed_by_key:
                 print(f"  · {k}：{e[:160]}", file=sys.stderr)
 
-    missing = [k for k in PHRASES if not (VOICE_DIR / f"{k}.mp3").exists()]
+    # 只要求本次待生成的 key 已落地；已有条目直接从 voice.js 保留（绝不删除 / 覆盖）
+    missing = [k for k in todo if not (VOICE_DIR / f"{k}.mp3").exists()]
     if missing:
         print(f"缺少语音文件，未注入：{missing}", file=sys.stderr)
         return 1
 
-    bank = {k: (VOICE_DIR / f"{k}.mp3").read_bytes() for k in PHRASES}
-
-    inject(to_js(bank))
-    print(f"已注入 {len(bank)} 条语音到 index.html")
+    bank_new = {k: (VOICE_DIR / f"{k}.mp3").read_bytes() for k in todo}
+    merge_into_voicejs(bank_new)
     return 0
 
 

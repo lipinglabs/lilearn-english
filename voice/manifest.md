@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**305** 条（英文 299 + 中文 6）
+总条目：**320** 条（英文 314 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -281,28 +281,43 @@
 | `l3w2c_less_banana` | en | Put the group with less bananas in the less box. | 已存在 |
 | `l3w2c_more_grape` | en | Put the group with more grapes in the more box. | 已存在 |
 | `l3w2c_less_grape` | en | Put the group with less grapes in the less box. | 已存在 |
-| `l3w3_tut_long1` | en | Look! The snake is long. | 待生成 |
-| `l3w3_tut_long2` | en | The bread is long. | 待生成 |
-| `l3w3_tut_short1` | en | Look! The pencil is short. | 待生成 |
-| `l3w3_tut_short2` | en | The scarf is short. | 待生成 |
-| `l3w3_tut_long_ask` | en | Can you find the long snake? | 待生成 |
-| `l3w3_tut_short_ask` | en | Can you find the short pencil? | 待生成 |
-| `l3w3a_long_snake` | en | Find the long snake. | 待生成 |
-| `l3w3a_short_snake` | en | Find the short snake. | 待生成 |
-| `l3w3a_long_rope` | en | Find the long rope. | 待生成 |
-| `l3w3a_short_rope` | en | Find the short rope. | 待生成 |
-| `l3w3a_long_pencil` | en | Find the long pencil. | 待生成 |
-| `l3w3a_short_pencil` | en | Find the short pencil. | 待生成 |
-| `l3w3a_long_bread` | en | Find the long bread. | 待生成 |
-| `l3w3a_short_bread` | en | Find the short bread. | 待生成 |
-| `l3w3a_long_scarf` | en | Find the long scarf. | 待生成 |
-| `l3w3a_short_scarf` | en | Find the short scarf. | 待生成 |
-| `l3w3a_long_car` | en | Find the long car. | 待生成 |
-| `l3w3a_short_car` | en | Find the short car. | 待生成 |
-| `l3w3b_long_giraffe` | en | The giraffe has a long neck. Find the long one. | 待生成 |
-| `l3w3b_long_rabbit` | en | The rabbit has long ears. Find the long one. | 待生成 |
-| `l3w3c_long_banana` | en | Put the long banana in the long box. | 待生成 |
-| `l3w3c_short_banana` | en | Put the short banana in the short box. | 待生成 |
+| `l3w3_tut_long1` | en | Look! The snake is long. | 已存在 |
+| `l3w3_tut_long2` | en | The bread is long. | 已存在 |
+| `l3w3_tut_short1` | en | Look! The pencil is short. | 已存在 |
+| `l3w3_tut_short2` | en | The scarf is short. | 已存在 |
+| `l3w3_tut_long_ask` | en | Can you find the long snake? | 已存在 |
+| `l3w3_tut_short_ask` | en | Can you find the short pencil? | 已存在 |
+| `l3w3a_long_snake` | en | Find the long snake. | 已存在 |
+| `l3w3a_short_snake` | en | Find the short snake. | 已存在 |
+| `l3w3a_long_rope` | en | Find the long rope. | 已存在 |
+| `l3w3a_short_rope` | en | Find the short rope. | 已存在 |
+| `l3w3a_long_pencil` | en | Find the long pencil. | 已存在 |
+| `l3w3a_short_pencil` | en | Find the short pencil. | 已存在 |
+| `l3w3a_long_bread` | en | Find the long bread. | 已存在 |
+| `l3w3a_short_bread` | en | Find the short bread. | 已存在 |
+| `l3w3a_long_scarf` | en | Find the long scarf. | 已存在 |
+| `l3w3a_short_scarf` | en | Find the short scarf. | 已存在 |
+| `l3w3a_long_car` | en | Find the long car. | 已存在 |
+| `l3w3a_short_car` | en | Find the short car. | 已存在 |
+| `l3w3b_long_giraffe` | en | The giraffe has a long neck. Find the long one. | 已存在 |
+| `l3w3b_long_rabbit` | en | The rabbit has long ears. Find the long one. | 已存在 |
+| `l3w3c_long_banana` | en | Put the long banana in the long box. | 已存在 |
+| `l3w3c_short_banana` | en | Put the short banana in the short box. | 已存在 |
+| `l3w4_tut_demo` | en | Look! Three apples and one banana. The banana is different. | 待生成 |
+| `l3w4_tut_ask` | en | Find the different one. | 待生成 |
+| `l3w4_odd` | en | Which one is odd? | 待生成 |
+| `l3w4_a_dog_cat` | en | Three dogs and one cat. Find the different one. | 待生成 |
+| `l3w4_a_cat_dog` | en | Three cats and one dog. Find the different one. | 待生成 |
+| `l3w4_a_elephant_cat` | en | Three elephants and one cat. Find the different one. | 待生成 |
+| `l3w4_a_dog_elephant` | en | Three dogs and one elephant. Find the different one. | 待生成 |
+| `l3w4_a_cat_elephant` | en | Three cats and one elephant. Find the different one. | 待生成 |
+| `l3w4_a_elephant_dog` | en | Three elephants and one dog. Find the different one. | 待生成 |
+| `l3w4_c_red_blue` | en | Three red cars and one blue car. Find the different one. | 待生成 |
+| `l3w4_c_blue_red` | en | Three blue cars and one red car. Find the different one. | 待生成 |
+| `l3w4_c_yellow_green` | en | Three yellow cars and one green car. Find the different one. | 待生成 |
+| `l3w4_c_green_yellow` | en | Three green cars and one yellow car. Find the different one. | 待生成 |
+| `l3w4_c_red_yellow` | en | Three red cars and one yellow car. Find the different one. | 待生成 |
+| `l3w4_c_blue_green` | en | Three blue cars and one green car. Find the different one. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

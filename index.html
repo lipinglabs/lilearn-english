@@ -3736,7 +3736,8 @@
     '2-5': { numbers: null,       make: 'makeP5', title: '第 5 关', tutorial: true },
     '3-1': { numbers: null,       make: 'makeB1', title: '第 1 关', tutorial: true },
     '3-2': { numbers: null,       make: 'makeB2', title: '第 2 关', tutorial: true },
-    '3-3': { numbers: null,       make: 'makeB3', title: '第 3 关', tutorial: true }
+    '3-3': { numbers: null,       make: 'makeB3', title: '第 3 关', tutorial: true },
+    '3-4': { numbers: null,       make: 'makeB4', title: '第 4 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3862,6 +3863,7 @@
     if (def && def.make === 'makeB1') return makeQuestionB1(typeIdx, prev);
     if (def && def.make === 'makeB2') return makeQuestionB2(typeIdx, prev);
     if (def && def.make === 'makeB3') return makeQuestionB3(typeIdx, prev);
+    if (def && def.make === 'makeB4') return makeQuestionB4(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -6310,6 +6312,186 @@
 
   /* ---------------- 第 3 岛第 3 关（长 / 短）教学：翻倍教学量 ---------------- */
 
+  /* ==================== 第 3 岛第 4 关（W4：找不同 Odd one out） ==================== */
+  /* 概念：分类与找不同。三种题型（动物 / 水果 / 颜色），每题 4 张图（3 张相同 + 1 张不同），点选不同那张。
+     教学：演示「3 苹果 + 1 香蕉，香蕉不同」→ 互动「3 狗 + 1 猫，点不同的」→ 4 秒小手指引导 → t_ready 进入答题。
+     规则遵循 RULES：无英文字母外显（仅图片，语音为音频）、答对只清脆音效（judge 默认 coin/ting）、
+     答错温柔鼓励（again）、通关走 finish() 的 playRandomPraise(playLevelComplete)。 */
+
+  var B4_ANIMAL = [
+    { audio: 'l3w4_a_dog_cat',        sig: 'dog-cat',        maj: 'dog',       odd: 'cat',       lib: 'animal' },
+    { audio: 'l3w4_a_cat_dog',        sig: 'cat-dog',        maj: 'cat',       odd: 'dog',       lib: 'animal' },
+    { audio: 'l3w4_a_elephant_cat',   sig: 'elephant-cat',   maj: 'elephant', odd: 'cat',       lib: 'animal' },
+    { audio: 'l3w4_a_dog_elephant',   sig: 'dog-elephant',   maj: 'dog',       odd: 'elephant', lib: 'animal' },
+    { audio: 'l3w4_a_cat_elephant',   sig: 'cat-elephant',   maj: 'cat',       odd: 'elephant', lib: 'animal' },
+    { audio: 'l3w4_a_elephant_dog',   sig: 'elephant-dog',   maj: 'elephant', odd: 'dog',       lib: 'animal' }
+  ];
+  var B4_FRUIT = [
+    { audio: 'l3w4_odd', sig: 'apple-banana',     maj: 'apple',    odd: 'banana',    lib: 'fruit' },
+    { audio: 'l3w4_odd', sig: 'banana-apple',    maj: 'banana',   odd: 'apple',     lib: 'fruit' },
+    { audio: 'l3w4_odd', sig: 'strawberry-grape', maj: 'strawberry', odd: 'grape',  lib: 'fruit' },
+    { audio: 'l3w4_odd', sig: 'grape-strawberry', maj: 'grape',   odd: 'strawberry', lib: 'fruit' },
+    { audio: 'l3w4_odd', sig: 'apple-strawberry', maj: 'apple',   odd: 'strawberry', lib: 'fruit' },
+    { audio: 'l3w4_odd', sig: 'banana-grape',    maj: 'banana',   odd: 'grape',     lib: 'fruit' }
+  ];
+  var B4_COLOR = [
+    { audio: 'l3w4_c_red_blue',     sig: 'red-blue',     maj: 'car_red',   odd: 'car_blue',  lib: 'color' },
+    { audio: 'l3w4_c_blue_red',     sig: 'blue-red',     maj: 'car_blue',  odd: 'car_red',   lib: 'color' },
+    { audio: 'l3w4_c_yellow_green', sig: 'yellow-green', maj: 'car_yellow', odd: 'car_green', lib: 'color' },
+    { audio: 'l3w4_c_green_yellow', sig: 'green-yellow', maj: 'car_green', odd: 'car_yellow', lib: 'color' },
+    { audio: 'l3w4_c_red_yellow',   sig: 'red-yellow',   maj: 'car_red',   odd: 'car_yellow', lib: 'color' },
+    { audio: 'l3w4_c_blue_green',   sig: 'blue-green',   maj: 'car_blue',  odd: 'car_green', lib: 'color' }
+  ];
+
+  /** 跨三套图库取图（FRUIT / ANIMAL / COLOR），避免 assetImg 只认 FRUIT_IMG 的坑 */
+  function b4Img(asset, lib) {
+    var src = lib === 'animal' ? ANIMAL_IMG[asset]
+            : lib === 'color'  ? COLOR_IMG[asset]
+            :                    FRUIT_IMG[asset];
+    if (!src) return null;
+    var img = document.createElement('img');
+    img.src = src; img.alt = ''; img.draggable = false;
+    img.className = 'b4-img'; img.dataset.asset = asset;
+    return img;
+  }
+
+  function ensureB4Css() {
+    if (document.getElementById('b4-style')) return;
+    var s = document.createElement('style');
+    s.id = 'b4-style';
+    s.textContent =
+      '.b4-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:min(86vw,420px);margin:2vh auto;}' +
+      '.b4-tile{background:rgba(255,255,255,.72);border:3px solid #ffd9a0;border-radius:22px;padding:10px;' +
+      'display:flex;align-items:center;justify-content:center;cursor:pointer;' +
+      'box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease,box-shadow .15s ease;}' +
+      '.b4-tile:active{transform:scale(.96);}' +
+      '.b4-tile img{width:min(34vw,150px);height:min(34vw,150px);object-fit:contain;pointer-events:none;}' +
+      '.b4-tile.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5);}' +
+      '.b4-tile.wrong{animation:b4shake .5s;border-color:#f0a0a0;}' +
+      '.b4-tile.glow{animation:b4glow 1.1s ease-in-out infinite;}' +
+      '@keyframes b4shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      '@keyframes b4glow{0%,100%{box-shadow:0 0 0 3px rgba(255,210,120,.5)}' +
+      '50%{box-shadow:0 0 22px 8px rgba(255,210,120,.85);border-color:#ffcf6a}}';
+    document.head.appendChild(s);
+  }
+
+  function renderB4Grid(q) {
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'b4-grid';
+    grid.setAttribute('aria-label', '找不同');
+    q.options.forEach(function (opt, i) {
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'b4-tile';
+      tile.dataset.idx = String(i);
+      tile.dataset.asset = opt.asset;
+      tile.setAttribute('aria-label', '图片');
+      var img = b4Img(opt.asset, opt.lib);
+      if (img) tile.appendChild(img);
+      tile.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(tile.dataset.idx) === state.question.correct, tile);
+      });
+      grid.appendChild(tile);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  function makeQuestionB4(type, prev) {
+    ensureB4Css();
+    var pool = type === 0 ? B4_ANIMAL : type === 1 ? B4_FRUIT : B4_COLOR;
+    var pickC, guard = 0;
+    do {
+      pickC = pool[randInt(0, pool.length - 1)];
+      guard += 1;
+    } while (prev && prev.sig === pickC.sig && guard < 30);
+
+    var opts = [];
+    for (var i = 0; i < 3; i++) opts.push({ asset: pickC.maj, lib: pickC.lib });
+    opts.push({ asset: pickC.odd, lib: pickC.lib });
+    shuffle(opts);
+    var oddSlot = opts.filter(function (o) { return o.asset === pickC.odd; })[0];
+    var correct = opts.indexOf(oddSlot);
+
+    return {
+      type: 'B4', sig: pickC.sig, lib: pickC.lib,
+      options: opts, correct: correct, audio: [pickC.audio]
+    };
+  }
+
+  /* 教学：演示 → 互动（4 秒小手指）→ t_ready 进入答题。结构与「两个位置对比」不同，走 custom 分支 */
+  var runB4Tutorial = (function () {
+    function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
+    function stage(me) {
+      askDisplay.innerHTML = '';
+      var g = document.createElement('div');
+      g.className = 'b4-grid';
+      g.setAttribute('aria-label', '找不同');
+      askDisplay.appendChild(g);
+      return g;
+    }
+    function tile(asset, lib) {
+      var t = document.createElement('button');
+      t.type = 'button';
+      t.className = 'b4-tile';
+      t.dataset.asset = asset;
+      t.setAttribute('aria-label', '图片');
+      var img = b4Img(asset, lib);
+      if (img) t.appendChild(img);
+      return t;
+    }
+    function demo(me) {
+      if (state.tut !== me) return;
+      blank(me);
+      var g = stage(me);
+      var apples = [tile('apple', 'fruit'), tile('apple', 'fruit'), tile('apple', 'fruit')];
+      var banana = tile('banana', 'fruit');
+      apples.concat([banana]).forEach(function (t) { g.appendChild(t); });
+      // 演示：先播讲解，再让香蕉发光（动画挂在 say 的 onDone 上，不猜音频时长）
+      say(['l3w4_tut_demo'], function () {
+        if (state.tut !== me) return;
+        banana.classList.add('glow');
+        setTimeout(function () { if (state.tut === me) interactive(me); }, 1500);
+      });
+    }
+    function interactive(me) {
+      if (state.tut !== me) return;
+      blank(me);
+      var g = stage(me);
+      var dogs = [tile('dog', 'animal'), tile('dog', 'animal'), tile('dog', 'animal')];
+      var cat = tile('cat', 'animal');
+      var all = dogs.concat([cat]);
+      shuffle(all).forEach(function (t) { g.appendChild(t); });
+      me.ask = 'cat';
+      me.hintTarget = cat;
+      me.replay = function () { say(['l3w4_tut_ask']); };
+      say(['l3w4_tut_ask'], function () {
+        if (state.tut !== me) return;
+        armHint();   // 4 秒无操作 → 小手指示范点猫（RULES §二.12）
+      });
+      all.forEach(function (t) {
+        t.addEventListener('click', function () {
+          if (state.tut !== me || !me.ask) return;
+          if (t.dataset.asset === 'cat') {
+            clearHint(); coin(); ting();
+            t.classList.add('right'); me.ask = null;
+            setTimeout(function () { if (state.tut === me) tutFinish(me); }, 900);
+          } else {
+            t.classList.add('wrong');
+            setTimeout(function () { t.classList.remove('wrong'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+      });
+    }
+    var api = function (me) { demo(me); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB3Tutorial = (function () {
     // 四个教学案例（两个长、两个短），每个都给一个视觉对比 + 一个生活联想
     var CASES = [
@@ -6403,6 +6585,9 @@
 
   function renderDisplay(q) {
     askDisplay.innerHTML = '';
+
+    /* ---- 第 3 岛第 4 关：找不同（4 张图点选，选项栏隐藏） ---- */
+    if (q.type === 'B4') { optionsBar.classList.add('gone'); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -6753,6 +6938,7 @@
   }
 
   function renderOptions(q) {
+    if (q.type === 'B4') { renderB4Grid(q); return; }
     optionEls.forEach(function (btn, i) {
       removeDecor(btn);
       btn.className = 'option';
@@ -8078,6 +8264,13 @@
       custom: runB3Tutorial,
       steps: [],
       onDrop: function () { return runB3Tutorial.check(); },
+      onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '3-4': {
+      // 找不同：演示（3 苹果 + 1 香蕉，香蕉发光）→ 互动（3 狗 + 1 猫，4 秒小手指）→ t_ready 收尾
+      custom: runB4Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
