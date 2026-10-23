@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**320** 条（英文 314 + 中文 6）
+总条目：**340** 条（英文 334 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -303,21 +303,41 @@
 | `l3w3b_long_rabbit` | en | The rabbit has long ears. Find the long one. | 已存在 |
 | `l3w3c_long_banana` | en | Put the long banana in the long box. | 已存在 |
 | `l3w3c_short_banana` | en | Put the short banana in the short box. | 已存在 |
-| `l3w4_tut_demo` | en | Look! Three apples and one banana. The banana is different. | 待生成 |
-| `l3w4_tut_ask` | en | Find the different one. | 待生成 |
-| `l3w4_odd` | en | Which one is odd? | 待生成 |
-| `l3w4_a_dog_cat` | en | Three dogs and one cat. Find the different one. | 待生成 |
-| `l3w4_a_cat_dog` | en | Three cats and one dog. Find the different one. | 待生成 |
-| `l3w4_a_elephant_cat` | en | Three elephants and one cat. Find the different one. | 待生成 |
-| `l3w4_a_dog_elephant` | en | Three dogs and one elephant. Find the different one. | 待生成 |
-| `l3w4_a_cat_elephant` | en | Three cats and one elephant. Find the different one. | 待生成 |
-| `l3w4_a_elephant_dog` | en | Three elephants and one dog. Find the different one. | 待生成 |
-| `l3w4_c_red_blue` | en | Three red cars and one blue car. Find the different one. | 待生成 |
-| `l3w4_c_blue_red` | en | Three blue cars and one red car. Find the different one. | 待生成 |
-| `l3w4_c_yellow_green` | en | Three yellow cars and one green car. Find the different one. | 待生成 |
-| `l3w4_c_green_yellow` | en | Three green cars and one yellow car. Find the different one. | 待生成 |
-| `l3w4_c_red_yellow` | en | Three red cars and one yellow car. Find the different one. | 待生成 |
-| `l3w4_c_blue_green` | en | Three blue cars and one green car. Find the different one. | 待生成 |
+| `l3w4_tut_demo` | en | Look! Three apples and one banana. The banana is different. | 已存在 |
+| `l3w4_tut_ask` | en | Find the different one. | 已存在 |
+| `l3w4_odd` | en | Which one is odd? | 已存在 |
+| `l3w4_a_dog_cat` | en | Three dogs and one cat. Find the different one. | 已存在 |
+| `l3w4_a_cat_dog` | en | Three cats and one dog. Find the different one. | 已存在 |
+| `l3w4_a_elephant_cat` | en | Three elephants and one cat. Find the different one. | 已存在 |
+| `l3w4_a_dog_elephant` | en | Three dogs and one elephant. Find the different one. | 已存在 |
+| `l3w4_a_cat_elephant` | en | Three cats and one elephant. Find the different one. | 已存在 |
+| `l3w4_a_elephant_dog` | en | Three elephants and one dog. Find the different one. | 已存在 |
+| `l3w4_c_red_blue` | en | Three red cars and one blue car. Find the different one. | 已存在 |
+| `l3w4_c_blue_red` | en | Three blue cars and one red car. Find the different one. | 已存在 |
+| `l3w4_c_yellow_green` | en | Three yellow cars and one green car. Find the different one. | 已存在 |
+| `l3w4_c_green_yellow` | en | Three green cars and one yellow car. Find the different one. | 已存在 |
+| `l3w4_c_red_yellow` | en | Three red cars and one yellow car. Find the different one. | 已存在 |
+| `l3w4_c_blue_green` | en | Three blue cars and one green car. Find the different one. | 已存在 |
+| `b5_tut_bs1` | en | Look! A big elephant and a small mouse. | 待生成 |
+| `b5_tut_bs2` | en | A big apple and a small apple. | 待生成 |
+| `b5_tut_bs_ask` | en | Find the big elephant. | 待生成 |
+| `b5_tut_ml1` | en | Look! Six apples and two apples. | 待生成 |
+| `b5_tut_ml2` | en | One apple and four apples. | 待生成 |
+| `b5_tut_ml_ask` | en | Find the basket with less apples. | 待生成 |
+| `b5_tut_ls1` | en | Look! A long snake and a short snake. | 待生成 |
+| `b5_tut_ls2` | en | A long train and a short train. | 待生成 |
+| `b5_tut_ls_ask` | en | Find the short train. | 待生成 |
+| `b5_tut_odd1` | en | Three dogs and one cat. The cat is different. | 待生成 |
+| `b5_tut_odd2` | en | Three red balloons and one blue balloon. The blue one is different. | 待生成 |
+| `b5_a_bigger` | en | Which one is bigger? | 待生成 |
+| `b5_a_smaller` | en | Which one is smaller? | 待生成 |
+| `b5_a_longer` | en | Which one is longer? | 待生成 |
+| `b5_a_shorter` | en | Which one is shorter? | 待生成 |
+| `b5_b_odd` | en | Find the odd one out. | 待生成 |
+| `b5_c_big` | en | Put the big one in. | 待生成 |
+| `b5_c_small` | en | Put the small one in. | 待生成 |
+| `b5_c_long` | en | Put the long one in. | 待生成 |
+| `b5_c_short` | en | Put the short one in. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

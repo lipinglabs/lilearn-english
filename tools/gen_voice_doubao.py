@@ -425,6 +425,31 @@ add("l3w4_c_green_yellow", "Three green cars and one yellow car. Find the differ
 add("l3w4_c_red_yellow", "Three red cars and one yellow car. Find the different one.", "en", -10, EN_ASK)
 add("l3w4_c_blue_green", "Three blue cars and one green car. Find the different one.", "en", -10, EN_ASK)
 
+# ---- 第 3 岛第 5 关（L3-W5，游乐场 · 比较与分类终极考验）语音清单 ----
+# 结业复习关：四个知识点各两个案例 + 一问；答题三种组合题型。
+# 教学 11 条（找不同的提问复用 l3w4_tut_ask「Find the different one.」，不新建）：
+add("b5_tut_bs1", "Look! A big elephant and a small mouse.", "en", -10, EN_ASK)
+add("b5_tut_bs2", "A big apple and a small apple.", "en", -10, EN_ASK)
+add("b5_tut_bs_ask", "Find the big elephant.", "en", -10, EN_ASK)
+add("b5_tut_ml1", "Look! Six apples and two apples.", "en", -10, EN_ASK)
+add("b5_tut_ml2", "One apple and four apples.", "en", -10, EN_ASK)
+add("b5_tut_ml_ask", "Find the basket with less apples.", "en", -10, EN_ASK)
+add("b5_tut_ls1", "Look! A long snake and a short snake.", "en", -10, EN_ASK)
+add("b5_tut_ls2", "A long train and a short train.", "en", -10, EN_ASK)
+add("b5_tut_ls_ask", "Find the short train.", "en", -10, EN_ASK)
+add("b5_tut_odd1", "Three dogs and one cat. The cat is different.", "en", -10, EN_ASK)
+add("b5_tut_odd2", "Three red balloons and one blue balloon. The blue one is different.", "en", -10, EN_ASK)
+# 答题 9 条：A 混合比较（bigger/smaller/longer/shorter）4；B 混合分类 1；C 拖拽游乐场 4
+add("b5_a_bigger", "Which one is bigger?", "en", -10, EN_ASK)
+add("b5_a_smaller", "Which one is smaller?", "en", -10, EN_ASK)
+add("b5_a_longer", "Which one is longer?", "en", -10, EN_ASK)
+add("b5_a_shorter", "Which one is shorter?", "en", -10, EN_ASK)
+add("b5_b_odd", "Find the odd one out.", "en", -10, EN_ASK)
+add("b5_c_big", "Put the big one in.", "en", -10, EN_ASK)
+add("b5_c_small", "Put the small one in.", "en", -10, EN_ASK)
+add("b5_c_long", "Put the long one in.", "en", -10, EN_ASK)
+add("b5_c_short", "Put the short one in.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

@@ -3739,7 +3739,8 @@
     '3-1': { numbers: null,       make: 'makeB1', title: '第 1 关', tutorial: true },
     '3-2': { numbers: null,       make: 'makeB2', title: '第 2 关', tutorial: true },
     '3-3': { numbers: null,       make: 'makeB3', title: '第 3 关', tutorial: true },
-    '3-4': { numbers: null,       make: 'makeB4', title: '第 4 关', tutorial: true }
+    '3-4': { numbers: null,       make: 'makeB4', title: '第 4 关', tutorial: true },
+    '3-5': { numbers: null,       make: 'makeB5', title: '第 5 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3866,6 +3867,7 @@
     if (def && def.make === 'makeB2') return makeQuestionB2(typeIdx, prev);
     if (def && def.make === 'makeB3') return makeQuestionB3(typeIdx, prev);
     if (def && def.make === 'makeB4') return makeQuestionB4(typeIdx, prev);
+    if (def && def.make === 'makeB5') return makeQuestionB5(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -6451,6 +6453,482 @@
   }
 
   /* 教学：演示 → 互动（4 秒小手指）→ t_ready 进入答题。结构与「两个位置对比」不同，走 custom 分支 */
+  /* ============================================================
+     第 3 岛第 5 关（游乐场 · 比较与分类终极考验）—— 结业复习关
+     只考不教新词：大小 / 多少 / 长短 / 找不同 全岛复习（RULES §三.9）
+     ============================================================ */
+
+  var B5_ATTR_CN = { big: '大', small: '小', long: '长', short: '短' };
+
+  /** 跨三套图库取图（FRUIT / ANIMAL / COLOR），避免 assetImg 只认 FRUIT_IMG */
+  function b5Img(asset, lib, cls) {
+    var src = lib === 'animal' ? ANIMAL_IMG[asset]
+            : lib === 'color'  ? COLOR_IMG[asset]
+            :                    FRUIT_IMG[asset];
+    if (!src) return null;
+    var img = document.createElement('img');
+    img.src = src; img.alt = ''; img.draggable = false;
+    img.className = cls || 'b5-img';
+    img.dataset.asset = asset;
+    return img;
+  }
+
+  /** 长度物件：火车（车厢数决定长度，用于教学大格） */
+  function b5Train(cars) {
+    var wrap = document.createElement('div');
+    wrap.className = 'b5-train';
+    var loco = document.createElement('div');
+    loco.className = 'b5-car b5-loco';
+    wrap.appendChild(loco);
+    for (var i = 0; i < cars; i++) {
+      var w = document.createElement('div');
+      w.className = 'b5-car b5-wagon';
+      wrap.appendChild(w);
+    }
+    return wrap;
+  }
+
+  /** 长度物件：小蛇（节数决定长度，用于教学大格） */
+  function b5Snake(segs) {
+    var wrap = document.createElement('div');
+    wrap.className = 'b5-snake';
+    for (var i = 0; i < segs; i++) {
+      var b = document.createElement('div');
+      b.className = 'b5-bead';
+      wrap.appendChild(b);
+    }
+    var head = document.createElement('div');
+    head.className = 'b5-bead b5-head';
+    wrap.appendChild(head);
+    return wrap;
+  }
+
+  /** 长度物件：可缩放「小虫条」（宽度按比例，绝不溢出，用于答题小格） */
+  function b5Rod(frac, color) {
+    var wrap = document.createElement('div');
+    wrap.className = 'b5-rod-wrap';
+    var rod = document.createElement('div');
+    rod.className = 'b5-rod';
+    rod.style.width = Math.round((frac || 0.9) * 100) + '%';
+    if (color) rod.style.background = color;
+    var head = document.createElement('div');
+    head.className = 'b5-rod-head';
+    rod.appendChild(head);
+    wrap.appendChild(rod);
+    return wrap;
+  }
+
+  /** 统一「物品」节点：大小（图按 scale 缩放）/ 长短（rod / train / snake） */
+  function b5ItemNode(it) {
+    var box = document.createElement('div');
+    box.className = 'b5-item';
+    if (it.mode === 'len') {
+      if (it.shape === 'train') box.appendChild(b5Train(it.segs || 0));
+      else if (it.shape === 'snake') box.appendChild(b5Snake(it.segs || 3));
+      else box.appendChild(b5Rod(it.frac, it.color));
+    } else {
+      var img = b5Img(it.asset, it.lib, 'b5-img');
+      if (img) {
+        img.style.width = Math.round((it.scale || 0.9) * 100) + '%';
+        box.appendChild(img);
+      }
+    }
+    return box;
+  }
+
+  function ensureB5Css() {
+    if (document.getElementById('b5-style')) return;
+    var s = document.createElement('style');
+    s.id = 'b5-style';
+    s.textContent =
+      '.b5-grid{display:grid;gap:12px;width:min(90vw,460px);margin:2vh auto}' +
+      '.b5-grid[data-n="3"]{grid-template-columns:repeat(3,1fr)}' +
+      '.b5-grid[data-n="4"]{grid-template-columns:repeat(2,1fr)}' +
+      '.b5-tile{background:rgba(255,255,255,.75);border:3px solid #ffd9a0;border-radius:22px;padding:8px;' +
+      'min-height:min(26vw,112px);display:flex;align-items:center;justify-content:center;cursor:pointer;' +
+      'box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease,box-shadow .15s ease}' +
+      '.b5-tile:active{transform:scale(.96)}' +
+      '.b5-tile.right,.b5-right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.b5-tile.wrong{animation:b5shake .5s;border-color:#f0a0a0}' +
+      '.b5-item{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}' +
+      '.b5-img{object-fit:contain;max-height:100%;width:90%}' +
+      '.b5-train{display:flex;align-items:flex-end;gap:2px;justify-content:center}' +
+      '.b5-car{width:clamp(11px,3.4vw,18px);height:clamp(11px,3.4vw,17px);border-radius:6px 6px 4px 4px;' +
+      'position:relative;background:#e8875a;box-shadow:inset 0 -4px rgba(0,0,0,.08)}' +
+      '.b5-loco{background:#df6147;border-radius:9px 9px 4px 4px}' +
+      '.b5-wagon{background:#f2a35f}' +
+      '.b5-car::before,.b5-car::after{content:"";position:absolute;bottom:-4px;width:6px;height:6px;' +
+      'border-radius:50%;background:#5a4a44}.b5-car::before{left:1px}.b5-car::after{right:1px}' +
+      '.b5-snake{display:flex;align-items:center;justify-content:center}' +
+      '.b5-bead{width:clamp(10px,3vw,16px);height:clamp(10px,3vw,16px);border-radius:50%;background:#7cc06b;' +
+      'margin-right:-3px;box-shadow:inset 0 -2px rgba(0,0,0,.08)}' +
+      '.b5-head{background:#5fae4e;position:relative;margin-right:0}' +
+      '.b5-head::after{content:"";position:absolute;top:30%;left:30%;width:22%;height:22%;border-radius:50%;background:#2f3a2a}' +
+      '.b5-rod-wrap{width:100%;display:flex;justify-content:center;align-items:center}' +
+      '.b5-rod{height:clamp(13px,4vw,19px);border-radius:999px;' +
+      'background:linear-gradient(180deg,#9bd98a,#7cc06b);position:relative;min-width:22px;' +
+      'box-shadow:inset 0 -3px rgba(0,0,0,.08)}' +
+      '.b5-rod-head{position:absolute;right:-4px;top:50%;transform:translateY(-50%);' +
+      'width:clamp(15px,4.4vw,21px);height:clamp(15px,4.4vw,21px);border-radius:50%;background:#5fae4e;' +
+      'box-shadow:inset 0 -2px rgba(0,0,0,.1)}' +
+      '.b5-rod-head::after{content:"";position:absolute;top:32%;left:28%;width:20%;height:20%;border-radius:50%;background:#2f3a2a}' +
+      '.b5-gate{width:min(62vw,262px);margin:3vh auto 0;position:relative;display:flex;flex-direction:column;' +
+      'align-items:center;cursor:pointer;border-radius:26px;padding:6px;transition:box-shadow .2s,transform .15s}' +
+      '.b5-gate:active{transform:scale(.98)}' +
+      '.b5-gate.drop-target,.b5-gate.drop-hot{box-shadow:0 0 0 5px rgba(255,200,110,.7)}' +
+      '.b5-gate.right{box-shadow:0 0 0 6px rgba(120,200,140,.85)}' +
+      '.b5-gate-svg{width:100%;display:block;filter:drop-shadow(0 8px 14px rgba(200,150,90,.25))}' +
+      '.b5-gate-label{position:absolute;top:52%;left:50%;transform:translate(-50%,-50%);' +
+      'font-size:clamp(30px,10vw,54px);font-weight:900;color:#b5632a;text-shadow:0 2px 0 #fff5e3}' +
+      '.b5-tut-stage{display:flex;justify-content:center;align-items:center;min-height:42vh}' +
+      '.b5-tut-row{display:flex;gap:clamp(10px,3.4vw,24px);align-items:flex-end;justify-content:center}' +
+      '.b5-tut-cell{display:flex;align-items:flex-end;justify-content:center;cursor:pointer;' +
+      'border-radius:18px;padding:4px;transition:transform .15s,box-shadow .2s}' +
+      '.b5-tut-cell:hover{transform:translateY(-2px)}' +
+      '.b5-tut-basket{padding:2px}' +
+      '.b5-glow{animation:b5glow 1.1s ease-in-out infinite;box-shadow:0 0 0 4px rgba(255,210,120,.55)}' +
+      '.b5-shake{animation:b5shake .5s}' +
+      '@keyframes b5shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      '@keyframes b5glow{0%,100%{box-shadow:0 0 0 3px rgba(255,210,120,.5)}' +
+      '50%{box-shadow:0 0 22px 8px rgba(255,210,120,.9)}}';
+    document.head.appendChild(s);
+  }
+
+  /** 题型 A（3 个）/ 题型 B（4 个）点击宫格 */
+  function renderB5Grid(q) {
+    ensureB5Css();
+    askDisplay.innerHTML = '';
+    var n = q.options.length;
+    var grid = document.createElement('div');
+    grid.className = 'b5-grid';
+    grid.dataset.n = String(n);
+    grid.setAttribute('aria-label', '比较与分类');
+    q.options.forEach(function (opt, i) {
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'b5-tile';
+      tile.dataset.idx = String(i);
+      tile.setAttribute('aria-label', '图片');
+      tile.appendChild(b5ItemNode(opt));
+      tile.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(tile.dataset.idx) === state.question.correct, tile);
+      });
+      grid.appendChild(tile);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 C：游乐场入口（投放目标，标中文属性，绝不出现英文字母） */
+  function renderB5Gate(q) {
+    ensureB5Css();
+    askDisplay.innerHTML = '';
+    var gate = document.createElement('div');
+    gate.className = 'b5-gate';
+    gate.dataset.drop = 'b5gate';
+    gate.setAttribute('aria-label', '游乐场入口');
+    var svg = svgEl('svg');
+    svg.setAttribute('viewBox', '0 0 100 96');
+    svg.setAttribute('class', 'b5-gate-svg');
+    svg.innerHTML =
+      '<ellipse cx="50" cy="90" rx="36" ry="4" fill="#8a6a48" opacity=".12"/>' +
+      '<rect x="7" y="40" width="13" height="48" rx="6" fill="#e8a15e"/>' +
+      '<rect x="80" y="40" width="13" height="48" rx="6" fill="#e8a15e"/>' +
+      '<path d="M8 44a42 34 0 0184 0z" fill="#ffd9a4"/>' +
+      '<path d="M15 44a35 27 0 0170 0z" fill="#ffeccd"/>' +
+      '<rect x="48" y="4" width="4" height="16" rx="2" fill="#cf9d63"/>' +
+      '<circle cx="50" cy="8" r="7" fill="#ff9d5c"/>';
+    var label = document.createElement('div');
+    label.className = 'b5-gate-label';
+    label.textContent = B5_ATTR_CN[q.attr] || '大';
+    gate.appendChild(svg);
+    gate.appendChild(label);
+    // 点选兜底：已选中物品后再点入口 = 投放（RULES §二.11）
+    gate.addEventListener('click', function () {
+      if (state.pickedFruit === null) return;
+      resolveB5C(state.pickedFruit, gate);
+    });
+    askDisplay.appendChild(gate);
+  }
+
+  /** 找出 4 件物品中「唯一不同」的那一件（按视觉特征分组，计数为 1 者即异类） */
+  function findB5Odd(items) {
+    var sigs = items.map(function (o) {
+      return o.mode === 'len'
+        ? ('len|' + (o.shape || 'rod') + '|' + o.frac)
+        : ('size|' + o.asset + '|' + (o.lib || '') + '|' + o.scale);
+    });
+    for (var i = 0; i < sigs.length; i++) {
+      var c = 0;
+      for (var j = 0; j < sigs.length; j++) if (sigs[j] === sigs[i]) c++;
+      if (c === 1) return i;
+    }
+    return 3;
+  }
+
+  /** 结业关出题：A 混合比较（3）/ B 混合分类（4）/ C 拖拽游乐场（3） */
+  function makeQuestionB5(type, prev) {
+    ensureB5Css();
+
+    if (type === 0) {
+      // 题型 A：3 个物品，比大小或比长短；语音 Which one is bigger/smaller/longer/shorter?
+      var useLen = Math.random() < 0.5;
+      var askBig = Math.random() < 0.5;
+      var optsA = [], correctA = 0, audioA;
+      if (useLen) {
+        var fracs = shuffle([0.45, 0.70, 0.95]);
+        optsA = fracs.map(function (f) { return { kind: 'b5item', mode: 'len', shape: 'rod', frac: f }; });
+        correctA = fracs.indexOf(askBig ? 0.95 : 0.45);
+        audioA = askBig ? 'b5_a_longer' : 'b5_a_shorter';
+      } else {
+        var scales = shuffle([0.55, 0.75, 0.95]);
+        var assetA = pick(['apple', 'strawberry', 'banana']);
+        optsA = scales.map(function (s) {
+          return { kind: 'b5item', mode: 'size', asset: assetA, lib: 'fruit', scale: s };
+        });
+        correctA = scales.indexOf(askBig ? 0.95 : 0.55);
+        audioA = askBig ? 'b5_a_bigger' : 'b5_a_smaller';
+      }
+      return { type: 'B5A', options: optsA, correct: correctA, audio: [audioA], askBig: askBig, useLen: useLen };
+    }
+
+    if (type === 1) {
+      // 题型 B：4 个物品，3 同 + 1 异；语音 Find the odd one out.
+      var v = pick(['size', 'len', 'color', 'animal']);
+      var items = [];
+      if (v === 'size') {
+        var bigSame = Math.random() < 0.5;
+        var sSame = bigSame ? 0.95 : 0.55;
+        var sDiff = bigSame ? 0.55 : 0.95;
+        items = [sSame, sSame, sSame, sDiff].map(function (s) {
+          return { kind: 'b5item', mode: 'size', asset: 'apple', lib: 'fruit', scale: s };
+        });
+      } else if (v === 'len') {
+        var longSame = Math.random() < 0.5;
+        var fSame = longSame ? 0.95 : 0.45;
+        var fDiff = longSame ? 0.45 : 0.95;
+        items = [fSame, fSame, fSame, fDiff].map(function (f) {
+          return { kind: 'b5item', mode: 'len', shape: 'rod', frac: f };
+        });
+      } else if (v === 'color') {
+        items = ['balloon_red', 'balloon_red', 'balloon_red', 'balloon_blue'].map(function (a) {
+          return { kind: 'b5item', mode: 'size', asset: a, lib: 'color', scale: 1 };
+        });
+      } else {
+        items = ['dog', 'dog', 'dog', 'cat'].map(function (a) {
+          return { kind: 'b5item', mode: 'size', asset: a, lib: 'animal', scale: 1 };
+        });
+      }
+      shuffle(items);
+      return { type: 'B5B', variant: v, options: items, correct: findB5Odd(items), audio: ['b5_b_odd'] };
+    }
+
+    // 题型 C：游乐园入口标（大/小/长/短），3 个物品，拖/点符合属性者进入
+    var attr = pick(['big', 'small', 'long', 'short']);
+    var optsC = [], correctC = 0;
+    if (attr === 'big' || attr === 'small') {
+      var cs = shuffle([0.55, 0.72, 0.95]);
+      var ca = pick(['apple', 'strawberry']);
+      optsC = cs.map(function (s) {
+        return { kind: 'b5item', mode: 'size', asset: ca, lib: 'fruit', scale: s };
+      });
+      correctC = cs.indexOf(attr === 'big' ? 0.95 : 0.55);
+    } else {
+      var cf = shuffle([0.45, 0.68, 0.95]);
+      optsC = cf.map(function (f) {
+        return { kind: 'b5item', mode: 'len', shape: 'rod', frac: f };
+      });
+      correctC = cf.indexOf(attr === 'long' ? 0.95 : 0.45);
+    }
+    return { type: 'B5C', attr: attr, options: optsC, correct: correctC, audio: ['b5_c_' + attr] };
+  }
+
+  /** 题型 C 判定：物品是正确的那件，且落到入口上 */
+  function resolveB5C(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'B5C') return;
+    var isGate = !!(target && target.dataset && target.dataset.drop === 'b5gate');
+    var ok = isGate && itemIdx === q.correct;
+    judge(ok, ok ? target : optionEls[itemIdx]);
+  }
+
+  /* 结业复习教学：大小 / 多少 / 长短 / 找不同，各两个案例 + 一问（RULES §三.9） */
+  var runB5Tutorial = (function () {
+    function blank(me) {
+      me.ask = null;
+      me.hintTarget = null;
+      me.hintFrom = null;
+      me.hintTo = null;
+      me.hintToY = 0.5;
+      me.replay = null;
+      clearHint();
+    }
+    function stage(me) {
+      blank(me);
+      askDisplay.innerHTML = '';
+      ensureB5Css();
+      var w = document.createElement('div');
+      w.className = 'b5-tut-stage';
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function mkCell(node, w) {
+      var c = document.createElement('div');
+      c.className = 'b5-tut-cell';
+      if (w) c.style.width = w;
+      c.appendChild(node);
+      return c;
+    }
+    function mkRow(wrap) {
+      var r = document.createElement('div');
+      r.className = 'b5-tut-row';
+      wrap.appendChild(r);
+      return r;
+    }
+
+    // ---- 大小：大象 vs 老鼠 ----
+    function bsElephant(me) {
+      var wrap = stage(me), row = mkRow(wrap);
+      var left = mkCell(b5ItemNode({ mode: 'size', asset: 'elephant', lib: 'animal', scale: 1 }), 'min(34vw,150px)');
+      var right = mkCell(b5ItemNode({ mode: 'size', asset: 'mouse', lib: 'animal', scale: 1 }), 'min(19vw,80px)');
+      row.appendChild(left); row.appendChild(right);
+      return { entries: [{ key: 'big', el: left }, { key: 'small', el: right }] };
+    }
+    // ---- 大小：大苹果 vs 小苹果 ----
+    function bsApple(me) {
+      var wrap = stage(me), row = mkRow(wrap);
+      var left = mkCell(b5ItemNode({ mode: 'size', asset: 'apple', lib: 'fruit', scale: 1 }), 'min(32vw,140px)');
+      var right = mkCell(b5ItemNode({ mode: 'size', asset: 'apple', lib: 'fruit', scale: 1 }), 'min(17vw,72px)');
+      row.appendChild(left); row.appendChild(right);
+      return { entries: [{ key: 'big', el: left }, { key: 'small', el: right }] };
+    }
+    // ---- 多少：两筐苹果 ----
+    function mlPair(me, nLeft, nRight) {
+      var wrap = stage(me), row = mkRow(wrap);
+      var Lb = document.createElement('div'); Lb.className = 'b5-tut-basket'; Lb.appendChild(b2BasketNode('apple', nLeft));
+      var Rb = document.createElement('div'); Rb.className = 'b5-tut-basket'; Rb.appendChild(b2BasketNode('apple', nRight));
+      var left = mkCell(Lb, 'min(38vw,160px)');
+      var right = mkCell(Rb, 'min(38vw,160px)');
+      row.appendChild(left); row.appendChild(right);
+      var leftMore = nLeft > nRight;
+      return {
+        entries: [
+          { key: leftMore ? 'more' : 'less', el: left },
+          { key: leftMore ? 'less' : 'more', el: right }
+        ]
+      };
+    }
+    // ---- 长短：长/短 蛇 或 火车 ----
+    function lsPair(me, shape) {
+      var wrap = stage(me), row = mkRow(wrap);
+      var longN = b5ItemNode({ mode: 'len', shape: shape, segs: shape === 'snake' ? 6 : 4 });
+      var shortN = b5ItemNode({ mode: 'len', shape: shape, segs: shape === 'snake' ? 2 : 1 });
+      var left = mkCell(longN, 'min(46vw,200px)');
+      var right = mkCell(shortN, 'min(30vw,120px)');
+      row.appendChild(left); row.appendChild(right);
+      return { entries: [{ key: 'long', el: left }, { key: 'short', el: right }] };
+    }
+    // ---- 找不同：3 同 + 1 异（四宫格） ----
+    function oddGrid(me, specs) {
+      var wrap = stage(me);
+      var g = document.createElement('div');
+      g.className = 'b5-grid';
+      g.dataset.n = '2';
+      g.setAttribute('aria-label', '找不同');
+      wrap.appendChild(g);
+      var entries = [];
+      shuffle(specs).forEach(function (it) {
+        var cell = document.createElement('div');
+        cell.className = 'b5-tile';
+        cell.setAttribute('aria-label', '图片');
+        cell.appendChild(b5ItemNode({ mode: 'size', asset: it.asset, lib: it.lib, scale: 1 }));
+        g.appendChild(cell);
+        entries.push({ key: it.key, el: cell });
+      });
+      return { entries: entries };
+    }
+    function oddAnimals(me) {
+      return oddGrid(me, [
+        { key: 'same', asset: 'dog', lib: 'animal' }, { key: 'same', asset: 'dog', lib: 'animal' },
+        { key: 'same', asset: 'dog', lib: 'animal' }, { key: 'odd', asset: 'cat', lib: 'animal' }
+      ]);
+    }
+    function oddBalloons(me) {
+      return oddGrid(me, [
+        { key: 'same', asset: 'balloon_red', lib: 'color' }, { key: 'same', asset: 'balloon_red', lib: 'color' },
+        { key: 'same', asset: 'balloon_red', lib: 'color' }, { key: 'odd', asset: 'balloon_blue', lib: 'color' }
+      ]);
+    }
+
+    var ACTS = [
+      // 1）大小
+      { type: 'demo', build: bsElephant, hi: 'big',   word: 'b5_tut_bs1' },
+      { type: 'demo', build: bsApple,    hi: 'big',   word: 'b5_tut_bs2' },
+      { type: 'ask',  build: bsElephant, ans: 'big',  word: 'b5_tut_bs_ask' },
+      // 2）多少
+      { type: 'demo', build: function (me) { return mlPair(me, 6, 2); }, hi: 'more', word: 'b5_tut_ml1' },
+      { type: 'demo', build: function (me) { return mlPair(me, 1, 4); }, hi: 'less', word: 'b5_tut_ml2' },
+      { type: 'ask',  build: function (me) { return mlPair(me, 6, 2); }, ans: 'less', word: 'b5_tut_ml_ask' },
+      // 3）长短
+      { type: 'demo', build: function (me) { return lsPair(me, 'snake'); }, hi: 'long',  word: 'b5_tut_ls1' },
+      { type: 'demo', build: function (me) { return lsPair(me, 'train'); }, hi: 'long',  word: 'b5_tut_ls2' },
+      { type: 'ask',  build: function (me) { return lsPair(me, 'train'); }, ans: 'short', word: 'b5_tut_ls_ask' },
+      // 4）找不同
+      { type: 'demo', build: oddAnimals,  hi: 'odd', word: 'b5_tut_odd1' },
+      { type: 'demo', build: oddBalloons, hi: 'odd', word: 'b5_tut_odd2' },
+      { type: 'ask',  build: oddAnimals,  ans: 'odd', word: 'l3w4_tut_ask' }
+    ];
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me); return; }
+      var act = ACTS[i];
+      var built = act.build(me);
+      if (act.type === 'demo') {
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          var hiEl = null;
+          built.entries.forEach(function (e) { if (e.key === act.hi) hiEl = e; });
+          if (hiEl) hiEl.el.classList.add('b5-glow');
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+        });
+        return;
+      }
+      // 互动：点对才推进；点错抖一下 + 温柔鼓励；4 秒无操作弹小手指
+      var ansEl = null;
+      built.entries.forEach(function (e) { if (e.key === act.ans) ansEl = e; });
+      me.ask = act.ans;
+      me.hintTarget = ansEl ? ansEl.el : null;
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+      built.entries.forEach(function (entry) {
+        entry.el.addEventListener('click', function () {
+          if (state.tut !== me || !me.ask) return;
+          if (entry.key === me.ask) {
+            clearHint();
+            coin();
+            ting();
+            me.ask = null;
+            entry.el.classList.add('b5-right');
+            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 900);
+          } else {
+            entry.el.classList.add('b5-shake');
+            setTimeout(function () { entry.el.classList.remove('b5-shake'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+      });
+    }
+
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
     function stage(me) {
@@ -6617,6 +7095,8 @@
 
     /* ---- 第 3 岛第 4 关：找不同（4 张图点选，选项栏隐藏） ---- */
     if (q.type === 'B4') { optionsBar.classList.add('gone'); return; }
+    if (q.type === 'B5A' || q.type === 'B5B') { optionsBar.classList.add('gone'); return; }
+    if (q.type === 'B5C') { renderB5Gate(q); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -6968,6 +7448,7 @@
 
   function renderOptions(q) {
     if (q.type === 'B4') { renderB4Grid(q); return; }
+    if (q.type === 'B5A' || q.type === 'B5B') { renderB5Grid(q); return; }
     optionEls.forEach(function (btn, i) {
       removeDecor(btn);
       btn.className = 'option';
@@ -7127,6 +7608,10 @@
         swatch.style.setProperty('--c', opt.color.css);
         swatch.style.setProperty('--cd', opt.color.deep);
         slot.appendChild(swatch);
+      } else if (opt.kind === 'b5item') {
+        // 第 3 岛第 5 关：大小 / 长短物品（题型 C 的拖拽物；A/B 用独立宫格）
+        btn.classList.add('b5-opt');
+        slot.appendChild(b5ItemNode(opt));
       } else {
         btn.classList.add('pile-opt');
         slot.appendChild(pileNode(opt.fruit, opt.count, 'opt'));
@@ -7179,6 +7664,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'B3C') {
         // 第 3 岛第 3 关题型 C：长 / 短香蕉可拖进 Long / Short 箱
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'B5C') {
+        // 第 3 岛第 5 关题型 C：物品可拖进游乐场入口
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -7474,6 +7964,8 @@
         resolveB2C(d.idx, target);
       } else if (d.mode === 'B3C') {
         resolveB3C(d.idx, target);
+      } else if (d.mode === 'B5C') {
+        resolveB5C(d.idx, target);
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
@@ -8301,6 +8793,13 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '3-5': {
+      // 结业复习：大小 / 多少 / 长短 / 找不同，各两个案例 + 一问（4 秒小手指）→ t_ready 收尾
+      custom: runB5Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -8519,7 +9018,7 @@
     if (!q) return null;
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
-        q.type === 'B2C' || q.type === 'B3C') return q.type;
+        q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C') return q.type;
     return null;
   }
 
@@ -8785,6 +9284,12 @@
       // 第 3 岛第 3 关题型 C：点香蕉选中，再点 Long / Short 箱投放
       if (q.type === 'B3C') {
         tapFruit(idx, btn);   // 400ms 去重：指针流程与 click 只认一次，选中不会被自己取消
+        return;
+      }
+
+      // 第 3 岛第 5 关题型 C：点物品选中，再点游乐场入口投放
+      if (q.type === 'B5C') {
+        tapFruit(idx, btn);
         return;
       }
 
