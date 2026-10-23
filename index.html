@@ -3792,7 +3792,8 @@
     '4-3': { numbers: null,       make: 'makeF3', title: '第 3 关', tutorial: true },
     '4-4': { numbers: null,       make: 'makeF4', title: '第 4 关', tutorial: true },
     '4-5': { numbers: null,       make: 'makeF5', title: '第 5 关', tutorial: true },
-    '5-1': { numbers: null,       make: 'makeF6', title: '第 1 关', tutorial: true }
+    '5-1': { numbers: null,       make: 'makeF6', title: '第 1 关', tutorial: true },
+    '5-2': { numbers: null,       make: 'makeF7', title: '第 2 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3936,6 +3937,7 @@
     if (def && def.make === 'makeF4') return makeQuestionF4(typeIdx, prev);
     if (def && def.make === 'makeF5') return makeQuestionF5(typeIdx, prev);
     if (def && def.make === 'makeF6') return makeQuestionF6(typeIdx, prev);
+    if (def && def.make === 'makeF7') return makeQuestionF7(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -10105,6 +10107,579 @@
     return api;
   })();
 
+  /* ==================== 第 5 岛第 2 关（L5-W2：餐具） ==================== */
+  /* 核心词汇：bowl / spoon / cup / fork。
+     教学 17 环节（RULES §三.10 双倍量）：每个词 2 次演示 + 2 次互动，最后一条过渡语自带。
+       bowl ：空碗 → 一碗汤（热气）/ 碗 vs 盘子 / 三选一
+       spoon：勺子 → 勺子搁在碗里 / 勺 vs 杯 / 三选一
+       cup  ：杯子 → 杯里倒满水 / 杯 vs 碗 / 三选一
+       fork ：叉子 → 叉子叉着肉 / 叉 vs 勺 / 四选一（综合）
+     答题 12 轮（4/4/4）：A 听音找餐具 / B 听句子找场景 / C 把餐具拖进碗里。
+     图片：4 件餐具 + 3 个场景 + 盘子全部手写内联 SVG，零 PNG、零生图。
+       原因（实测素材）：Fluent 3D 的餐具全是**复合图**——碗配勺、叉配刀、杯配吸管。
+        单独教一个名词时画面里必然还有第二个物体，「图里哪个是叉子」就成了猜谜（RULES §二.14/§二.15）。
+        整组改手写 SVG 后：勺 = 长柄 + 椭圆勺头，叉 = 长柄 + 四根齿，100px 下也一眼分得开。
+     页面里没有任何文字节点（不含英文字母，RULES §二.1）。 */
+
+  var F7_ITEMS = ['bowl', 'spoon', 'cup', 'fork'];
+  /* 题型 C 的容器固定是碗，可拖的三件是这三样（碗自己不能放进碗里） */
+  var F7_C_ITEMS = ['spoon', 'fork', 'cup'];
+
+  /* 四件餐具共用一套调子：同一支暖色描边 #e0c9a6、同一道白色高光、同一片暖色落影。
+     材质分工：碗 / 杯是暖白瓷，勺 / 叉是浅灰金属——同风格但不同材质，符合真实认知。 */
+
+  /** 碗：题型 C 的投放目标，也是「bowl」的标准画面（空碗） */
+  var F7_BOWL =
+    '<defs><linearGradient id="f7cg" x1=".2" y1="0" x2=".85" y2="1">' +
+      '<stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#fdfaf3"/>' +
+      '<stop offset="1" stop-color="#ecdfc8"/>' +
+    '</linearGradient></defs>' +
+    '<ellipse cx="80" cy="132" rx="50" ry="8" fill="#d9bda0" opacity=".38"/>' +
+    // 碗身：上宽下窄的浅半球
+    '<path d="M26 64 C26 104 46 124 80 124 C114 124 134 104 134 64 Z" ' +
+      'fill="url(#f7cg)" stroke="#e0c9a6" stroke-width="3.4"/>' +
+    // 碗口
+    '<ellipse cx="80" cy="64" rx="54" ry="15" fill="#fdfaf3" stroke="#e0c9a6" stroke-width="3.4"/>' +
+    // 碗内腔（空碗也要有纵深，否则像一块饼）
+    '<ellipse cx="80" cy="66" rx="42" ry="10" fill="#f4e9d6"/>' +
+    '<ellipse cx="80" cy="67" rx="30" ry="6" fill="#ecdfc8" opacity=".85"/>' +
+    // 圈足
+    '<path d="M60 122 q20 9 40 0" stroke="#e0c9a6" stroke-width="3" fill="none" ' +
+      'stroke-linecap="round"/>' +
+    // 左侧高光
+    '<path d="M42 78 q2 26 16 38" stroke="#ffffff" stroke-width="6" fill="none" opacity=".9" ' +
+      'stroke-linecap="round"/>';
+
+  /** 一碗汤：碗 + 汤面 + 热气（演示 2，换视觉不换词） */
+  var F7_SOUP =
+    F7_BOWL +
+    '<ellipse cx="80" cy="66" rx="42" ry="10" fill="#f3b45f"/>' +
+    '<ellipse cx="80" cy="64" rx="34" ry="7" fill="#f8c979"/>' +
+    '<path d="M56 64 q10 -4 20 -1 q10 3 20 -1" stroke="#ffdfae" stroke-width="3" fill="none" ' +
+      'stroke-linecap="round" opacity=".9"/>' +
+    '<circle cx="70" cy="68" r="2.4" fill="#ffe7b8" opacity=".9"/>' +
+    '<circle cx="92" cy="67" r="1.8" fill="#ffe7b8" opacity=".85"/>' +
+    // 热气：两缕，路径不是文字
+    '<g fill="none" stroke-linecap="round">' +
+      '<g stroke="#f0d6b4" stroke-width="6" opacity=".85">' +
+        '<path d="M66 40 q-8 -12 0 -22 q8 -10 0 -18"/>' +
+        '<path d="M92 44 q-8 -12 0 -22 q8 -10 0 -18"/>' +
+      '</g>' +
+      '<g stroke="#ffffff" stroke-width="3" opacity=".95">' +
+        '<path d="M66 40 q-8 -12 0 -22 q8 -10 0 -18"/>' +
+        '<path d="M92 44 q-8 -12 0 -22 q8 -10 0 -18"/>' +
+      '</g>' +
+    '</g>';
+
+  /** 勺子：长柄 + 椭圆勺头（浅灰金属）。勺头必须有凹面高光，否则像一把铲子 */
+  /* 落影单独拆出来：场景里勺子会被旋转 180°，烘在图里的落影会跑到画面顶部变成一块脏影 */
+  var F7_SPOON_SH = '<ellipse cx="80" cy="140" rx="30" ry="7" fill="#d9bda0" opacity=".34"/>';
+  var F7_SPOON_BODY =
+    '<defs><linearGradient id="f7mg" x1="0" y1="0" x2="1" y2="0">' +
+      '<stop offset="0" stop-color="#f4efe6"/><stop offset=".45" stop-color="#e6e0d3"/>' +
+      '<stop offset="1" stop-color="#c9c0ae"/>' +
+    '</linearGradient></defs>' +
+    // 柄（上）→ 颈 → 勺头（下）
+    '<rect x="73" y="18" width="14" height="72" rx="7" fill="url(#f7mg)" ' +
+      'stroke="#c9bdab" stroke-width="3"/>' +
+    '<path d="M74 84 h12 q-2 10 -6 14 q-4 -4 -6 -14 z" fill="url(#f7mg)" ' +
+      'stroke="#c9bdab" stroke-width="3" stroke-linejoin="round"/>' +
+    '<ellipse cx="80" cy="114" rx="25" ry="26" fill="url(#f7mg)" ' +
+      'stroke="#c9bdab" stroke-width="3"/>' +
+    // 凹面：一块偏亮的椭圆 + 下缘一道浅弧。
+    // 之前用两层深色同心椭圆，缩到 100px 就成了「一个黑点」，像把铲子（RULES §二.14）
+    '<ellipse cx="78" cy="112" rx="16" ry="17" fill="#efeade"/>' +
+    '<path d="M64 122 q14 10 28 -1" stroke="#c4bba7" stroke-width="3" fill="none" ' +
+      'stroke-linecap="round" opacity=".85"/>' +
+    // 高光
+    '<path d="M68 104 q-3 9 1 15" stroke="#ffffff" stroke-width="3.6" fill="none" opacity=".95" ' +
+      'stroke-linecap="round"/>' +
+    '<path d="M78.5 24 q-2 20 0 40" stroke="#ffffff" stroke-width="3" fill="none" opacity=".9" ' +
+      'stroke-linecap="round"/>';
+  var F7_SPOON = F7_SPOON_SH + F7_SPOON_BODY;
+
+  /** 杯子：带把手的暖白瓷杯 + 半杯水（与第 1 关那只「无把手透明玻璃杯」刻意不同） */
+  var F7_CUP =
+    '<defs><linearGradient id="f7cupg" x1=".15" y1="0" x2=".9" y2="1">' +
+      '<stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#fdfaf3"/>' +
+      '<stop offset="1" stop-color="#eaddc5"/>' +
+    '</linearGradient>' +
+    '<linearGradient id="f7wg" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#e8f6ff"/><stop offset="1" stop-color="#a9d6ef"/>' +
+    '</linearGradient></defs>' +
+    '<ellipse cx="80" cy="134" rx="44" ry="8" fill="#d9bda0" opacity=".36"/>' +
+    // 把手先画，压在杯身下层
+    '<path d="M100 74 q30 6 30 24 q0 18 -30 24" stroke="#e6d6ba" stroke-width="13" ' +
+      'fill="none" stroke-linecap="round"/>' +
+    '<path d="M100 74 q30 6 30 24 q0 18 -30 24" stroke="#fdfaf3" stroke-width="8" ' +
+      'fill="none" stroke-linecap="round"/>' +
+    // 杯身
+    '<path d="M30 54 h72 l-7 70 q-1 8 -9 8 h-40 q-8 0 -9 -8 z" fill="url(#f7cupg)" ' +
+      'stroke="#e0c9a6" stroke-width="3.4"/>' +
+    // 水（半杯，带水位线和气泡）
+    '<path d="M38 76 h56 l-5 47 q-1 6 -6 6 h-34 q-5 0 -6 -6 z" fill="url(#f7wg)" ' +
+      'stroke="#9fd0ea" stroke-width="1.6"/>' +
+    '<ellipse cx="66" cy="76" rx="28" ry="7.4" fill="#f2fbff" stroke="#bfe4f5" stroke-width="2"/>' +
+    '<circle cx="54" cy="98" r="2.8" fill="#ffffff" opacity=".9"/>' +
+    '<circle cx="76" cy="90" r="2" fill="#ffffff" opacity=".85"/>' +
+    '<circle cx="66" cy="112" r="1.8" fill="#ffffff" opacity=".8"/>' +
+    // 杯口 + 左侧高光
+    '<ellipse cx="66" cy="54" rx="36" ry="10" fill="none" stroke="#e0c9a6" stroke-width="3.4"/>' +
+    '<path d="M40 66 q-2 26 5 48" stroke="#ffffff" stroke-width="5.4" fill="none" opacity=".92" ' +
+      'stroke-linecap="round"/>';
+
+  /** 叉子：长柄 + 四根齿。齿必须够粗、缝够宽，缩到 100px 才和勺子分得开 */
+  var F7_FORK_SH = '<ellipse cx="80" cy="142" rx="26" ry="6" fill="#d9bda0" opacity=".34"/>';
+  var F7_FORK_BODY =
+    '<defs><linearGradient id="f7fg" x1="0" y1="0" x2="1" y2="0">' +
+      '<stop offset="0" stop-color="#f6f1e8"/><stop offset=".45" stop-color="#e8e2d5"/>' +
+      '<stop offset="1" stop-color="#cbc2b0"/>' +
+    '</linearGradient></defs>' +
+    // 柄
+    '<rect x="72" y="72" width="16" height="64" rx="8" fill="url(#f7fg)" ' +
+      'stroke="#c9bdab" stroke-width="3"/>' +
+    // 齿根横梁 + 颈
+    '<rect x="56" y="54" width="48" height="20" rx="9" fill="url(#f7fg)" ' +
+      'stroke="#c9bdab" stroke-width="3"/>' +
+    '<path d="M68 60 h24 v12 h-24 z" fill="url(#f7fg)"/>' +
+    // 四根齿（宽 8，缝 5）
+    '<g fill="url(#f7fg)" stroke="#c9bdab" stroke-width="3" stroke-linejoin="round">' +
+      '<rect x="56.5" y="20" width="8.4" height="42" rx="4.2"/>' +
+      '<rect x="69.5" y="20" width="8.4" height="42" rx="4.2"/>' +
+      '<rect x="82.5" y="20" width="8.4" height="42" rx="4.2"/>' +
+      '<rect x="95.5" y="20" width="8.4" height="42" rx="4.2"/>' +
+    '</g>' +
+    // 高光
+    '<path d="M58.6 26 v30" stroke="#ffffff" stroke-width="2.6" fill="none" opacity=".9" ' +
+      'stroke-linecap="round"/>' +
+    '<path d="M78.5 78 v50" stroke="#ffffff" stroke-width="3" fill="none" opacity=".9" ' +
+      'stroke-linecap="round"/>';
+  var F7_FORK = F7_FORK_SH + F7_FORK_BODY;
+
+  /** 场景 1：勺子搁在碗里（题型 B「The spoon is in the bowl.」）
+      「在碗里」的关键是**前侧碗沿压在勺头之上**——只把勺子摆在碗口上，孩子看到的是「放在碗上」。 */
+  var F7_SC_SPOON =
+    '<g transform="translate(4 22) scale(.86)">' + F7_BOWL + '</g>' +
+    // 勺头落在碗腔中央：以勺头 (80,114) 为圆心缩到 .62 再倾斜 40°，然后平移到碗腔 (73,84)
+    '<g transform="translate(-7 -30) rotate(40 80 114)">' +
+      '<g transform="translate(80 114) scale(.62) translate(-80 -114)">' + F7_SPOON_BODY + '</g>' +
+    '</g>' +
+    // 前侧碗沿 + 碗腔前沿再压一层：压住勺头下半部分
+    '<g transform="translate(4 22) scale(.86)">' +
+      '<path d="M26 64 A54 15 0 0 1 134 64" fill="none" stroke="#e0c9a6" stroke-width="3.6" ' +
+        'stroke-linecap="round"/>' +
+      '<path d="M38 64 A42 10 0 0 1 122 64" fill="none" stroke="#cbb894" stroke-width="2.4" ' +
+        'stroke-linecap="round" opacity=".9"/>' +
+    '</g>';
+
+  /** 场景 2：杯里倒满水（题型 B「The water is in the cup.」）
+      画面里必须**有水壶**：只有一根悬空的水柱时，缩到 110px 会被看成杯子里插了根吸管（实测两轮）。 */
+  var F7_SC_WATER =
+    // 倾斜的小水壶，壶嘴朝右下
+    '<g transform="rotate(28 36 26)">' +
+      '<path d="M18 16 q-9 6 0 15" stroke="#cfe3f2" stroke-width="4" fill="none" ' +
+        'stroke-linecap="round"/>' +
+      '<rect x="16" y="10" width="36" height="34" rx="10" fill="#f4faff" ' +
+        'stroke="#cfe3f2" stroke-width="3"/>' +
+      '<path d="M52 16 l11 5 l-11 9 z" fill="#f4faff" stroke="#cfe3f2" stroke-width="3" ' +
+        'stroke-linejoin="round"/>' +
+      '<path d="M22 15 h24 v6 q-12 4 -24 0 z" fill="#dff1ff"/>' +
+      '<path d="M23 34 q13 4 24 0" stroke="#dff1ff" stroke-width="4" fill="none" opacity=".9"/>' +
+    '</g>' +
+    // 从壶嘴落到杯口的水柱（短、粗，才不会像吸管）
+    '<path d="M60 37 q5 12 6 19" stroke="#bfe4f5" stroke-width="10" fill="none" ' +
+      'stroke-linecap="round" opacity=".95"/>' +
+    '<path d="M60 37 q5 12 6 19" stroke="#ffffff" stroke-width="3.6" fill="none" ' +
+      'stroke-linecap="round" opacity=".6"/>' +
+    // 杯子
+    '<g transform="translate(6 14) scale(.84)">' + F7_CUP + '</g>' +
+    // 落在杯口的水花
+    '<circle cx="52" cy="57" r="3" fill="#d8f0ff" opacity=".95"/>' +
+    '<circle cx="70" cy="55" r="2.3" fill="#d8f0ff" opacity=".9"/>';
+
+  /** 场景 3：叉子叉着一块肉（题型 B「The fork is on the meat.」）
+      齿必须真的扎进肉里：先把叉子倒过来画（齿朝下），再画肉**盖住齿尖**，否则读起来是「叉子摆在肉旁边」。 */
+  var F7_SC_MEAT =
+    // 叉子先画，齿朝下，齿尖伸到 y≈126
+    '<g transform="translate(0 -14) rotate(180 80 80)">' + F7_FORK_BODY + '</g>' +
+    // 肉：暖棕圆块 + 烤纹 + 高光，画在叉子之上，盖住齿尖
+    '<ellipse cx="80" cy="140" rx="44" ry="8" fill="#c9a37c" opacity=".3"/>' +
+    '<ellipse cx="80" cy="126" rx="46" ry="24" fill="#c78a56"/>' +
+    '<ellipse cx="80" cy="122" rx="44" ry="22" fill="#d99b64"/>' +
+    '<path d="M48 116 q16 -8 32 -2 q16 6 30 -1" stroke="#a96f3f" stroke-width="4" fill="none" ' +
+      'stroke-linecap="round" opacity=".8"/>' +
+    '<path d="M50 130 q16 -7 30 -1 q16 5 28 -2" stroke="#a96f3f" stroke-width="4" fill="none" ' +
+      'stroke-linecap="round" opacity=".65"/>' +
+    '<path d="M58 112 q10 -4 20 -2" stroke="#f0bd8d" stroke-width="4" fill="none" opacity=".9" ' +
+      'stroke-linecap="round"/>' +
+    // 肉压在齿上之后，再补一小段齿尖露在肉前面的错觉：齿根两侧的暗影
+    '<path d="M74 104 q6 5 12 0" stroke="#a96f3f" stroke-width="3" fill="none" opacity=".55" ' +
+      'stroke-linecap="round"/>';
+
+  var F7_SVG_LIB = {
+    bowl: F7_BOWL, soup: F7_SOUP, spoon: F7_SPOON, cup: F7_CUP, fork: F7_FORK,
+    scSpoon: F7_SC_SPOON, scWater: F7_SC_WATER, scMeat: F7_SC_MEAT,
+    plate: F6_PLATE   // 盘子只当 bowl 的干扰项（第 5 岛第 1 关已经画过，不重复画）
+  };
+
+  function f7Svg(markup, viewBox, cls) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', viewBox || '0 0 160 160');
+    s.setAttribute('class', cls || 'f7-draw');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = markup;
+    return s;
+  }
+
+  /** 一张卡：暖白圆角底 + 手绘餐具 / 场景 */
+  function f7SceneNode(key, cls) {
+    var card = document.createElement('div');
+    card.className = 'f7-card' + (cls ? ' ' + cls : '');
+    card.dataset.subj = key;
+    var markup = F7_SVG_LIB[key];
+    if (!markup) return card;
+    card.classList.add('f7-draw-card');
+    card.appendChild(f7Svg(markup, '0 0 160 160'));
+    return card;
+  }
+
+  function ensureF7Css() {
+    if (document.getElementById('f7-style')) return;
+    var s = document.createElement('style');
+    s.id = 'f7-style';
+    s.textContent =
+      // 宽度一律 min(NNvw, NNpx)：父级 #askDisplay 是 place-items:center 的 grid，
+      // 写 width:100% 会形成循环依赖被解析成 0（RULES §三.11）
+      '.f7-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'gap:1.4vh;width:min(84vw,460px);box-sizing:border-box;min-height:38vh}' +
+      '.f7-grid{display:grid;gap:10px;width:min(88vw,460px);margin:2vh auto;box-sizing:border-box;' +
+      'grid-template-columns:repeat(3,minmax(0,1fr))}' +
+      '.f7-grid[data-n="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}' +
+      '.f7-grid[data-n="4"]{grid-template-columns:repeat(2,minmax(0,1fr))}' +
+      '.f7-tile{display:block;min-width:0;padding:6px;box-sizing:border-box;cursor:pointer;' +
+      'background:rgba(255,255,255,.9);border:3px solid #ffe0b8;border-radius:26px;' +
+      'box-shadow:0 8px 16px rgba(214,164,110,.18);transition:transform .15s ease,box-shadow .15s ease}' +
+      '.f7-tile:active{transform:scale(.96)}' +
+      '.f7-tile.right{border-color:#7FD18A;box-shadow:0 0 0 5px rgba(127,209,138,.5)}' +
+      '.f7-tile.wrong{animation:f7shake .5s;border-color:#f0a0a0}' +
+      '.f7-card{position:relative;display:flex;align-items:center;justify-content:center;width:100%;' +
+      'aspect-ratio:1 / 1;border-radius:22px;overflow:hidden;box-sizing:border-box;' +
+      'background:radial-gradient(120% 100% at 50% 6%,#fffdf8 0%,#fbefdc 58%,#f3ddc0 100%)}' +
+      '.f7-draw-card{background:linear-gradient(180deg,#fffdf8 0%,#fdf1dc 100%)}' +
+      '.f7-draw{display:block;width:88%;height:auto;overflow:visible}' +
+      '.f7-big{width:min(62vw,240px);border-radius:30px;box-shadow:0 12px 24px rgba(200,160,110,.2)}' +
+      '.f7-big .f7-draw{width:82%}' +
+      // 教学里被强调的那一张发光
+      '.f7-glow{animation:f7glow 1.1s ease-in-out infinite}' +
+      // 题型 C：碗（投放目标）
+      '.f7-bowl-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'gap:1.4vh;min-height:34vh;width:min(84vw,460px);box-sizing:border-box}' +
+      '.f7-bowl{position:relative;width:min(64vw,230px);box-sizing:border-box;cursor:pointer}' +
+      '.f7-bowl svg{display:block;width:100%;height:auto}' +
+      '.f7-bowl.drop-hot{filter:drop-shadow(0 0 16px rgba(255,205,120,.95))}' +
+      '.f7-bowl.right{animation:f7pop .5s ease-out}' +
+      // 放进去的那件餐具：落在碗腔中央（略偏上，少压碗身）
+      '.f7-inbowl{position:absolute;left:50%;top:36%;width:34%;aspect-ratio:1 / 1;' +
+      'transform:translate(-50%,-50%);z-index:3;pointer-events:none;background:none !important;' +
+      'border-radius:12px;overflow:visible;animation:f7drop .38s cubic-bezier(.34,1.56,.64,1)}' +
+      '.f7-inbowl .f7-draw{width:96%}' +
+      // 选项栏里的餐具（题型 C 的可拖物）
+      '.option .f7-card{width:100%;aspect-ratio:1 / 1;border-radius:14px}' +
+      '.option .f7-draw{width:84%}' +
+      '@keyframes f7glow{0%,100%{box-shadow:0 0 0 3px rgba(255,210,120,.5)}' +
+      '50%{box-shadow:0 0 24px 9px rgba(255,210,120,.92)}}' +
+      '@keyframes f7pop{0%,100%{transform:scale(1)}45%{transform:scale(1.06)}}' +
+      '@keyframes f7drop{0%{transform:translate(-50%,-130%) scale(.6);opacity:0}' +
+      '100%{transform:translate(-50%,-50%) scale(1);opacity:1}}' +
+      '@keyframes f7shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}';
+    document.head.appendChild(s);
+  }
+
+  /** 题型 A / B：三张卡宫格（选项栏隐藏，卡更大更好点） */
+  function renderF7Grid(q) {
+    ensureF7Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'f7-grid';
+    grid.dataset.n = String(q.options.length);
+    grid.setAttribute('aria-label', '餐具图片');
+    q.options.forEach(function (opt, i) {
+      var key = (opt.kind === 'f7scene') ? opt.scene : opt.item;
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'f7-tile';
+      tile.dataset.idx = String(i);
+      tile.dataset.subj = key;
+      tile.setAttribute('aria-label', '餐具图片');
+      tile.appendChild(f7SceneNode(key));
+      tile.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(tile.dataset.idx) === state.question.correct, tile);
+      });
+      grid.appendChild(tile);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 C：中央一只碗（投放目标），餐具在下方选项栏里 */
+  function renderF7Bowl(q) {
+    ensureF7Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'f7-bowl-stage';
+    var bowl = document.createElement('div');
+    bowl.className = 'f7-bowl';
+    bowl.dataset.drop = 'f7bowl';
+    bowl.setAttribute('aria-label', '碗');
+    bowl.appendChild(f7Svg(F7_BOWL, '0 0 160 160'));
+    wrap.appendChild(bowl);
+    askDisplay.appendChild(wrap);
+    // 点选兜底：先点餐具、再点碗 = 放进去（RULES §二.11）
+    bowl.addEventListener('click', function () {
+      if (state.pickedFruit === null) return;
+      resolveF7C(state.pickedFruit, bowl);
+    });
+  }
+
+  /** 答对后把那件餐具摆进碗里（下一题重绘自动清掉） */
+  function f7PlaceInBowl(item) {
+    var bowl = askDisplay.querySelector('.f7-bowl');
+    if (!bowl) return;
+    bowl.appendChild(f7SceneNode(item, 'f7-inbowl'));
+  }
+
+  function resolveF7C(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'F7C') return;
+    var drop = target && target.dataset ? target.dataset.drop : null;
+    var ok = (drop === 'f7bowl') && itemIdx === q.correct;
+    judge(ok, ok ? target : optionEls[itemIdx]);
+  }
+
+  /** 题型 A：听音找餐具 */
+  var F7_A_CASES = [
+    { item: 'bowl',  key: 'l5w2_a_bowl' },
+    { item: 'spoon', key: 'l5w2_a_spoon' },
+    { item: 'cup',   key: 'l5w2_a_cup' },
+    { item: 'fork',  key: 'l5w2_a_fork' }
+  ];
+  /** 题型 B：听句子找场景（一张卡 = 一个整幅场景，不是单个餐具） */
+  var F7_B_CASES = [
+    { scene: 'soup',    key: 'l5w2_b_bowl' },
+    { scene: 'scSpoon', key: 'l5w2_b_spoon' },
+    { scene: 'scWater', key: 'l5w2_b_cup' },
+    { scene: 'scMeat',  key: 'l5w2_b_fork' }
+  ];
+  /** 题型 C：把餐具放进碗里（容器固定是碗，所以只有三件可放） */
+  var F7_C_CASES = [
+    { item: 'spoon', key: 'l5w2_c_spoon' },
+    { item: 'fork',  key: 'l5w2_c_fork' },
+    { item: 'cup',   key: 'l5w2_c_cup' }
+  ];
+
+  /** 干扰项：只从其余的餐具里抽（保证题目只有一个正确答案） */
+  function f7Distract(target, n) {
+    var rest = F7_ITEMS.filter(function (f) { return f !== target; });
+    shuffle(rest);
+    return rest.slice(0, n);
+  }
+
+  /** 出题：0 = A 听音找餐具 / 1 = B 听句子找场景 / 2 = C 把餐具放进碗里 */
+  function makeQuestionF7(type, prev) {
+    ensureF7Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var c = F7_A_CASES[randInt(0, F7_A_CASES.length - 1)];
+        var list = [c.item].concat(f7Distract(c.item, 2));
+        shuffle(list);
+        q = {
+          type: 'F7A', sig: 'A:' + c.key,
+          utensil: c.item, subj: c.item,
+          options: list.map(function (f) { return { kind: 'f7item', item: f }; }),
+          correct: list.indexOf(c.item),
+          audio: [c.key]
+        };
+      } else if (type === 1) {
+        var b = F7_B_CASES[randInt(0, F7_B_CASES.length - 1)];
+        var rest = F7_B_CASES.filter(function (x) { return x.scene !== b.scene; });
+        shuffle(rest);
+        var scenes = [b.scene].concat(rest.slice(0, 2).map(function (x) { return x.scene; }));
+        shuffle(scenes);
+        q = {
+          type: 'F7B', sig: 'B:' + b.key,
+          scene: b.scene, subj: b.scene,
+          options: scenes.map(function (s) { return { kind: 'f7scene', scene: s }; }),
+          correct: scenes.indexOf(b.scene),
+          audio: [b.key]
+        };
+      } else {
+        var cc = F7_C_CASES[randInt(0, F7_C_CASES.length - 1)];
+        var listC = F7_C_ITEMS.slice();     // 碗当容器，所以三件餐具全上
+        shuffle(listC);
+        q = {
+          type: 'F7C', sig: 'C:' + cc.key,
+          utensil: cc.item, subj: cc.item,
+          options: listC.map(function (f) { return { kind: 'f7item', item: f }; }),
+          correct: listC.indexOf(cc.item),
+          audio: [cc.key]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* 教学（custom 分支）：17 个环节，收尾仍走 tutFinish() */
+  var runF7Tutorial = (function () {
+    function blank(me) {
+      me.ask = null;
+      me.hintTarget = null;
+      me.hintFrom = null;
+      me.hintTo = null;
+      me.hintToY = 0.5;
+      me.replay = null;
+      clearHint();
+    }
+    function stage(me) {
+      blank(me);
+      askDisplay.innerHTML = '';
+      ensureF7Css();
+      var w = document.createElement('div');
+      w.className = 'f7-stage';
+      askDisplay.appendChild(w);
+      return w;
+    }
+    /** 演示：一张大大的餐具卡 */
+    function demoCard(me, key) {
+      var wrap = stage(me);
+      var card = f7SceneNode(key, 'f7-big');
+      wrap.appendChild(card);
+      return card;
+    }
+    /** 互动：二 / 三 / 四选一，点对推进，点错只抖 + again，4 秒不动出小手指（RULES §二.12） */
+    function askCards(me, act, i) {
+      var wrap = stage(me);
+      var grid = document.createElement('div');
+      grid.className = 'f7-grid';
+      grid.dataset.n = String(act.set.length);
+      wrap.appendChild(grid);
+
+      var order = shuffle(act.set.slice());
+      var tiles = {};
+      order.forEach(function (key, idx) {
+        var t = document.createElement('button');
+        t.type = 'button';
+        t.className = 'f7-tile';
+        t.dataset.idx = String(idx);
+        t.dataset.subj = key;
+        t.setAttribute('aria-label', '餐具图片');
+        t.appendChild(f7SceneNode(key));
+        grid.appendChild(t);
+        tiles[key] = t;
+      });
+
+      me.ask = act.ans;
+      me.hintTarget = tiles[act.ans];
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+
+      order.forEach(function (key) {
+        var t = tiles[key];
+        t.addEventListener('click', function () {
+          if (state.tut !== me || !me.ask) return;
+          if (key === me.ask) {
+            clearHint();
+            coin();
+            ting();
+            t.classList.add('right');
+            me.ask = null;
+            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 950);
+          } else {
+            t.classList.add('wrong');
+            setTimeout(function () { t.classList.remove('wrong'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+      });
+    }
+
+    var ACTS = [
+      // ① bowl：2 次演示 + 2 次互动
+      { type: 'demo', word: 'l5w2_t_bowl1', key: 'bowl' },
+      { type: 'demo', word: 'l5w2_t_bowl2', key: 'soup' },
+      { type: 'ask',  word: 'l5w2_t_bowl3', set: ['bowl', 'plate'],          ans: 'bowl' },
+      { type: 'ask',  word: 'l5w2_t_bowl4', set: ['bowl', 'spoon', 'cup'],   ans: 'bowl' },
+      // ② spoon：2 + 2
+      { type: 'demo', word: 'l5w2_t_spoon1', key: 'spoon' },
+      { type: 'demo', word: 'l5w2_t_spoon2', key: 'scSpoon' },
+      // 与题型 A 的「Find the spoon.」同一句话，直接复用同一个 key（RULES §1.12）
+      { type: 'ask',  word: 'l5w2_a_spoon',  set: ['spoon', 'cup'],          ans: 'spoon' },
+      { type: 'ask',  word: 'l5w2_t_spoon4', set: ['spoon', 'fork', 'bowl'], ans: 'spoon' },
+      // ③ cup：2 + 2
+      { type: 'demo', word: 'l5w2_t_cup1', key: 'cup' },
+      { type: 'demo', word: 'l5w2_t_cup2', key: 'scWater' },
+      { type: 'ask',  word: 'l5w2_a_cup',   set: ['cup', 'bowl'],            ans: 'cup' },
+      { type: 'ask',  word: 'l5w2_t_cup4',  set: ['cup', 'fork', 'spoon'],   ans: 'cup' },
+      // ④ fork：2 + 2（最后一个是四个餐具里挑，对应「综合」互动）
+      { type: 'demo', word: 'l5w2_t_fork1', key: 'fork' },
+      { type: 'demo', word: 'l5w2_t_fork2', key: 'scMeat' },
+      { type: 'ask',  word: 'l5w2_t_fork3', set: ['fork', 'spoon'],          ans: 'fork' },
+      { type: 'ask',  word: 'l5w2_t_fork4', set: ['bowl', 'spoon', 'cup', 'fork'], ans: 'fork' },
+      // ⑤ 过渡语（自带，不再叠 t_ready）
+      { type: 'outro', word: 'l5w2_t_done' }
+    ];
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+
+      // 过渡语：四件餐具一起发光 → 说完直接进答题
+      if (act.type === 'outro') {
+        var wrap = stage(me);
+        var grid = document.createElement('div');
+        grid.className = 'f7-grid f7-final';   // f7-final 只是给测试用的舞台指纹标记，不影响样式
+        grid.dataset.n = '4';
+        wrap.appendChild(grid);
+        var cards = [];
+        F7_ITEMS.forEach(function (f) {
+          var c = f7SceneNode(f);
+          grid.appendChild(c);
+          cards.push(c);
+        });
+        me.replay = function () { say([act.word]); };
+        cards.forEach(function (c) { c.classList.add('f7-glow'); });
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          tutFinish(me, false);
+        });
+        return;
+      }
+
+      // 演示：说完让这一张卡发光，停一下再走（动画挂 onDone，不猜音频时长）
+      if (act.type === 'demo') {
+        var card = demoCard(me, act.key);
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          card.classList.add('f7-glow');
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+        });
+        return;
+      }
+
+      askCards(me, act, i);
+    }
+
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
     function stage(me) {
@@ -10299,6 +10874,10 @@
     /* ---- 第 5 岛第 1 关：常见食物（A/B 用食物宫格，C 用盘子当投放目标） ---- */
     if (q.type === 'F6A' || q.type === 'F6B') { optionsBar.classList.add('gone'); return; }
     if (q.type === 'F6C') { renderF6Plate(q); return; }
+
+    /* ---- 第 5 岛第 2 关：餐具（A/B 用宫格，C 用碗当投放目标） ---- */
+    if (q.type === 'F7A' || q.type === 'F7B') { optionsBar.classList.add('gone'); return; }
+    if (q.type === 'F7C') { renderF7Bowl(q); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -10657,6 +11236,7 @@
     if (q.type === 'F4A') { renderF4Grid(q); return; }   // F4B 走公共的对错按钮，不需要单独分支
     if (q.type === 'F5C') { renderF4Grid(q); return; }   // 三只同种动物做不同动作，与第 4 关同款宫格
     if (q.type === 'F6A' || q.type === 'F6B') { renderF6Grid(q); return; }
+    if (q.type === 'F7A' || q.type === 'F7B') { renderF7Grid(q); return; }
     optionEls.forEach(function (btn, i) {
       removeDecor(btn);
       btn.className = 'option';
@@ -10839,6 +11419,10 @@
         btn.classList.add('f5-opt');
         var f5op = animalImg(opt.animal, 'f5-opt-img');
         if (f5op) slot.appendChild(f5op);
+      } else if (opt.kind === 'f7item') {
+        // 第 5 岛第 2 关题型 C：可拖进碗里的餐具
+        btn.classList.add('f7-opt');
+        slot.appendChild(f7SceneNode(opt.item));
       } else if (opt.kind === 'f6food') {
         // 第 5 岛第 1 关题型 C：可拖到盘子上的食物
         btn.classList.add('f6-opt');
@@ -10924,6 +11508,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'F4C') {
         // 第 4 岛第 4 关题型 C：整幅场景可拖进「在跑 / 在睡」筐
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'F7C') {
+        // 第 5 岛第 2 关题型 C：餐具可拖进碗里
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -11067,6 +11656,8 @@
       }
       // 第 5 岛第 1 关题型 C：食物当场被摆到盘子上（视觉反馈，仍然不播语音）
       if (q.type === 'F6C') f6PlaceOnPlate(q.food);
+      // 第 5 岛第 2 关题型 C：餐具当场被放进碗里（视觉反馈，仍然不播语音）
+      if (q.type === 'F7C') f7PlaceInBowl(q.utensil);
 
       // 必须先捕获索引：430ms 后 state.roundIndex 会自增，
       // 动画回调若晚于推进执行就会点亮错位/丢失（第 12 轮尤其明显）
@@ -11250,6 +11841,8 @@
         resolveF3C(d.idx, target);
       } else if (d.mode === 'F4C') {
         resolveF4C(d.idx, target);
+      } else if (d.mode === 'F7C') {
+        resolveF7C(d.idx, target);
       } else if (d.mode === 'F6C') {
         resolveF6C(d.idx, target);
       } else if (d.mode === 'TUT') {
@@ -12128,6 +12721,13 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '5-2': {
+      // 餐具（RULES §三.10 双倍量）：4 个词 × 4 环节（2 演示 + 2 互动）+ 过渡语 = 17 环节
+      custom: runF7Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -12352,7 +12952,7 @@
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
         q.type === 'F1C' || q.type === 'F2C' || q.type === 'F3C' ||
-        q.type === 'F4C' || q.type === 'F6C') return q.type;
+        q.type === 'F4C' || q.type === 'F6C' || q.type === 'F7C') return q.type;
     return null;
   }
 
@@ -12657,6 +13257,12 @@
         return;
       }
 
+      // 第 5 岛第 2 关题型 C：点餐具选中，再点碗「放进去」
+      if (q.type === 'F7C') {
+        tapFruit(idx, btn);
+        return;
+      }
+
       // 第 5 关题型 B：先点水果选中，再点篮子投放
       if (q.type === 'W5B') {
         if (state.pickedFruit === null) return;
@@ -12926,6 +13532,8 @@
           pic: q.pic || null,
           claim: q.claim || null,
           food: q.food || null,
+          utensil: q.utensil || null,
+          scene: q.scene || null,
           audio: q.audio[0],
           audios: q.audio.slice(),
           tray: q.tray ? q.tray.map(function (t) { return t.color.id + ':' + t.fruit.id; }) : null,
@@ -12949,6 +13557,8 @@
             if (o.kind === 'f4scene') return o.subj;
             if (o.kind === 'f5animal') return o.animal;
             if (o.kind === 'f6food') return o.food;
+            if (o.kind === 'f7item') return 'i:' + o.item;
+            if (o.kind === 'f7scene') return 's:' + o.scene;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
             if (o.color) return o.color.id;

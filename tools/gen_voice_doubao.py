@@ -699,6 +699,44 @@ add("l5w1_c_bread", "Put the bread on the plate.", "en", -10, EN_ASK)
 add("l5w1_c_egg", "Put the egg on the plate.", "en", -10, EN_ASK)
 add("l5w1_c_rice", "Put the rice on the plate.", "en", -10, EN_ASK)
 
+# ===== 第 5 岛第 2 关（L5-W2：餐具）：bowl / spoon / cup / fork =====
+# 教学 17 环节：每个词 2 次演示 + 2 次互动 + 1 条过渡语（双倍量，RULES §三.10）
+# 每句都尽量短（用户要求控制单步语音长度，避免孩子疲劳）
+add("l5w2_t_bowl1", "Look! A bowl.", "en", -10, EN_ASK)
+add("l5w2_t_bowl2", "The soup is in the bowl.", "en", -10, EN_ASK)
+add("l5w2_t_bowl3", "Touch the bowl.", "en", -10, EN_ASK)
+add("l5w2_t_bowl4", "Which one is the bowl?", "en", -10, EN_ASK)
+add("l5w2_t_spoon1", "A spoon.", "en", -10, EN_ASK)
+add("l5w2_t_spoon2", "We eat with a spoon.", "en", -10, EN_ASK)
+# 互动 A 用「Find the spoon.」：与题型 A 同一句话，复用同一个 key（RULES §1.12），此处不重复建
+add("l5w2_t_spoon4", "Which one is the spoon?", "en", -10, EN_ASK)
+add("l5w2_t_cup1", "A cup.", "en", -10, EN_ASK)
+add("l5w2_t_cup2", "We drink water with a cup.", "en", -10, EN_ASK)
+# 互动 A 同上复用 l5w2_a_cup
+add("l5w2_t_cup4", "Which one is the cup?", "en", -10, EN_ASK)
+add("l5w2_t_fork1", "A fork.", "en", -10, EN_ASK)
+add("l5w2_t_fork2", "We eat meat with a fork.", "en", -10, EN_ASK)
+add("l5w2_t_fork3", "Where is the fork?", "en", -10, EN_ASK)
+add("l5w2_t_fork4", "Which one is the fork?", "en", -10, EN_ASK)
+add("l5w2_t_done", "Let's eat!", "en", -8, EN_PRAISE)
+
+# 题型 A：听音找餐具（4 条）
+add("l5w2_a_bowl", "Find the bowl.", "en", -10, EN_ASK)
+add("l5w2_a_spoon", "Find the spoon.", "en", -10, EN_ASK)
+add("l5w2_a_cup", "Find the cup.", "en", -10, EN_ASK)
+add("l5w2_a_fork", "Find the fork.", "en", -10, EN_ASK)
+
+# 题型 B：听句子找场景（4 条，一句一景；与教学演示句不重复，结尾统一带「Find the picture.」）
+add("l5w2_b_bowl", "The soup is in the bowl. Find the picture.", "en", -10, EN_ASK)
+add("l5w2_b_spoon", "The spoon is in the bowl. Find the picture.", "en", -10, EN_ASK)
+add("l5w2_b_cup", "The water is in the cup. Find the picture.", "en", -10, EN_ASK)
+add("l5w2_b_fork", "The fork is on the meat. Find the picture.", "en", -10, EN_ASK)
+
+# 题型 C：把餐具放进碗里（3 条；碗自己不能放进碗里，所以只有三件餐具）
+add("l5w2_c_spoon", "Put the spoon in the bowl.", "en", -10, EN_ASK)
+add("l5w2_c_fork", "Put the fork in the bowl.", "en", -10, EN_ASK)
+add("l5w2_c_cup", "Put the cup in the bowl.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

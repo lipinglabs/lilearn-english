@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**497** 条（英文 491 + 中文 6）
+总条目：**523** 条（英文 517 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -466,35 +466,61 @@
 | `l4w5_c_cat` | en | Find the cat that is running. | 已存在 |
 | `l4w5_c_horse` | en | Find the horse that is sleeping. | 已存在 |
 | `l4w5_c_pig` | en | Find the pig that is eating. | 已存在 |
-| `l5w1_t_milk1` | en | Look! Milk. It's white. | 待生成 |
-| `l5w1_t_milk2` | en | I like to drink milk. | 待生成 |
-| `l5w1_t_milk3` | en | Where is the milk? Touch the milk. | 待生成 |
-| `l5w1_t_milk4` | en | Which one is milk? | 待生成 |
-| `l5w1_t_bread1` | en | Look! Bread. It's soft. | 待生成 |
-| `l5w1_t_bread2` | en | This is a piece of bread. | 待生成 |
-| `l5w1_t_bread3` | en | Touch the bread. | 待生成 |
-| `l5w1_t_bread4` | en | Which one is bread? | 待生成 |
-| `l5w1_t_egg1` | en | Look! An egg. It's round. | 待生成 |
-| `l5w1_t_egg2` | en | I have an egg for breakfast. | 待生成 |
-| `l5w1_t_egg3` | en | Where is the egg? | 待生成 |
-| `l5w1_t_egg4` | en | Show me the egg. | 待生成 |
-| `l5w1_t_rice1` | en | Look! Rice. It's hot. | 待生成 |
-| `l5w1_t_rice2` | en | The rice is hot. It smells good. | 待生成 |
-| `l5w1_t_rice3` | en | Touch the rice. | 待生成 |
-| `l5w1_t_rice4` | en | Which one is rice? | 待生成 |
-| `l5w1_t_done` | en | You know the food! Let's eat! | 待生成 |
-| `l5w1_a_milk` | en | Find the milk. | 待生成 |
-| `l5w1_a_bread` | en | Find the bread. | 待生成 |
-| `l5w1_a_egg` | en | Find the egg. | 待生成 |
-| `l5w1_a_rice` | en | Find the rice. | 待生成 |
-| `l5w1_b_milk` | en | It is white. We drink it. What is it? | 待生成 |
-| `l5w1_b_bread` | en | It is soft. We eat it in the morning. What is it? | 待生成 |
-| `l5w1_b_egg` | en | It is round and white. It is in a shell. What is it? | 待生成 |
-| `l5w1_b_rice` | en | It is white and hot. We eat it with a spoon. What is it? | 待生成 |
-| `l5w1_c_milk` | en | Put the milk on the plate. | 待生成 |
-| `l5w1_c_bread` | en | Put the bread on the plate. | 待生成 |
-| `l5w1_c_egg` | en | Put the egg on the plate. | 待生成 |
-| `l5w1_c_rice` | en | Put the rice on the plate. | 待生成 |
+| `l5w1_t_milk1` | en | Look! Milk. It's white. | 已存在 |
+| `l5w1_t_milk2` | en | I like to drink milk. | 已存在 |
+| `l5w1_t_milk3` | en | Where is the milk? Touch the milk. | 已存在 |
+| `l5w1_t_milk4` | en | Which one is milk? | 已存在 |
+| `l5w1_t_bread1` | en | Look! Bread. It's soft. | 已存在 |
+| `l5w1_t_bread2` | en | This is a piece of bread. | 已存在 |
+| `l5w1_t_bread3` | en | Touch the bread. | 已存在 |
+| `l5w1_t_bread4` | en | Which one is bread? | 已存在 |
+| `l5w1_t_egg1` | en | Look! An egg. It's round. | 已存在 |
+| `l5w1_t_egg2` | en | I have an egg for breakfast. | 已存在 |
+| `l5w1_t_egg3` | en | Where is the egg? | 已存在 |
+| `l5w1_t_egg4` | en | Show me the egg. | 已存在 |
+| `l5w1_t_rice1` | en | Look! Rice. It's hot. | 已存在 |
+| `l5w1_t_rice2` | en | The rice is hot. It smells good. | 已存在 |
+| `l5w1_t_rice3` | en | Touch the rice. | 已存在 |
+| `l5w1_t_rice4` | en | Which one is rice? | 已存在 |
+| `l5w1_t_done` | en | You know the food! Let's eat! | 已存在 |
+| `l5w1_a_milk` | en | Find the milk. | 已存在 |
+| `l5w1_a_bread` | en | Find the bread. | 已存在 |
+| `l5w1_a_egg` | en | Find the egg. | 已存在 |
+| `l5w1_a_rice` | en | Find the rice. | 已存在 |
+| `l5w1_b_milk` | en | It is white. We drink it. What is it? | 已存在 |
+| `l5w1_b_bread` | en | It is soft. We eat it in the morning. What is it? | 已存在 |
+| `l5w1_b_egg` | en | It is round and white. It is in a shell. What is it? | 已存在 |
+| `l5w1_b_rice` | en | It is white and hot. We eat it with a spoon. What is it? | 已存在 |
+| `l5w1_c_milk` | en | Put the milk on the plate. | 已存在 |
+| `l5w1_c_bread` | en | Put the bread on the plate. | 已存在 |
+| `l5w1_c_egg` | en | Put the egg on the plate. | 已存在 |
+| `l5w1_c_rice` | en | Put the rice on the plate. | 已存在 |
+| `l5w2_t_bowl1` | en | Look! A bowl. | 待生成 |
+| `l5w2_t_bowl2` | en | The soup is in the bowl. | 待生成 |
+| `l5w2_t_bowl3` | en | Touch the bowl. | 待生成 |
+| `l5w2_t_bowl4` | en | Which one is the bowl? | 待生成 |
+| `l5w2_t_spoon1` | en | A spoon. | 待生成 |
+| `l5w2_t_spoon2` | en | We eat with a spoon. | 待生成 |
+| `l5w2_t_spoon4` | en | Which one is the spoon? | 待生成 |
+| `l5w2_t_cup1` | en | A cup. | 待生成 |
+| `l5w2_t_cup2` | en | We drink water with a cup. | 待生成 |
+| `l5w2_t_cup4` | en | Which one is the cup? | 待生成 |
+| `l5w2_t_fork1` | en | A fork. | 待生成 |
+| `l5w2_t_fork2` | en | We eat meat with a fork. | 待生成 |
+| `l5w2_t_fork3` | en | Where is the fork? | 待生成 |
+| `l5w2_t_fork4` | en | Which one is the fork? | 待生成 |
+| `l5w2_t_done` | en | Let's eat! | 待生成 |
+| `l5w2_a_bowl` | en | Find the bowl. | 待生成 |
+| `l5w2_a_spoon` | en | Find the spoon. | 待生成 |
+| `l5w2_a_cup` | en | Find the cup. | 待生成 |
+| `l5w2_a_fork` | en | Find the fork. | 待生成 |
+| `l5w2_b_bowl` | en | The soup is in the bowl. Find the picture. | 待生成 |
+| `l5w2_b_spoon` | en | The spoon is in the bowl. Find the picture. | 待生成 |
+| `l5w2_b_cup` | en | The water is in the cup. Find the picture. | 待生成 |
+| `l5w2_b_fork` | en | The fork is on the meat. Find the picture. | 待生成 |
+| `l5w2_c_spoon` | en | Put the spoon in the bowl. | 待生成 |
+| `l5w2_c_fork` | en | Put the fork in the bowl. | 待生成 |
+| `l5w2_c_cup` | en | Put the cup in the bowl. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
