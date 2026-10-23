@@ -616,6 +616,51 @@ add("l4w4_c_cat", "Put the cat that is sleeping in the sleeping box.", "en", -10
 add("l4w4_c_horse", "Put the horse that is running in the running box.", "en", -10, EN_ASK)
 add("l4w4_c_pig", "Put the pig that is sleeping in the sleeping box.", "en", -10, EN_ASK)
 
+# ---- 第 4 岛第 5 关（L4-W5 游乐场 · 听音模仿）：27 条 ----
+# 教学 14 条：先示范「相机按钮」这个新交互，再按 RULES §三.10 双倍量走 run / jump / sleep
+# 各（2 次演示 + 2 次互动），最后过渡语（自带，不叠 t_ready）。
+add("l4w5_t_cam", "This is the camera button. Do your move, then touch the camera.",
+    "en", -10, EN_ASK)
+
+add("l4w5_t_run1", "Look! The dog is running. Can you run?", "en", -8, EN_ANIMAL)
+add("l4w5_t_run2", "Let's run together! Click the camera when you are running!", "en", -8, EN_ANIMAL)
+add("l4w5_t_run3", "The horse is running too. Can you run fast?", "en", -8, EN_ANIMAL)
+add("l4w5_t_run4", "Show me running! Run, run, run, then touch the camera.", "en", -10, EN_ASK)
+
+add("l4w5_t_jump1", "Look! The frog is jumping. Can you jump?", "en", -8, EN_ANIMAL)
+add("l4w5_t_jump2", "Jump with me! Click the camera when you jump!", "en", -8, EN_ANIMAL)
+add("l4w5_t_jump3", "The kangaroo is jumping too. Jump up high!", "en", -8, EN_ANIMAL)
+add("l4w5_t_jump4", "Show me jumping! Jump, jump, then touch the camera.", "en", -10, EN_ASK)
+
+add("l4w5_t_sleep1", "Look! The cat is sleeping. Can you sleep?", "en", -8, EN_ANIMAL)
+add("l4w5_t_sleep2", "Close your eyes and sleep. Click the camera when you are sleeping!",
+    "en", -8, EN_ANIMAL)
+add("l4w5_t_sleep3", "The pig is sleeping too. Shh, close your eyes.", "en", -8, EN_ANIMAL)
+add("l4w5_t_sleep4", "Show me sleeping! Close your eyes, then touch the camera.", "en", -10, EN_ASK)
+
+add("l4w5_t_done", "Wow, you did it! Let's play the real game!", "en", -8, EN_PRAISE)
+
+# 题型 A：听指令做动作（6 组「动物 + 动作」，模仿完点相机）
+add("l4w5_a_run_dog", "The dog is running. Can you run like a dog?", "en", -10, EN_ASK)
+add("l4w5_a_run_horse", "The horse is running. Can you run like a horse?", "en", -10, EN_ASK)
+add("l4w5_a_jump_frog", "The frog is jumping. Can you jump like a frog?", "en", -10, EN_ASK)
+add("l4w5_a_jump_kangaroo", "The kangaroo is jumping. Can you jump like a kangaroo?",
+    "en", -10, EN_ASK)
+add("l4w5_a_sleep_cat", "The cat is sleeping. Can you sleep like a cat?", "en", -10, EN_ASK)
+add("l4w5_a_sleep_bear", "The bear is sleeping. Can you sleep like a bear?", "en", -10, EN_ASK)
+
+# 题型 B：看放大镜里的动作剪影猜动物（3 条，按动作分）
+add("l4w5_b_run", "Listen and guess! Who is running?", "en", -10, EN_ASK)
+add("l4w5_b_jump", "Listen and guess! Who is jumping?", "en", -10, EN_ASK)
+add("l4w5_b_sleep", "Listen and guess! Who is sleeping?", "en", -10, EN_ASK)
+
+# 题型 C：同一只动物的三种动作里点出正在做那件事的（4 条）
+# 与 W4 的「Put the dog that is running…」句式不同，避免语音文本重复（§1.12）
+add("l4w5_c_dog", "Find the dog that is eating.", "en", -10, EN_ASK)
+add("l4w5_c_cat", "Find the cat that is running.", "en", -10, EN_ASK)
+add("l4w5_c_horse", "Find the horse that is sleeping.", "en", -10, EN_ASK)
+add("l4w5_c_pig", "Find the pig that is eating.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

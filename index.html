@@ -3775,7 +3775,8 @@
     '4-1': { numbers: null,       make: 'makeF1', title: '第 1 关', tutorial: true },
     '4-2': { numbers: null,       make: 'makeF2', title: '第 2 关', tutorial: true },
     '4-3': { numbers: null,       make: 'makeF3', title: '第 3 关', tutorial: true },
-    '4-4': { numbers: null,       make: 'makeF4', title: '第 4 关', tutorial: true }
+    '4-4': { numbers: null,       make: 'makeF4', title: '第 4 关', tutorial: true },
+    '4-5': { numbers: null,       make: 'makeF5', title: '第 5 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3786,12 +3787,17 @@
     return !!levelDef(island, level);
   }
 
-  /** 岛屿图标：第 1 岛用 3D 苹果，第 2 岛用三色形状，第 3 岛用 3D 大象，其余暂用 emoji */
+  /** 岛屿图标：第 1 岛用 3D 苹果，第 2 岛用三色形状，第 3 岛用 3D 大象，第 4 岛用 3D 狮子，其余暂用 emoji */
   function islandIconNode(index, island) {
     if (index === 1) return fruitImg(FRUITS[0]);
     if (index === 3) {
       var el = animalImg('elephant', 'fruit-img');
       if (el) return el;
+    }
+    // 第 4 岛是「动物与动作」，岛上已经有 14 张 3D 动物图，地图图标也用 3D 狮子（RULES §二.5 禁止 emoji 充当配图）
+    if (index === 4) {
+      var lion = animalImg('lion', 'fruit-img');
+      if (lion) return lion;
     }
     if (index === 2) {
       var box = document.createElementNS(SVG_NS, 'svg');
@@ -3907,6 +3913,7 @@
     if (def && def.make === 'makeF2') return makeQuestionF2(typeIdx, prev);
     if (def && def.make === 'makeF3') return makeQuestionF3(typeIdx, prev);
     if (def && def.make === 'makeF4') return makeQuestionF4(typeIdx, prev);
+    if (def && def.make === 'makeF5') return makeQuestionF5(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -8548,7 +8555,10 @@
     var img = animalImg(def.img, 'f4-actor-img');
     if (img) box.appendChild(img);
     // 只借用跑 / 睡两种装饰；吃的食物不放身上，改放在地上（见 f4SceneNode）
-    if (def.act === 'run' || def.act === 'sleep') {
+    // 跳跃（第 5 关的青蛙 / 袋鼠）只加一个弹跳类，动画在 .f5-style 里
+    if (def.act === 'jump') {
+      box.classList.add('f4-hop');
+    } else if (def.act === 'run' || def.act === 'sleep') {
       var deco = f3DecoNode(def.act);
       if (deco) box.appendChild(deco);
     }
@@ -8562,6 +8572,7 @@
     card.className = 'f4-card' + (cls ? ' ' + cls : '');
     card.dataset.subj = subj;
     if (!def) return card;
+    card.dataset.act = def.act;   // 只给样式用：跑 / 跳 / 吃 / 睡 的装饰能不能看清，靠它选中
     var bg = svgEl('svg');
     bg.setAttribute('viewBox', '0 0 160 130');
     bg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
@@ -9045,6 +9056,498 @@
     return api;
   })();
 
+  /* ==================== 第 4 岛第 5 关（L4-W5：游乐场 · 听音模仿 + 动作复习） ==================== */
+  /* 结业关，只复习不教新词（RULES §三.9）。
+     教学（14 环节）：新交互「相机按钮」先由老师示范 1 步（RULES §三.10），
+       再按双倍量走三组动作：run（狗在跑 / 小人原地跑 / 马在跑拉近 / 小人再跑一次）
+        jump（青蛙跳 / 小人原地跳 / 袋鼠跳 / 小人再跳一次）
+        sleep（猫在睡 / 小人闭眼睡 / 猪在睡 / 小人再睡一次）→ 过渡语（自带）
+     答题 12 轮（4/4/4）：
+       A 听指令做动作：3 个动作场景 + 一个巨大的相机按钮，孩子模仿完点相机
+       B 看剪影猜动物：放大镜里的动作剪影 + 下面 3 个动物里点一个
+       C 同一只动物的三种动作并排，听指令点出正在做那件事的那一只
+     图片：全部复用已有 Fluent 3D 动物（零新增素材、零生图）；相机与放大镜都是内联 SVG，
+           页面里没有任何文字节点（不含英文字母，RULES §二.1）。 */
+
+  /** 相机按钮的图形（内联 SVG，禁止用 Emoji 字符当图标，RULES §二.7） */
+  var F5_CAM_SVG =
+    '<svg viewBox="0 0 120 100" aria-hidden="true">' +
+      '<rect x="8" y="24" width="104" height="68" rx="20" fill="#fff6ea" stroke="#eab97e" stroke-width="4"/>' +
+      '<rect x="36" y="10" width="38" height="20" rx="9" fill="#ffd9a0" stroke="#eab97e" stroke-width="4"/>' +
+      '<circle cx="60" cy="58" r="24" fill="#dceafb" stroke="#eab97e" stroke-width="4"/>' +
+      '<circle cx="60" cy="58" r="14" fill="#b6d3ee"/>' +
+      '<circle cx="54" cy="51" r="4.6" fill="#ffffff" opacity=".9"/>' +
+      '<circle cx="98" cy="38" r="5.2" fill="#ffb3b3" stroke="#eab97e" stroke-width="2"/>' +
+    '</svg>';
+
+  /** 放大镜的手柄（镜片本身是 CSS 圆形边框，对齐更省事） */
+  var F5_GLASS_SVG =
+    '<svg viewBox="0 0 40 40" aria-hidden="true">' +
+      '<path d="M8 8 L30 32" stroke="#eab97e" stroke-width="10" stroke-linecap="round"/>' +
+      '<path d="M9 8 L29 31" stroke="#f7d7ad" stroke-width="4" stroke-linecap="round"/>' +
+    '</svg>';
+
+  /** 跳姿小人（手写 SVG）：双腿并拢屈膝、双手上举，与「跑」（前后分腿）一眼能分开（RULES §三.10） */
+  var F5_KID_JUMP =
+    '<ellipse class="f5-jshadow" cx="60" cy="150" rx="25" ry="6" fill="#dcc3a2" opacity=".5"/>' +
+    '<g class="f5-jbody">' +
+      '<path d="M56 84 L53 95 L58 102" stroke="#5b8fd6" stroke-width="9" stroke-linecap="round" ' +
+        'stroke-linejoin="round" fill="none"/>' +
+      '<path d="M58 102 L64 104" stroke="#e0645a" stroke-width="8" stroke-linecap="round" fill="none"/>' +
+      '<path d="M68 84 L71 95 L66 102" stroke="#5b8fd6" stroke-width="9" stroke-linecap="round" ' +
+        'stroke-linejoin="round" fill="none"/>' +
+      '<path d="M66 102 L72 104" stroke="#e0645a" stroke-width="8" stroke-linecap="round" fill="none"/>' +
+      '<rect x="50" y="52" width="24" height="34" rx="11" fill="#f7c98f"/>' +
+      // 双手举高：必须画在脑袋外侧，否则和脸的肤色叠在一起，看起来像没长胳膊
+      '<path d="M52 62 L36 42" stroke="#ffdcbb" stroke-width="8" stroke-linecap="round" fill="none"/>' +
+      '<path d="M72 62 L88 42" stroke="#ffdcbb" stroke-width="8" stroke-linecap="round" fill="none"/>' +
+      '<circle cx="62" cy="34" r="19" fill="#ffdcbb"/>' +
+      '<circle cx="44" cy="35" r="4" fill="#ffd0ab"/>' +
+      '<path d="M43 30 q4 -19 19 -19 q15 0 19 19 q-9 -9 -19 -9 q-10 0 -19 9" fill="#6b4a34"/>' +
+      '<circle cx="54" cy="34" r="2.6" fill="#4a3628"/>' +
+      '<circle cx="68" cy="34" r="2.6" fill="#4a3628"/>' +
+      '<ellipse cx="61" cy="45" rx="4.4" ry="3.2" fill="#c2604f"/>' +
+      '<circle cx="48" cy="41" r="3.6" fill="#ffb9b9" opacity=".7"/>' +
+      '<circle cx="74" cy="41" r="3.6" fill="#ffb9b9" opacity=".7"/>' +
+    '</g>' +
+    '<g stroke="#ffc978" stroke-width="3.4" stroke-linecap="round" fill="none" opacity=".85">' +
+      '<path d="M28 20 q6 -8 12 -2"/><path d="M84 18 q8 -6 12 2"/>' +
+    '</g>';
+
+  /** 第 5 关新增的场景（同一动物的三种动作 + 两种跳跃动物）。
+     并入 F4_SCENES 是安全的：第 4 关的题库是显式数组，不会把新条目带进来。 */
+  var F5_EXTRA_SCENES = {
+    cat_run:       { img: 'cat',      act: 'run',   bg: 'grass' },
+    cat_eat:       { img: 'cat',      act: 'eat',   bg: 'mat' },
+    horse_eat:     { img: 'horse',    act: 'eat',   bg: 'meadow' },
+    horse_sleep:   { img: 'horse',    act: 'sleep', bg: 'mat' },
+    pig_run:       { img: 'pig',      act: 'run',   bg: 'grass' },
+    pig_eat:       { img: 'pig',      act: 'eat',   bg: 'grass' },
+    frog_jump:     { img: 'frog',     act: 'jump',  bg: 'meadow' },
+    kangaroo_jump: { img: 'kangaroo', act: 'jump',  bg: 'meadow' }
+  };
+  Object.keys(F5_EXTRA_SCENES).forEach(function (k) { F4_SCENES[k] = F5_EXTRA_SCENES[k]; });
+
+  /** 题型 A：6 组「动物 + 动作」（目标 + 2 个不同动作的干扰场景），语音逐条对应 */
+  var F5_A_CASES = [
+    { key: 'l4w5_a_run_dog',       target: 'dog_run',       set: ['frog_jump', 'cat_sleep'] },
+    { key: 'l4w5_a_run_horse',     target: 'horse_run',     set: ['kangaroo_jump', 'bear_sleep'] },
+    { key: 'l4w5_a_jump_frog',     target: 'frog_jump',     set: ['dog_run', 'cat_sleep'] },
+    { key: 'l4w5_a_jump_kangaroo', target: 'kangaroo_jump', set: ['horse_run', 'pig_sleep'] },
+    { key: 'l4w5_a_sleep_cat',     target: 'cat_sleep',     set: ['dog_run', 'frog_jump'] },
+    { key: 'l4w5_a_sleep_bear',    target: 'bear_sleep',    set: ['horse_run', 'kangaroo_jump'] }
+  ];
+
+  /** 题型 B：放大镜里的剪影 = 会做这个动作的三种动物之一。
+      每组都要「剪影一眼能分开」：狗 / 马 / 猪、青蛙 / 袋鼠 / 猫、猫 / 熊 / 狮子。
+      （最早那组是青蛙 / 袋鼠 / 猴，袋鼠和猴的剪影都是圆团＋两只小耳朵，几乎分不出来） */
+  var F5_B_SETS = [
+    { act: 'run',   animals: ['dog', 'horse', 'pig'],   key: 'l4w5_b_run' },
+    { act: 'jump',  animals: ['frog', 'kangaroo', 'cat'], key: 'l4w5_b_jump' },
+    { act: 'sleep', animals: ['cat', 'bear', 'lion'],   key: 'l4w5_b_sleep' }
+  ];
+
+  /** 题型 C：同一只动物 × 三种动作，永远只有一个正确答案 */
+  var F5_C_CASES = [
+    { animal: 'dog',   set: ['dog_run', 'dog_eat', 'dog_sleep'],       ans: 'dog_eat',     key: 'l4w5_c_dog' },
+    { animal: 'cat',   set: ['cat_run', 'cat_eat', 'cat_sleep'],       ans: 'cat_run',     key: 'l4w5_c_cat' },
+    { animal: 'horse', set: ['horse_run', 'horse_eat', 'horse_sleep'], ans: 'horse_sleep', key: 'l4w5_c_horse' },
+    { animal: 'pig',   set: ['pig_run', 'pig_eat', 'pig_sleep'],       ans: 'pig_eat',     key: 'l4w5_c_pig' }
+  ];
+
+  /** 相机按钮：本关唯一的新交互，孩子模仿完动作后由孩子或家长点它 */
+  function f5CamButton(opts) {
+    opts = opts || {};
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'f5-cam' + (opts.idle ? ' f5-cam-idle' : '') + (opts.hot ? ' f5-cam-hot' : '');
+    b.setAttribute('aria-label', '拍一拍');
+    var icon = document.createElement('span');
+    icon.className = 'f5-cam-icon';
+    icon.innerHTML = F5_CAM_SVG;
+    b.appendChild(icon);
+    var label = document.createElement('span');
+    label.className = 'f5-cam-label';
+    label.textContent = '我做好啦';
+    b.appendChild(label);
+    return b;
+  }
+
+  /** 做动作的小人（run / jump / sleep）；variant='b' 时补一层动作装饰，与第一遍区分开 */
+  function f5KidNode(pose, tag, variant) {
+    var box = document.createElement('div');
+    box.className = 'f5-kid f5-kid-' + pose + (variant ? ' f5-kid-' + variant : '');
+    box.dataset.subj = tag;
+    var s;
+    if (pose === 'jump') {
+      s = svgEl('svg');
+      s.setAttribute('viewBox', '0 0 120 160');
+      s.innerHTML = F5_KID_JUMP;
+    } else {
+      s = f3KidSvg(pose, true);
+    }
+    box.appendChild(s);
+    if (variant === 'b') {
+      var deco = f3DecoNode(pose === 'jump' ? 'run' : pose);
+      if (deco) box.appendChild(deco);
+    }
+    return box;
+  }
+
+  /** 剪影里的动作提示（跑 = 速度线、跳 = 起跳弧线、睡 = Z 云）：
+      单看黑色剪影分不出在做什么，尤其「睡」和「站」几乎一样，所以动作必须画出来 */
+  var F5_LENS_DECO = {
+    run:
+      '<g stroke="#ffb95e" stroke-width="4.6" stroke-linecap="round">' +
+        '<path d="M12 52 h17"/><path d="M6 68 h21"/><path d="M14 84 h15"/>' +
+      '</g>',
+    jump:
+      // 三条向上的短竖线：与「跑」的横线形成明显对比，一眼看出是在往上跳
+      '<g stroke="#ffc978" stroke-width="4.2" stroke-linecap="round">' +
+        '<path d="M50 30 v-9"/><path d="M60 26 v-13"/><path d="M70 30 v-9"/>' +
+      '</g>',
+    sleep:
+      '<g stroke="#8fb8e0" stroke-width="4.2" fill="none" stroke-linejoin="round" ' +
+        'stroke-linecap="round">' +
+        // 坐标必须留在半径 60 的圆内（镜片是 overflow:hidden 的圆形），并且放在动物头顶上方，
+        // 压在尾巴上会被误认成动物的一部分
+        '<path d="M70 26 h10 l-10 10 h10"/><path d="M84 16 h7 l-7 7 h7"/>' +
+      '</g>'
+  };
+
+  /** 放大镜：镜片里是动物的黑色剪影（PNG + CSS filter，不是 Emoji 字符）+ 动作提示 */
+  function f5LensNode(animal, act) {
+    var box = document.createElement('div');
+    box.className = 'f5-lens f5-act-' + act;
+    box.dataset.subj = animal + '_' + act;
+    box.setAttribute('aria-label', '动作剪影');
+    var sil = document.createElement('div');
+    sil.className = 'f5-sil';
+    var img = animalImg(animal, 'f5-sil-img');
+    if (img) sil.appendChild(img);
+    var deco = svgEl('svg');
+    deco.setAttribute('viewBox', '0 0 120 120');
+    deco.setAttribute('class', 'f5-lens-deco');
+    deco.setAttribute('aria-hidden', 'true');
+    deco.innerHTML = F5_LENS_DECO[act] || '';
+    sil.appendChild(deco);
+    box.appendChild(sil);
+    var glass = document.createElement('span');
+    glass.className = 'f5-glass';
+    glass.innerHTML = F5_GLASS_SVG;
+    box.appendChild(glass);
+    return box;
+  }
+
+  function ensureF5Css() {
+    if (document.getElementById('f5-style')) return;
+    // 场景卡 / 速度线 / Z 云 / 小人都来自前面几关的样式表，必须先加载（RULES §三.11）
+    ensureF4Css();
+    ensureF3Css();
+    var s = document.createElement('style');
+    s.id = 'f5-style';
+    s.textContent =
+      // 宽度一律 min(NNvw, NNpx)：父级 #askDisplay 是 place-items:center 的 grid，
+      // 写 width:100% 会形成循环依赖被解析成 0（RULES §三.11）
+      '.f5-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'gap:1.2vh;width:min(84vw,460px);box-sizing:border-box;min-height:34vh}' +
+      '.f5-row{display:flex;gap:min(3vw,12px);justify-content:center;align-items:center;width:100%}' +
+      '.f5-row .f4-card{width:min(25vw,120px);flex:0 0 auto;box-shadow:0 8px 16px rgba(180,140,90,.2)}' +
+      '.f5-big{width:min(72vw,270px);box-shadow:0 10px 22px rgba(180,140,90,.22)}' +
+      // 三选一的卡片只有 ~98px，动作装饰必须放大才看得清（题型 C 全靠这个区分「在跑 / 在吃 / 在睡」）
+      '.f4-tile .f4-actor{width:82%}' +
+      '.f4-tile .f3-speed{width:38%;height:56%;left:1%}' +
+      '.f4-tile .f4-food{width:30%;left:6%;bottom:6%}' +
+      '.f4-card[data-act="run"] .f4-actor-img{animation:f5bob .82s ease-in-out infinite}' +
+      '.f4-card[data-act="eat"] .f4-actor-img{animation:f5peck .95s ease-in-out infinite}' +
+      // 相机按钮：大大的、圆圆的、拇指够得到
+      '.f5-cam{display:flex;flex-direction:column;align-items:center;gap:1px;width:min(50vw,196px);' +
+      'padding:8px 10px 5px;border:4px solid #ffd9a0;border-radius:30px;background:rgba(255,255,255,.94);' +
+      'cursor:pointer;box-shadow:0 10px 22px rgba(214,164,110,.24);box-sizing:border-box;' +
+      'transition:transform .15s ease,box-shadow .15s ease,opacity .2s ease}' +
+      '.f5-cam:active{transform:scale(.95)}' +
+      '.f5-cam-icon{display:block;width:70%}' +
+      '.f5-cam-icon svg{display:block;width:100%;height:auto}' +
+      '.f5-cam-label{font-size:clamp(12px,3.2vw,15px);color:#8a6a48;font-weight:700;letter-spacing:1px}' +
+      // 演示阶段：相机只是「等一下要用它」的提示，不可点
+      '.f5-cam-idle{opacity:.45;filter:saturate(.65)}' +
+      '.f5-cam-hot{animation:f5camhot 1.1s ease-in-out infinite}' +
+      '.f5-cam.right{border-color:#7FD18A;box-shadow:0 0 0 7px rgba(127,209,138,.55);opacity:1;filter:none}' +
+      // 做动作的小人
+      '.f5-kid{position:relative;display:flex;align-items:center;justify-content:center;' +
+      'width:min(50vw,208px);box-sizing:border-box}' +
+      '.f5-kid svg{display:block;width:100%;height:auto}' +
+      '.f5-kid-b{width:min(56vw,232px)}' +
+      '.f5-kid-b svg{filter:drop-shadow(0 6px 10px rgba(120,90,60,.16))}' +
+      '.f5-kid-jump .f5-jbody{transform-box:fill-box;transform-origin:center bottom;' +
+      'animation:f5jump 1.05s ease-in-out infinite}' +
+      '.f5-kid-jump .f5-jshadow{transform-box:fill-box;transform-origin:center;' +
+      'animation:f5jshadow 1.05s ease-in-out infinite}' +
+      // 放大镜
+      '.f5-lens{position:relative;width:min(62vw,262px);aspect-ratio:1 / 1;margin:1vh auto}' +
+      '.f5-sil{position:absolute;left:0;top:0;width:78%;height:78%;border-radius:50%;overflow:hidden;' +
+      'display:flex;align-items:center;justify-content:center;box-sizing:border-box;background:#fffaf0;' +
+      'border:7px solid #eab97e;' +
+      'box-shadow:inset 0 0 20px rgba(190,150,105,.18),0 10px 20px rgba(190,150,105,.2)}' +
+      '.f5-sil-img{width:72%;height:auto;object-fit:contain;pointer-events:none;' +
+      'filter:brightness(0) opacity(.72)}' +
+      '.f5-lens-deco{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}' +
+      '.f5-act-jump .f5-sil-img{animation:f5jump 1.15s ease-in-out infinite}' +
+      '.f5-act-run .f5-sil-img{animation:f5trot .85s ease-in-out infinite}' +
+      '.f5-act-sleep .f5-sil-img{animation:f5breathe 2.6s ease-in-out infinite}' +
+      '.f5-glass{position:absolute;right:1%;bottom:1%;width:27%;height:27%;display:block;' +
+      'transform:rotate(-6deg);animation:f5glass 3s ease-in-out infinite}' +
+      '.f5-glass svg{display:block;width:100%;height:auto}' +
+      // 答对后把剪影上色（视觉反馈，仍然不播语音，RULES §1.6）
+      '.f5-found .f5-sil-img{filter:none;animation:none}' +
+      '.f5-found .f5-sil{border-color:#7FD18A;box-shadow:inset 0 0 0 4px rgba(127,209,138,.35)}' +
+      // 选项里的动物（题型 B）
+      '.f5-opt-img{width:100%;height:auto;object-fit:contain;pointer-events:none;' +
+      'filter:drop-shadow(0 4px 6px rgba(90,70,50,.18))}' +
+      // 跳跃动物：卡片主体整只上下弹
+      '.f4-hop .f4-actor-img{animation:f5hop .95s ease-in-out infinite}' +
+      '@keyframes f5jump{0%,100%{transform:translateY(0)}45%{transform:translateY(-14%)}}' +
+      '@keyframes f5jshadow{0%,100%{transform:scale(1);opacity:.5}45%{transform:scale(.74);opacity:.3}}' +
+      '@keyframes f5hop{0%,100%{transform:translateY(0)}45%{transform:translateY(-17%)}}' +
+      '@keyframes f5bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}' +
+      '50%{transform:translateY(-6%) rotate(1.5deg)}}' +
+      '@keyframes f5peck{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.14) rotate(-6deg)}}' +
+      '@keyframes f5trot{0%,100%{transform:translateX(-4%)}50%{transform:translateX(4%)}}' +
+      '@keyframes f5breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}' +
+      '@keyframes f5camhot{0%,100%{box-shadow:0 0 0 4px rgba(255,210,120,.45)}' +
+      '50%{box-shadow:0 0 26px 10px rgba(255,210,120,.92)}}' +
+      '@keyframes f5glass{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(4deg)}}';
+    document.head.appendChild(s);
+  }
+
+  /** 题型 A：三个动作场景 + 一台大相机（模仿完点相机即完成） */
+  function renderF5Imitate(q) {
+    ensureF5Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'f5-stage';
+    var row = document.createElement('div');
+    row.className = 'f5-row';
+    q.options.forEach(function (opt) {
+      row.appendChild(f4SceneNode(opt.subj));
+    });
+    wrap.appendChild(row);
+    var cam = f5CamButton();
+    cam.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      judge(true, cam);
+    });
+    wrap.appendChild(cam);
+    askDisplay.appendChild(wrap);
+  }
+
+  /** 题型 B：放大镜里的剪影（三个动物选项在下方选项栏里） */
+  function renderF5Lens(q) {
+    ensureF5Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'f5-stage';
+    wrap.appendChild(f5LensNode(q.animal, q.act));
+    askDisplay.appendChild(wrap);
+  }
+
+  /** 出题：0 = A 听指令做动作 / 1 = B 看剪影猜动物 / 2 = C 找同一只动物里正在做那件事的 */
+  function makeQuestionF5(type, prev) {
+    ensureF5Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var ca = F5_A_CASES[randInt(0, F5_A_CASES.length - 1)];
+        var listA = [ca.target].concat(ca.set);
+        shuffle(listA);
+        var optsA = listA.map(function (s) { return { kind: 'f4scene', subj: s }; });
+        q = {
+          type: 'F5A', sig: 'A:' + ca.key, subj: ca.target,
+          options: optsA, correct: listA.indexOf(ca.target),
+          audio: [ca.key]
+        };
+      } else if (type === 1) {
+        var sb = F5_B_SETS[randInt(0, F5_B_SETS.length - 1)];
+        var animals = shuffle(sb.animals.slice());
+        var target = animals[randInt(0, animals.length - 1)];
+        var optsB = animals.map(function (a) { return { kind: 'f5animal', animal: a }; });
+        q = {
+          type: 'F5B', sig: 'B:' + sb.act + ':' + target, animal: target, act: sb.act,
+          options: optsB, correct: animals.indexOf(target),
+          audio: [sb.key]
+        };
+      } else {
+        var cc = F5_C_CASES[randInt(0, F5_C_CASES.length - 1)];
+        var listC = shuffle(cc.set.slice());
+        var optsC = listC.map(function (s) { return { kind: 'f4scene', subj: s }; });
+        q = {
+          type: 'F5C', sig: 'C:' + cc.animal + ':' + cc.ans, subj: cc.ans, animal: cc.animal,
+          options: optsC, correct: listC.indexOf(cc.ans),
+          audio: [cc.key]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* 教学（custom 分支）：14 个环节，收尾仍走 tutFinish() */
+  var runF5Tutorial = (function () {
+    function blank(me) {
+      me.ask = null;
+      me.hintTarget = null;
+      me.hintFrom = null;
+      me.hintTo = null;
+      me.hintToY = 0.5;
+      me.replay = null;
+      clearHint();
+    }
+    function stage(me) {
+      blank(me);
+      askDisplay.innerHTML = '';
+      ensureF5Css();
+      var w = document.createElement('div');
+      w.className = 'f5-stage';
+      askDisplay.appendChild(w);
+      return w;
+    }
+    /** 只有一台相机：老师专门示范「这是什么、什么时候点它」（RULES §三.10 新交互先示范） */
+    function camOnly(me) {
+      var wrap = stage(me);
+      var cam = f5CamButton();
+      wrap.appendChild(cam);
+      return { cam: cam };
+    }
+    /** 演示：一整幅动作场景 + 相机（相机半透明，只是提示） */
+    function camScene(me, subj, cls) {
+      var wrap = stage(me);
+      var c = f4SceneNode(subj, 'f5-big' + (cls ? ' ' + cls : ''));
+      wrap.appendChild(c);
+      var cam = f5CamButton({ idle: true });
+      wrap.appendChild(cam);
+      return { entries: [{ key: subj, el: c }], cam: cam };
+    }
+    /** 互动：孩子做动作，点相机才算完成 */
+    function camKid(me, pose, tag, variant) {
+      var wrap = stage(me);
+      var kid = f5KidNode(pose, tag, variant);
+      wrap.appendChild(kid);
+      var cam = f5CamButton();
+      wrap.appendChild(cam);
+      return { kid: kid, cam: cam };
+    }
+
+    var ACTS = [
+      // ① 新交互：相机按钮本身
+      { type: 'camdemo', word: 'l4w5_t_cam', build: function (me) { return camOnly(me); } },
+      // ② run：2 次演示 + 2 次互动
+      { type: 'demo', word: 'l4w5_t_run1', hi: 'dog_run',
+        build: function (me) { return camScene(me, 'dog_run'); } },
+      { type: 'cam',  word: 'l4w5_t_run2',
+        build: function (me) { return camKid(me, 'run', 'kid_run_a'); } },
+      { type: 'demo', word: 'l4w5_t_run3', hi: 'horse_run',
+        build: function (me) { return camScene(me, 'horse_run', 'f4-zoom'); } },
+      { type: 'cam',  word: 'l4w5_t_run4',
+        build: function (me) { return camKid(me, 'run', 'kid_run_b', 'b'); } },
+      // ③ jump：2 次演示 + 2 次互动
+      { type: 'demo', word: 'l4w5_t_jump1', hi: 'frog_jump',
+        build: function (me) { return camScene(me, 'frog_jump'); } },
+      { type: 'cam',  word: 'l4w5_t_jump2',
+        build: function (me) { return camKid(me, 'jump', 'kid_jump_a'); } },
+      { type: 'demo', word: 'l4w5_t_jump3', hi: 'kangaroo_jump',
+        build: function (me) { return camScene(me, 'kangaroo_jump', 'f4-zoom'); } },
+      { type: 'cam',  word: 'l4w5_t_jump4',
+        build: function (me) { return camKid(me, 'jump', 'kid_jump_b', 'b'); } },
+      // ④ sleep：2 次演示 + 2 次互动
+      { type: 'demo', word: 'l4w5_t_sleep1', hi: 'cat_sleep',
+        build: function (me) { return camScene(me, 'cat_sleep'); } },
+      { type: 'cam',  word: 'l4w5_t_sleep2',
+        build: function (me) { return camKid(me, 'sleep', 'kid_sleep_a'); } },
+      { type: 'demo', word: 'l4w5_t_sleep3', hi: 'pig_sleep',
+        build: function (me) { return camScene(me, 'pig_sleep', 'f4-zoom'); } },
+      { type: 'cam',  word: 'l4w5_t_sleep4',
+        build: function (me) { return camKid(me, 'sleep', 'kid_sleep_b', 'b'); } },
+      // ⑤ 过渡语（自带，不再叠 t_ready）
+      { type: 'outro', word: 'l4w5_t_done',
+        build: function (me) {
+          var wrap = stage(me);
+          var row = document.createElement('div');
+          row.className = 'f5-row';
+          var cards = [];
+          ['dog_run', 'frog_jump', 'cat_sleep'].forEach(function (k) {
+            var c = f4SceneNode(k);
+            row.appendChild(c);
+            cards.push({ key: k, el: c });
+          });
+          wrap.appendChild(row);
+          return { entries: cards };
+        } }
+    ];
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var built = act.build(me);
+
+      // 过渡语：三幅场景一起发光 → 说完直接进答题
+      if (act.type === 'outro') {
+        me.replay = function () { say([act.word]); };
+        built.entries.forEach(function (e) { e.el.classList.add('f4-glow'); });
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          tutFinish(me, false);
+        });
+        return;
+      }
+
+      // 相机示范：说完把这台相机点亮，停 1.8 秒再走
+      if (act.type === 'camdemo') {
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          built.cam.classList.add('f5-cam-hot');
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1800);
+        });
+        return;
+      }
+
+      // 演示：说完让画面发光，停一下再走
+      if (act.type === 'demo') {
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          built.entries.forEach(function (e) {
+            if (!act.hi || e.key === act.hi) e.el.classList.add('f4-glow');
+          });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+        });
+        return;
+      }
+
+      // 互动：点相机 → 音效 + 推进；4 秒没动 → 小手指指向相机（RULES §二.12）
+      var cam = built.cam;
+      me.ask = 'cam';
+      me.hintTarget = cam;
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+      cam.addEventListener('click', function () {
+        if (state.tut !== me || !me.ask) return;
+        clearHint();
+        coin();
+        ting();
+        me.ask = null;
+        cam.classList.add('right');
+        setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 900);
+      });
+    }
+
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
     function stage(me) {
@@ -9230,6 +9733,11 @@
     if (q.type === 'F4A') { optionsBar.classList.add('gone'); return; }
     if (q.type === 'F4B') { renderF4Picture(q); return; }
     if (q.type === 'F4C') { renderF4Zones(q); return; }
+
+    /* ---- 第 4 岛第 5 关：游乐场 · 听音模仿（A 三场景 + 大相机，B 放大镜剪影，C 同种动物宫格） ---- */
+    if (q.type === 'F5A') { optionsBar.classList.add('gone'); renderF5Imitate(q); return; }
+    if (q.type === 'F5B') { renderF5Lens(q); return; }
+    if (q.type === 'F5C') { optionsBar.classList.add('gone'); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -9586,6 +10094,7 @@
     if (q.type === 'F2A' || q.type === 'F2B') { renderF2Grid(q); return; }
     if (q.type === 'F3A' || q.type === 'F3B') { renderF3Grid(q); return; }
     if (q.type === 'F4A') { renderF4Grid(q); return; }   // F4B 走公共的对错按钮，不需要单独分支
+    if (q.type === 'F5C') { renderF4Grid(q); return; }   // 三只同种动物做不同动作，与第 4 关同款宫格
     optionEls.forEach(function (btn, i) {
       removeDecor(btn);
       btn.className = 'option';
@@ -9763,6 +10272,11 @@
         // 第 4 岛第 4 关题型 C：可拖进「在跑 / 在睡」筐的整幅场景
         btn.classList.add('f4-opt');
         slot.appendChild(f4SceneNode(opt.subj));
+      } else if (opt.kind === 'f5animal') {
+        // 第 4 岛第 5 关题型 B：三个动物里点出剪影那一只
+        btn.classList.add('f5-opt');
+        var f5op = animalImg(opt.animal, 'f5-opt-img');
+        if (f5op) slot.appendChild(f5op);
       } else if (opt.kind === 'f3act') {
         // 第 4 岛第 3 关题型 C：可拖进「在跑 / 在睡」筐的动作画面
         btn.classList.add('f3-opt');
@@ -9974,6 +10488,11 @@
       if (q.type === 'F4B') {
         var f4pic = document.getElementById('f4-pic');
         if (f4pic) f4pic.classList.add('f4-cheer');
+      }
+      // 第 4 岛第 5 关题型 B：剪影当场被上色（视觉反馈，仍然不播语音）
+      if (q.type === 'F5B') {
+        var f5lens = document.querySelector('.f5-lens');
+        if (f5lens) f5lens.classList.add('f5-found');
       }
 
       // 必须先捕获索引：430ms 后 state.roundIndex 会自增，
@@ -11020,6 +11539,13 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '4-5': {
+      // 结业关：相机示范 1 步 + 3 个动作 × 4 环节（2 演示 + 2 互动）+ 过渡语 = 14 环节
+      custom: runF5Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -11832,6 +12358,7 @@
             if (o.kind === 'f2animal') return o.animal;
             if (o.kind === 'f3act') return o.subj;
             if (o.kind === 'f4scene') return o.subj;
+            if (o.kind === 'f5animal') return o.animal;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
             if (o.color) return o.color.id;

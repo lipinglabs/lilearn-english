@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**441** 条（英文 435 + 中文 6）
+总条目：**468** 条（英文 462 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -407,38 +407,65 @@
 | `l4w3_c_dog_run` | en | Put the running dog in the running box. | 已存在 |
 | `l4w3_c_boy_sleep` | en | Put the sleeping boy in the sleeping box. | 已存在 |
 | `l4w3_c_cat_sleep` | en | Put the sleeping cat in the sleeping box. | 已存在 |
-| `l4w4_t_dog1` | en | Look! The dog is running. | 待生成 |
-| `l4w4_t_dog2` | en | The dog is running fast! | 待生成 |
-| `l4w4_t_dog3` | en | Touch the picture: the dog is running. | 待生成 |
-| `l4w4_t_dog4` | en | Which dog is running? Touch it. | 待生成 |
-| `l4w4_t_cat1` | en | Look! The cat is sleeping. | 待生成 |
-| `l4w4_t_cat2` | en | The cat is sleeping on the sofa. | 待生成 |
-| `l4w4_t_cat3` | en | Find the cat that is sleeping. | 待生成 |
-| `l4w4_t_cat4` | en | Where is the sleeping cat? | 待生成 |
-| `l4w4_t_mon1` | en | Look! The monkey is eating. | 待生成 |
-| `l4w4_t_mon2` | en | The monkey is eating a banana. | 待生成 |
-| `l4w4_t_mon3` | en | Find the monkey that is eating. | 待生成 |
-| `l4w4_t_mon4` | en | Who is eating a banana? Touch it. | 待生成 |
-| `l4w4_t_show` | en | Show me: the monkey is eating. | 待生成 |
-| `l4w4_t_yn1` | en | Look at the picture. Is the dog running? No, the horse is running. | 待生成 |
-| `l4w4_t_yn2` | en | Look at the picture. Is the cat sleeping? Yes, the cat is sleeping. | 待生成 |
-| `l4w4_t_done` | en | You know all the sentences! Let's play! | 待生成 |
-| `l4w4_a_dog` | en | The dog is running. Find the running dog. | 待生成 |
-| `l4w4_a_cat` | en | The cat is sleeping. Find the sleeping cat. | 待生成 |
-| `l4w4_a_monkey` | en | The monkey is eating. Find the eating monkey. | 待生成 |
-| `l4w4_a_horse` | en | The horse is running. Find the running horse. | 待生成 |
-| `l4w4_a_pig` | en | The pig is sleeping. Find the sleeping pig. | 待生成 |
-| `l4w4_a_bear` | en | The bear is eating. Find the eating bear. | 待生成 |
-| `l4w4_b_dog` | en | Look at the picture. Is the dog running? | 待生成 |
-| `l4w4_b_cat` | en | Look at the picture. Is the cat sleeping? | 待生成 |
-| `l4w4_b_monkey` | en | Look at the picture. Is the monkey eating? | 待生成 |
-| `l4w4_b_horse` | en | Look at the picture. Is the horse running? | 待生成 |
-| `l4w4_b_pig` | en | Look at the picture. Is the pig sleeping? | 待生成 |
-| `l4w4_b_bear` | en | Look at the picture. Is the bear eating? | 待生成 |
-| `l4w4_c_dog` | en | Put the dog that is running in the running box. | 待生成 |
-| `l4w4_c_cat` | en | Put the cat that is sleeping in the sleeping box. | 待生成 |
-| `l4w4_c_horse` | en | Put the horse that is running in the running box. | 待生成 |
-| `l4w4_c_pig` | en | Put the pig that is sleeping in the sleeping box. | 待生成 |
+| `l4w4_t_dog1` | en | Look! The dog is running. | 已存在 |
+| `l4w4_t_dog2` | en | The dog is running fast! | 已存在 |
+| `l4w4_t_dog3` | en | Touch the picture: the dog is running. | 已存在 |
+| `l4w4_t_dog4` | en | Which dog is running? Touch it. | 已存在 |
+| `l4w4_t_cat1` | en | Look! The cat is sleeping. | 已存在 |
+| `l4w4_t_cat2` | en | The cat is sleeping on the sofa. | 已存在 |
+| `l4w4_t_cat3` | en | Find the cat that is sleeping. | 已存在 |
+| `l4w4_t_cat4` | en | Where is the sleeping cat? | 已存在 |
+| `l4w4_t_mon1` | en | Look! The monkey is eating. | 已存在 |
+| `l4w4_t_mon2` | en | The monkey is eating a banana. | 已存在 |
+| `l4w4_t_mon3` | en | Find the monkey that is eating. | 已存在 |
+| `l4w4_t_mon4` | en | Who is eating a banana? Touch it. | 已存在 |
+| `l4w4_t_show` | en | Show me: the monkey is eating. | 已存在 |
+| `l4w4_t_yn1` | en | Look at the picture. Is the dog running? No, the horse is running. | 已存在 |
+| `l4w4_t_yn2` | en | Look at the picture. Is the cat sleeping? Yes, the cat is sleeping. | 已存在 |
+| `l4w4_t_done` | en | You know all the sentences! Let's play! | 已存在 |
+| `l4w4_a_dog` | en | The dog is running. Find the running dog. | 已存在 |
+| `l4w4_a_cat` | en | The cat is sleeping. Find the sleeping cat. | 已存在 |
+| `l4w4_a_monkey` | en | The monkey is eating. Find the eating monkey. | 已存在 |
+| `l4w4_a_horse` | en | The horse is running. Find the running horse. | 已存在 |
+| `l4w4_a_pig` | en | The pig is sleeping. Find the sleeping pig. | 已存在 |
+| `l4w4_a_bear` | en | The bear is eating. Find the eating bear. | 已存在 |
+| `l4w4_b_dog` | en | Look at the picture. Is the dog running? | 已存在 |
+| `l4w4_b_cat` | en | Look at the picture. Is the cat sleeping? | 已存在 |
+| `l4w4_b_monkey` | en | Look at the picture. Is the monkey eating? | 已存在 |
+| `l4w4_b_horse` | en | Look at the picture. Is the horse running? | 已存在 |
+| `l4w4_b_pig` | en | Look at the picture. Is the pig sleeping? | 已存在 |
+| `l4w4_b_bear` | en | Look at the picture. Is the bear eating? | 已存在 |
+| `l4w4_c_dog` | en | Put the dog that is running in the running box. | 已存在 |
+| `l4w4_c_cat` | en | Put the cat that is sleeping in the sleeping box. | 已存在 |
+| `l4w4_c_horse` | en | Put the horse that is running in the running box. | 已存在 |
+| `l4w4_c_pig` | en | Put the pig that is sleeping in the sleeping box. | 已存在 |
+| `l4w5_t_cam` | en | This is the camera button. Do your move, then touch the camera. | 待生成 |
+| `l4w5_t_run1` | en | Look! The dog is running. Can you run? | 待生成 |
+| `l4w5_t_run2` | en | Let's run together! Click the camera when you are running! | 待生成 |
+| `l4w5_t_run3` | en | The horse is running too. Can you run fast? | 待生成 |
+| `l4w5_t_run4` | en | Show me running! Run, run, run, then touch the camera. | 待生成 |
+| `l4w5_t_jump1` | en | Look! The frog is jumping. Can you jump? | 待生成 |
+| `l4w5_t_jump2` | en | Jump with me! Click the camera when you jump! | 待生成 |
+| `l4w5_t_jump3` | en | The kangaroo is jumping too. Jump up high! | 待生成 |
+| `l4w5_t_jump4` | en | Show me jumping! Jump, jump, then touch the camera. | 待生成 |
+| `l4w5_t_sleep1` | en | Look! The cat is sleeping. Can you sleep? | 待生成 |
+| `l4w5_t_sleep2` | en | Close your eyes and sleep. Click the camera when you are sleeping! | 待生成 |
+| `l4w5_t_sleep3` | en | The pig is sleeping too. Shh, close your eyes. | 待生成 |
+| `l4w5_t_sleep4` | en | Show me sleeping! Close your eyes, then touch the camera. | 待生成 |
+| `l4w5_t_done` | en | Wow, you did it! Let's play the real game! | 待生成 |
+| `l4w5_a_run_dog` | en | The dog is running. Can you run like a dog? | 待生成 |
+| `l4w5_a_run_horse` | en | The horse is running. Can you run like a horse? | 待生成 |
+| `l4w5_a_jump_frog` | en | The frog is jumping. Can you jump like a frog? | 待生成 |
+| `l4w5_a_jump_kangaroo` | en | The kangaroo is jumping. Can you jump like a kangaroo? | 待生成 |
+| `l4w5_a_sleep_cat` | en | The cat is sleeping. Can you sleep like a cat? | 待生成 |
+| `l4w5_a_sleep_bear` | en | The bear is sleeping. Can you sleep like a bear? | 待生成 |
+| `l4w5_b_run` | en | Listen and guess! Who is running? | 待生成 |
+| `l4w5_b_jump` | en | Listen and guess! Who is jumping? | 待生成 |
+| `l4w5_b_sleep` | en | Listen and guess! Who is sleeping? | 待生成 |
+| `l4w5_c_dog` | en | Find the dog that is eating. | 待生成 |
+| `l4w5_c_cat` | en | Find the cat that is running. | 待生成 |
+| `l4w5_c_horse` | en | Find the horse that is sleeping. | 待生成 |
+| `l4w5_c_pig` | en | Find the pig that is eating. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

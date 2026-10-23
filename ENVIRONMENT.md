@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-23（第 4 岛第 4 关「动物 + 动作短句」上线；`ANIMAL_IMG` 14 张、语音 441 条）
+> 最后更新：2026-10-23（第 4 岛第 5 关「游乐场 · 听音模仿」上线，第 4 岛收官；`ANIMAL_IMG` 14 张、语音 468 条）
 
 ---
 
@@ -14,7 +14,7 @@
 | 线上地址 | https://lipinglabs.github.io/lilearn-english/ |
 | 仓库 | `lipinglabs/lilearn-english`（**public**） |
 | 技术形态 | 纯静态：单页 HTML + 两个数据脚本 + Service Worker。**无构建、无框架、无后端、无 npm 依赖** |
-| 内容规模 | 12 岛 × 5 关框架；已做第 1、2 岛全部 + 第 3 岛前 3 关 |
+| 内容规模 | 12 岛 × 5 关框架；已做第 1、2、3 岛全部 + 第 4 岛全部（5 关） |
 | 部署 | GitHub Pages（源 `main` 分支根目录 `/`，legacy 构建），推送即自动重建 |
 
 ---
@@ -63,8 +63,8 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   464,961 B / 11,859 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  13,041,606 B /  3,928 行   ← window.VOICE_BANK，441 条 base64 mp3
+index.html   491,890 B / 12,386 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  14,151,926 B /  4,247 行   ← window.VOICE_BANK，468 条 base64 mp3
 assets.js  1,293,267 B /    408 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14)
 ```
 
@@ -122,11 +122,11 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `sw.js` | PWA Service Worker（Android 全屏必需 + 离线可玩） |
 | `manifest.json`、`icons/` | PWA 清单与图标（192/512/maskable/apple-touch-180） |
 | `assets/{fruit,color,animal}/*.png` | 3D 图标源图（Fluent Emoji 3D，MIT），构建期内联 |
-| `voice/*.mp3` | 语音源文件 441 个（`manifest.md` 为目标清单） |
+| `voice/*.mp3` | 语音源文件 468 个（`manifest.md` 为目标清单） |
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的四个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**） |
+| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的五个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**） |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
@@ -197,6 +197,9 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 7. 教学登记进 `TUTORIALS` 规格表（`steps/show/scene/hit`），不复制流程函数；**演示完必须把角色放回原位**；区域判定用 `hit(scene, ratioY, pos)`，放错不推进。
 8. 结构差异大用 `custom` 分支，但收尾必须走 `tutFinish()` → `beginRounds()`；题型 B 投放目标必须是**容器本身**。
 9. 每岛第 5 关是结业关：只考不教新词，延长版复习 + 三种组合题型，走 `finish()` 的 `grand` 模式。
+10. **模仿型交互（相机确认）**：按钮唯一、≥44vw、位置固定，点它永远判对（没有答错分支）；
+    演示阶段半透明不可点，只有互动阶段可点。**猜剪影题必须把动作画出来**（速度线 / 向上竖线 / Z），
+    且备选动物的剪影要一眼能分开。
 
 ### 4.4 工程约定（§四）
 
@@ -241,20 +244,23 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 ## 6. 当前进度与下一步
 
 - **已完成**：第 1 岛（5 关）、第 2 岛（5 关）、第 3 岛（5 关，W4 找不同 / W5 结业复习）、
-  第 4 岛 W1「农场动物」（狗 / 猫 / 猪 / 牛）、W2「野生动物」（狮子 / 老虎 / 猴子 / 大象，
+  **第 4 岛全部 5 关**——W1「农场动物」（狗 / 猫 / 猪 / 牛）、W2「野生动物」（狮子 / 老虎 / 猴子 / 大象，
   并建立「丛林 vs 农场」栖息地分类）、W3「动词初识」（跑 / 跳 / 吃 / 睡）、
   W4「动物 + 动作短句」（The dog is running / The cat is sleeping / The monkey is eating，
-  新增 ✅ / ❌ 对错判断题与「动物 + 动作 + 场景」整幅场景卡）。
+  新增 ✅ / ❌ 对错判断题与「动物 + 动作 + 场景」整幅场景卡）、
+  W5「游乐场 · 听音模仿」（结业关：听指令做动作 + 点「我做好啦」相机按钮确认、放大镜剪影猜动物、
+  同一只动物三种动作里找出正在做那件事的那一只）。
   `ANIMAL_IMG` 现为 14 张，全部由 `tools/make_animals.py` 从 Fluent 3D Emoji 下载缩放，
-  **没有调用过任何生图接口**；W3 的小男孩（跑 / 走 / 睡三姿态）与 W4 的 7 张场景背景
+  **没有调用过任何生图接口**；W3 的小男孩 / W5 的跳跃小人（跑 / 走 / 跳 / 睡四姿态）与 W4 的 7 张场景背景
   （草地 / 垫子 / 沙发 / 大树 / 草原 / 床 / 树林）都是手写内联 SVG，
-  肢体用 CSS `transform-box:view-box` 摆动，睡姿的「Z」是折线 path 而非文字。
-- **未完成**：第 4 岛 W5（结业关）；第 5–12 岛。
-- **第 4 岛主题**：`ISLANDS[3]` 现为**「动物与动作」（图标 🦁）**——该岛已含农场动物、
-  野生动物、动作动词、动作短句四类内容。
+  肢体用 CSS `transform-box:view-box` 摆动，睡姿的「Z」与相机 / 放大镜也都是 path 而非文字或 emoji 字符。
+- **未完成**：第 5–12 岛（第 5 岛「交通工具」在地图上已解锁，内容未做）。
+- **第 4 岛主题**：`ISLANDS[3]` 为**「动物与动作」**，地图图标已从 🦁 字符换成 3D 狮子 PNG
+  （RULES §二.5 禁止 emoji 充当配图）——该岛含农场动物、野生动物、动作动词、动作短句、听音模仿五类内容。
 - **教学口径**：从 W2 起按 `RULES.md §三.10`「双倍量」执行——每个新单词 / 新句型 2 次不同演示 + 2 次互动；
   W3 起追加「动画型知识点」要求（动作要真的动起来，跑 / 跳剪影必须能分开）；
-  W4 起追加「新交互先示范」（✅ / ❌ 这类新交互必须先由老师示范一次）。
+  W4 起追加「新交互先示范」（✅ / ❌ 这类新交互必须先由老师示范一次）；
+  W5 起追加 `RULES.md §三.12`「模仿型交互」——相机按钮唯一且永远判对、演示阶段不可点、猜剪影题必须把动作画出来。
 - **文档已知过期**：`README.md` 里「当前进度仅到第 3 岛第 1 关」等段落已过时，以本文件与 commit 记录为准。
 
 ---

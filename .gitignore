@@ -51,10 +51,13 @@ f1-*.png
 f2-*.png
 f3-*.png
 f4-*.png
+f5-*.png
 f1d-*.png
 f2d-*.png
 f3d-*.png
 f4d-*.png
+f5d-*.png
+rf*-*.png
 b3-*.png
 
 # 一次性补丁脚本（改完即弃，不入库）
