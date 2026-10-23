@@ -327,6 +327,38 @@ add("l3_put_small_apple", "Put the small apple in the small box.", "en", -10, EN
 add("l3_put_big_balloon", "Put the big balloon in the big box.", "en", -10, EN_ASK)
 add("l3_put_small_balloon", "Put the small balloon in the small box.", "en", -10, EN_ASK)
 
+# ---- 第 3 岛第 2 关（L3-W2，多 / 少 More / Less）语音 ----
+# 本关是第 3 岛「比较与分类」的第二关，more / less 首次出现，必须先教后练。
+# 清单自检（RULES §1.8）：以下 18 条全是新文本，与既有条目无重复；
+#   · 过渡 "You are ready! Let's play!" 复用 t_ready；答错复用 again；通关复用 win1/win2/win3；
+#   · more / less 单音节，rate 收到 -10 让孩子听清。
+# 构成：
+#   教学 3 条：l3w2_tut_more / l3w2_tut_less / l3w2_tut_more_ask
+#   题型 A 6 条：l3w2a_{more,less}_{banana,apple,grape}（两堆同物，听 more/less 找对应堆）
+#   题型 B 3 条：l3w2b_less_{apple,strawberry,grape}（三堆异果，听 "less <果>" 找那一堆）
+#   题型 C 6 条：l3w2c_{more,less}_{apple,banana,grape}（两堆同物拖进 More/Less 箱）
+add("l3w2_tut_more", "Look! This basket has more apples.", "en", -10, EN_ASK)
+add("l3w2_tut_less", "This basket has less apples.", "en", -10, EN_ASK)
+add("l3w2_tut_more_ask", "Can you find the basket with more apples?", "en", -10, EN_ASK)
+
+add("l3w2a_more_banana", "Which one has more bananas?", "en", -10, EN_ASK)
+add("l3w2a_less_banana", "Which one has less bananas?", "en", -10, EN_ASK)
+add("l3w2a_more_apple", "Which one has more apples?", "en", -10, EN_ASK)
+add("l3w2a_less_apple", "Which one has less apples?", "en", -10, EN_ASK)
+add("l3w2a_more_grape", "Which one has more grapes?", "en", -10, EN_ASK)
+add("l3w2a_less_grape", "Which one has less grapes?", "en", -10, EN_ASK)
+
+add("l3w2b_less_apple", "Find the group with less apples.", "en", -10, EN_ASK)
+add("l3w2b_less_strawberry", "Find the group with less strawberries.", "en", -10, EN_ASK)
+add("l3w2b_less_grape", "Find the group with less grapes.", "en", -10, EN_ASK)
+
+add("l3w2c_more_apple", "Put the group with more apples in the more box.", "en", -10, EN_ASK)
+add("l3w2c_less_apple", "Put the group with less apples in the less box.", "en", -10, EN_ASK)
+add("l3w2c_more_banana", "Put the group with more bananas in the more box.", "en", -10, EN_ASK)
+add("l3w2c_less_banana", "Put the group with less bananas in the less box.", "en", -10, EN_ASK)
+add("l3w2c_more_grape", "Put the group with more grapes in the more box.", "en", -10, EN_ASK)
+add("l3w2c_less_grape", "Put the group with less grapes in the less box.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

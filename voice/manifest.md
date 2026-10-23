@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**265** 条（英文 259 + 中文 6）
+总条目：**283** 条（英文 277 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -238,31 +238,49 @@
 | `p5_ask_behind` | en | Can you put the ball behind the table? | 已存在 |
 | `p5_rect_behind` | en | The rectangle is behind the square. | 已存在 |
 | `p5_rect_on` | en | The rectangle is on the square. | 已存在 |
-| `l3_tut_big` | en | Look! The elephant is big. | 待生成 |
-| `l3_tut_big_ask` | en | Can you touch the big elephant? | 待生成 |
-| `l3_tut_small` | en | Look! The mouse is small. | 待生成 |
-| `l3_tut_small_ask` | en | Can you touch the small mouse? | 待生成 |
-| `l3_show_big` | en | Show me the big apple. | 待生成 |
-| `l3_find_big_apple` | en | Find the big apple. | 待生成 |
-| `l3_find_small_apple` | en | Find the small apple. | 待生成 |
-| `l3_find_big_balloon` | en | Find the big balloon. | 待生成 |
-| `l3_find_small_balloon` | en | Find the small balloon. | 待生成 |
-| `l3_find_big_car` | en | Find the big car. | 待生成 |
-| `l3_find_small_car` | en | Find the small car. | 待生成 |
-| `l3_find_big_one` | en | Find the big one. | 待生成 |
-| `l3_find_small_one` | en | Find the small one. | 待生成 |
-| `l3_el_big` | en | The elephant is big. | 待生成 |
-| `l3_el_small` | en | The elephant is small. | 待生成 |
-| `l3_dog_big` | en | The dog is big. | 待生成 |
-| `l3_dog_small` | en | The dog is small. | 待生成 |
-| `l3_cat_big` | en | The cat is big. | 待生成 |
-| `l3_cat_small` | en | The cat is small. | 待生成 |
-| `l3_mouse_big` | en | The mouse is big. | 待生成 |
-| `l3_mouse_small` | en | The mouse is small. | 待生成 |
-| `l3_put_big_apple` | en | Put the big apple in the big box. | 待生成 |
-| `l3_put_small_apple` | en | Put the small apple in the small box. | 待生成 |
-| `l3_put_big_balloon` | en | Put the big balloon in the big box. | 待生成 |
-| `l3_put_small_balloon` | en | Put the small balloon in the small box. | 待生成 |
+| `l3_tut_big` | en | Look! The elephant is big. | 已存在 |
+| `l3_tut_big_ask` | en | Can you touch the big elephant? | 已存在 |
+| `l3_tut_small` | en | Look! The mouse is small. | 已存在 |
+| `l3_tut_small_ask` | en | Can you touch the small mouse? | 已存在 |
+| `l3_show_big` | en | Show me the big apple. | 已存在 |
+| `l3_find_big_apple` | en | Find the big apple. | 已存在 |
+| `l3_find_small_apple` | en | Find the small apple. | 已存在 |
+| `l3_find_big_balloon` | en | Find the big balloon. | 已存在 |
+| `l3_find_small_balloon` | en | Find the small balloon. | 已存在 |
+| `l3_find_big_car` | en | Find the big car. | 已存在 |
+| `l3_find_small_car` | en | Find the small car. | 已存在 |
+| `l3_find_big_one` | en | Find the big one. | 已存在 |
+| `l3_find_small_one` | en | Find the small one. | 已存在 |
+| `l3_el_big` | en | The elephant is big. | 已存在 |
+| `l3_el_small` | en | The elephant is small. | 已存在 |
+| `l3_dog_big` | en | The dog is big. | 已存在 |
+| `l3_dog_small` | en | The dog is small. | 已存在 |
+| `l3_cat_big` | en | The cat is big. | 已存在 |
+| `l3_cat_small` | en | The cat is small. | 已存在 |
+| `l3_mouse_big` | en | The mouse is big. | 已存在 |
+| `l3_mouse_small` | en | The mouse is small. | 已存在 |
+| `l3_put_big_apple` | en | Put the big apple in the big box. | 已存在 |
+| `l3_put_small_apple` | en | Put the small apple in the small box. | 已存在 |
+| `l3_put_big_balloon` | en | Put the big balloon in the big box. | 已存在 |
+| `l3_put_small_balloon` | en | Put the small balloon in the small box. | 已存在 |
+| `l3w2_tut_more` | en | Look! This basket has more apples. | 待生成 |
+| `l3w2_tut_less` | en | This basket has less apples. | 待生成 |
+| `l3w2_tut_more_ask` | en | Can you find the basket with more apples? | 待生成 |
+| `l3w2a_more_banana` | en | Which one has more bananas? | 待生成 |
+| `l3w2a_less_banana` | en | Which one has less bananas? | 待生成 |
+| `l3w2a_more_apple` | en | Which one has more apples? | 待生成 |
+| `l3w2a_less_apple` | en | Which one has less apples? | 待生成 |
+| `l3w2a_more_grape` | en | Which one has more grapes? | 待生成 |
+| `l3w2a_less_grape` | en | Which one has less grapes? | 待生成 |
+| `l3w2b_less_apple` | en | Find the group with less apples. | 待生成 |
+| `l3w2b_less_strawberry` | en | Find the group with less strawberries. | 待生成 |
+| `l3w2b_less_grape` | en | Find the group with less grapes. | 待生成 |
+| `l3w2c_more_apple` | en | Put the group with more apples in the more box. | 待生成 |
+| `l3w2c_less_apple` | en | Put the group with less apples in the less box. | 待生成 |
+| `l3w2c_more_banana` | en | Put the group with more bananas in the more box. | 待生成 |
+| `l3w2c_less_banana` | en | Put the group with less bananas in the less box. | 待生成 |
+| `l3w2c_more_grape` | en | Put the group with more grapes in the more box. | 待生成 |
+| `l3w2c_less_grape` | en | Put the group with less grapes in the less box. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
