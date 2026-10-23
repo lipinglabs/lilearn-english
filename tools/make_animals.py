@@ -42,6 +42,11 @@ ANIMALS = {
     "lion": "Lion/3D/lion_3d.png",
     "tiger": "Tiger/3D/tiger_3d.png",
     "monkey": "Monkey/3D/monkey_3d.png",
+    # 第 4 岛第 3 关（动词）：会跳的袋鼠 / 青蛙、睡觉的熊、飞翔的小鸟
+    "kangaroo": "Kangaroo/3D/kangaroo_3d.png",
+    "frog": "Frog/3D/frog_3d.png",
+    "bear": "Bear/3D/bear_3d.png",
+    "bird": "Bird/3D/bird_3d.png",
 }
 
 

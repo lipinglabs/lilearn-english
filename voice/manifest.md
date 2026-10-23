@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**379** 条（英文 373 + 中文 6）
+总条目：**409** 条（英文 403 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -356,27 +356,57 @@
 | `l4w1_c_cat` | en | Put the cat in the farm. | 已存在 |
 | `l4w1_c_pig` | en | Put the pig in the farm. | 已存在 |
 | `l4w1_c_cow` | en | Put the cow in the farm. | 已存在 |
-| `l4w2_t_lion1` | en | Look! A lion. Roar! | 待生成 |
-| `l4w2_t_lion2` | en | The lion is the king of the jungle. | 待生成 |
-| `l4w2_t_tiger1` | en | Look! A tiger. Grrr! | 待生成 |
-| `l4w2_t_tiger2` | en | The tiger has stripes. | 待生成 |
-| `l4w2_t_monkey1` | en | Look! A monkey. Ooh ooh ah ah! | 待生成 |
-| `l4w2_t_monkey2` | en | The monkey likes bananas. | 待生成 |
-| `l4w2_t_elephant1` | en | Look! An elephant. Pawoo! | 待生成 |
-| `l4w2_t_ask_lion` | en | Where is the lion? Touch the lion. | 待生成 |
-| `l4w2_t_done` | en | You are ready! Let's go to the jungle! | 待生成 |
-| `l4w2_f_lion` | en | Find the lion. | 待生成 |
-| `l4w2_f_tiger` | en | Find the tiger. | 待生成 |
-| `l4w2_f_monkey` | en | Find the monkey. | 待生成 |
-| `l4w2_f_elephant` | en | Find the elephant. | 待生成 |
-| `l4w2_b_stripes` | en | Who has stripes? | 待生成 |
-| `l4w2_b_king` | en | Who is the king of the jungle? | 待生成 |
-| `l4w2_b_bananas` | en | Who likes bananas? | 待生成 |
-| `l4w2_b_big` | en | Who is big? | 待生成 |
-| `l4w2_c_jungle_lion` | en | Put the lion in the jungle. | 待生成 |
-| `l4w2_c_jungle_tiger` | en | Put the tiger in the jungle. | 待生成 |
-| `l4w2_c_jungle_monkey` | en | Put the monkey in the jungle. | 待生成 |
-| `l4w2_c_jungle_elephant` | en | Put the elephant in the jungle. | 待生成 |
+| `l4w2_t_lion1` | en | Look! A lion. Roar! | 已存在 |
+| `l4w2_t_lion2` | en | The lion is the king of the jungle. | 已存在 |
+| `l4w2_t_tiger1` | en | Look! A tiger. Grrr! | 已存在 |
+| `l4w2_t_tiger2` | en | The tiger has stripes. | 已存在 |
+| `l4w2_t_monkey1` | en | Look! A monkey. Ooh ooh ah ah! | 已存在 |
+| `l4w2_t_monkey2` | en | The monkey likes bananas. | 已存在 |
+| `l4w2_t_elephant1` | en | Look! An elephant. Pawoo! | 已存在 |
+| `l4w2_t_ask_lion` | en | Where is the lion? Touch the lion. | 已存在 |
+| `l4w2_t_done` | en | You are ready! Let's go to the jungle! | 已存在 |
+| `l4w2_f_lion` | en | Find the lion. | 已存在 |
+| `l4w2_f_tiger` | en | Find the tiger. | 已存在 |
+| `l4w2_f_monkey` | en | Find the monkey. | 已存在 |
+| `l4w2_f_elephant` | en | Find the elephant. | 已存在 |
+| `l4w2_b_stripes` | en | Who has stripes? | 已存在 |
+| `l4w2_b_king` | en | Who is the king of the jungle? | 已存在 |
+| `l4w2_b_bananas` | en | Who likes bananas? | 已存在 |
+| `l4w2_b_big` | en | Who is big? | 已存在 |
+| `l4w2_c_jungle_lion` | en | Put the lion in the jungle. | 已存在 |
+| `l4w2_c_jungle_tiger` | en | Put the tiger in the jungle. | 已存在 |
+| `l4w2_c_jungle_monkey` | en | Put the monkey in the jungle. | 已存在 |
+| `l4w2_c_jungle_elephant` | en | Put the elephant in the jungle. | 已存在 |
+| `l4w3_t_run1` | en | Look! He is running. Run, run, run! | 待生成 |
+| `l4w3_t_run2` | en | The dog is running too. Run! | 待生成 |
+| `l4w3_t_ask_run` | en | Who is running? Touch the running boy. | 待生成 |
+| `l4w3_t_run3` | en | Look carefully. Who is running? | 待生成 |
+| `l4w3_t_jump1` | en | Look! The kangaroo is jumping. Jump, jump! | 待生成 |
+| `l4w3_t_jump2` | en | The frog can jump too. Jump! | 待生成 |
+| `l4w3_t_jump3` | en | Find the jumping frog. | 待生成 |
+| `l4w3_t_jump4` | en | Who is jumping? Find it. | 待生成 |
+| `l4w3_t_eat1` | en | Look! The monkey is eating an apple. Eat! | 待生成 |
+| `l4w3_t_eat2` | en | The pig is eating too. Yum, yum! | 待生成 |
+| `l4w3_t_eat3` | en | Who is eating? Touch the eating monkey. | 待生成 |
+| `l4w3_t_eat4` | en | Which one is eating? Touch it. | 待生成 |
+| `l4w3_t_sleep1` | en | Look! The bear is sleeping. Shh, sleep. | 待生成 |
+| `l4w3_t_sleep2` | en | The cat is sleeping too. Good night! | 待生成 |
+| `l4w3_t_sleep3` | en | Who is sleeping? Touch the sleeping bear. | 待生成 |
+| `l4w3_t_sleep4` | en | Who is sleeping? Find it. | 待生成 |
+| `l4w3_t_show_eat` | en | Show me eating. | 待生成 |
+| `l4w3_t_done` | en | You know all the actions! Let's play! | 待生成 |
+| `l4w3_a_run` | en | Find the one who is running. | 待生成 |
+| `l4w3_a_jump` | en | Find the one who is jumping. | 待生成 |
+| `l4w3_a_eat` | en | Find the one who is eating. | 待生成 |
+| `l4w3_a_sleep` | en | Find the one who is sleeping. | 待生成 |
+| `l4w3_b_eat` | en | The bird is flying. The cat is sleeping. The monkey is eating. Find the eating monkey. | 待生成 |
+| `l4w3_b_sleep` | en | The kangaroo is jumping. The bear is sleeping. The boy is running. Find the sleeping bear. | 待生成 |
+| `l4w3_b_run` | en | The frog is jumping. The dog is running. The pig is eating. Find the running dog. | 待生成 |
+| `l4w3_b_jump` | en | The cat is sleeping. The monkey is eating. The kangaroo is jumping. Find the jumping kangaroo. | 待生成 |
+| `l4w3_c_boy_run` | en | Put the running boy in the running box. | 待生成 |
+| `l4w3_c_dog_run` | en | Put the running dog in the running box. | 待生成 |
+| `l4w3_c_boy_sleep` | en | Put the sleeping boy in the sleeping box. | 待生成 |
+| `l4w3_c_cat_sleep` | en | Put the sleeping cat in the sleeping box. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

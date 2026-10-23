@@ -45,3 +45,16 @@ fm-*.png
 live-*.png
 __pycache__/
 *.pyc
+
+# 探针截图（probe_*.js 的产物，不入库）
+f1-*.png
+f2-*.png
+f3-*.png
+f1d-*.png
+f2d-*.png
+f3d-*.png
+b3-*.png
+
+# 一次性补丁脚本（改完即弃，不入库）
+tools/_*.js
+tools/_*.py

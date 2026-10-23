@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-23（第 4 岛第 2 关「野生动物」上线；新增 §三.10 教学双倍量、§二.13 图片策略放宽）
+> 最后更新：2026-10-23（第 4 岛第 3 关「动词 Run / Jump / Eat / Sleep」上线；`ANIMAL_IMG` 13 张、语音 409 条）
 
 ---
 
@@ -63,9 +63,9 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   398,359 B / 10,513 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  10,696,205 B / 3,250 行   ← window.VOICE_BANK，379 条 base64 mp3
-assets.js  1,107,602 B /   354 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(9)
+index.html   432,266 B / 11,178 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  11,902,598 B / 3,597 行   ← window.VOICE_BANK，409 条 base64 mp3
+assets.js  1,255,576 B /   397 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(13)
 ```
 
 **切割前**是 9.5 MB 单文件，iPhone 上解析阻塞主线程导致 1–2 秒卡顿与发热；切割后 `index.html` 降至 327,800 B（−96.6%）。
@@ -122,11 +122,11 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `sw.js` | PWA Service Worker（Android 全屏必需 + 离线可玩） |
 | `manifest.json`、`icons/` | PWA 清单与图标（192/512/maskable/apple-touch-180） |
 | `assets/{fruit,color,animal}/*.png` | 3D 图标源图（Fluent Emoji 3D，MIT），构建期内联 |
-| `voice/*.mp3` | 语音源文件 379 个（`manifest.md` 为目标清单） |
+| `voice/*.mp3` | 语音源文件 409 个（`manifest.md` 为目标清单） |
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 用 MutationObserver 记录教学环节时间线，逐步校验并断言元素不被裁切） |
+| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` / `probe_f3.js` 用 MutationObserver 记录教学环节时间线，逐步校验并断言元素不被裁切） |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
@@ -242,13 +242,15 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 
 - **已完成**：第 1 岛（5 关）、第 2 岛（5 关）、第 3 岛（5 关，W4 找不同 / W5 结业复习）、
   第 4 岛 W1「农场动物」（狗 / 猫 / 猪 / 牛）、W2「野生动物」（狮子 / 老虎 / 猴子 / 大象，
-  并建立「丛林 vs 农场」栖息地分类）。`ANIMAL_IMG` 现为 9 张，全部由 `tools/make_animals.py`
-  从 Fluent 3D Emoji 下载缩放，**没有调用过任何生图接口**。
-- **未完成**：第 4 岛 W3–W5；第 5–12 岛。
-- **第 4 岛主题**：`ISLANDS[3]` 从「身体部位」→「农场动物」→ 现为**「动物世界」（图标 🦁）**，
-  因为该岛已同时包含农场与野生动物两关，用「动物世界」才不会与关卡内容冲突。
+  并建立「丛林 vs 农场」栖息地分类）、W3「动词初识」（跑 / 跳 / 吃 / 睡）。
+  `ANIMAL_IMG` 现为 13 张，全部由 `tools/make_animals.py` 从 Fluent 3D Emoji 下载缩放，
+  **没有调用过任何生图接口**；W3 的小男孩（跑 / 走 / 睡三姿态）是手写内联 SVG，
+  肢体用 CSS `transform-box:view-box` 摆动，睡姿的「Z」是折线 path 而非文字。
+- **未完成**：第 4 岛 W4–W5；第 5–12 岛。
+- **第 4 岛主题**：`ISLANDS[3]` 现为**「动物与动作」（图标 🦁）**——该岛已含农场动物、
+  野生动物、动作动词三类内容，用「动物与动作」才不会与关卡内容冲突。
 - **教学口径**：从 W2 起按 `RULES.md §三.10`「双倍量」执行——每个新单词 2 次不同演示 + 2 次互动，
-  新关卡别只做一对。
+  新关卡别只做一对。W3 起追加「动画型知识点」要求：动作要真的动起来，且跑 / 跳剪影必须能分开。
 - **文档已知过期**：`README.md` 里「当前进度仅到第 3 岛第 1 关」等段落已过时，以本文件与 commit 记录为准。
 
 ---

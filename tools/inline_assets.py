@@ -38,7 +38,9 @@ ANIMAL_DIR = ROOT / "assets" / "animal"
 # 禁止调用任何生图接口。
 ANIMAL_ORDER = ["elephant", "mouse", "dog", "cat", "pig", "cow",
                 # 第 4 岛第 2 关（野生动物）
-                "lion", "tiger", "monkey"]
+                "lion", "tiger", "monkey",
+                # 第 4 岛第 3 关（动词）：会跳的袋鼠 / 青蛙、睡觉的熊、飞翔的小鸟
+                "kangaroo", "frog", "bear", "bird"]
 
 
 def emit(lines: list[str], bank: str, mapping: dict[str, Path], total_box: list[int]) -> None:

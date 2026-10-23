@@ -515,6 +515,58 @@ add("l4w2_c_jungle_tiger", "Put the tiger in the jungle.", "en", -10, EN_ASK)
 add("l4w2_c_jungle_monkey", "Put the monkey in the jungle.", "en", -10, EN_ASK)
 add("l4w2_c_jungle_elephant", "Put the elephant in the jungle.", "en", -10, EN_ASK)
 
+# ---- 第 4 岛第 3 关（L4-W3 动词 Run / Jump / Eat / Sleep）：30 条 ----
+# 教学按 RULES §三.10 双倍量：4 个动词 ×（2 演示 + 2 互动）+ 1 综合互动 + 1 过渡语。
+# 演示 A 走「主语 + 动作 + 拟声」，演示 B 必须换主语或换场景后再说一遍。
+add("l4w3_t_run1", "Look! He is running. Run, run, run!", "en", -8, EN_ANIMAL)
+add("l4w3_t_run2", "The dog is running too. Run!", "en", -8, EN_ANIMAL)
+add("l4w3_t_ask_run", "Who is running? Touch the running boy.", "en", -10, EN_ASK)
+add("l4w3_t_run3", "Look carefully. Who is running?", "en", -10, EN_ASK)
+
+add("l4w3_t_jump1", "Look! The kangaroo is jumping. Jump, jump!", "en", -8, EN_ANIMAL)
+add("l4w3_t_jump2", "The frog can jump too. Jump!", "en", -8, EN_ANIMAL)
+add("l4w3_t_jump3", "Find the jumping frog.", "en", -10, EN_ASK)
+add("l4w3_t_jump4", "Who is jumping? Find it.", "en", -10, EN_ASK)
+
+add("l4w3_t_eat1", "Look! The monkey is eating an apple. Eat!", "en", -8, EN_ANIMAL)
+add("l4w3_t_eat2", "The pig is eating too. Yum, yum!", "en", -8, EN_ANIMAL)
+add("l4w3_t_eat3", "Who is eating? Touch the eating monkey.", "en", -10, EN_ASK)
+add("l4w3_t_eat4", "Which one is eating? Touch it.", "en", -10, EN_ASK)
+
+add("l4w3_t_sleep1", "Look! The bear is sleeping. Shh, sleep.", "en", -8, EN_ANIMAL)
+add("l4w3_t_sleep2", "The cat is sleeping too. Good night!", "en", -8, EN_ANIMAL)
+add("l4w3_t_sleep3", "Who is sleeping? Touch the sleeping bear.", "en", -10, EN_ASK)
+add("l4w3_t_sleep4", "Who is sleeping? Find it.", "en", -10, EN_ASK)
+
+add("l4w3_t_show_eat", "Show me eating.", "en", -10, EN_ASK)
+add("l4w3_t_done", "You know all the actions! Let's play!", "en", -8, EN_PRAISE)
+
+# 题型 A：听音找动作（4 条）
+add("l4w3_a_run", "Find the one who is running.", "en", -10, EN_ASK)
+add("l4w3_a_jump", "Find the one who is jumping.", "en", -10, EN_ASK)
+add("l4w3_a_eat", "Find the one who is eating.", "en", -10, EN_ASK)
+add("l4w3_a_sleep", "Find the one who is sleeping.", "en", -10, EN_ASK)
+
+# 题型 B：听三句短句，找出被问到的那一个（答案同时锁定「动物」和「动作」）
+add("l4w3_b_eat",
+    "The bird is flying. The cat is sleeping. The monkey is eating. Find the eating monkey.",
+    "en", -10, EN_ASK)
+add("l4w3_b_sleep",
+    "The kangaroo is jumping. The bear is sleeping. The boy is running. Find the sleeping bear.",
+    "en", -10, EN_ASK)
+add("l4w3_b_run",
+    "The frog is jumping. The dog is running. The pig is eating. Find the running dog.",
+    "en", -10, EN_ASK)
+add("l4w3_b_jump",
+    "The cat is sleeping. The monkey is eating. The kangaroo is jumping. Find the jumping kangaroo.",
+    "en", -10, EN_ASK)
+
+# 题型 C：把动作画面拖进「在跑 / 在睡」两个筐（4 条）
+add("l4w3_c_boy_run", "Put the running boy in the running box.", "en", -10, EN_ASK)
+add("l4w3_c_dog_run", "Put the running dog in the running box.", "en", -10, EN_ASK)
+add("l4w3_c_boy_sleep", "Put the sleeping boy in the sleeping box.", "en", -10, EN_ASK)
+add("l4w3_c_cat_sleep", "Put the sleeping cat in the sleeping box.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
