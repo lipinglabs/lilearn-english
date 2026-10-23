@@ -26,6 +26,34 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="英语冒险" />
 <meta name="format-detection" content="telephone=no, email=no, address=no" />
+
+<!-- 国产内核 / 鸿蒙 / 安卓 OEM 浏览器的「以应用方式打开」声明（纯声明，不影响布局） -->
+<meta name="full-screen" content="yes" />
+<meta name="x5-fullscreen" content="true" />
+<meta name="x5-page-mode" content="app" />
+<meta name="browsermode" content="application" />
+<meta name="apple-touch-fullscreen" content="yes" />
+
+<!-- ============================================================
+    尽早注册 Service Worker —— 必须放在 <head>，不能等 window.load
+    ------------------------------------------------------------
+    原先注册写在主脚本末尾的 window.addEventListener('load', ...) 里。
+    但 voice.js 有 8.3MB，真机首次打开时 load 往往要等几十秒；这段
+    时间里站点没有生效的 Service Worker，浏览器就判定它「不具备可
+    安装条件」，点「添加到桌面」只会生成一个普通书签，点开依然是
+    带地址栏的浏览器窗口（鸿蒙/安卓表现都是如此）。
+    放在这里后，页面一开始解析就注册，通常几百毫秒内即可接管。
+    ============================================================ -->
+<script>
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    window.__lilearnSW = navigator.serviceWorker.register('sw.js', { scope: './' });
+    window.__lilearnSW.catch(function () { /* 首轮失败由主脚本末尾兜底重试 */ });
+  } catch (e) { /* 极老内核不支持：忽略，页面照常运行 */ }
+})();
+</script>
+
 <style>
   /* ==========================================================
      设计基调：柔和线条、温暖打光、温和过渡（见 RULES.md）
@@ -9466,12 +9494,12 @@
     else cloudConnect(cloud.token);
   }
 
-  // 注册 Service Worker：Android Chrome 必须靠它才把站点当成「可安装应用」，
-  // 否则「添加到主屏幕」只是普通书签，点开照样带地址栏。注册后才能真正全屏沉浸。
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').catch(function () { /* 注册失败静默降级 */ });
-    });
+  // Service Worker 注册已提前到 <head>（见文件顶部那段 <script>）：
+  // 原先要等 window.load，而 voice.js 有 8.3MB，真机 load 常要等几十秒；
+  // 这期间站点不算「可安装应用」，此刻点「添加到桌面」只会得到带地址栏的书签。
+  // 这里只做兜底：万一 <head> 那次注册失败（网络抖动），再补一次。
+  if ('serviceWorker' in navigator && !window.__lilearnSW) {
+    navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function () { });
   }
 
   /*
