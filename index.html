@@ -3111,6 +3111,36 @@
         if (v > 0) out.stars[k] = v;
       });
     }
+
+    /* 自修复（解锁完整性校验，RULES §五）：
+       解锁状态必须能从「已通关记录」推导出来——每座岛最多解锁到「已通关数 + 1」，
+       整张地图最多解锁到「已全清岛数 + 1」。正常游玩数据天然满足该不变式
+       （markCleared 先写 cleared 再推解锁）；若存档出现「全盘解锁却零通关」这类
+       不可能数据（沙盒泄漏 / 手动篡改 / 云端 Gist 被污染），这里会将其钳制回与真实
+       通关进度一致的状态，从而杜绝「一刀切全解锁」的回退 Bug，且不影响任何合法
+       进度、不改动关卡内容与 UI。沙盒测试模式（devEnter）直接改写内存态、不经过本函数，故不受影响。 */
+    var clearedInIsland = function (i) {
+      var c = 0;
+      for (var l = 1; l <= LEVELS_PER_ISLAND; l++) {
+        if (out.cleared[i + '-' + l]) c++;
+      }
+      return c;
+    };
+    var fullyCleared = 0;
+    for (var fi = 1; fi <= ISLANDS.length; fi++) {
+      if (clearedInIsland(fi) >= LEVELS_PER_ISLAND) fullyCleared++;
+    }
+    out.unlockedIsland = Math.min(out.unlockedIsland, fullyCleared + 1);
+    /* 仅对存档中原本就出现的岛做钳制；未出现的岛保持原样（由 isLevelUnlocked 的
+       ||1 兜底，且该岛已被 unlockedIsland 锁住），避免凭空写入条目改变数据形态。 */
+    Object.keys(out.unlockedLevel).forEach(function (k) {
+      var i = +k;
+      if (i >= 1 && i <= ISLANDS.length) {
+        out.unlockedLevel[k] = Math.min(out.unlockedLevel[k], clearedInIsland(i) + 1);
+      }
+    });
+    if (!out.unlockedLevel[1]) out.unlockedLevel[1] = 1;
+
     return out;
   }
 
