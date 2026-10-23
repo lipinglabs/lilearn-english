@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-23（第 4 岛第 1 关「农场动物」上线；第 3 岛 W4/W5 已完成）
+> 最后更新：2026-10-23（第 4 岛第 2 关「野生动物」上线；新增 §三.10 教学双倍量、§二.13 图片策略放宽）
 
 ---
 
@@ -56,9 +56,9 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   380,625 B / 9,947 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  10,108,539 B / 3,074 行   ← window.VOICE_BANK，358 条 base64 mp3
-assets.js    980,391 B /   318 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(6)
+index.html   398,359 B / 10,513 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  10,696,205 B / 3,250 行   ← window.VOICE_BANK，379 条 base64 mp3
+assets.js  1,107,602 B /   354 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(9)
 ```
 
 **切割前**是 9.5 MB 单文件，iPhone 上解析阻塞主线程导致 1–2 秒卡顿与发热；切割后 `index.html` 降至 327,800 B（−96.6%）。
@@ -115,14 +115,18 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `sw.js` | PWA Service Worker（Android 全屏必需 + 离线可玩） |
 | `manifest.json`、`icons/` | PWA 清单与图标（192/512/maskable/apple-touch-180） |
 | `assets/{fruit,color,animal}/*.png` | 3D 图标源图（Fluent Emoji 3D，MIT），构建期内联 |
-| `voice/*.mp3` | 语音源文件 306 个（`manifest.md` 为目标清单） |
+| `voice/*.mp3` | 语音源文件 379 个（`manifest.md` 为目标清单） |
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `probe_f1.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟） |
+| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 用 MutationObserver 记录教学环节时间线，逐步校验并断言元素不被裁切） |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
-**⚠️ 生成脚本的目标文件仍是 `index.html`**（`HTML_PATH` + `VOICE_BANK_START/END`、`FRUIT_IMG_START/END` 标记）。切割后这些标记已随数据移入 `voice.js` / `assets.js`，**直接运行会报「缺少标记」或注入错位**。新增语音/图片前必须先把脚本的 `HTML_PATH` 改指向 `voice.js` / `assets.js`。
+**✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
+
+- `tools/gen_voice_doubao.py`：生成后走 `merge_into_voicejs()`，**只向 `voice.js` 追加缺失的 key**（先正则扫描已有 key，幂等、绝不覆盖、绝不删除），不再往 `index.html` 注入。
+- `tools/inline_assets.py`：目标文件是 `assets.js`（`index.html` 里已没有 `FRUIT_IMG` 标记）。
+- 两者默认都跳过已存在条目；`--dry-run` 只打印清单与去重自检，不调接口。
 
 ---
 
@@ -230,10 +234,14 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 ## 6. 当前进度与下一步
 
 - **已完成**：第 1 岛（5 关）、第 2 岛（5 关）、第 3 岛（5 关，W4 找不同 / W5 结业复习）、
-  第 4 岛 W1「农场动物」（狗 / 猫 / 猪 / 牛；猪与奶牛的 3D 图由 `tools/make_animals.py` 补下，
-  `ANIMAL_IMG` 现为 6 张）。
-- **未完成**：第 4 岛 W2–W5；第 5–12 岛。
-- **第 4 岛主题**：`ISLANDS[3]` 已按实际内容从「身体部位」改为「农场动物」（图标 🐮）。
+  第 4 岛 W1「农场动物」（狗 / 猫 / 猪 / 牛）、W2「野生动物」（狮子 / 老虎 / 猴子 / 大象，
+  并建立「丛林 vs 农场」栖息地分类）。`ANIMAL_IMG` 现为 9 张，全部由 `tools/make_animals.py`
+  从 Fluent 3D Emoji 下载缩放，**没有调用过任何生图接口**。
+- **未完成**：第 4 岛 W3–W5；第 5–12 岛。
+- **第 4 岛主题**：`ISLANDS[3]` 从「身体部位」→「农场动物」→ 现为**「动物世界」（图标 🦁）**，
+  因为该岛已同时包含农场与野生动物两关，用「动物世界」才不会与关卡内容冲突。
+- **教学口径**：从 W2 起按 `RULES.md §三.10`「双倍量」执行——每个新单词 2 次不同演示 + 2 次互动，
+  新关卡别只做一对。
 - **文档已知过期**：`README.md` 里「当前进度仅到第 3 岛第 1 关」等段落已过时，以本文件与 commit 记录为准。
 
 ---

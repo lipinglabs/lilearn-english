@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**358** 条（英文 352 + 中文 6）
+总条目：**379** 条（英文 373 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -338,24 +338,45 @@
 | `b5_c_small` | en | Put the small one in. | 已存在 |
 | `b5_c_long` | en | Put the long one in. | 已存在 |
 | `b5_c_short` | en | Put the short one in. | 已存在 |
-| `l4w1_tut_dog` | en | Look! A dog. Woof woof! | 待生成 |
-| `l4w1_tut_cat` | en | Look! A cat. Meow meow! | 待生成 |
-| `l4w1_tut_pig` | en | Look! A pig. Oink oink! | 待生成 |
-| `l4w1_tut_cow` | en | Look! A cow. Moo moo! | 待生成 |
-| `l4w1_tut_ask_dog` | en | Where is the dog? Touch the dog. | 待生成 |
-| `l4w1_tut_done` | en | You know all the farm animals! Let's play! | 待生成 |
-| `l4w1_f_dog` | en | Find the dog. | 待生成 |
-| `l4w1_f_cat` | en | Find the cat. | 待生成 |
-| `l4w1_f_pig` | en | Find the pig. | 待生成 |
-| `l4w1_f_cow` | en | Find the cow. | 待生成 |
-| `l4w1_s_dog` | en | Woof woof! Who is it? | 待生成 |
-| `l4w1_s_cat` | en | Meow meow! Who is it? | 待生成 |
-| `l4w1_s_pig` | en | Oink oink! Who is it? | 待生成 |
-| `l4w1_s_cow` | en | Moo moo! Who is it? | 待生成 |
-| `l4w1_c_dog` | en | Put the dog in the farm. | 待生成 |
-| `l4w1_c_cat` | en | Put the cat in the farm. | 待生成 |
-| `l4w1_c_pig` | en | Put the pig in the farm. | 待生成 |
-| `l4w1_c_cow` | en | Put the cow in the farm. | 待生成 |
+| `l4w1_tut_dog` | en | Look! A dog. Woof woof! | 已存在 |
+| `l4w1_tut_cat` | en | Look! A cat. Meow meow! | 已存在 |
+| `l4w1_tut_pig` | en | Look! A pig. Oink oink! | 已存在 |
+| `l4w1_tut_cow` | en | Look! A cow. Moo moo! | 已存在 |
+| `l4w1_tut_ask_dog` | en | Where is the dog? Touch the dog. | 已存在 |
+| `l4w1_tut_done` | en | You know all the farm animals! Let's play! | 已存在 |
+| `l4w1_f_dog` | en | Find the dog. | 已存在 |
+| `l4w1_f_cat` | en | Find the cat. | 已存在 |
+| `l4w1_f_pig` | en | Find the pig. | 已存在 |
+| `l4w1_f_cow` | en | Find the cow. | 已存在 |
+| `l4w1_s_dog` | en | Woof woof! Who is it? | 已存在 |
+| `l4w1_s_cat` | en | Meow meow! Who is it? | 已存在 |
+| `l4w1_s_pig` | en | Oink oink! Who is it? | 已存在 |
+| `l4w1_s_cow` | en | Moo moo! Who is it? | 已存在 |
+| `l4w1_c_dog` | en | Put the dog in the farm. | 已存在 |
+| `l4w1_c_cat` | en | Put the cat in the farm. | 已存在 |
+| `l4w1_c_pig` | en | Put the pig in the farm. | 已存在 |
+| `l4w1_c_cow` | en | Put the cow in the farm. | 已存在 |
+| `l4w2_t_lion1` | en | Look! A lion. Roar! | 待生成 |
+| `l4w2_t_lion2` | en | The lion is the king of the jungle. | 待生成 |
+| `l4w2_t_tiger1` | en | Look! A tiger. Grrr! | 待生成 |
+| `l4w2_t_tiger2` | en | The tiger has stripes. | 待生成 |
+| `l4w2_t_monkey1` | en | Look! A monkey. Ooh ooh ah ah! | 待生成 |
+| `l4w2_t_monkey2` | en | The monkey likes bananas. | 待生成 |
+| `l4w2_t_elephant1` | en | Look! An elephant. Pawoo! | 待生成 |
+| `l4w2_t_ask_lion` | en | Where is the lion? Touch the lion. | 待生成 |
+| `l4w2_t_done` | en | You are ready! Let's go to the jungle! | 待生成 |
+| `l4w2_f_lion` | en | Find the lion. | 待生成 |
+| `l4w2_f_tiger` | en | Find the tiger. | 待生成 |
+| `l4w2_f_monkey` | en | Find the monkey. | 待生成 |
+| `l4w2_f_elephant` | en | Find the elephant. | 待生成 |
+| `l4w2_b_stripes` | en | Who has stripes? | 待生成 |
+| `l4w2_b_king` | en | Who is the king of the jungle? | 待生成 |
+| `l4w2_b_bananas` | en | Who likes bananas? | 待生成 |
+| `l4w2_b_big` | en | Who is big? | 待生成 |
+| `l4w2_c_jungle_lion` | en | Put the lion in the jungle. | 待生成 |
+| `l4w2_c_jungle_tiger` | en | Put the tiger in the jungle. | 待生成 |
+| `l4w2_c_jungle_monkey` | en | Put the monkey in the jungle. | 待生成 |
+| `l4w2_c_jungle_elephant` | en | Put the elephant in the jungle. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

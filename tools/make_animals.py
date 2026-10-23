@@ -38,6 +38,10 @@ ANIMALS = {
     # 第 4 岛第 1 关（农场动物）：猪 / 奶牛
     "pig": "Pig/3D/pig_3d.png",
     "cow": "Cow/3D/cow_3d.png",
+    # 第 4 岛第 2 关（野生动物）：狮子 / 老虎 / 猴子（大象复用上面的 elephant）
+    "lion": "Lion/3D/lion_3d.png",
+    "tiger": "Tiger/3D/tiger_3d.png",
+    "monkey": "Monkey/3D/monkey_3d.png",
 }
 
 

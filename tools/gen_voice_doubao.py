@@ -482,6 +482,39 @@ add("l4w1_c_cat", "Put the cat in the farm.", "en", -10, EN_ASK)
 add("l4w1_c_pig", "Put the pig in the farm.", "en", -10, EN_ASK)
 add("l4w1_c_cow", "Put the cow in the farm.", "en", -10, EN_ASK)
 
+# ---- 第 4 岛第 2 关（L4-W2 野生动物）：26 条 ----
+# 教学按 RULES §三.10 双倍量：每个词 2 次不同演示 + 2 次互动。
+# 演示 A 走「单词 + 拟声」，演示 B 走「场景大图 / 局部特写 / 属性描述」，两类必须不同。
+add("l4w2_t_lion1", "Look! A lion. Roar!", "en", -8, EN_ANIMAL)
+add("l4w2_t_lion2", "The lion is the king of the jungle.", "en", -10, EN_ASK)
+add("l4w2_t_tiger1", "Look! A tiger. Grrr!", "en", -8, EN_ANIMAL)
+add("l4w2_t_tiger2", "The tiger has stripes.", "en", -10, EN_ASK)
+add("l4w2_t_monkey1", "Look! A monkey. Ooh ooh ah ah!", "en", -8, EN_ANIMAL)
+add("l4w2_t_monkey2", "The monkey likes bananas.", "en", -10, EN_ASK)
+add("l4w2_t_elephant1", "Look! An elephant. Pawoo!", "en", -8, EN_ANIMAL)
+# 演示 B「The elephant is big.」与第 3 岛 l3_el_big 文本完全相同 → 复用 l3_el_big（§1.12）
+add("l4w2_t_ask_lion", "Where is the lion? Touch the lion.", "en", -10, EN_ASK)
+add("l4w2_t_done", "You are ready! Let's go to the jungle!", "en", -8, EN_PRAISE)
+
+# 题型 A：听名字找（4 条；教学互动也复用，不另建同文本 key，见 §1.12）
+add("l4w2_f_lion", "Find the lion.", "en", -10, EN_ASK)
+add("l4w2_f_tiger", "Find the tiger.", "en", -10, EN_ASK)
+add("l4w2_f_monkey", "Find the monkey.", "en", -10, EN_ASK)
+add("l4w2_f_elephant", "Find the elephant.", "en", -10, EN_ASK)
+
+# 题型 B：听描述找（4 条；每条描述都只对应唯一一种动物）
+add("l4w2_b_stripes", "Who has stripes?", "en", -10, EN_ASK)
+add("l4w2_b_king", "Who is the king of the jungle?", "en", -10, EN_ASK)
+add("l4w2_b_bananas", "Who likes bananas?", "en", -10, EN_ASK)
+add("l4w2_b_big", "Who is big?", "en", -10, EN_ASK)
+
+# 题型 C：拖进丛林 / 农场（丛林 4 条；农场的 4 句与第 1 关文本完全相同，
+# 按 §1.12 复用 l4w1_c_dog/cat/pig/cow，绝不新建同文本的第二条 key）
+add("l4w2_c_jungle_lion", "Put the lion in the jungle.", "en", -10, EN_ASK)
+add("l4w2_c_jungle_tiger", "Put the tiger in the jungle.", "en", -10, EN_ASK)
+add("l4w2_c_jungle_monkey", "Put the monkey in the jungle.", "en", -10, EN_ASK)
+add("l4w2_c_jungle_elephant", "Put the elephant in the jungle.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

@@ -36,7 +36,9 @@ ANIMAL_DIR = ROOT / "assets" / "animal"
 # 动物图：第 3 岛用 elephant/mouse/dog/cat，第 4 岛农场加 pig/cow。
 # 同样来自 microsoft/fluentui-emoji 的 3D 资源，由 make_animals.py 统一缩放到 192px，
 # 禁止调用任何生图接口。
-ANIMAL_ORDER = ["elephant", "mouse", "dog", "cat", "pig", "cow"]
+ANIMAL_ORDER = ["elephant", "mouse", "dog", "cat", "pig", "cow",
+                # 第 4 岛第 2 关（野生动物）
+                "lion", "tiger", "monkey"]
 
 
 def emit(lines: list[str], bank: str, mapping: dict[str, Path], total_box: list[int]) -> None:

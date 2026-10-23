@@ -2875,7 +2875,7 @@
     { icon: '🍎', name: '数字与水果' },
     { icon: '🔺', name: '形状与空间' },
     { icon: '🐘', name: '比较与分类' },
-    { icon: '🐮', name: '农场动物' },
+    { icon: '🦁', name: '动物世界' },
     { icon: '🚌', name: '交通工具' },
     { icon: '🍰', name: '食物与饮料' },
     { icon: '☀️', name: '天气与季节' },
@@ -3772,7 +3772,8 @@
     '3-3': { numbers: null,       make: 'makeB3', title: '第 3 关', tutorial: true },
     '3-4': { numbers: null,       make: 'makeB4', title: '第 4 关', tutorial: true },
     '3-5': { numbers: null,       make: 'makeB5', title: '第 5 关', tutorial: true },
-    '4-1': { numbers: null,       make: 'makeF1', title: '第 1 关', tutorial: true }
+    '4-1': { numbers: null,       make: 'makeF1', title: '第 1 关', tutorial: true },
+    '4-2': { numbers: null,       make: 'makeF2', title: '第 2 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3901,6 +3902,7 @@
     if (def && def.make === 'makeB4') return makeQuestionB4(typeIdx, prev);
     if (def && def.make === 'makeB5') return makeQuestionB5(typeIdx, prev);
     if (def && def.make === 'makeF1') return makeQuestionF1(typeIdx, prev);
+    if (def && def.make === 'makeF2') return makeQuestionF2(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -7268,6 +7270,508 @@
     return api;
   })();
 
+  /* ==================== 第 4 岛第 2 关（L4-W2：野生动物 Wild animals） ==================== */
+  /* 目标：从农场动物扩到丛林动物，并建立「丛林 / 农场」两个栖息地的分类概念。
+     教学（RULES §三.10 双倍量）：每个词 2 次不同演示 + 2 次互动，共 16 环节 + 1 条过渡语。
+       狮子：单词+吼叫 → 草原大图（森林之王）→ 狮子 vs 狗 → 三选一
+       老虎：单词+吼声 → 条纹特写 → 老虎 vs 猫 → 听描述（谁有条纹）
+       猴子：单词+叫声 → 猴子爱吃香蕉 → 猴子 vs 狗 → 听描述（谁爱香蕉）
+       大象：单词+叫声 → 大象很大（大象 vs 老鼠）→ 大象 vs 猪 → 听描述（谁很大）
+     答题：A 听名字找 / B 听描述找 / C 把动物拖进丛林或农场（含点选兜底，§二.11）。
+     图片：ANIMAL_IMG（lion / tiger / monkey / elephant + 农场 4 只）+ 内联 SVG 场景（§二.13）。 */
+
+  var F2_JUNGLE = ['lion', 'tiger', 'monkey', 'elephant'];
+  var F2_FARM = ['dog', 'cat', 'pig', 'cow'];
+
+  /** 题型 B 的描述题：答案 + 允许的干扰项（干扰项必须都不具备该特征，否则题目有歧义） */
+  var F2_DESC = [
+    { key: 'stripes', ans: 'tiger',    pool: ['lion', 'monkey', 'elephant'] },
+    { key: 'king',    ans: 'lion',     pool: ['tiger', 'monkey', 'elephant'] },
+    { key: 'bananas', ans: 'monkey',   pool: ['lion', 'tiger', 'elephant'] },
+    { key: 'big',     ans: 'elephant', pool: ['monkey', 'dog', 'cat'] }
+  ];
+
+  /** 取动物图（禁用原生 drag，避免与指针拖拽流程打架） */
+  function f2Img(animal, cls) {
+    var src = ANIMAL_IMG[animal];
+    if (!src) return null;
+    var img = document.createElement('img');
+    img.src = src; img.alt = ''; img.draggable = false;
+    img.className = cls || 'f2-img';
+    img.dataset.animal = animal;
+    return img;
+  }
+
+  /** 丛林场景（SVG，纯图形无文字；中间留白给动物图） */
+  var F2_JUNGLE_SVG =
+    '<rect x="0" y="0" width="120" height="100" rx="18" fill="#d9f0e2"/>' +
+    '<circle cx="98" cy="19" r="11" fill="#ffe6a1"/>' +
+    '<path d="M0 58 Q22 40 44 56 Q66 38 92 56 Q108 48 120 56 L120 100 L0 100 Z" fill="#a8d8b9"/>' +
+    '<path d="M0 72 Q30 60 60 72 Q90 60 120 72 L120 100 L0 100 Z" fill="#7fc79b"/>' +
+    // 左棕榈
+    '<path d="M28 80 L31 46 L34 80 Z" fill="#c99a6b"/>' +
+    '<path d="M32 46 Q18 37 10 44 Q22 39 32 50 Z" fill="#5fae7b"/>' +
+    '<path d="M32 46 Q46 35 54 44 Q42 39 32 50 Z" fill="#6cbb88"/>' +
+    '<path d="M32 46 Q27 31 19 27 Q29 33 33 47 Z" fill="#559f6f"/>' +
+    '<path d="M32 46 Q39 29 49 27 Q38 33 34 47 Z" fill="#6cbb88"/>' +
+    // 右棕榈
+    '<path d="M88 82 L91 53 L94 82 Z" fill="#c99a6b"/>' +
+    '<path d="M92 53 Q78 44 70 51 Q82 46 92 57 Z" fill="#5fae7b"/>' +
+    '<path d="M92 53 Q106 42 114 51 Q102 46 92 57 Z" fill="#6cbb88"/>' +
+    '<path d="M92 53 Q88 38 80 34 Q90 40 93 54 Z" fill="#559f6f"/>' +
+    // 草丛
+    '<path d="M8 93 q6 -8 12 0" stroke="#4f9668" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<path d="M52 95 q6 -8 12 0" stroke="#4f9668" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<path d="M98 93 q6 -8 12 0" stroke="#4f9668" stroke-width="3" fill="none" stroke-linecap="round"/>';
+
+  /** 农场场景（复用第 1 关谷仓画法，缩小版） */
+  var F2_FARM_SVG =
+    '<rect x="0" y="0" width="120" height="100" rx="18" fill="#e8f4d9"/>' +
+    '<ellipse cx="60" cy="94" rx="56" ry="7" fill="#cfe8b8" opacity=".7"/>' +
+    '<rect x="4" y="70" width="20" height="16" rx="6" fill="#f7d47a"/>' +
+    '<path d="M8 74h12M8 79h12M8 84h12" stroke="#e6b954" stroke-width="1.5" stroke-linecap="round"/>' +
+    '<rect x="99" y="60" width="5" height="26" rx="2.5" fill="#e7b78c"/>' +
+    '<rect x="112" y="60" width="5" height="26" rx="2.5" fill="#e7b78c"/>' +
+    '<rect x="97" y="66" width="23" height="4.5" rx="2" fill="#eec79f"/>' +
+    '<rect x="97" y="76" width="23" height="4.5" rx="2" fill="#eec79f"/>' +
+    '<rect x="28" y="40" width="64" height="44" rx="9" fill="#fbe3cf"/>' +
+    '<rect x="28" y="40" width="64" height="44" rx="9" fill="none" stroke="#e8c3a3" stroke-width="3"/>' +
+    '<path d="M18 42 L60 13 L102 42 Z" fill="#e9826b"/>' +
+    '<path d="M26 41 L60 20 L94 41 Z" fill="#f4a48d"/>' +
+    '<rect x="48" y="52" width="24" height="32" rx="8" fill="#b57a58"/>' +
+    '<rect x="48" y="52" width="24" height="32" rx="8" fill="none" stroke="#fff6ea" stroke-width="3"/>' +
+    '<rect x="34" y="45" width="9" height="9" rx="3" fill="#cfe8f7"/>' +
+    '<rect x="77" y="45" width="9" height="9" rx="3" fill="#cfe8f7"/>' +
+    '<path d="M6 93 q6 -8 12 0" stroke="#7aa85c" stroke-width="3" fill="none" stroke-linecap="round"/>';
+
+  /** 草原场景（狮子演示 2 的大图底：太阳 + 金合欢树 + 草丛） */
+  var F2_SAVANNA_SVG =
+    '<rect x="0" y="0" width="200" height="130" fill="#fdeccd"/>' +
+    '<circle cx="158" cy="30" r="17" fill="#ffd98a"/>' +
+    '<path d="M0 78 Q34 58 68 76 Q102 56 138 76 Q168 62 200 76 L200 130 L0 130 Z" fill="#f6d79c"/>' +
+    '<path d="M0 98 Q40 86 80 98 Q120 86 200 98 L200 130 L0 130 Z" fill="#eec97f"/>' +
+    '<path d="M34 100 L37 64 L40 100 Z" fill="#b98b5e"/>' +
+    '<ellipse cx="38" cy="60" rx="25" ry="10" fill="#9ecf8f"/>' +
+    '<ellipse cx="25" cy="56" rx="13" ry="7" fill="#aede9f"/>' +
+    '<ellipse cx="51" cy="55" rx="14" ry="7" fill="#8ec47f"/>' +
+    '<path d="M96 108 q7 -9 14 0" stroke="#c9a55e" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
+    '<path d="M152 102 q7 -9 14 0" stroke="#c9a55e" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
+    '<path d="M10 110 q7 -9 14 0" stroke="#c9a55e" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+
+  function ensureF2Css() {
+    if (document.getElementById('f2-style')) return;
+    var s = document.createElement('style');
+    s.id = 'f2-style';
+    s.textContent =
+      // minmax(0,1fr)：三列必须能压到小于图片固有宽度，否则会被容器裁掉右侧
+      '.f2-grid{display:grid;gap:10px;width:100%;max-width:min(96vw,520px);margin:2vh auto;' +
+      'box-sizing:border-box;grid-template-columns:repeat(3,minmax(0,1fr))}' +
+      '.f2-grid[data-n="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}' +
+      '.f2-grid[data-n="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}' +
+      '.f2-grid[data-n="4"]{grid-template-columns:repeat(2,minmax(0,1fr))}' +
+      '.f2-tile{background:rgba(255,255,255,.78);border:3px solid #ffd9a0;border-radius:22px;padding:8px;' +
+      'box-sizing:border-box;min-width:0;min-height:min(30vw,132px);display:flex;align-items:center;' +
+      'justify-content:center;cursor:pointer;' +
+      'box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease,box-shadow .15s ease}' +
+      '.f2-tile:active{transform:scale(.96)}' +
+      // 宽度交给网格列（100%）而不是 vw 上限：否则 min-content 会把三列撑出屏幕
+      '.f2-tile img{width:100%;max-width:100%;height:auto;object-fit:contain;pointer-events:none}' +
+      '.f2-tile.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.f2-tile.wrong{animation:f2shake .5s;border-color:#f0a0a0}' +
+      '.f2-stage{display:flex;align-items:center;justify-content:center;min-height:40vh;width:100%}' +
+      '.f2-cell{display:flex;align-items:center;justify-content:center;border-radius:20px;padding:6px;' +
+      'box-sizing:border-box;min-width:0;cursor:pointer;transition:transform .15s ease,box-shadow .2s ease}' +
+      '.f2-cell img{width:100%;max-width:min(38vw,168px);height:auto;object-fit:contain;pointer-events:none}' +
+      '.f2-grid .f2-cell img{max-width:100%}' +
+      '.f2-huge{max-width:min(50vw,216px)!important}' +
+      '.f2-tiny{max-width:min(19vw,84px)!important}' +
+      '.f2-right{background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.f2-glow{animation:f2glow 1.1s ease-in-out infinite}' +
+      '.f2-shake{animation:f2shake .5s}' +
+      '.f2-scene{position:relative;width:min(84vw,360px);border-radius:26px;overflow:hidden;' +
+      'box-shadow:0 10px 22px rgba(180,140,90,.22)}' +
+      '.f2-scene > svg{width:100%;display:block}' +
+      '.f2-scene .f2-scene-animal{position:absolute;left:50%;bottom:5%;transform:translateX(-50%);' +
+      'width:44%;height:auto}' +
+      '.f2-zoom{position:relative;width:min(74vw,300px);aspect-ratio:1 / 1;border-radius:26px;overflow:hidden;' +
+      'background:#fff6e8;box-shadow:0 10px 22px rgba(180,140,90,.22);' +
+      'display:flex;align-items:center;justify-content:center}' +
+      '.f2-zoom img{width:92%;height:92%;object-fit:contain}' +
+      // 条纹聚焦框：整只虎保留可辨认，虚线框在呼吸，视觉上指向躯干条纹
+      '.f2-focus{position:absolute;left:44%;top:39%;width:35%;height:21%;border:3px dashed #ffb84d;' +
+      'border-radius:12px;animation:f2focus 1.5s ease-in-out infinite;pointer-events:none}' +
+      '.f2-pair{display:flex;align-items:center;justify-content:center;gap:min(6vw,26px)}' +
+      '.f2-zones{display:flex;gap:12px;justify-content:center;width:min(94vw,470px);margin:1vh auto 0}' +
+      '.f2-zone{flex:1 1 0;max-width:222px;border-radius:24px;padding:6px 6px 0;background:rgba(255,255,255,.8);' +
+      'border:3px solid #ffd9a0;cursor:pointer;position:relative;transition:box-shadow .2s ease,transform .15s ease}' +
+      '.f2-zone:active{transform:scale(.98)}' +
+      '.f2-zone svg{width:100%;display:block}' +
+      '.f2-zone.drop-target,.f2-zone.drop-hot{box-shadow:0 0 0 5px rgba(255,200,110,.7)}' +
+      '.f2-zone.right{box-shadow:0 0 0 6px rgba(120,200,140,.85)}' +
+      '.f2-zone.wrong{animation:f2shake .5s}' +
+      '.f2-zone-label{text-align:center;font-size:clamp(13px,3.4vw,16px);color:#8a6a48;' +
+      'padding:2px 0 6px;font-weight:700;letter-spacing:1px}' +
+      '.f2-in-zone{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:46%;' +
+      'height:auto;pointer-events:none}' +
+      '.f2-opt-img{width:min(24vw,104px);height:auto;object-fit:contain;pointer-events:none}' +
+      '@keyframes f2shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      '@keyframes f2glow{0%,100%{box-shadow:0 0 0 3px rgba(255,210,120,.45)}' +
+      '50%{box-shadow:0 0 24px 8px rgba(255,210,120,.9)}}' +
+      '@keyframes f2focus{0%,100%{opacity:.45;transform:scale(1)}' +
+      '50%{opacity:1;transform:scale(1.07)}}';
+    document.head.appendChild(s);
+  }
+
+  /** 题型 A / B：3 只动物的点选宫格（选项栏隐藏，图更大更好点） */
+  function renderF2Grid(q) {
+    ensureF2Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'f2-grid';
+    grid.dataset.n = String(q.options.length);
+    grid.setAttribute('aria-label', '动物图片');
+    q.options.forEach(function (opt, i) {
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'f2-tile';
+      tile.dataset.idx = String(i);
+      tile.dataset.animal = opt.animal;
+      tile.setAttribute('aria-label', '动物图片');
+      var img = f2Img(opt.animal, 'f2-img');
+      if (img) tile.appendChild(img);
+      tile.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(tile.dataset.idx) === state.question.correct, tile);
+      });
+      grid.appendChild(tile);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 C：丛林 / 农场两个投放区（纯图形 + 中文小标签，绝无英文字母） */
+  function renderF2Zones(q) {
+    ensureF2Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'f2-zones';
+    [['jungle', '丛林'], ['farm', '农场']].forEach(function (pair) {
+      var zone = pair[0];
+      var box = document.createElement('div');
+      box.className = 'f2-zone';
+      box.dataset.drop = 'f2' + zone;
+      box.dataset.zone = zone;
+      box.setAttribute('aria-label', pair[1]);
+      var svg = svgEl('svg');
+      svg.setAttribute('viewBox', '0 0 120 100');
+      svg.innerHTML = zone === 'jungle' ? F2_JUNGLE_SVG : F2_FARM_SVG;
+      box.appendChild(svg);
+      var label = document.createElement('div');
+      label.className = 'f2-zone-label';
+      label.textContent = pair[1];
+      box.appendChild(label);
+      // 点选兜底：先点动物、再点区域 = 投放（RULES §二.11）
+      box.addEventListener('click', function () {
+        if (state.pickedFruit === null) return;
+        resolveF2C(state.pickedFruit, box);
+      });
+      wrap.appendChild(box);
+    });
+    askDisplay.appendChild(wrap);
+  }
+
+  /** 答对后把动物放进对应栖息地里（视觉反馈；下一题重绘自动清掉） */
+  function f2PlaceInZone(animal, zone) {
+    var box = askDisplay.querySelector('.f2-zone[data-zone="' + zone + '"]');
+    if (!box) return;
+    var img = f2Img(animal, 'f2-in-zone');
+    if (img) box.appendChild(img);
+  }
+
+  function f2Split(ans, pool) {
+    var rest = pool.filter(function (a) { return a !== ans; });
+    shuffle(rest);
+    var opts = [
+      { kind: 'f2animal', animal: ans },
+      { kind: 'f2animal', animal: rest[0] },
+      { kind: 'f2animal', animal: rest[1] }
+    ];
+    var answerOpt = opts[0];
+    shuffle(opts);
+    return { options: opts, correct: opts.indexOf(answerOpt) };
+  }
+
+  /** 出题：0 = A 听名字找 / 1 = B 听描述找 / 2 = C 拖进丛林或农场 */
+  function makeQuestionF2(type, prev) {
+    ensureF2Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var a1 = F2_JUNGLE[randInt(0, F2_JUNGLE.length - 1)];
+        var s1 = f2Split(a1, F2_JUNGLE);
+        q = {
+          type: 'F2A', sig: 'A:' + a1, animal: a1, options: s1.options, correct: s1.correct,
+          audio: ['l4w2_f_' + a1]
+        };
+      } else if (type === 1) {
+        var d = F2_DESC[randInt(0, F2_DESC.length - 1)];
+        var s2 = f2Split(d.ans, d.pool);
+        q = {
+          type: 'F2B', sig: 'B:' + d.key, animal: d.ans, desc: d.key,
+          options: s2.options, correct: s2.correct, audio: ['l4w2_b_' + d.key]
+        };
+      } else {
+        // 两个干扰项全部来自「另一种栖息地」：因此只有两个变量同时正确才算对
+        var zone = Math.random() < 0.5 ? 'jungle' : 'farm';
+        var same = zone === 'jungle' ? F2_JUNGLE : F2_FARM;
+        var other = zone === 'jungle' ? F2_FARM : F2_JUNGLE;
+        var a3 = same[randInt(0, same.length - 1)];
+        var s3 = f2Split(a3, other);
+        q = {
+          type: 'F2C', sig: 'C:' + zone + ':' + a3, animal: a3, zone: zone,
+          options: s3.options, correct: s3.correct,
+          // 农场的 4 句与第 1 关文本完全相同，直接复用 l4w1_c_*（RULES §1.12 不建同文本第二条 key）
+          audio: [(zone === 'farm' ? 'l4w1_c_' : 'l4w2_c_jungle_') + a3]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /** 题型 C 判定：点名的动物 + 落在指定栖息地，两个条件都满足才算对 */
+  function resolveF2C(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'F2C') return;
+    var drop = target && target.dataset ? target.dataset.drop : '';
+    var rightZone = drop === 'f2' + q.zone;
+    var ok = rightZone && itemIdx === q.correct;
+    judge(ok, ok ? target : optionEls[itemIdx]);
+  }
+
+  /* 教学（custom 分支）：16 个环节 + 过渡语，收尾仍走 tutFinish() */
+  var runF2Tutorial = (function () {
+    function blank(me) {
+      me.ask = null;
+      me.hintTarget = null;
+      me.hintFrom = null;
+      me.hintTo = null;
+      me.hintToY = 0.5;
+      me.replay = null;
+      clearHint();
+    }
+    function stage(me) {
+      blank(me);
+      askDisplay.innerHTML = '';
+      ensureF2Css();
+      var w = document.createElement('div');
+      w.className = 'f2-stage';
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function cell(animal) {
+      var c = document.createElement('div');
+      c.className = 'f2-cell';
+      c.dataset.animal = animal;
+      var img = f2Img(animal, 'f2-cell-img');
+      if (img) c.appendChild(img);
+      return c;
+    }
+    /** 演示 A：单个动物登场 */
+    function one(me, animal) {
+      var wrap = stage(me);
+      var c = cell(animal);
+      wrap.appendChild(c);
+      return { entries: [{ key: animal, el: c }] };
+    }
+    /** 演示 B-1：草原大图（狮子） */
+    function savanna(me, animal) {
+      var wrap = stage(me);
+      var d = document.createElement('div');
+      d.className = 'f2-scene';
+      var svg = svgEl('svg');
+      svg.setAttribute('viewBox', '0 0 200 130');
+      svg.innerHTML = F2_SAVANNA_SVG;
+      d.appendChild(svg);
+      var img = f2Img(animal, 'f2-scene-animal');
+      if (img) d.appendChild(img);
+      wrap.appendChild(d);
+      return { entries: [{ key: animal, el: d }] };
+    }
+    /** 演示 B-2：条纹特写（整只虎 + 躯干条纹聚焦框，框在呼吸） */
+    function stripes(me, animal) {
+      var wrap = stage(me);
+      var d = document.createElement('div');
+      d.className = 'f2-zoom';
+      var img = f2Img(animal, 'f2-zoom-img');
+      if (img) d.appendChild(img);
+      var focus = document.createElement('div');
+      focus.className = 'f2-focus';
+      d.appendChild(focus);
+      wrap.appendChild(d);
+      return { entries: [{ key: animal, el: d }] };
+    }
+    /** 演示 B-3：猴子 + 香蕉 */
+    function monkeyBanana(me) {
+      var wrap = stage(me);
+      var pair = document.createElement('div');
+      pair.className = 'f2-pair';
+      var m = cell('monkey');
+      pair.appendChild(m);
+      var banana = document.createElement('div');
+      banana.className = 'f2-cell';
+      banana.dataset.asset = 'banana';
+      var bi = assetImg('banana', 'f2-cell-img');
+      if (bi) banana.appendChild(bi);
+      pair.appendChild(banana);
+      wrap.appendChild(pair);
+      return { entries: [{ key: 'monkey', el: m }, { key: 'banana', el: banana }] };
+    }
+    /** 演示 B-4：大象很大（大象 vs 老鼠 的尺寸对比） */
+    function bigSmall(me) {
+      var wrap = stage(me);
+      var pair = document.createElement('div');
+      pair.className = 'f2-pair';
+      var e = document.createElement('div');
+      e.className = 'f2-cell'; e.dataset.animal = 'elephant';
+      var ei = f2Img('elephant', 'f2-huge');
+      if (ei) e.appendChild(ei);
+      var m = document.createElement('div');
+      m.className = 'f2-cell'; m.dataset.animal = 'mouse';
+      var mi = f2Img('mouse', 'f2-tiny');
+      if (mi) m.appendChild(mi);
+      pair.appendChild(e);
+      pair.appendChild(m);
+      wrap.appendChild(pair);
+      return { entries: [{ key: 'elephant', el: e }, { key: 'mouse', el: m }] };
+    }
+    /** 互动 A：二选一（目标 + 一个易混项） */
+    function pair2(me, a, b) {
+      var wrap = stage(me);
+      var pair = document.createElement('div');
+      pair.className = 'f2-pair';
+      var list = shuffle([a, b]);
+      var entries = [];
+      list.forEach(function (k) {
+        var c = cell(k);
+        pair.appendChild(c);
+        entries.push({ key: k, el: c });
+      });
+      wrap.appendChild(pair);
+      return { entries: entries };
+    }
+    /** 互动 B：三选一宫格 */
+    function many(me, animals) {
+      var wrap = stage(me);
+      var g = document.createElement('div');
+      g.className = 'f2-grid';
+      g.dataset.n = String(animals.length);
+      g.setAttribute('aria-label', '动物图片');
+      wrap.appendChild(g);
+      var entries = [];
+      animals.forEach(function (a) {
+        var c = cell(a);
+        g.appendChild(c);
+        entries.push({ key: a, el: c });
+      });
+      return { entries: entries };
+    }
+
+    var ACTS = [
+      // 狮子：2 次演示 + 2 次互动
+      { type: 'demo', build: function (me) { return one(me, 'lion'); }, hi: 'lion', word: 'l4w2_t_lion1' },
+      { type: 'demo', build: function (me) { return savanna(me, 'lion'); }, hi: 'lion', word: 'l4w2_t_lion2' },
+      { type: 'ask',  build: function (me) { return pair2(me, 'lion', 'dog'); },
+        ans: 'lion', word: 'l4w2_t_ask_lion' },
+      { type: 'ask',  build: function (me) { return many(me, shuffle(['lion', 'tiger', 'monkey'])); },
+        ans: 'lion', word: 'l4w2_f_lion' },
+      // 老虎
+      { type: 'demo', build: function (me) { return one(me, 'tiger'); }, hi: 'tiger', word: 'l4w2_t_tiger1' },
+      { type: 'demo', build: function (me) { return stripes(me, 'tiger'); }, hi: 'tiger', word: 'l4w2_t_tiger2' },
+      { type: 'ask',  build: function (me) { return pair2(me, 'tiger', 'cat'); },
+        ans: 'tiger', word: 'l4w2_f_tiger' },
+      { type: 'ask',  build: function (me) { return many(me, shuffle(['tiger', 'lion', 'elephant'])); },
+        ans: 'tiger', word: 'l4w2_b_stripes' },
+      // 猴子
+      { type: 'demo', build: function (me) { return one(me, 'monkey'); }, hi: 'monkey', word: 'l4w2_t_monkey1' },
+      { type: 'demo', build: function (me) { return monkeyBanana(me); }, hi: 'monkey', word: 'l4w2_t_monkey2' },
+      { type: 'ask',  build: function (me) { return pair2(me, 'monkey', 'dog'); },
+        ans: 'monkey', word: 'l4w2_f_monkey' },
+      { type: 'ask',  build: function (me) { return many(me, shuffle(['monkey', 'lion', 'tiger'])); },
+        ans: 'monkey', word: 'l4w2_b_bananas' },
+      // 大象
+      { type: 'demo', build: function (me) { return one(me, 'elephant'); }, hi: 'elephant', word: 'l4w2_t_elephant1' },
+      { type: 'demo', build: function (me) { return bigSmall(me); }, hi: 'elephant', word: 'l3_el_big' },
+      { type: 'ask',  build: function (me) { return pair2(me, 'elephant', 'pig'); },
+        ans: 'elephant', word: 'l4w2_f_elephant' },
+      { type: 'ask',  build: function (me) { return many(me, shuffle(['elephant', 'monkey', 'cat'])); },
+        ans: 'elephant', word: 'l4w2_b_big' },
+      // 过渡语（自带，不再叠 t_ready）
+      { type: 'outro', build: function (me) { return many(me, shuffle(F2_JUNGLE.slice())); },
+        word: 'l4w2_t_done' }
+    ];
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var built = act.build(me);
+
+      if (act.type === 'outro') {
+        me.replay = function () { say([act.word]); };
+        built.entries.forEach(function (e) { e.el.classList.add('f2-glow'); });
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          tutFinish(me, false);
+        });
+        return;
+      }
+
+      if (act.type === 'demo') {
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          var hiEl = null;
+          built.entries.forEach(function (e) { if (e.key === act.hi) hiEl = e; });
+          if (hiEl) hiEl.el.classList.add('f2-glow');
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+        });
+        return;
+      }
+
+      // 互动：点对才推进；点错抖一下 + 温柔鼓励；4 秒无操作弹小手指（RULES §二.12）
+      var ansEl = null;
+      built.entries.forEach(function (e) { if (e.key === act.ans) ansEl = e; });
+      me.ask = act.ans;
+      me.hintTarget = ansEl ? ansEl.el : null;
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+      built.entries.forEach(function (entry) {
+        entry.el.addEventListener('click', function () {
+          if (state.tut !== me || !me.ask) return;
+          if (entry.key === me.ask) {
+            clearHint();
+            coin();
+            ting();
+            me.ask = null;
+            entry.el.classList.add('f2-right');
+            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 900);
+          } else {
+            entry.el.classList.add('f2-shake');
+            setTimeout(function () { entry.el.classList.remove('f2-shake'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+      });
+    }
+
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
     function stage(me) {
@@ -7440,6 +7944,10 @@
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
     if (q.type === 'F1C') { renderF1Farm(q); return; }
+
+    /* ---- 第 4 岛第 2 关：野生动物（A/B 用宫格，C 用丛林/农场两个投放区） ---- */
+    if (q.type === 'F2A' || q.type === 'F2B') { optionsBar.classList.add('gone'); return; }
+    if (q.type === 'F2C') { renderF2Zones(q); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -7793,6 +8301,7 @@
     if (q.type === 'B4') { renderB4Grid(q); return; }
     if (q.type === 'B5A' || q.type === 'B5B') { renderB5Grid(q); return; }
     if (q.type === 'F1A' || q.type === 'F1B') { renderF1Grid(q); return; }
+    if (q.type === 'F2A' || q.type === 'F2B') { renderF2Grid(q); return; }
     optionEls.forEach(function (btn, i) {
       removeDecor(btn);
       btn.className = 'option';
@@ -7961,6 +8470,11 @@
         btn.classList.add('f1-opt');
         var f1a = f1Img(opt.animal, 'f1-opt-img');
         if (f1a) slot.appendChild(f1a);
+      } else if (opt.kind === 'f2animal') {
+        // 第 4 岛第 2 关题型 C：可拖进丛林 / 农场的动物
+        btn.classList.add('f2-opt');
+        var f2a = f2Img(opt.animal, 'f2-opt-img');
+        if (f2a) slot.appendChild(f2a);
       } else {
         btn.classList.add('pile-opt');
         slot.appendChild(pileNode(opt.fruit, opt.count, 'opt'));
@@ -8023,6 +8537,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'F1C') {
         // 第 4 岛第 1 关题型 C：动物可拖进农场
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'F2C') {
+        // 第 4 岛第 2 关题型 C：动物可拖进丛林 / 农场
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -8146,6 +8665,7 @@
       if (q.type === 'B2C') placeInB2Box((q.fruit && q.fruit.id) || q.fruit, q.cmp);
       if (q.type === 'B3C') placeInB3Box(q.obj, q.cmp);
       if (q.type === 'F1C') f1PlaceInFarm(q.animal);
+      if (q.type === 'F2C') f2PlaceInZone(q.animal, q.zone);
 
       // 必须先捕获索引：430ms 后 state.roundIndex 会自增，
       // 动画回调若晚于推进执行就会点亮错位/丢失（第 12 轮尤其明显）
@@ -8323,6 +8843,8 @@
         resolveB5C(d.idx, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
+      } else if (d.mode === 'F2C') {
+        resolveF2C(d.idx, target);
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
@@ -9164,6 +9686,13 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '4-2': {
+      // 野生动物（RULES §三.10 双倍量）：每个词 2 次演示 + 2 次互动，共 16 环节 + 过渡语
+      custom: runF2Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -9387,7 +9916,7 @@
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
-        q.type === 'F1C') return q.type;
+        q.type === 'F1C' || q.type === 'F2C') return q.type;
     return null;
   }
 
@@ -9668,6 +10197,12 @@
         return;
       }
 
+      // 第 4 岛第 2 关题型 C：点动物选中，再点丛林 / 农场投放
+      if (q.type === 'F2C') {
+        tapFruit(idx, btn);
+        return;
+      }
+
       // 第 5 关题型 B：先点水果选中，再点篮子投放
       if (q.type === 'W5B') {
         if (state.pickedFruit === null) return;
@@ -9930,6 +10465,8 @@
           moreCount: q.moreCount || null,
           lessCount: q.lessCount || null,
           animal: q.animal ? (q.animal.id || q.animal) : null,
+          zone: q.zone || null,
+          desc: q.desc || null,
           audio: q.audio[0],
           audios: q.audio.slice(),
           tray: q.tray ? q.tray.map(function (t) { return t.color.id + ':' + t.fruit.id; }) : null,
@@ -9948,6 +10485,7 @@
             if (o.kind === 'lsObj' || o.kind === 'b3Drag') return o.cmp + ':' + o.obj;
             if (o.kind === 'lsAnimal') return o.animal;
             if (o.kind === 'f1animal') return o.animal;
+            if (o.kind === 'f2animal') return o.animal;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
             if (o.color) return o.color.id;
