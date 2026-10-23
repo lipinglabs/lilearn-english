@@ -108,7 +108,7 @@
 <body>
 <header>
   <h1>第三岛 3-3（长 / 短）候选审核台 · 每图 3 选 1</h1>
-  <p>3-3 全部 20 张图（7 物体 × 长/短 + 3 动物 × 长/短）各提供 3 个新候选，供你勾选其一。</p>
+  <p>3-3 全部 17 张图（7 物体 × 长/短 + 3 动物）各提供 3 套画风，供你勾选其一。已按 RULES §二.3 改为柔和/温暖/粉彩，无粗黑描边。</p>
 </header>
 
 <div class="note">
@@ -135,8 +135,7 @@
 
 <div class="bar">
   <div class="grow">已选替换：<b id="pickCount">0</b> 项（共 <span id="totalCount">0</span> 张 3-3 图）</div>
-  <button id="btnGen" class="primary">生成替换方案</button>
-</div>
+  <button id="btnGen" class="primary">生成替换方案</button></div>
 
 <div class="modal" id="modal">
   <div class="modal-box">
@@ -157,21 +156,23 @@
 <!-- 3-3 全新插画生成器：3 套画风（萌趣卡通 / 清新扁平 / 温暖手绘） -->
 <script src="art33.js"></script>
 <script>
-/* ============ 候选：3-3 全部 20 张，每张 3 套全新画风（art33.js） ============ */
+/* ============ 候选：3-3 全部 17 张，每张 3 套画风（art33.js） ============ */
+/* 17 张 = 7 物体 × 长/短（14）+ 3 动物（各 1 张，「长」由物种体现） */
 var CANDIDATES = {};
 if (typeof ART33 !== 'undefined') {
-  ART33.ALL33.forEach(function(key){
-    var cmp = ART33.parseKey(key).cmp;
+  ART33.ALL17.forEach(function(key){
+    var info = ART33.parseKey(key);
     CANDIDATES[key] = ART33.STYLE.map(function(st, i){
+      var tag = info.kind === 'obj' ? (info.cmp === 'long' ? '长' : '短') : '长';
       return {
-        label: String.fromCharCode(65+i) + ' · ' + st.name + ' · ' + (cmp==='long'?'长':'短'),
-        html: ART33.art33(key, i)
+        label: String.fromCharCode(65+i) + ' · ' + st.name + ' · ' + tag,
+        html: ART33.wrap(ART33.art33(key, i))
       };
     });
   });
 }
 
-/* 默认展示 3-3 全套 20 张 */
+/* 默认展示 3-3 全套 17 张 */
 var DEMO_KEYS = Object.keys(CANDIDATES);
 
 /* ============ 原图渲染（供对照） ============ */
