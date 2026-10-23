@@ -40,7 +40,9 @@ ANIMAL_ORDER = ["elephant", "mouse", "dog", "cat", "pig", "cow",
                 # 第 4 岛第 2 关（野生动物）
                 "lion", "tiger", "monkey",
                 # 第 4 岛第 3 关（动词）：会跳的袋鼠 / 青蛙、睡觉的熊、飞翔的小鸟
-                "kangaroo", "frog", "bear", "bird"]
+                "kangaroo", "frog", "bear", "bird",
+                # 第 4 岛第 4 关（动物 + 动作短句）：在跑的马
+                "horse"]
 
 
 def emit(lines: list[str], bank: str, mapping: dict[str, Path], total_box: list[int]) -> None:

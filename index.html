@@ -3774,7 +3774,8 @@
     '3-5': { numbers: null,       make: 'makeB5', title: '第 5 关', tutorial: true },
     '4-1': { numbers: null,       make: 'makeF1', title: '第 1 关', tutorial: true },
     '4-2': { numbers: null,       make: 'makeF2', title: '第 2 关', tutorial: true },
-    '4-3': { numbers: null,       make: 'makeF3', title: '第 3 关', tutorial: true }
+    '4-3': { numbers: null,       make: 'makeF3', title: '第 3 关', tutorial: true },
+    '4-4': { numbers: null,       make: 'makeF4', title: '第 4 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3905,6 +3906,7 @@
     if (def && def.make === 'makeF1') return makeQuestionF1(typeIdx, prev);
     if (def && def.make === 'makeF2') return makeQuestionF2(typeIdx, prev);
     if (def && def.make === 'makeF3') return makeQuestionF3(typeIdx, prev);
+    if (def && def.make === 'makeF4') return makeQuestionF4(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -8403,6 +8405,645 @@
     return api;
   })();
 
+  /* ==================== 第 4 岛第 4 关（L4-W4：动物 + 动作短句） ==================== */
+  /* 目标：把「主语 + 动作」的完整短句和孩子看到的整幅场景绑起来（不是一个动作图标）。
+     教学（RULES §三.10 双倍量）：3 个句型 ×（2 次演示 + 2 次互动）+ 1 次综合 + 对错题示范 2 步 + 过渡语
+       The dog is running  ：草地大图 → 拉近 + 速度线（跑得快） → 跑狗 vs 睡狗（二选一）→ 三选一
+       The cat is sleeping ：沙发上睡着的猫 → 同一场景特写（on the sofa）→ 睡猫 vs 吃狗 → 三选一
+       The monkey is eating：树下吃香蕉的猴子 → 特写（eating a banana）→ 吃猴 vs 睡熊 → 三选一
+       综合：三幅场景里「给我看看猴子在吃」
+       对错题（题型 B 的交互）先由老师示范一次判断，再让孩子动手判一次
+     答题：A 听长句找场景 / B 看图判断句子对不对（✅ / ❌）/ C 拖（点）进「在跑 / 在睡」两个筐
+     图片：新增马（Fluent 3D，只用 1 张），其余复用 dog / cat / monkey / pig / bear；
+           草地 / 垫子 / 沙发 / 大树 / 草原 / 床 / 树林 7 张场景背景全是手写内联 SVG，
+           页面里没有任何文字节点（✅ / ❌ 也是 SVG path），不会出现英文字母（RULES §二.1）。 */
+
+  /** 场景背景（viewBox 统一 160×130，卡片用 slice 铺满） */
+  var F4_BG_GRASS =
+    '<rect x="0" y="0" width="160" height="70" fill="#dcefff"/>' +
+    '<circle cx="130" cy="22" r="13" fill="#ffe9a8"/>' +
+    '<path d="M0 62 Q36 46 72 60 Q110 74 160 54 L160 74 L0 74 Z" fill="#e2f0d6"/>' +
+    '<rect x="0" y="70" width="160" height="60" fill="#bfe6a9"/>' +
+    '<path d="M0 88 Q46 78 92 88 Q128 96 160 86 L160 130 L0 130 Z" fill="#aedd93"/>' +
+    '<g stroke="#8ecb7a" stroke-width="2" stroke-linecap="round" fill="none">' +
+      '<path d="M14 116 q2 -8 5 -10"/><path d="M22 119 q-2 -7 1 -11"/>' +
+      '<path d="M136 114 q2 -8 5 -10"/><path d="M145 118 q-2 -7 1 -11"/>' +
+      '<path d="M62 124 q2 -7 4 -9"/>' +
+    '</g>' +
+    '<g fill="#ffc3d9"><circle cx="46" cy="110" r="3.4"/><circle cx="114" cy="120" r="3"/></g>' +
+    '<g fill="#fff3c4"><circle cx="46" cy="110" r="1.3"/><circle cx="114" cy="120" r="1.2"/></g>';
+
+  var F4_BG_MAT =
+    '<rect x="0" y="0" width="160" height="98" fill="#fdf4e6"/>' +
+    '<rect x="0" y="98" width="160" height="32" fill="#efdcc4"/>' +
+    '<ellipse cx="80" cy="108" rx="64" ry="18" fill="#e9cfa6"/>' +
+    '<ellipse cx="80" cy="103" rx="64" ry="17" fill="#ffdca8"/>' +
+    '<ellipse cx="80" cy="100" rx="56" ry="13" fill="#ffe8c6"/>' +
+    '<g stroke="#f3d3a6" stroke-width="2" stroke-linecap="round">' +
+      '<path d="M30 106 h100"/><path d="M36 114 h88"/>' +
+    '</g>';
+
+  var F4_BG_SOFA =
+    '<rect x="0" y="0" width="160" height="96" fill="#fdf3e4"/>' +
+    '<rect x="0" y="96" width="160" height="34" fill="#efdcc4"/>' +
+    '<ellipse cx="80" cy="116" rx="60" ry="12" fill="#e5cfb2" opacity=".6"/>' +
+    '<rect x="20" y="42" width="120" height="34" rx="15" fill="#c3d9f2"/>' +
+    '<rect x="10" y="64" width="140" height="30" rx="13" fill="#d9e7f9"/>' +
+    '<rect x="8" y="62" width="20" height="34" rx="10" fill="#bcd4ef"/>' +
+    '<rect x="132" y="62" width="20" height="34" rx="10" fill="#bcd4ef"/>' +
+    '<g stroke="#eaf3fd" stroke-width="2.4" stroke-linecap="round">' +
+      '<path d="M56 74 v14"/><path d="M104 74 v14"/>' +
+    '</g>' +
+    '<rect x="22" y="94" width="9" height="10" rx="4" fill="#c9a97f"/>' +
+    '<rect x="129" y="94" width="9" height="10" rx="4" fill="#c9a97f"/>';
+
+  var F4_BG_TREE =
+    '<rect x="0" y="0" width="160" height="72" fill="#dcf0ff"/>' +
+    '<circle cx="26" cy="20" r="10" fill="#ffe9a8"/>' +
+    '<rect x="0" y="72" width="160" height="58" fill="#c2e7a9"/>' +
+    '<rect x="110" y="36" width="16" height="60" rx="7" fill="#c99a6b"/>' +
+    '<circle cx="118" cy="30" r="30" fill="#7fc98a"/>' +
+    '<circle cx="94" cy="44" r="20" fill="#8fd59a"/>' +
+    '<circle cx="142" cy="46" r="17" fill="#74bd80"/>' +
+    '<g fill="#ffe27a">' +
+      '<ellipse cx="100" cy="52" rx="5" ry="3" transform="rotate(-24 100 52)"/>' +
+      '<ellipse cx="134" cy="60" rx="5" ry="3" transform="rotate(18 134 60)"/>' +
+    '</g>' +
+    '<path d="M0 100 Q40 92 80 100 Q120 108 160 100 L160 130 L0 130 Z" fill="#aede94"/>';
+
+  var F4_BG_MEADOW =
+    '<rect x="0" y="0" width="160" height="70" fill="#d9edff"/>' +
+    '<circle cx="30" cy="22" r="12" fill="#ffe9a8"/>' +
+    '<path d="M0 60 Q44 42 88 58 Q124 70 160 52 L160 74 L0 74 Z" fill="#dcefd0"/>' +
+    '<rect x="0" y="70" width="160" height="60" fill="#c6e8ab"/>' +
+    '<g fill="#eccfa1" stroke="#d6ab74" stroke-width="2">' +
+      '<rect x="4" y="72" width="9" height="40" rx="4"/>' +
+      '<rect x="50" y="68" width="9" height="44" rx="4"/>' +
+      '<rect x="100" y="72" width="9" height="40" rx="4"/>' +
+      '<rect x="146" y="68" width="9" height="44" rx="4"/>' +
+    '</g>' +
+    '<rect x="0" y="84" width="160" height="6" rx="3" fill="#eccfa1"/>' +
+    '<rect x="0" y="98" width="160" height="6" rx="3" fill="#eccfa1"/>' +
+    '<path d="M0 112 Q40 104 80 112 Q120 120 160 110 L160 130 L0 130 Z" fill="#b3e096"/>';
+
+  var F4_BG_BED =
+    '<rect x="0" y="0" width="160" height="98" fill="#f7eee2"/>' +
+    '<rect x="0" y="98" width="160" height="32" fill="#e6d3bb"/>' +
+    '<rect x="10" y="30" width="20" height="76" rx="9" fill="#cbaa8b"/>' +
+    '<rect x="20" y="60" width="132" height="34" rx="10" fill="#ffffff"/>' +
+    '<rect x="20" y="84" width="132" height="20" rx="9" fill="#cfe0f5"/>' +
+    '<rect x="16" y="46" width="44" height="18" rx="9" fill="#fdfbf6"/>' +
+    '<g stroke="#e7eef8" stroke-width="2.2" stroke-linecap="round">' +
+      '<path d="M60 90 h80"/><path d="M60 98 h80"/>' +
+    '</g>' +
+    '<rect x="142" y="70" width="9" height="26" rx="4" fill="#c09d7c"/>';
+
+  var F4_BG_FOREST =
+    '<rect x="0" y="0" width="160" height="72" fill="#d9eee2"/>' +
+    '<rect x="0" y="70" width="160" height="60" fill="#a9d39a"/>' +
+    '<g fill="#c9a06f">' +
+      '<rect x="10" y="38" width="13" height="56" rx="6"/>' +
+      '<rect x="137" y="32" width="14" height="62" rx="6"/>' +
+    '</g>' +
+    '<g fill="#6fbb80">' +
+      '<circle cx="16" cy="32" r="24"/><circle cx="144" cy="26" r="26"/>' +
+      '<circle cx="48" cy="22" r="16"/><circle cx="120" cy="18" r="15"/>' +
+    '</g>' +
+    '<path d="M0 100 Q40 92 80 100 Q120 108 160 100 L160 130 L0 130 Z" fill="#93c986"/>' +
+    '<g fill="#f4a6b8"><circle cx="34" cy="114" r="3.4"/><circle cx="128" cy="118" r="3"/></g>' +
+    '<g fill="#c8a0e0"><circle cx="52" cy="122" r="2.6"/><circle cx="112" cy="112" r="2.4"/></g>';
+
+  var F4_BG = {
+    grass: F4_BG_GRASS, mat: F4_BG_MAT, sofa: F4_BG_SOFA, tree: F4_BG_TREE,
+    meadow: F4_BG_MEADOW, bed: F4_BG_BED, forest: F4_BG_FOREST
+  };
+
+  /** 场景登记：动物 + 动作 + 背景。
+      key 只有「进答题池」的 6 个场景才有（对应语音 l4w4_a_/b_/c_ 的后缀），
+      dog_sleep / dog_eat / bear_sleep 是教学专用的对比项，不参与答题。 */
+  var F4_SCENES = {
+    dog_run:    { img: 'dog',    act: 'run',   bg: 'grass',  key: 'dog' },
+    dog_sleep:  { img: 'dog',    act: 'sleep', bg: 'mat',    key: null },
+    dog_eat:    { img: 'dog',    act: 'eat',   bg: 'grass',  key: null },
+    cat_sleep:  { img: 'cat',    act: 'sleep', bg: 'sofa',   key: 'cat' },
+    monkey_eat: { img: 'monkey', act: 'eat',   bg: 'tree',   key: 'monkey' },
+    horse_run:  { img: 'horse',  act: 'run',   bg: 'meadow', key: 'horse' },
+    pig_sleep:  { img: 'pig',    act: 'sleep', bg: 'bed',    key: 'pig' },
+    bear_eat:   { img: 'bear',   act: 'eat',   bg: 'forest', key: 'bear' },
+    bear_sleep: { img: 'bear',   act: 'sleep', bg: 'forest', key: null }
+  };
+
+  /** 答题池：6 个「动物 + 动作」场景，任两个都能互相当干扰项（动物与动作都不同） */
+  var F4_POOL = ['dog_run', 'cat_sleep', 'monkey_eat', 'horse_run', 'pig_sleep', 'bear_eat'];
+  /** 题型 C 的 4 个可拖物品及归属 */
+  var F4_C_ITEMS = ['dog_run', 'cat_sleep', 'horse_run', 'pig_sleep'];
+  var F4_ZONE_OF = { dog_run: 'run', horse_run: 'run', cat_sleep: 'sleep', pig_sleep: 'sleep' };
+
+  /** 主体（动物 + 动作装饰），定位在场景中心偏下 */
+  function f4Actor(subj, cls) {
+    var def = F4_SCENES[subj];
+    var box = document.createElement('div');
+    box.className = 'f4-actor' + (cls ? ' ' + cls : '');
+    if (!def) return box;
+    var img = animalImg(def.img, 'f4-actor-img');
+    if (img) box.appendChild(img);
+    // 只借用跑 / 睡两种装饰；吃的食物不放身上，改放在地上（见 f4SceneNode）
+    if (def.act === 'run' || def.act === 'sleep') {
+      var deco = f3DecoNode(def.act);
+      if (deco) box.appendChild(deco);
+    }
+    return box;
+  }
+
+  /** 一整幅场景卡（背景 SVG + 主体 [+ 地上的食物]） */
+  function f4SceneNode(subj, cls) {
+    var def = F4_SCENES[subj];
+    var card = document.createElement('div');
+    card.className = 'f4-card' + (cls ? ' ' + cls : '');
+    card.dataset.subj = subj;
+    if (!def) return card;
+    var bg = svgEl('svg');
+    bg.setAttribute('viewBox', '0 0 160 130');
+    bg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    bg.setAttribute('class', 'f4-bg');
+    bg.setAttribute('aria-hidden', 'true');
+    bg.innerHTML = F4_BG[def.bg] || '';
+    card.appendChild(bg);
+    card.appendChild(f4Actor(subj));
+    if (def.act === 'eat') {
+      var food = assetImg('apple', 'f4-food');
+      if (food) card.appendChild(food);
+    }
+    return card;
+  }
+
+  function ensureF4Css() {
+    if (document.getElementById('f4-style')) return;
+    // ⚠️ 必须先加载第 3 关的样式表：跑的速度线 / 睡的 Z 云是 .f3-* 类，
+    // 不加载就会按默认尺寸渲染（苹果图会撑成一整块，把场景整个盖住）
+    ensureF3Css();
+    var s = document.createElement('style');
+    s.id = 'f4-style';
+    s.textContent =
+      // minmax(0,1fr)：三列必须能压到小于卡片固有宽度，否则右侧会被容器裁掉（第 4 岛第 2 关踩过）
+      // 宽度必须写成 min(...) 而不是 100%：#askDisplay 是 place-items:center 的 grid，
+      // 列宽由内容决定，子元素写 width:100% 会形成循环依赖、被解析成 0（第 4 岛第 4 关踩过，
+      // 卡片 0×0 但 overflow 检查看不出来——所以探针里另加了「零尺寸」断言）
+      '.f4-grid{display:grid;gap:10px;width:min(84vw,460px);margin:2vh auto;' +
+      'box-sizing:border-box;grid-template-columns:repeat(3,minmax(0,1fr))}' +
+      '.f4-grid[data-n="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}' +
+      '.f4-grid[data-n="4"]{grid-template-columns:repeat(2,minmax(0,1fr))}' +
+      '.f4-tile{background:rgba(255,255,255,.86);border:3px solid #ffd9a0;border-radius:24px;' +
+      'padding:5px;box-sizing:border-box;min-width:0;cursor:pointer;display:block;' +
+      'box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease,box-shadow .15s ease}' +
+      '.f4-tile:active{transform:scale(.96)}' +
+      '.f4-tile.right{border-color:#7FD18A;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.f4-tile.wrong{animation:f4shake .5s;border-color:#f0a0a0}' +
+      '.f4-card{position:relative;width:100%;aspect-ratio:4 / 3;border-radius:20px;overflow:hidden;' +
+      'box-sizing:border-box;background:#eaf6ff}' +
+      '.f4-tile .f4-card{aspect-ratio:1 / 1;border-radius:17px}' +
+      '.f4-bg{position:absolute;left:0;top:0;width:100%;height:100%;display:block}' +
+      '.f4-actor{position:absolute;left:50%;top:56%;width:68%;transform:translate(-50%,-50%);' +
+      'display:flex;align-items:center;justify-content:center}' +
+      '.f4-actor-img{width:100%;height:auto;object-fit:contain;pointer-events:none;' +
+      'filter:drop-shadow(0 4px 6px rgba(90,70,50,.18))}' +
+      // 吃的东西摆在动物脚边的地上，不贴在身上（贴上去会挡住脸，也说不清是谁在吃）
+      '.f4-food{position:absolute;left:15%;bottom:12%;width:21%;height:auto;object-fit:contain;' +
+      'pointer-events:none;filter:drop-shadow(0 3px 4px rgba(90,70,50,.22))}' +
+      '.f4-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'gap:1.4vh;min-height:38vh;width:min(84vw,460px);box-sizing:border-box}' +
+      '.f4-big{width:min(78vw,300px);box-shadow:0 10px 22px rgba(180,140,90,.22)}' +
+      '.f4-zoom .f4-actor{width:86%}' +
+      '.f4-zoom .f4-bg{transform:scale(1.22);transform-origin:50% 62%}' +
+      '.f4-pair{display:flex;align-items:center;justify-content:center;gap:min(4vw,18px);width:100%}' +
+      '.f4-pair .f4-card{width:min(39vw,170px);box-shadow:0 8px 18px rgba(180,140,90,.2)}' +
+      '.f4-right{box-shadow:0 0 0 5px rgba(127,209,138,.55);border-radius:22px}' +
+      '.f4-glow{animation:f4glow 1.15s ease-in-out infinite}' +
+      '.f4-shake{animation:f4shake .5s}' +
+      '.f4-cheer .f4-actor{animation:f4cheer .55s ease-in-out}' +
+      // 对错按钮（教学里用，答题用公共的 .option.yn-opt）
+      '.f4-yn{display:flex;gap:min(6vw,26px);justify-content:center;margin-top:2vh}' +
+      '.f4-yn-btn{width:min(28vw,108px);background:rgba(255,255,255,.92);border:3px solid #ffd9a0;' +
+      'border-radius:24px;padding:8px;cursor:pointer;box-sizing:border-box;' +
+      'box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease}' +
+      '.f4-yn-btn:active{transform:scale(.95)}' +
+      '.f4-yn-btn svg{width:100%;display:block}' +
+      '.f4-yn-right{border-color:#7FD18A;box-shadow:0 0 0 5px rgba(127,209,138,.5)}' +
+      // 投放筐（与第 3 关同款，独立命名避免互相牵连）
+      '.f4-zones{display:flex;gap:12px;justify-content:center;width:min(94vw,470px);margin:1vh auto 0}' +
+      '.f4-zone{flex:1 1 0;max-width:222px;border-radius:24px;padding:6px 6px 0;' +
+      'background:rgba(255,255,255,.82);border:3px solid #ffd9a0;cursor:pointer;position:relative;' +
+      'transition:box-shadow .2s ease,transform .15s ease}' +
+      '.f4-zone[data-zone="sleep"]{border-color:#cfe0f5}' +
+      '.f4-zone:active{transform:scale(.98)}' +
+      '.f4-zone > svg{width:100%;display:block}' +
+      '.f4-zone-badge{width:52%;margin:1px auto 0}' +
+      '.f4-zone-badge svg{width:100%;display:block}' +
+      '.f4-zone.drop-target,.f4-zone.drop-hot{box-shadow:0 0 0 5px rgba(255,200,110,.7)}' +
+      '.f4-zone.right{box-shadow:0 0 0 6px rgba(120,200,140,.85)}' +
+      '.f4-zone.wrong{animation:f4shake .5s}' +
+      '.f4-zone-label{text-align:center;font-size:clamp(13px,3.4vw,16px);color:#8a6a48;' +
+      'padding:2px 0 6px;font-weight:700;letter-spacing:1px}' +
+      '.f4-in-zone{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:58%;' +
+      'pointer-events:none;border-radius:14px}' +
+      // 选项栏里的场景卡：.option 是 1:1 方框，卡片跟着撑满
+      '.option .f4-card{width:100%;aspect-ratio:1 / 1;border-radius:14px}' +
+      '.option .f4-actor{width:78%}' +
+      '@keyframes f4shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      '@keyframes f4glow{0%,100%{box-shadow:0 0 0 3px rgba(255,210,120,.45)}' +
+      '50%{box-shadow:0 0 24px 9px rgba(255,210,120,.92)}}' +
+      '@keyframes f4cheer{0%,100%{transform:translate(-50%,-50%) scale(1)}' +
+      '45%{transform:translate(-50%,-54%) scale(1.09)}}';
+    document.head.appendChild(s);
+  }
+
+  /** 题型 A：三幅场景宫格（选项栏隐藏，图更大更好点） */
+  function renderF4Grid(q) {
+    ensureF4Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'f4-grid';
+    grid.dataset.n = String(q.options.length);
+    grid.setAttribute('aria-label', '句子图片');
+    q.options.forEach(function (opt, i) {
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'f4-tile';
+      tile.dataset.idx = String(i);
+      tile.dataset.subj = opt.subj;
+      tile.setAttribute('aria-label', '句子图片');
+      tile.appendChild(f4SceneNode(opt.subj));
+      tile.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(tile.dataset.idx) === state.question.correct, tile);
+      });
+      grid.appendChild(tile);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 B：中央一幅「画面」，孩子在下方点 ✅ / ❌ 判断句子对不对 */
+  function renderF4Picture(q) {
+    ensureF4Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'f4-stage';
+    var card = f4SceneNode(q.pic, 'f4-big');
+    card.id = 'f4-pic';
+    wrap.appendChild(card);
+    askDisplay.appendChild(wrap);
+  }
+
+  /** 题型 C：在跑 / 在睡 两个投放筐（图标 + 中文小标签，绝无英文字母） */
+  function renderF4Zones(q) {
+    ensureF4Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'f4-zones';
+    [['run', '在跑'], ['sleep', '在睡']].forEach(function (pair) {
+      var zone = pair[0];
+      var box = document.createElement('div');
+      box.className = 'f4-zone';
+      box.dataset.drop = 'f4' + zone;
+      box.dataset.zone = zone;
+      box.setAttribute('aria-label', pair[1]);
+
+      var badge = document.createElement('div');
+      badge.className = 'f4-zone-badge';
+      var bs = svgEl('svg');
+      if (zone === 'run') {
+        bs.setAttribute('viewBox', '0 8 120 104');
+        bs.innerHTML = f3KidMarkup('run');
+      } else {
+        bs.setAttribute('viewBox', '8 26 104 58');
+        bs.innerHTML = f3KidMarkup('sleep');
+      }
+      badge.appendChild(bs);
+      box.appendChild(badge);
+
+      var tub = svgEl('svg');
+      tub.setAttribute('viewBox', '0 0 120 100');
+      tub.innerHTML = zone === 'run' ? F3_TUB_RUN : F3_TUB_SLEEP;
+      box.appendChild(tub);
+
+      var label = document.createElement('div');
+      label.className = 'f4-zone-label';
+      label.textContent = pair[1];
+      box.appendChild(label);
+
+      // 点选兜底：先点场景、再点筐 = 投放（RULES §二.11）
+      box.addEventListener('click', function () {
+        if (state.pickedFruit === null) return;
+        resolveF4C(state.pickedFruit, box);
+      });
+      wrap.appendChild(box);
+    });
+    askDisplay.appendChild(wrap);
+  }
+
+  /** 答对后把场景缩略图放进对应的筐里（下一题重绘自动清掉） */
+  function f4PlaceInZone(subj, zone) {
+    var box = askDisplay.querySelector('.f4-zone[data-zone="' + zone + '"]');
+    if (!box) return;
+    box.appendChild(f4SceneNode(subj, 'f4-in-zone'));
+  }
+
+  /** 出题：0 = A 听长句找场景 / 1 = B 看图判断句子对错 / 2 = C 拖进「在跑 / 在睡」 */
+  function makeQuestionF4(type, prev) {
+    ensureF4Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var tgt = F4_POOL[randInt(0, F4_POOL.length - 1)];
+        var rest = F4_POOL.filter(function (s) { return s !== tgt; });
+        shuffle(rest);
+        var optsA = [
+          { kind: 'f4scene', subj: tgt },
+          { kind: 'f4scene', subj: rest[0] },
+          { kind: 'f4scene', subj: rest[1] }
+        ];
+        var ansA = optsA[0];
+        shuffle(optsA);
+        q = {
+          type: 'F4A', sig: 'A:' + tgt, subj: tgt,
+          options: optsA, correct: optsA.indexOf(ansA),
+          audio: ['l4w4_a_' + F4_SCENES[tgt].key]
+        };
+      } else if (type === 1) {
+        // 题型 B：说出的句子与画面「有时对、有时不对」，✅ / ❌ 交替出现，不靠运气
+        var claim = F4_POOL[randInt(0, F4_POOL.length - 1)];
+        state.f4Flip = !state.f4Flip;
+        var truth = state.f4Flip;
+        var pic = claim;
+        if (!truth) {
+          var cand = F4_POOL.filter(function (s) { return s !== claim; });
+          pic = cand[randInt(0, cand.length - 1)];
+        }
+        var optsB = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
+        q = {
+          type: 'F4B', sig: 'B:' + claim + ':' + pic, claim: claim, pic: pic, truth: truth,
+          options: optsB, correct: optsB[0].val === truth ? 0 : 1,
+          audio: ['l4w4_b_' + F4_SCENES[claim].key, 'yesno']
+        };
+      } else {
+        // 干扰项必须来自「另一个动作」：所以「动作对 + 筐对」两个条件同时成立才算对
+        var ct = F4_C_ITEMS[randInt(0, F4_C_ITEMS.length - 1)];
+        var cz = F4_ZONE_OF[ct];
+        var pool2 = F4_C_ITEMS.filter(function (s) { return F4_ZONE_OF[s] !== cz; });
+        var other = pool2[randInt(0, pool2.length - 1)];
+        var optsC = [{ kind: 'f4scene', subj: ct }, { kind: 'f4scene', subj: other }];
+        var ansC = optsC[0];
+        shuffle(optsC);
+        q = {
+          type: 'F4C', sig: 'C:' + cz + ':' + ct, subj: ct, zone: cz,
+          options: optsC, correct: optsC.indexOf(ansC),
+          audio: ['l4w4_c_' + F4_SCENES[ct].key]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /** 题型 C 判定：点名的场景 + 落进对应的筐，两个条件都满足才算对 */
+  function resolveF4C(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'F4C') return;
+    var drop = target && target.dataset ? target.dataset.drop : '';
+    var ok = drop === 'f4' + q.zone && itemIdx === q.correct;
+    judge(ok, ok ? target : optionEls[itemIdx]);
+  }
+
+  /* 教学（custom 分支）：16 个环节 + 过渡语，收尾仍走 tutFinish() */
+  var runF4Tutorial = (function () {
+    function blank(me) {
+      me.ask = null;
+      me.hintTarget = null;
+      me.hintFrom = null;
+      me.hintTo = null;
+      me.hintToY = 0.5;
+      me.replay = null;
+      clearHint();
+    }
+    function stage(me) {
+      blank(me);
+      askDisplay.innerHTML = '';
+      ensureF4Css();
+      var w = document.createElement('div');
+      w.className = 'f4-stage';
+      askDisplay.appendChild(w);
+      return w;
+    }
+    /** 演示 A：一整幅场景（主体 + 背景），靠动作装饰与动画让句子"看得见" */
+    function one(me, subj) {
+      var wrap = stage(me);
+      var c = f4SceneNode(subj, 'f4-big');
+      wrap.appendChild(c);
+      return { entries: [{ key: subj, el: c }] };
+    }
+    /** 演示 B：同一场景拉近（换视觉），配合句式变化（换句子） */
+    function zoom(me, subj) {
+      var wrap = stage(me);
+      var c = f4SceneNode(subj, 'f4-big f4-zoom');
+      wrap.appendChild(c);
+      return { entries: [{ key: subj, el: c }] };
+    }
+    /** 互动 A：二选一（目标 + 一个易混项） */
+    function pair2(me, a, b) {
+      var wrap = stage(me);
+      var pair = document.createElement('div');
+      pair.className = 'f4-pair';
+      var entries = [];
+      shuffle([a, b]).forEach(function (k) {
+        var c = f4SceneNode(k);
+        pair.appendChild(c);
+        entries.push({ key: k, el: c });
+      });
+      wrap.appendChild(pair);
+      return { entries: entries };
+    }
+    /** 互动 B：三 / 四选一宫格 */
+    function many(me, list) {
+      var wrap = stage(me);
+      var g = document.createElement('div');
+      g.className = 'f4-grid';
+      g.dataset.n = String(list.length);
+      g.setAttribute('aria-label', '句子图片');
+      wrap.appendChild(g);
+      var entries = [];
+      shuffle(list).forEach(function (k) {
+        var c = f4SceneNode(k);
+        g.appendChild(c);
+        entries.push({ key: k, el: c });
+      });
+      return { entries: entries };
+    }
+    /** 对错判断：一幅画面 + 两个内联 SVG 按钮（✅ / ❌，绝不用 emoji 字符） */
+    function ynStage(me, subj) {
+      var wrap = stage(me);
+      var card = f4SceneNode(subj, 'f4-big');
+      wrap.appendChild(card);
+      var bar = document.createElement('div');
+      bar.className = 'f4-yn';
+      wrap.appendChild(bar);
+      var btns = [];
+      shuffle([true, false]).forEach(function (v) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'f4-yn-btn';
+        b.dataset.val = v ? '1' : '0';
+        b.setAttribute('aria-label', v ? '对' : '不对');
+        b.appendChild(yesNoNode(v));
+        bar.appendChild(b);
+        btns.push(b);
+      });
+      return { entries: [{ key: subj, el: card }], btns: btns };
+    }
+
+    var ACTS = [
+      // 狗在跑：2 次演示 + 2 次互动
+      { type: 'demo', build: function (me) { return one(me, 'dog_run'); },
+        hi: 'dog_run', word: 'l4w4_t_dog1' },
+      { type: 'demo', build: function (me) { return zoom(me, 'dog_run'); },
+        hi: 'dog_run', word: 'l4w4_t_dog2' },
+      { type: 'ask',  build: function (me) { return pair2(me, 'dog_run', 'dog_sleep'); },
+        ans: 'dog_run', word: 'l4w4_t_dog3' },
+      { type: 'ask',  build: function (me) { return many(me, ['dog_run', 'cat_sleep', 'horse_run']); },
+        ans: 'dog_run', word: 'l4w4_t_dog4' },
+      // 猫在睡
+      { type: 'demo', build: function (me) { return one(me, 'cat_sleep'); },
+        hi: 'cat_sleep', word: 'l4w4_t_cat1' },
+      { type: 'demo', build: function (me) { return zoom(me, 'cat_sleep'); },
+        hi: 'cat_sleep', word: 'l4w4_t_cat2' },
+      { type: 'ask',  build: function (me) { return pair2(me, 'cat_sleep', 'dog_eat'); },
+        ans: 'cat_sleep', word: 'l4w4_t_cat3' },
+      { type: 'ask',  build: function (me) { return many(me, ['cat_sleep', 'horse_run', 'monkey_eat']); },
+        ans: 'cat_sleep', word: 'l4w4_t_cat4' },
+      // 猴子在吃
+      { type: 'demo', build: function (me) { return one(me, 'monkey_eat'); },
+        hi: 'monkey_eat', word: 'l4w4_t_mon1' },
+      { type: 'demo', build: function (me) { return zoom(me, 'monkey_eat'); },
+        hi: 'monkey_eat', word: 'l4w4_t_mon2' },
+      { type: 'ask',  build: function (me) { return pair2(me, 'monkey_eat', 'bear_sleep'); },
+        ans: 'monkey_eat', word: 'l4w4_t_mon3' },
+      { type: 'ask',  build: function (me) { return many(me, ['monkey_eat', 'dog_run', 'horse_run']); },
+        ans: 'monkey_eat', word: 'l4w4_t_mon4' },
+      // 综合互动：三幅场景里挑出一句
+      { type: 'ask',  build: function (me) { return many(me, ['dog_run', 'cat_sleep', 'monkey_eat']); },
+        ans: 'monkey_eat', word: 'l4w4_t_show' },
+      // 题型 B 的新交互（✅ / ❌）先由"老师"示范一次判断
+      { type: 'yn',   build: function (me) { return ynStage(me, 'horse_run'); },
+        ans: false, auto: true, word: 'l4w4_t_yn1' },
+      // 再让孩子自己判一次
+      { type: 'yn',   build: function (me) { return ynStage(me, 'cat_sleep'); },
+        ans: true, word: 'l4w4_t_yn2' },
+      // 过渡语（自带，不再叠 t_ready）
+      { type: 'outro', build: function (me) {
+          return many(me, ['dog_run', 'cat_sleep', 'monkey_eat', 'horse_run']);
+        }, word: 'l4w4_t_done' }
+    ];
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var built = act.build(me);
+
+      if (act.type === 'outro') {
+        me.replay = function () { say([act.word]); };
+        built.entries.forEach(function (e) { e.el.classList.add('f4-glow'); });
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          tutFinish(me, false);
+        });
+        return;
+      }
+
+      if (act.type === 'demo') {
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          built.entries.forEach(function (e) {
+            if (!act.hi || e.key === act.hi) e.el.classList.add('f4-glow');
+          });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+        });
+        return;
+      }
+
+      if (act.type === 'yn') {
+        me.replay = function () { say([act.word]); };
+        var rightBtn = null;
+        built.btns.forEach(function (b) {
+          if ((b.dataset.val === '1') === act.ans) rightBtn = b;
+        });
+        if (act.auto) {
+          // 示范：先说完，再把正确答案点亮，停 1.8 秒进入下一步
+          say([act.word], function () {
+            if (state.tut !== me) return;
+            if (rightBtn) rightBtn.classList.add('f4-yn-right', 'f4-glow');
+            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1800);
+          });
+          return;
+        }
+        me.ask = act.ans ? 'yes' : 'no';
+        me.hintTarget = rightBtn;
+        say([act.word]);
+        armHint();
+        built.btns.forEach(function (b) {
+          b.addEventListener('click', function () {
+            if (state.tut !== me || !me.ask) return;
+            if ((b.dataset.val === '1') === act.ans) {
+              clearHint();
+              coin();
+              ting();
+              me.ask = null;
+              b.classList.add('f4-yn-right');
+              setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 900);
+            } else {
+              b.classList.add('f4-shake');
+              setTimeout(function () { b.classList.remove('f4-shake'); }, 520);
+              say(['again']);
+              armHint();
+            }
+          });
+        });
+        return;
+      }
+
+      // 互动：点对才推进；点错抖一下 + 温柔鼓励；4 秒无操作弹小手指（RULES §二.12）
+      var ansEl = null;
+      built.entries.forEach(function (e) { if (e.key === act.ans) ansEl = e; });
+      me.ask = act.ans;
+      me.hintTarget = ansEl ? ansEl.el : null;
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+      built.entries.forEach(function (entry) {
+        entry.el.addEventListener('click', function () {
+          if (state.tut !== me || !me.ask) return;
+          if (entry.key === me.ask) {
+            clearHint();
+            coin();
+            ting();
+            me.ask = null;
+            entry.el.classList.add('f4-right');
+            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 900);
+          } else {
+            entry.el.classList.add('f4-shake');
+            setTimeout(function () { entry.el.classList.remove('f4-shake'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+      });
+    }
+
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
 
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
@@ -8584,6 +9225,11 @@
     /* ---- 第 4 岛第 3 关：动词（A/B 用宫格，C 用在跑 / 在睡两个筐） ---- */
     if (q.type === 'F3A' || q.type === 'F3B') { optionsBar.classList.add('gone'); return; }
     if (q.type === 'F3C') { renderF3Zones(q); return; }
+
+    /* ---- 第 4 岛第 4 关：动物 + 动作短句（A 用场景宫格，B 用单幅画面 + ✅/❌，C 用在跑 / 在睡两个筐） ---- */
+    if (q.type === 'F4A') { optionsBar.classList.add('gone'); return; }
+    if (q.type === 'F4B') { renderF4Picture(q); return; }
+    if (q.type === 'F4C') { renderF4Zones(q); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -8939,6 +9585,7 @@
     if (q.type === 'F1A' || q.type === 'F1B') { renderF1Grid(q); return; }
     if (q.type === 'F2A' || q.type === 'F2B') { renderF2Grid(q); return; }
     if (q.type === 'F3A' || q.type === 'F3B') { renderF3Grid(q); return; }
+    if (q.type === 'F4A') { renderF4Grid(q); return; }   // F4B 走公共的对错按钮，不需要单独分支
     optionEls.forEach(function (btn, i) {
       removeDecor(btn);
       btn.className = 'option';
@@ -9112,6 +9759,10 @@
         btn.classList.add('f2-opt');
         var f2a = f2Img(opt.animal, 'f2-opt-img');
         if (f2a) slot.appendChild(f2a);
+      } else if (opt.kind === 'f4scene') {
+        // 第 4 岛第 4 关题型 C：可拖进「在跑 / 在睡」筐的整幅场景
+        btn.classList.add('f4-opt');
+        slot.appendChild(f4SceneNode(opt.subj));
       } else if (opt.kind === 'f3act') {
         // 第 4 岛第 3 关题型 C：可拖进「在跑 / 在睡」筐的动作画面
         btn.classList.add('f3-opt');
@@ -9188,6 +9839,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'F3C') {
         // 第 4 岛第 3 关题型 C：动作画面可拖进「在跑 / 在睡」筐
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'F4C') {
+        // 第 4 岛第 4 关题型 C：整幅场景可拖进「在跑 / 在睡」筐
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -9313,6 +9969,12 @@
       if (q.type === 'F1C') f1PlaceInFarm(q.animal);
       if (q.type === 'F2C') f2PlaceInZone(q.animal, q.zone);
       if (q.type === 'F3C') f3PlaceInZone(q.subj, q.zone);
+      if (q.type === 'F4C') f4PlaceInZone(q.subj, q.zone);
+      // 第 4 岛第 4 关题型 B：判对时让画面里的动物欢呼一下（视觉反馈，仍不播语音）
+      if (q.type === 'F4B') {
+        var f4pic = document.getElementById('f4-pic');
+        if (f4pic) f4pic.classList.add('f4-cheer');
+      }
 
       // 必须先捕获索引：430ms 后 state.roundIndex 会自增，
       // 动画回调若晚于推进执行就会点亮错位/丢失（第 12 轮尤其明显）
@@ -9494,6 +10156,8 @@
         resolveF2C(d.idx, target);
       } else if (d.mode === 'F3C') {
         resolveF3C(d.idx, target);
+      } else if (d.mode === 'F4C') {
+        resolveF4C(d.idx, target);
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
@@ -10349,6 +11013,13 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '4-4': {
+      // 动物 + 动作短句（RULES §三.10 双倍量）：3 个句型 × 4 环节 + 综合 + 对错示范 2 步 + 过渡语 = 16 环节
+      custom: runF4Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -10572,7 +11243,8 @@
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
-        q.type === 'F1C' || q.type === 'F2C' || q.type === 'F3C') return q.type;
+        q.type === 'F1C' || q.type === 'F2C' || q.type === 'F3C' ||
+        q.type === 'F4C') return q.type;
     return null;
   }
 
@@ -10865,6 +11537,12 @@
         return;
       }
 
+      // 第 4 岛第 4 关题型 C：点场景选中，再点「在跑 / 在睡」筐投放
+      if (q.type === 'F4C') {
+        tapFruit(idx, btn);
+        return;
+      }
+
       // 第 5 关题型 B：先点水果选中，再点篮子投放
       if (q.type === 'W5B') {
         if (state.pickedFruit === null) return;
@@ -11131,6 +11809,8 @@
           desc: q.desc || null,
           act: q.act || null,
           subj: q.subj || null,
+          pic: q.pic || null,
+          claim: q.claim || null,
           audio: q.audio[0],
           audios: q.audio.slice(),
           tray: q.tray ? q.tray.map(function (t) { return t.color.id + ':' + t.fruit.id; }) : null,
@@ -11151,6 +11831,7 @@
             if (o.kind === 'f1animal') return o.animal;
             if (o.kind === 'f2animal') return o.animal;
             if (o.kind === 'f3act') return o.subj;
+            if (o.kind === 'f4scene') return o.subj;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
             if (o.color) return o.color.id;

@@ -567,6 +567,55 @@ add("l4w3_c_dog_run", "Put the running dog in the running box.", "en", -10, EN_A
 add("l4w3_c_boy_sleep", "Put the sleeping boy in the sleeping box.", "en", -10, EN_ASK)
 add("l4w3_c_cat_sleep", "Put the sleeping cat in the sleeping box.", "en", -10, EN_ASK)
 
+# ---- 第 4 岛第 4 关（L4-W4 动物 + 动作短句）：32 条 ----
+# 教学按 RULES §三.10 双倍量：3 个句型 ×（2 演示 + 2 互动）+ 1 综合 + 对错题示范/互动 2 步 + 过渡语。
+# 演示 A = 整幅场景 + 整句；演示 B = 同一场景拉近 + 换一个句式（地点 / 细节），两次不重样。
+add("l4w4_t_dog1", "Look! The dog is running.", "en", -8, EN_ANIMAL)
+add("l4w4_t_dog2", "The dog is running fast!", "en", -8, EN_ANIMAL)
+add("l4w4_t_dog3", "Touch the picture: the dog is running.", "en", -10, EN_ASK)
+add("l4w4_t_dog4", "Which dog is running? Touch it.", "en", -10, EN_ASK)
+
+add("l4w4_t_cat1", "Look! The cat is sleeping.", "en", -8, EN_ANIMAL)
+add("l4w4_t_cat2", "The cat is sleeping on the sofa.", "en", -8, EN_ANIMAL)
+add("l4w4_t_cat3", "Find the cat that is sleeping.", "en", -10, EN_ASK)
+add("l4w4_t_cat4", "Where is the sleeping cat?", "en", -10, EN_ASK)
+
+add("l4w4_t_mon1", "Look! The monkey is eating.", "en", -8, EN_ANIMAL)
+add("l4w4_t_mon2", "The monkey is eating a banana.", "en", -8, EN_ANIMAL)
+add("l4w4_t_mon3", "Find the monkey that is eating.", "en", -10, EN_ASK)
+add("l4w4_t_mon4", "Who is eating a banana? Touch it.", "en", -10, EN_ASK)
+
+# 综合互动 + 对错题（✅ / ❌）的示范与互动 + 过渡语
+add("l4w4_t_show", "Show me: the monkey is eating.", "en", -10, EN_ASK)
+add("l4w4_t_yn1", "Look at the picture. Is the dog running? No, the horse is running.",
+    "en", -8, EN_ANIMAL)
+add("l4w4_t_yn2", "Look at the picture. Is the cat sleeping? Yes, the cat is sleeping.",
+    "en", -8, EN_ANIMAL)
+add("l4w4_t_done", "You know all the sentences! Let's play!", "en", -8, EN_PRAISE)
+
+# 题型 A：听长句找整幅场景（6 条）
+add("l4w4_a_dog", "The dog is running. Find the running dog.", "en", -10, EN_ASK)
+add("l4w4_a_cat", "The cat is sleeping. Find the sleeping cat.", "en", -10, EN_ASK)
+add("l4w4_a_monkey", "The monkey is eating. Find the eating monkey.", "en", -10, EN_ASK)
+add("l4w4_a_horse", "The horse is running. Find the running horse.", "en", -10, EN_ASK)
+add("l4w4_a_pig", "The pig is sleeping. Find the sleeping pig.", "en", -10, EN_ASK)
+add("l4w4_a_bear", "The bear is eating. Find the eating bear.", "en", -10, EN_ASK)
+
+# 题型 B：看图判断句子对不对（6 条，句尾统一接已有的 yesno「Yes or No?」）
+add("l4w4_b_dog", "Look at the picture. Is the dog running?", "en", -10, EN_ASK)
+add("l4w4_b_cat", "Look at the picture. Is the cat sleeping?", "en", -10, EN_ASK)
+add("l4w4_b_monkey", "Look at the picture. Is the monkey eating?", "en", -10, EN_ASK)
+add("l4w4_b_horse", "Look at the picture. Is the horse running?", "en", -10, EN_ASK)
+add("l4w4_b_pig", "Look at the picture. Is the pig sleeping?", "en", -10, EN_ASK)
+add("l4w4_b_bear", "Look at the picture. Is the bear eating?", "en", -10, EN_ASK)
+
+# 题型 C：把整幅场景拖进「在跑 / 在睡」两个筐（4 条）
+# 用「dog that is running」而不是第 3 关的「running dog」，既复现本关的短句结构，也避免语音文本重复（§1.12）
+add("l4w4_c_dog", "Put the dog that is running in the running box.", "en", -10, EN_ASK)
+add("l4w4_c_cat", "Put the cat that is sleeping in the sleeping box.", "en", -10, EN_ASK)
+add("l4w4_c_horse", "Put the horse that is running in the running box.", "en", -10, EN_ASK)
+add("l4w4_c_pig", "Put the pig that is sleeping in the sleeping box.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

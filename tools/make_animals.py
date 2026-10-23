@@ -47,6 +47,8 @@ ANIMALS = {
     "frog": "Frog/3D/frog_3d.png",
     "bear": "Bear/3D/bear_3d.png",
     "bird": "Bird/3D/bird_3d.png",
+    # 第 4 岛第 4 关（动物 + 动作短句）：在跑的马（其余动物全部复用上面的图）
+    "horse": "Horse/3D/horse_3d.png",
 }
 
 
