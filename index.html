@@ -1524,6 +1524,48 @@
     cursor: pointer;
   }
 
+  /* ===================== 开发者测试后门（RULES §五.10） ===================== */
+  /* 地图页左上角隐形连点区：连点 5 次弹出暗号框（该角落本就是空白，不影响任何按钮） */
+  .dev-trigger {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 64px;
+    height: 64px;
+    z-index: 6;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 测试模式角标：贴在页面右边缘中点，点它立即退出沙盒、恢复真实进度 */
+  .dev-badge {
+    position: fixed;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 70;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .95);
+    background: rgba(255, 249, 240, .93);
+    box-shadow: 0 6px 14px rgba(120, 96, 70, .28);
+    font-size: 19px;
+    line-height: 1;
+    cursor: pointer;
+    animation: dev-breathe 1.8s ease-in-out infinite;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @keyframes dev-breathe {
+    0%, 100% { box-shadow: 0 6px 14px rgba(120, 96, 70, .28); }
+    50% { box-shadow: 0 6px 22px rgba(233, 161, 59, .6); }
+  }
+
+  /* 暗号输错：卡片抖一下 */
+  .sheet-card.shake { animation: shake .52s ease; }
+
   .star-total {
     margin-top: -2px;
     margin-bottom: 2px;
@@ -2565,6 +2607,7 @@
     <div class="screen-title">英语启蒙乐园</div>
     <div id="starTotal" class="star-total" hidden></div>
     <div id="islandGrid" class="island-grid"></div>
+    <div id="devTrigger" class="dev-trigger" aria-hidden="true"></div>
   </section>
 
   <section id="screenIsland" class="screen" hidden>
@@ -2609,6 +2652,19 @@
     </div>
     <button id="cloudGetToken" class="sheet-link" type="button">还没有令牌？点这里生成（需登录你自己的账号）</button>
     <p class="sheet-note">令牌只保存在本机浏览器，不会写进网页或代码仓库。两台设备粘同一个令牌就共用一份存档；填好一次之后，每次通关自动上传、每次打开自动拉取，全程静默。</p>
+  </div>
+</div>
+<div id="devBadge" class="dev-badge" hidden role="button" aria-label="退出测试模式">🛠️</div>
+<div id="devSheet" class="sheet" hidden>
+  <div class="sheet-card" id="devCard">
+    <div class="sheet-title">输入暗号</div>
+    <input id="devPass" class="sheet-input" type="password" inputmode="numeric"
+           autocomplete="off" spellcheck="false" placeholder="暗号">
+    <div id="devStatus" class="sheet-status"></div>
+    <div class="sheet-actions">
+      <button id="devOk" class="sheet-btn primary" type="button">确定</button>
+      <button id="devCancel" class="sheet-btn" type="button">取消</button>
+    </div>
   </div>
 </div>
 <div id="toast" class="toast" hidden></div>
@@ -5688,7 +5744,132 @@ window.VOICE_BANK = {
   }
 
   function saveProgress() {
+    if (dev.active) return;   // 沙盒测试模式：临时解锁绝不落盘（RULES §五.10）
     try { localStorage.setItem(STORE_KEY, JSON.stringify(progress)); } catch (e) { /* 忽略 */ }
+  }
+
+  /* ---------------- 开发者测试后门（沙盒模式，RULES §五.10） ----------------
+     地图页左上角连点 5 次 → 输入暗号 123 → 进入沙盒测试模式：
+       · 立刻切断与云端 Gist 的一切同步（拉取 / 推送 / 连接全部禁止）
+       · 内存态临时「全解锁」，方便试玩尚未开发的关卡
+       · 页面右边缘出现 🛠️ 角标
+     铁律：沙盒里的临时解锁**绝不写 localStorage、绝不写云端**；
+     刷新 / 重开网页 / 点 🛠️ 角标 → 立即销毁临时状态，恢复真实进度并重新拉取云端。
+  */
+  var DEV_PASS = '123';
+  var DEV_CLICK_NEED = 5;
+  var DEV_CLICK_WINDOW = 1600;      // 连点判定窗口（ms），两次点击间隔超时则重新计数
+
+  var dev = { active: false, backup: null, clicks: 0, lastAt: 0 };
+
+  var devTrigger = document.getElementById('devTrigger');
+  var devBadge = document.getElementById('devBadge');
+  var devSheet = document.getElementById('devSheet');
+  var devCard = document.getElementById('devCard');
+  var devPass = document.getElementById('devPass');
+  var devStatus = document.getElementById('devStatus');
+  var devOk = document.getElementById('devOk');
+  var devCancel = document.getElementById('devCancel');
+
+  function showDevBadge(on) {
+    if (devBadge) devBadge.hidden = !on;
+  }
+
+  /** 进入沙盒：快照真实进度 → 切断同步 → 内存态全解锁（不落盘、不同步） */
+  function devEnter() {
+    if (dev.active) return;
+    dev.backup = JSON.parse(JSON.stringify(progress));   // 真实进度快照（仅内存）
+    clearTimeout(cloud.timer); cloud.timer = 0;          // 取消任何待执行的推送
+    clearInterval(cloudPoll); cloudPoll = 0;             // 停掉 60 秒静默轮询
+    dev.active = true;
+    progress.unlockedIsland = ISLANDS.length;
+    for (var i = 1; i <= ISLANDS.length; i++) {
+      progress.unlockedLevel[i] = LEVELS_PER_ISLAND;
+    }
+    renderMap();
+    if (view === 'island') renderIsland();
+    showDevBadge(true);
+    toast('测试模式已开启，云端同步已暂停');
+  }
+
+  /** 退出沙盒：销毁临时解锁 → 恢复真实进度 → 重新拉取云端合并 */
+  function devExit() {
+    if (!dev.active) return;
+    dev.active = false;
+    showDevBadge(false);
+    if (dev.backup) {
+      progress = normalizeProgress(dev.backup);          // 恢复进入前的真实进度
+      dev.backup = null;
+    }
+    saveProgress();                                      // 落盘的一定是真实进度
+    if (view === 'level') { stop(); enterIsland(currentIsland); }   // 沙盒内那局游玩直接丢弃
+    else { renderMap(); if (view === 'island') renderIsland(); }
+    if (cloud.token && cloud.gistId) {
+      cloudPull();                                       // 重新拉取云端真实存档（最高进度优先合并）
+      cloudStartSilent();
+    }
+    toast('已退出测试模式，进度已恢复');
+  }
+
+  function openDevSheet() {
+    dev.clicks = 0;
+    if (!devSheet) return;
+    devSheet.hidden = false;
+    if (devStatus) { devStatus.textContent = ''; devStatus.classList.remove('bad'); }
+    if (devPass) {
+      devPass.value = '';
+      setTimeout(function () { try { devPass.focus(); } catch (e) { /* 忽略 */ } }, 60);
+    }
+  }
+
+  function closeDevSheet() {
+    if (devSheet) devSheet.hidden = true;
+  }
+
+  function shakeDevCard() {
+    if (!devCard) return;
+    devCard.classList.remove('shake');
+    void devCard.offsetWidth;
+    devCard.classList.add('shake');
+    setTimeout(function () { devCard.classList.remove('shake'); }, 560);
+  }
+
+  function submitDevPass() {
+    var v = devPass ? String(devPass.value).trim() : '';
+    if (v === DEV_PASS) {
+      closeDevSheet();
+      if (dev.active) { toast('已在测试模式中'); return; }
+      devEnter();
+      return;
+    }
+    shakeDevCard();
+    if (devStatus) {
+      devStatus.textContent = '暗号不对，再试一次';
+      devStatus.classList.add('bad');
+    }
+    if (devPass) devPass.value = '';
+  }
+
+  if (devTrigger) {
+    devTrigger.addEventListener('click', function () {
+      var now = Date.now();
+      dev.clicks = (now - dev.lastAt <= DEV_CLICK_WINDOW) ? dev.clicks + 1 : 1;
+      dev.lastAt = now;
+      if (dev.clicks >= DEV_CLICK_NEED) openDevSheet();
+    });
+  }
+  if (devBadge) devBadge.addEventListener('click', devExit);
+  if (devOk) devOk.addEventListener('click', submitDevPass);
+  if (devCancel) devCancel.addEventListener('click', closeDevSheet);
+  if (devPass) {
+    devPass.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && devOk) devOk.click();
+    });
+  }
+  if (devSheet) {
+    devSheet.addEventListener('click', function (e) {
+      if (e.target === devSheet) closeDevSheet();
+    });
   }
 
   /* ---------------- 云存档（私有 Gist + 本机令牌） ---------------- */
@@ -5862,6 +6043,7 @@ window.VOICE_BANK = {
 
   /** 拉取云端存档并与本地合并（云端是主，本地只作离线缓存） */
   function cloudPull() {
+    if (dev.active) return Promise.resolve(false);   // 沙盒测试模式：切断云端拉取（RULES §五.10）
     if (!cloud.token || !cloud.gistId) return Promise.resolve(false);
     cloudState('syncing');
     return cloudReadGist().then(function (remote) {
@@ -5897,6 +6079,7 @@ window.VOICE_BANK = {
    * 直接 PATCH 会出事——另一台设备刚打的进度会被这台旧数据整个盖掉。
    */
   function cloudPush() {
+    if (dev.active) return;                          // 沙盒测试模式：切断云端推送（RULES §五.10）
     if (!cloud.token || !cloud.gistId) return;
     if (cloud.busy) { cloudSchedulePush(); return; }
     cloud.busy = true;
@@ -5919,6 +6102,7 @@ window.VOICE_BANK = {
   }
 
   function cloudSchedulePush() {
+    if (dev.active) return;                          // 沙盒测试模式：不安排任何推送（RULES §五.10）
     if (!cloud.token || !cloud.gistId) return;
     clearTimeout(cloud.timer);
     cloud.timer = setTimeout(function () { cloudPush(); }, 500);
@@ -5926,6 +6110,10 @@ window.VOICE_BANK = {
 
   /** 用令牌连接云存档：先找同名私有 Gist，没有就建一个 */
   function cloudConnect(token) {
+    if (dev.active) {                                // 沙盒测试模式：禁止连接云端（RULES §五.10）
+      toast('测试模式中，云端同步已暂停');
+      return Promise.resolve(false);
+    }
     token = (token || '').trim();
     if (!token) { cloudState('off', '请先粘贴访问令牌'); return Promise.resolve(false); }
     cloud.token = token;
@@ -5980,6 +6168,7 @@ window.VOICE_BANK = {
      令牌未配置时整个引擎不启动（云按钮保持「未开启」的灰点）。
   */
   function cloudSilentPull() {
+    if (dev.active) return;                          // 沙盒测试模式：静默轮询也停（RULES §五.10）
     if (document.hidden) return;
     if (!cloud.token || !cloud.gistId || cloud.busy) return;
     cloudPull();
@@ -11234,7 +11423,9 @@ window.VOICE_BANK = {
     if (!cloudStatusEl) return;
     var text = '';
     var bad = false;
-    if (cloud.state === 'syncing') {
+    if (dev.active) {
+      text = '测试模式中，云端同步已暂停';
+    } else if (cloud.state === 'syncing') {
       text = '正在同步…';
     } else if (cloud.state === 'synced') {
       var t = cloud.lastSync
@@ -11278,6 +11469,7 @@ window.VOICE_BANK = {
     btnCloudConnect.addEventListener('click', function () {
       var v = cloudTokenInput ? cloudTokenInput.value : '';
       if (!v.trim() && cloud.token) {
+        if (dev.active) { toast('测试模式中，云端同步已暂停'); return; }
         cloudPull();
         return;
       }
@@ -11348,6 +11540,7 @@ window.VOICE_BANK = {
       } : null;
     },
     get progress() { return JSON.parse(JSON.stringify(progress)); },
+    get sandbox() { return dev.active; },
     openIsland: enterIsland,
     enterLevel: enterLevel,
     backToMap: function () { showScreen('map'); renderMap(); },
