@@ -30,7 +30,14 @@
   可躲开对方整体重排缩进造成的假冲突（实测 index.html 有 9000 行纯空白变更）。
 - 备用通道：**GitHub Git Data API**（`POST /git/blobs` → `/git/trees`（带 `base_tree`）→
   `/git/commits` → `PATCH /git/refs/heads/main`），认证用 `gh auth token`（账号 `kh4tzjsjfy-eng`）。
-- 注意 `RULES.md` §四提到的 `tools/push_via_api.py` **在仓库里并不存在**（历史遗留），以上面两条为准。
+- **2026-10-23 起该通道已有脚本**：`python tools/push_via_api.py "<提交说明>"`
+  （支持 `--dry-run`，只传远端 main 与本地 HEAD 的差异文件，自动带 `base_tree`）。
+  注意它在 `.gitignore` 里（历史上有意忽略），**只存在于本机、不在仓库**，换机器要重新放。
+- 何时用哪条：`git ls-remote` 能通就走普通 `fetch/rebase/push`（历史连续，最省事）；
+  只有 `github.com` 完全不通、而 `gh api` 正常时才用 `push_via_api.py`。
+- **副作用要记住**：API 推送会把本地若干提交压成**远端一个 commit**。此时「远端 tree == 本地 HEAD tree」
+  但历史不同，`git status` 会显示分叉。等 `github.com` 恢复后执行
+  `git fetch origin && git reset --hard origin/main` 对齐即可（内容一致，不会丢东西）。
 - **务必带 `base_tree`**：否则会把别人的新增文件整棵删掉。推送前先 `GET /git/ref/heads/main` 取当前 SHA。
 
 ### 1.2 部署与缓存
