@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>儿童英语启蒙游戏 · 美术资产审查台（全量 / 按关卡）</title>
+<title>儿童英语启蒙游戏 · 3-3（长/短）候选审核台 · 每图 3 选 1</title>
 <style>
   :root {
     --bg: #0f1115; --panel: #171a21; --card: #1e222b; --card-hover: #252a35;
@@ -16,7 +16,7 @@
   body {
     background: var(--bg); color: var(--text);
     font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
-    line-height: 1.5; padding-bottom: 96px;
+    line-height: 1.5; padding-bottom: 100px;
   }
   header {
     position: sticky; top: 0; z-index: 20;
@@ -28,38 +28,44 @@
   header p { margin: 0; font-size: 12.5px; color: var(--muted); }
   .note {
     margin: 12px 18px 0; padding: 10px 14px; border-radius: 10px;
-    background: rgba(255,107,107,.08); border: 1px solid rgba(255,107,107,.35);
-    font-size: 13px; color: #ffd0d0;
+    background: rgba(79,156,255,.08); border: 1px solid rgba(79,156,255,.35);
+    font-size: 13px; color: #cfe2ff;
   }
-  .note b { color: #ff9a9a; }
-  .matrix {
-    margin: 14px 18px 0; border: 1px solid var(--border); border-radius: 12px;
-    overflow: hidden; font-size: 12.5px;
+  .note b { color: #9cc4ff; }
+  .note .step { display: block; margin-top: 6px; color: #e8f1ff; }
+  .note .step span { color: var(--accent); font-weight: 700; }
+  .loader {
+    margin: 12px 18px 0; padding: 12px 14px; border-radius: 10px;
+    background: var(--panel); border: 1px solid var(--border); font-size: 13px;
   }
-  .matrix table { width: 100%; border-collapse: collapse; }
-  .matrix th, .matrix td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
-  .matrix th { background: var(--panel); color: var(--muted); font-weight: 600; }
-  .matrix tr:last-child td { border-bottom: none; }
-  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; }
-  .tag.yes { background: rgba(62,207,142,.15); color: var(--ok); }
-  .tag.no  { background: rgba(79,156,255,.15); color: var(--accent-2); }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 14px; }
+  .loader textarea {
+    width: 100%; min-height: 70px; resize: vertical; margin-top: 8px;
+    background: #0c0e12; color: #d6deea; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px;
+  }
+  .loader .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 14px; }
   section { margin-top: 26px; }
   .sec-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 4px 10px; }
   .sec-head h2 { font-size: 16px; margin: 0; }
   .sec-head .sub { font-size: 12.5px; color: var(--muted); }
-  .sec-head .cnt { font-size: 12px; color: var(--accent); }
-  .grid {
-    display: grid; gap: 14px;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  .block {
+    border: 1px solid var(--border); border-radius: 14px; background: var(--card);
+    padding: 14px; margin-bottom: 18px;
   }
-  .card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    padding: 12px; display: flex; flex-direction: column; gap: 8px;
-    transition: border-color .15s, background .15s;
+  .block.flagged { border-color: var(--fix); box-shadow: 0 0 0 1px var(--fix) inset; }
+  .bhead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .bhead .key { font-size: 13px; font-weight: 700; color: #dfe3ec; }
+  .bhead .key .bank { color: var(--accent); }
+  .bhead .tag { font-size: 11px; padding: 1px 8px; border-radius: 999px; background: rgba(255,107,107,.15); color: var(--fix); }
+  .compare {
+    display: grid; gap: 12px;
+    grid-template-columns: 130px repeat(3, minmax(120px, 1fr));
   }
-  .card:hover { background: var(--card-hover); }
-  .card.flagged { border-color: var(--fix); box-shadow: 0 0 0 1px var(--fix) inset; }
+  @media (max-width: 760px) { .compare { grid-template-columns: 1fr 1fr; } }
+  .cell { background: #161a22; border: 1px solid var(--border); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .cell .cap { font-size: 11.5px; color: var(--muted); }
+  .cell .cap b { color: var(--accent-2); }
   .art {
     height: 120px; border-radius: 10px; background:
       linear-gradient(45deg, #20242e 25%, transparent 25%) 0 0/16px 16px,
@@ -71,20 +77,10 @@
   }
   .art img { max-width: 92%; max-height: 92%; object-fit: contain; }
   .art svg { width: 84%; height: 84%; }
+  .art .emoji { font-size: 56px; line-height: 1; }
   .art .placeholder { color: var(--muted); font-size: 11px; text-align: center; padding: 6px; }
-  .key { font-size: 12px; font-weight: 600; word-break: break-all; color: #dfe3ec; }
-  .key .bank { color: var(--accent); }
-  .meta { font-size: 11px; color: var(--muted); }
-  .radios { display: flex; gap: 8px; }
-  .radios label {
-    flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
-    font-size: 12.5px; padding: 6px 4px; border-radius: 9px; cursor: pointer;
-    background: #161a22; border: 1px solid var(--border); user-select: none;
-  }
-  .radios label:hover { background: #1c212b; }
-  .radios input { accent-color: var(--accent); }
-  .radios label.fix-on { border-color: var(--fix); color: #ffc4c4; }
-  .radios label.ok-on { border-color: var(--ok); }
+  .pick { display: flex; align-items: center; gap: 6px; font-size: 12.5px; cursor: pointer; }
+  .pick input { accent-color: var(--accent); }
   .bar {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
     background: linear-gradient(180deg, #14171d, #0f1115);
@@ -92,7 +88,7 @@
     padding: 12px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   }
   .bar .grow { flex: 1; font-size: 13px; color: var(--muted); }
-  .bar .grow b { color: var(--fix); }
+  .bar .grow b { color: var(--accent); }
   button {
     font-family: inherit; font-size: 13.5px; padding: 9px 16px; border-radius: 10px;
     border: 1px solid var(--border); background: #1e222b; color: var(--text); cursor: pointer;
@@ -100,71 +96,51 @@
   button:hover { background: #262b36; }
   button.primary { background: var(--accent); color: #1a1205; border-color: var(--accent); font-weight: 700; }
   button.primary:hover { filter: brightness(1.06); }
-  .modal {
-    position: fixed; inset: 0; z-index: 50; display: none;
-    background: rgba(0,0,0,.6); padding: 24px; overflow: auto;
-  }
+  .modal { position: fixed; inset: 0; z-index: 50; display: none; background: rgba(0,0,0,.6); padding: 24px; overflow: auto; }
   .modal.show { display: block; }
-  .modal-box {
-    max-width: 760px; margin: 0 auto; background: var(--panel); border: 1px solid var(--border);
-    border-radius: 16px; padding: 20px; box-shadow: var(--shadow);
-  }
+  .modal-box { max-width: 760px; margin: 0 auto; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
   .modal-box h3 { margin: 0 0 12px; font-size: 16px; }
-  pre {
-    background: #0c0e12; border: 1px solid var(--border); border-radius: 10px;
-    padding: 14px; overflow: auto; font-size: 12px; line-height: 1.5; max-height: 50vh;
-    color: #d6deea;
-  }
+  pre { background: #0c0e12; border: 1px solid var(--border); border-radius: 10px; padding: 14px; overflow: auto; font-size: 12px; line-height: 1.5; max-height: 50vh; color: #d6deea; }
   .modal-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
-  .grp { font-size: 12.5px; color: var(--muted); margin: 10px 0 4px; }
-  .grp b { color: var(--text); }
-  .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+  .missing { color: var(--fix); font-size: 12px; }
 </style>
 </head>
 <body>
 <header>
-  <h1>美术资产审查台 · 全量覆盖（第一岛 1-1 → 第三岛 3-3）</h1>
-  <p>assets.js 位图 + index.html 内联 SVG 代码绘制图形，全部纳入审查。点击「生成反馈清单」仅导出标记为「需修改」的素材。</p>
+  <h1>第三岛 3-3（长 / 短）候选审核台 · 每图 3 选 1</h1>
+  <p>3-3 全部 20 张图（7 物体 × 长/短 + 3 动物 × 长/短）各提供 3 个新候选，供你勾选其一。</p>
 </header>
 
 <div class="note">
-  <b>更正说明：</b>上一版审查台只解析了 <code>assets.js</code> 的位图，漏掉了 <code>index.html</code> 里用代码现画的内联 SVG 图形——尤其第三岛 3-3（长/短）的小蛇、绳子、铅笔、面包等，全是在 JS 里画的，<b>不在 assets.js 中</b>。本版已把这些代码绘制图形全部提取并纳入，且按真实关卡（大小/多少/长短）正确映射。第二岛（形状/空间）同样 100% 是代码绘制，已补全。
+  <b>选完如何把反馈交给我（助理）：</b>
+  <span class="step"><span>①</span> 在下面每张图里，于【候选 A / B / C】中单选其一（或选「保持原图」）。</span>
+  <span class="step"><span>②</span> 滚到底部点「生成替换方案」，弹窗会显示一份 JSON。</span>
+  <span class="step"><span>③</span> 点弹窗里的「复制 JSON」（或「下载 .json」），把内容<b>粘贴回我们的对话</b>发给我即可。</span>
+  <span class="step"><span>④</span> 我收到这份 JSON 后，就会按你的选择去 assets.js / index.html 落地替换。你无需改任何代码。</span>
+</div>
+
+<div class="loader">
+  <div>粘贴其他清单（可选）：把 review.html 导出的反馈 JSON 粘到这里，点「载入我的清单」可切到对应素材。留空则默认显示 3-3 全套。</div>
+  <textarea id="pasteBox" placeholder='{"flagged_keys":["LS_OBJECT.snake.long","LS_ANIMAL.giraffe.short", ...]}'></textarea>
+  <div class="row">
+    <button id="btnLoad">载入我的清单</button>
+    <button id="btnReset">恢复 3-3 全套</button>
+    <span id="loadMsg" style="color:var(--muted);font-size:12px;"></span>
+  </div>
 </div>
 
 <div class="wrap">
-  <div class="matrix">
-    <table>
-      <thead>
-        <tr><th>关卡</th><th>活动</th><th>素材内容</th><th>来源</th><th>在 assets.js？</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>第一岛（数字与水果）</td><td>水果 / 数字</td><td>苹果·香蕉·草莓·葡萄·奖杯 + 数字0-9</td><td>FRUIT_IMG</td><td><span class="tag yes">是</span></td></tr>
-        <tr><td>第一岛（颜色配对）</td><td>颜色识别</td><td>红/蓝/黄/绿/灰的水果·气球·小车</td><td>COLOR_IMG</td><td><span class="tag yes">是</span></td></tr>
-        <tr><td>第二岛 2-1</td><td>基础形状</td><td>圆 / 正方形 / 三角形 / 长方形</td><td>代码SVG shapeSvg</td><td><span class="tag no">否</span></td></tr>
-        <tr><td>第二岛 2-2</td><td>生活物品</td><td>披萨(圆)·窗(方)·门(长方)·西瓜(三角)</td><td>代码SVG objectSvg</td><td><span class="tag no">否</span></td></tr>
-        <tr><td>第二岛 2-3</td><td>房子拼图</td><td>屋顶(三角)+墙(方)+窗(圆)+门(长方)</td><td>代码SVG houseSvg</td><td><span class="tag no">否</span></td></tr>
-        <tr><td>第二岛 2-4 / 2-5</td><td>空间 / 位置</td><td>复用上述形状与物品绘制</td><td>代码SVG</td><td><span class="tag no">否</span></td></tr>
-        <tr><td>第三岛 3-1</td><td>大 与 小</td><td>大象·老鼠·苹果（容器大小区分）</td><td>ANIMAL_IMG + FRUIT_IMG</td><td><span class="tag yes">是</span></td></tr>
-        <tr><td>第三岛 3-2</td><td>多 与 少</td><td>苹果·香蕉·草莓·葡萄（按数量摆放）</td><td>FRUIT_IMG</td><td><span class="tag yes">是</span></td></tr>
-        <tr><td>第三岛 3-3</td><td>长 与 短</td><td>蛇/绳/铅笔/面包/围巾/车/香蕉(长·短) + 长颈鹿/兔/乌龟</td><td>代码SVG lsObject/lsAnimal</td><td><span class="tag no">否</span></td></tr>
-        <tr><td>界面 / 图标</td><td>预览图 + PWA 图标</td><td>5 张预览图 + 5 张应用图标</td><td>assets/ 与 icons/ 文件</td><td><span class="tag yes">是(文件)</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-
   <div id="sections"></div>
 </div>
 
 <div class="bar">
-  <div class="grow">已标记「需修改」：<b id="flagCount">0</b> 项</div>
-  <button id="btnAllOk">全部标为满意</button>
-  <button id="btnAllFix">全部标为需修改</button>
-  <button id="btnGen" class="primary">生成反馈清单</button>
+  <div class="grow">已选替换：<b id="pickCount">0</b> 项（共 <span id="totalCount">0</span> 张 3-3 图）</div>
+  <button id="btnGen" class="primary">生成替换方案</button>
 </div>
 
 <div class="modal" id="modal">
   <div class="modal-box">
-    <h3>需修改的素材清单</h3>
+    <h3>最终替换方案（请复制后发回给助理）</h3>
     <div id="modalBody"></div>
     <div class="modal-actions">
       <button id="btnCopy">复制 JSON</button>
@@ -176,257 +152,175 @@
 
 <!-- 游戏原始数据：仅读取，绝不修改 -->
 <script src="assets.js"></script>
-<!-- 从 index.html 提取的代码绘制图形函数（只读副本，用于审查渲染，不参与游戏逻辑） -->
+<!-- 从 index.html 提取的代码绘制图形函数（只读副本，用于「原图」对照） -->
 <script src="visual_parts.js"></script>
+<!-- 3-3 全新插画生成器：3 套画风（萌趣卡通 / 清新扁平 / 温暖手绘） -->
+<script src="art33.js"></script>
 <script>
-/* ---------- 构建审查数据 ---------- */
-var SECTIONS = [];
+/* ============ 候选：3-3 全部 20 张，每张 3 套全新画风（art33.js） ============ */
+var CANDIDATES = {};
+if (typeof ART33 !== 'undefined') {
+  ART33.ALL33.forEach(function(key){
+    var cmp = ART33.parseKey(key).cmp;
+    CANDIDATES[key] = ART33.STYLE.map(function(st, i){
+      return {
+        label: String.fromCharCode(65+i) + ' · ' + st.name + ' · ' + (cmp==='long'?'长':'短'),
+        html: ART33.art33(key, i)
+      };
+    });
+  });
+}
 
-// 第一岛：数字与水果
-if (window.FRUIT_IMG) {
-  SECTIONS.push({
-    island: '第一岛 · 数字与水果', sub: 'FRUIT_IMG（贯穿 1-1 ~ 1-5）',
-    items: Object.keys(window.FRUIT_IMG).map(function (k) {
-      return { key: 'FRUIT_IMG.' + k, label: k, type: 'img', src: window.FRUIT_IMG[k] };
-    })
-  });
-}
-// 第一岛：颜色配对
-if (window.COLOR_IMG) {
-  SECTIONS.push({
-    island: '第一岛 · 颜色配对', sub: 'COLOR_IMG（颜色识别素材）',
-    items: Object.keys(window.COLOR_IMG).map(function (k) {
-      return { key: 'COLOR_IMG.' + k, label: k, type: 'img', src: window.COLOR_IMG[k] };
-    })
-  });
-}
-// 第二岛：形状与空间（代码绘制）
-var SHAPE_COLORS = ['#EA5A4F', '#F3B93E', '#4C8FE8', '#57B96B', '#B07CD8', '#F08CB0'];
-SECTIONS.push({
-  island: '第二岛 · 形状与空间', sub: '代码绘制 SVG（2-1 基础形状 / 2-4 / 2-5 复用）',
-  items: ['circle', 'square', 'triangle', 'rectangle'].map(function (id) {
-    return { key: 'SHAPE.' + id, label: id + '（' + ({circle:'圆形',square:'正方形',triangle:'三角形',rectangle:'长方形'})[id] + '）', type: 'shape', id: id, color: SHAPE_COLORS[0] };
-  })
-});
-SECTIONS.push({
-  island: '第二岛 · 生活物品', sub: '代码绘制 SVG（2-2）',
-  items: [
-    { key: 'OBJECT.pizza', label: 'pizza 披萨（圆）', type: 'object', id: 'circle', color: SHAPE_COLORS[0] },
-    { key: 'OBJECT.window', label: 'window 窗（方）', type: 'object', id: 'square', color: SHAPE_COLORS[0] },
-    { key: 'OBJECT.door', label: 'door 门（长方）', type: 'object', id: 'rectangle', color: SHAPE_COLORS[0] },
-    { key: 'OBJECT.watermelon', label: 'watermelon 西瓜（三角）', type: 'object', id: 'triangle', color: SHAPE_COLORS[0] }
-  ]
-});
-SECTIONS.push({
-  island: '第二岛 · 房子拼图', sub: '代码绘制 SVG（2-3，屋顶/墙/窗/门可点亮）',
-  items: [ { key: 'HOUSE.all', label: 'house 房子（三角+方+圆+长方）', type: 'house' } ]
-});
-// 第三岛 3-1 大与小
-if (window.ANIMAL_IMG) {
-  SECTIONS.push({
-    island: '第三岛 3-1 · 大与小', sub: 'ANIMAL_IMG + FRUIT_IMG（同素材靠容器大小区分）',
-    items: [
-      { key: 'ANIMAL_IMG.elephant', label: 'elephant 大象', type: 'img', src: window.ANIMAL_IMG.elephant },
-      { key: 'ANIMAL_IMG.mouse', label: 'mouse 老鼠', type: 'img', src: window.ANIMAL_IMG.mouse },
-      { key: 'ANIMAL_IMG.dog', label: 'dog 狗', type: 'img', src: window.ANIMAL_IMG.dog },
-      { key: 'ANIMAL_IMG.cat', label: 'cat 猫', type: 'img', src: window.ANIMAL_IMG.cat }
-    ]
-  });
-}
-// 第三岛 3-2 多/少
-if (window.FRUIT_IMG) {
-  SECTIONS.push({
-    island: '第三岛 3-2 · 多/少', sub: 'FRUIT_IMG 水果（按数量摆放于篮中）',
-    items: ['apple', 'banana', 'strawberry', 'grape'].map(function (k) {
-      return { key: 'FRUIT_IMG.' + k, label: k + '（数量对比）', type: 'img', src: window.FRUIT_IMG[k] };
-    })
-  });
-}
-// 第三岛 3-3 长/短（代码绘制 —— 含小蛇）
-var LS_OBJECTS = ['snake', 'rope', 'pencil', 'bread', 'scarf', 'car', 'banana'];
-var LS_ANIMALS = ['giraffe', 'rabbit', 'turtle'];
-var lsItems = [];
-LS_OBJECTS.forEach(function (o) {
-  ['long', 'short'].forEach(function (c) {
-    lsItems.push({ key: 'LS_OBJECT.' + o + '.' + c, label: o + ' ' + (c === 'long' ? '长' : '短'), type: 'lsobject', id: o, cmp: c });
-  });
-});
-LS_ANIMALS.forEach(function (a) {
-  ['long', 'short'].forEach(function (c) {
-    lsItems.push({ key: 'LS_ANIMAL.' + a + '.' + c, label: a + ' ' + (c === 'long' ? '长' : '短'), type: 'lsanimal', id: a, cmp: c });
-  });
-});
-SECTIONS.push({
-  island: '第三岛 3-3 · 长/短', sub: '代码绘制 SVG（lsObjectSVG / lsAnimalSVG，含小蛇 snake）',
-  items: lsItems
-});
+/* 默认展示 3-3 全套 20 张 */
+var DEMO_KEYS = Object.keys(CANDIDATES);
 
-// 界面与图标（仓库 assets/ 与 icons/ 文件，在线预览）
-var PREVIEWS = ['preview-map', 'preview-island', 'preview-level', 'preview-reward', 'preview-count'];
-SECTIONS.push({
-  island: '界面 / 图标', sub: 'assets/ 预览图 + 应用图标（文件，非 assets.js）',
-  items: PREVIEWS.map(function (p) {
-    return { key: 'PREVIEW.' + p, label: p + '.png', type: 'img', src: 'assets/' + p + '.png' };
-  }).concat([
-    { key: 'ICON.icon', label: 'icon.png', type: 'img', src: 'icon.png' },
-    { key: 'ICON.icon-72', label: 'icons/icon-72.png', type: 'img', src: 'icons/icon-72.png' },
-    { key: 'ICON.icon-96', label: 'icons/icon-96.png', type: 'img', src: 'icons/icon-96.png' },
-    { key: 'ICON.icon-128', label: 'icons/icon-128.png', type: 'img', src: 'icons/icon-128.png' },
-    { key: 'ICON.icon-192', label: 'icons/icon-192.png', type: 'img', src: 'icons/icon-192.png' }
-  ])
-});
-
-/* ---------- 渲染 ---------- */
-function renderArt(cell, item) {
-  if (item.type === 'img') {
-    var img = document.createElement('img');
-    img.src = item.src; img.alt = item.label;
-    img.onerror = function () {
-      cell.innerHTML = '<div class="placeholder">（图片需联网加载：<br>' + item.src + '）</div>';
-    };
-    cell.appendChild(img);
-  } else if (item.type === 'shape') {
-    cell.appendChild(vpShapeSvg(item.id, item.color));
-  } else if (item.type === 'object') {
-    cell.appendChild(vpObjectSvg(item.id, item.color));
-  } else if (item.type === 'house') {
-    cell.appendChild(vpHouseSvg());
-  } else if (item.type === 'lsobject') {
-    cell.innerHTML = vpLsObjectSvg(item.id, item.cmp);
-  } else if (item.type === 'lsanimal') {
-    cell.innerHTML = vpLsAnimalSvg(item.id);
+/* ============ 原图渲染（供对照） ============ */
+function originalHtml(key){
+  var parts = key.split('.');
+  var bank = parts[0];
+  if (bank === 'FRUIT_IMG' || bank === 'COLOR_IMG' || bank === 'ANIMAL_IMG') {
+    var id = parts.slice(1).join('.');
+    var src = (window[bank] && window[bank][id]) ? window[bank][id] : null;
+    return src ? '<img src="'+src+'" alt="'+key+'">' : '<div class="placeholder">原图缺失<br>'+key+'</div>';
   }
+  if (key === 'SHAPE.circle') return vpShapeSvg('circle','#EA5A4F').outerHTML;
+  if (key === 'OBJECT.pizza') return vpObjectSvg('circle','#EA5A4F').outerHTML;
+  if (key === 'HOUSE.all') return vpHouseSvg().outerHTML;
+  if (key.indexOf('LS_OBJECT.') === 0) { var p = key.split('.'); return vpLsObjectSvg(p[1], p[2]); }
+  if (key.indexOf('LS_ANIMAL.') === 0) { var q = key.split('.'); return vpLsAnimalSvg(q[1]); }
+  return '<div class="placeholder">未识别的原图类型<br>'+key+'</div>';
 }
 
-var flagged = {}; // key -> true
+/* ============ 渲染 ============ */
 var sectionsEl = document.getElementById('sections');
+var picks = {};   // key -> chosen candidate index (0..n) or 'orig'
 var total = 0;
 
-SECTIONS.forEach(function (sec, si) {
-  var secEl = document.createElement('section');
-  var head = document.createElement('div');
-  head.className = 'sec-head';
-  head.innerHTML = '<h2>' + sec.island + '</h2><span class="sub">' + sec.sub +
-    '</span><span class="cnt">' + sec.items.length + ' 张</span>';
-  secEl.appendChild(head);
+function buildPage(keys){
+  sectionsEl.innerHTML = '';
+  picks = {};
+  total = keys.length;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('pickCount').textContent = 0;
 
-  var grid = document.createElement('div');
-  grid.className = 'grid';
+  keys.forEach(function(key, idx){
+    var cands = CANDIDATES[key];
+    var block = document.createElement('div');
+    block.className = 'block' + (cands ? ' flagged' : '');
 
-  sec.items.forEach(function (item) {
-    total++;
-    var card = document.createElement('div');
-    card.className = 'card';
-    card.dataset.key = item.key;
+    var bhead = document.createElement('div');
+    bhead.className = 'bhead';
+    var keyHtml = '<span class="bank">'+key.split('.')[0]+'</span>.'+key.split('.').slice(1).join('.');
+    bhead.innerHTML = '<span class="key">'+keyHtml+'</span>' + (cands ? '<span class="tag">需替换 · 已备 3 候选</span>' : '<span class="tag" style="background:rgba(255,107,107,.15);color:#ff9a9a;">未备候选</span>');
+    block.appendChild(bhead);
 
-    var art = document.createElement('div');
-    art.className = 'art';
-    renderArt(art, item);
-    card.appendChild(art);
+    var compare = document.createElement('div');
+    compare.className = 'compare';
 
-    var keyEl = document.createElement('div');
-    keyEl.className = 'key';
-    keyEl.innerHTML = '<span class="bank">' + item.key.split('.')[0] + '</span>.' + item.key.split('.').slice(1).join('.');
-    card.appendChild(keyEl);
+    var origCell = document.createElement('div');
+    origCell.className = 'cell';
+    origCell.innerHTML = '<div class="cap"><b>原图</b>（对照）</div><div class="art">'+originalHtml(key)+'</div>';
+    var origPick = document.createElement('label');
+    origPick.className = 'pick';
+    origPick.innerHTML = '<input type="radio" name="p_'+idx+'" value="orig" checked> 保持原图';
+    origCell.appendChild(origPick);
+    compare.appendChild(origCell);
 
-    var meta = document.createElement('div');
-    meta.className = 'meta';
-    meta.textContent = item.label;
-    card.appendChild(meta);
+    if (!cands) {
+      var miss = document.createElement('div');
+      miss.className = 'cell';
+      miss.style.gridColumn = 'span 3';
+      miss.innerHTML = '<div class="placeholder missing">该 key 暂无预设候选。请补充具体替换需求，我会在正式版中补齐 3 个候选。</div>';
+      compare.appendChild(miss);
+    } else {
+      cands.forEach(function(c, ci){
+        var cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.innerHTML = '<div class="cap">候选 <b>'+String.fromCharCode(65+ci)+'</b> · '+c.label+'</div><div class="art">'+c.html+'</div>';
+        var pick = document.createElement('label');
+        pick.className = 'pick';
+        pick.innerHTML = '<input type="radio" name="p_'+idx+'" value="'+ci+'"> 选这个';
+        cell.appendChild(pick);
+        compare.appendChild(cell);
+      });
+    }
+    block.appendChild(compare);
 
-    var radios = document.createElement('div');
-    radios.className = 'radios';
-    radios.innerHTML =
-      '<label class="ok"><input type="radio" name="r_' + si + '_' + item.key + '" value="ok" checked> 满意</label>' +
-      '<label class="fix"><input type="radio" name="r_' + si + '_' + item.key + '" value="fix"> 需修改</label>';
-    card.appendChild(radios);
-
-    radios.querySelectorAll('input').forEach(function (inp) {
-      inp.addEventListener('change', function () {
-        var labOk = radios.querySelector('.ok');
-        var labFix = radios.querySelector('.fix');
-        labOk.classList.toggle('ok-on', inp.value === 'ok' && inp.checked);
-        labFix.classList.toggle('fix-on', inp.value === 'fix' && inp.checked);
-        card.classList.toggle('flagged', inp.value === 'fix' && inp.checked);
-        if (inp.value === 'fix' && inp.checked) flagged[item.key] = true;
-        else delete flagged[item.key];
+    block.querySelectorAll('input[type=radio]').forEach(function(inp){
+      inp.addEventListener('change', function(){
+        picks[key] = inp.value;
         updateCount();
       });
     });
 
-    grid.appendChild(card);
+    sectionsEl.appendChild(block);
   });
-
-  secEl.appendChild(grid);
-  sectionsEl.appendChild(secEl);
-});
-
-function updateCount() {
-  document.getElementById('flagCount').textContent = Object.keys(flagged).length;
+  updateCount();
 }
 
-document.getElementById('btnAllOk').addEventListener('click', function () {
-  document.querySelectorAll('.card').forEach(function (c) {
-    var ok = c.querySelector('input[value="ok"]');
-    if (ok) { ok.checked = true; ok.dispatchEvent(new Event('change')); }
-  });
+function updateCount(){
+  var n = 0;
+  Object.keys(picks).forEach(function(k){ if (picks[k] !== 'orig' && picks[k] !== undefined) n++; });
+  document.getElementById('pickCount').textContent = n;
+}
+
+/* ============ 载入 / 重置 ============ */
+document.getElementById('btnLoad').addEventListener('click', function(){
+  var txt = document.getElementById('pasteBox').value.trim();
+  if (!txt) { document.getElementById('loadMsg').textContent = '请先粘贴 JSON'; return; }
+  try {
+    var obj = JSON.parse(txt);
+    var keys = obj.flagged_keys || obj.keys || (obj.flagged_by_bank ? [].concat.apply([], Object.keys(obj.flagged_by_bank).map(function(b){return obj.flagged_by_bank[b];})) : null);
+    if (!keys || !keys.length) { document.getElementById('loadMsg').textContent = 'JSON 中未找到 flagged_keys'; return; }
+    buildPage(keys);
+    var withCand = keys.filter(function(k){return !!CANDIDATES[k];}).length;
+    document.getElementById('loadMsg').textContent = '已载入 '+keys.length+' 个 key，其中 '+withCand+' 个已有候选';
+  } catch(e){ document.getElementById('loadMsg').textContent = 'JSON 解析失败：'+e.message; }
 });
-document.getElementById('btnAllFix').addEventListener('click', function () {
-  document.querySelectorAll('.card').forEach(function (c) {
-    var fx = c.querySelector('input[value="fix"]');
-    if (fx) { fx.checked = true; fx.dispatchEvent(new Event('change')); }
-  });
+document.getElementById('btnReset').addEventListener('click', function(){
+  document.getElementById('pasteBox').value = '';
+  buildPage(DEMO_KEYS);
+  document.getElementById('loadMsg').textContent = '';
 });
 
-/* ---------- 生成反馈清单 ---------- */
-document.getElementById('btnGen').addEventListener('click', function () {
-  var keys = Object.keys(flagged);
-  var byBank = {};
-  var flat = [];
-  keys.forEach(function (k) {
-    var bank = k.split('.')[0];
-    (byBank[bank] = byBank[bank] || []).push(k);
-    flat.push(k);
+/* ============ 生成替换方案 ============ */
+document.getElementById('btnGen').addEventListener('click', function(){
+  var choices = {};
+  var summary = [];
+  Object.keys(picks).forEach(function(k){
+    var v = picks[k];
+    if (v === 'orig' || v === undefined) { choices[k] = { decision: 'keep_original' }; }
+    else {
+      var ci = parseInt(v, 10);
+      var c = CANDIDATES[k][ci];
+      choices[k] = { decision: 'replace', candidate: String.fromCharCode(65+ci), label: c.label };
+      summary.push(k + ' -> 候选 ' + String.fromCharCode(65+ci) + ' (' + c.label + ')');
+    }
   });
   var payload = {
-    _meta: {
-      total_reviewed: total,
-      flagged: keys.length,
-      scope: '第一岛1-1 ~ 第三岛3-3（含 assets.js 位图 与 index.html 内联 SVG 代码绘制图形）',
-      note: 'key 前缀说明：FRUIT_IMG/COLOR_IMG/ANIMAL_IMG=assets.js 位图；SHAPE/OBJECT/HOUSE=第二岛代码SVG；LS_OBJECT/LS_ANIMAL=第三岛3-3长/短代码SVG；PREVIEW/ICON=界面与图标文件'
-    },
-    flagged_by_bank: byBank,
-    flagged_keys: flat
+    _meta: { source: 'art-replacement-review-3-3', generated_at: new Date().toISOString(), total_flagged: total, replaced: summary.length },
+    choices: choices
   };
   var json = JSON.stringify(payload, null, 2);
   var body = document.getElementById('modalBody');
-  if (keys.length === 0) {
-    body.innerHTML = '<div class="empty">没有标记任何「需修改」的素材。请在卡片上勾选后重试。</div>';
-  } else {
-    var html = '';
-    Object.keys(byBank).forEach(function (b) {
-      html += '<div class="grp"><b>' + b + '</b> (' + byBank[b].length + ')</div>';
-      html += '<pre>' + byBank[b].join('\n') + '</pre>';
-    });
-    html += '<div class="grp">完整 JSON</div><pre id="jsonOut">' + json.replace(/</g, '&lt;') + '</pre>';
-    body.innerHTML = html;
-  }
+  var html = '';
+  if (summary.length === 0) html += '<div class="placeholder">所有素材均选择「保持原图」，无替换项。</div>';
+  else { html += '<div class="grp" style="font-size:12.5px;color:var(--muted);margin:6px 0;">已选替换（'+summary.length+'）：</div><pre>'+summary.join('\n')+'</pre>'; }
+  html += '<div class="grp" style="font-size:12.5px;color:var(--muted);margin:10px 0 4px;">完整 JSON（复制后发回给助理）</div><pre id="jsonOut">'+json.replace(/</g,'&lt;')+'</pre>';
+  body.innerHTML = html;
   document.getElementById('modal').classList.add('show');
   window.__lastJson = json;
 });
-
-document.getElementById('btnClose').addEventListener('click', function () {
-  document.getElementById('modal').classList.remove('show');
-});
-document.getElementById('btnCopy').addEventListener('click', function () {
-  if (window.__lastJson) navigator.clipboard.writeText(window.__lastJson);
-});
-document.getElementById('btnDownload').addEventListener('click', function () {
+document.getElementById('btnClose').addEventListener('click', function(){ document.getElementById('modal').classList.remove('show'); });
+document.getElementById('btnCopy').addEventListener('click', function(){ if (window.__lastJson) navigator.clipboard.writeText(window.__lastJson); });
+document.getElementById('btnDownload').addEventListener('click', function(){
   if (!window.__lastJson) return;
   var blob = new Blob([window.__lastJson], { type: 'application/json' });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'art-feedback.json'; a.click();
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'art-replacement-3-3.json'; a.click();
 });
+
+/* ============ 初始化 ============ */
+buildPage(DEMO_KEYS);
 </script>
 </body>
 </html>
