@@ -3,169 +3,119 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>儿童英语启蒙游戏 · 美术资产审查台</title>
+<title>儿童英语启蒙游戏 · 美术资产审查台（按关卡）</title>
 <style>
   :root {
-    --bg: #0f1115;
-    --panel: #171a21;
-    --card: #1e222b;
-    --card-hover: #252a35;
-    --border: #2c323d;
-    --text: #e8eaf0;
-    --muted: #98a0ad;
-    --accent: #ffb547;
-    --accent-2: #4f9cff;
-    --ok: #3ecf8e;
-    --fix: #ff6b6b;
+    --bg: #0f1115; --panel: #171a21; --card: #1e222b; --card-hover: #252a35;
+    --border: #2c323d; --text: #e8eaf0; --muted: #98a0ad;
+    --accent: #ffb547; --accent-2: #4f9cff; --ok: #3ecf8e; --fix: #ff6b6b;
     --shadow: 0 6px 20px rgba(0,0,0,.35);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    background: var(--bg);
-    color: var(--text);
+    background: var(--bg); color: var(--text);
     font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-    padding-bottom: 96px;
-    line-height: 1.5;
+    padding-bottom: 96px; line-height: 1.5;
   }
   header {
     position: sticky; top: 0; z-index: 20;
-    background: linear-gradient(180deg, rgba(15,17,21,.96), rgba(15,17,21,.86));
-    backdrop-filter: blur(6px);
-    border-bottom: 1px solid var(--border);
-    padding: 18px 24px 14px;
+    background: linear-gradient(180deg, rgba(15,17,21,.97), rgba(15,17,21,.88));
+    backdrop-filter: blur(6px); border-bottom: 1px solid var(--border);
+    padding: 16px 24px 12px;
   }
   header h1 { margin: 0; font-size: 20px; letter-spacing: .5px; }
   header .sub { color: var(--muted); font-size: 13px; margin-top: 6px; }
-  .stats { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; }
+  .stats { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
   .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; font-size: 13px; }
   .stat b { color: var(--accent); font-size: 15px; }
+  main { max-width: 1140px; margin: 0 auto; padding: 22px 20px 0; }
 
-  main { max-width: 1080px; margin: 0 auto; padding: 22px 20px 0; }
+  .matrix { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 26px; overflow-x: auto; }
+  .matrix h2 { margin: 0 0 10px; font-size: 15px; color: var(--accent-2); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; }
+  th { background: #1b1f27; color: var(--muted); font-weight: 600; }
+  td .lv { color: var(--accent); font-family: Consolas, monospace; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border); }
+  .tag.have { color: var(--ok); border-color: rgba(62,207,142,.4); }
+  .tag.none { color: var(--muted); }
+  .tag.pending { color: var(--accent); border-color: rgba(255,181,71,.4); }
 
-  .group { margin-bottom: 30px; }
-  .group-title {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 16px; font-weight: 600; margin: 6px 0 14px;
-    color: var(--accent-2);
+  .island { margin-bottom: 34px; }
+  .island-head {
+    display: flex; align-items: baseline; gap: 12px; padding: 10px 14px;
+    background: linear-gradient(90deg, rgba(79,156,255,.16), rgba(79,156,255,0));
+    border-left: 4px solid var(--accent-2); border-radius: 8px; margin-bottom: 8px;
   }
-  .group-title .count {
-    font-size: 12px; color: var(--muted); font-weight: 400;
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: 999px; padding: 1px 10px;
-  }
+  .island-head .name { font-size: 17px; font-weight: 700; }
+  .island-head .desc { color: var(--muted); font-size: 13px; }
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
-  }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 12px;
-    display: flex; flex-direction: column;
-    transition: border-color .15s, transform .1s;
-  }
+  .level { margin: 18px 0 6px; }
+  .level-head { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; }
+  .level-head .lv { color: var(--accent); font-family: Consolas, monospace; font-size: 14px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 1px 8px; }
+  .note { color: var(--muted); font-size: 13px; background: var(--panel); border: 1px dashed var(--border);
+    border-radius: 10px; padding: 10px 14px; margin: 8px 0 4px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px;
+    display: flex; flex-direction: column; transition: border-color .15s, transform .1s; }
   .card:hover { border-color: #3a4250; transform: translateY(-2px); }
   .card.flagged { border-color: var(--fix); }
-  .img-wrap {
-    height: 140px; border-radius: 10px;
-    background: #0c0e12;
-    border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden; margin-bottom: 10px;
-  }
+  .img-wrap { height: 130px; border-radius: 10px; background: #0c0e12; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 10px; }
   .img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
-  .img-wrap .emoji { font-size: 64px; }
-  .key {
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-    font-size: 14px; color: var(--text); word-break: break-all;
-  }
+  .key { font-family: "SFMono-Regular", Consolas, monospace; font-size: 13px; word-break: break-all; }
   .key .cat { color: var(--muted); font-size: 12px; }
   .radios { display: flex; gap: 8px; margin-top: 10px; }
-  .radios label {
-    flex: 1; text-align: center; cursor: pointer;
-    border: 1px solid var(--border); border-radius: 9px;
-    padding: 7px 0; font-size: 13px; user-select: none;
-    transition: all .12s;
-  }
+  .radios label { flex: 1; text-align: center; cursor: pointer; border: 1px solid var(--border);
+    border-radius: 9px; padding: 7px 0; font-size: 13px; user-select: none; transition: all .12s; }
   .radios input { display: none; }
-  .radios label.ok:hover { border-color: var(--ok); }
-  .radios label.fix:hover { border-color: var(--fix); }
-  .radios input:checked + span.ok { color: var(--ok); }
   .radios label.l-ok.sel { background: rgba(62,207,142,.14); border-color: var(--ok); color: var(--ok); }
   .radios label.l-fix.sel { background: rgba(255,107,107,.14); border-color: var(--fix); color: var(--fix); }
 
-  /* Fixed bottom bar */
-  .bar {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-    background: rgba(20,23,30,.96);
-    border-top: 1px solid var(--border);
-    backdrop-filter: blur(8px);
-    display: flex; align-items: center; gap: 14px;
-    padding: 14px 22px;
-  }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: rgba(20,23,30,.96);
+    border-top: 1px solid var(--border); backdrop-filter: blur(8px); display: flex; align-items: center; gap: 14px; padding: 14px 22px; }
   .bar .progress { color: var(--muted); font-size: 13px; }
   .bar .progress b { color: var(--fix); }
   .bar .spacer { flex: 1; }
-  .btn {
-    border: 1px solid var(--border); background: var(--panel);
-    color: var(--text); border-radius: 10px; padding: 10px 16px;
-    font-size: 14px; cursor: pointer; transition: all .12s;
-  }
+  .btn { border: 1px solid var(--border); background: var(--panel); color: var(--text); border-radius: 10px;
+    padding: 10px 16px; font-size: 14px; cursor: pointer; transition: all .12s; }
   .btn:hover { border-color: #3a4250; }
   .btn.ghost { color: var(--muted); }
-  .btn.primary {
-    background: var(--accent); color: #1a1205; border-color: var(--accent);
-    font-weight: 700;
-  }
+  .btn.primary { background: var(--accent); color: #1a1205; border-color: var(--accent); font-weight: 700; }
   .btn.primary:hover { filter: brightness(1.06); }
 
-  /* Modal */
-  .overlay {
-    position: fixed; inset: 0; z-index: 50;
-    background: rgba(0,0,0,.6);
-    display: none; align-items: center; justify-content: center; padding: 24px;
-  }
+  .overlay { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.6); display: none;
+    align-items: center; justify-content: center; padding: 24px; }
   .overlay.show { display: flex; }
-  .modal {
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: 16px; box-shadow: var(--shadow);
-    width: min(640px, 100%); max-height: 80vh; display: flex; flex-direction: column;
-  }
+  .modal { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow);
+    width: min(680px, 100%); max-height: 82vh; display: flex; flex-direction: column; }
   .modal h2 { margin: 0; padding: 18px 22px 6px; font-size: 17px; }
   .modal .desc { padding: 0 22px 12px; color: var(--muted); font-size: 13px; }
-  .modal pre {
-    margin: 0 22px; background: #0c0e12; border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px; overflow: auto; max-height: 42vh;
-    font-family: Consolas, "Liberation Mono", monospace; font-size: 13px; color: #cfe3ff;
-    white-space: pre;
-  }
+  .modal pre { margin: 0 22px; background: #0c0e12; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; overflow: auto; max-height: 44vh; font-family: Consolas, monospace; font-size: 13px; color: #cfe3ff; white-space: pre; }
   .modal .actions { display: flex; gap: 10px; justify-content: flex-end; padding: 16px 22px; }
   .empty { color: var(--ok); padding: 0 22px 16px; font-size: 14px; }
-
   .loading { text-align: center; color: var(--muted); padding: 60px 0; font-size: 15px; }
   .err { color: var(--fix); }
-  @media (max-width: 600px) {
-    .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-  }
+  @media (max-width: 600px) { .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
 </style>
 </head>
 <body>
   <header>
-    <h1>🎨 美术资产审查台</h1>
-    <div class="sub">儿童英语启蒙游戏 · 图片素材审查（数据源：<code>assets.js</code>，未做任何改动）</div>
-    <div class="stats" id="stats">
-      <div class="stat">图片分组 <b id="s-groups">…</b></div>
-      <div class="stat">素材总数 <b id="s-total">…</b></div>
+    <h1>🎨 美术资产审查台（按关卡覆盖）</h1>
+    <div class="sub">儿童英语启蒙游戏 · 数据源 <code>assets.js</code>（内联 39 张）+ <code>assets/</code> 预览图与图标 · 未改动任何原有数据</div>
+    <div class="stats">
+      <div class="stat">审查素材 <b id="s-total">…</b></div>
+      <div class="stat">覆盖关卡 <b>第一岛1-1 ~ 第三岛3-3</b></div>
       <div class="stat">已标记「需修改」 <b id="s-fix">0</b></div>
     </div>
   </header>
 
   <main id="content">
-    <div class="loading" id="loading">正在解析 assets.js 中的图片数据…</div>
+    <div class="loading" id="loading">正在解析 assets.js 与素材清单…</div>
   </main>
 
   <div class="bar">
@@ -179,7 +129,7 @@
   <div class="overlay" id="overlay">
     <div class="modal">
       <h2>📋 反馈清单（仅含「需修改」）</h2>
-      <div class="desc">请将以下内容交回给开发，作为下一步美术替换的依据。</div>
+      <div class="desc">请将以下内容交回给开发，作为下一步美术替换（SVG / Emoji）的依据。</div>
       <div id="modal-body"></div>
       <div class="actions">
         <button class="btn" id="btn-copy">复制 JSON</button>
@@ -195,125 +145,193 @@
   (function () {
     "use strict";
 
-    // 判定某个 window 属性是否为「图片素材对象」：
-    // 对象且每个值都是字符串（data-uri / svg / emoji）
-    function isImageAssetMap(obj) {
-      if (!obj || typeof obj !== "object" || Array.isArray(obj)) return false;
-      var ks = Object.keys(obj);
-      if (ks.length === 0) return false;
-      return ks.every(function (k) { return typeof obj[k] === "string"; });
-    }
+    // ---- 关卡 → 素材 映射（基于 README 关卡设计与 assets 资源管线）----
+    // 同一素材在多关复用（如水果用于 1-1/1-2/1-3），仅在首个主关卡列出一次，避免重复勾选。
+    var STRUCTURE = [
+      { island: "第一岛", name: "数字 · 水果 · 颜色", levels: [
+        { id: "1-1", title: "数字与水果", banks: ["FRUIT_IMG"] },
+        { id: "1-2", title: "16–20 与数量", reuse: "1-1" },
+        { id: "1-3", title: "21–29 与短句组合", reuse: "1-1" },
+        { id: "1-4", title: "颜色初体验", banks: ["COLOR_IMG"] },
+        { id: "1-5", title: "游乐场·终极考验（拖拽）", reuse: "1-1/1-4" }
+      ]},
+      { island: "第二岛", name: "形状 · 空间 · 身体部位", levels: [
+        { id: "2-1", title: "基础形状", noAsset: true },
+        { id: "2-2", title: "（待建设）", noAsset: true },
+        { id: "2-3", title: "（待建设）", noAsset: true },
+        { id: "2-4", title: "（待建设）", noAsset: true },
+        { id: "2-5", title: "（待建设）", noAsset: true }
+      ]},
+      { island: "第三岛", name: "比较 · 分类", levels: [
+        { id: "3-1", title: "大与小", banks: ["ANIMAL_IMG"] },
+        { id: "3-2", title: "多·少（待补充素材）", reuse: "3-1" },
+        { id: "3-3", title: "长·短（待补充素材）", reuse: "3-1" }
+      ]}
+    ];
 
-    function renderImage(value) {
-      if (value.indexOf("data:image") === 0 || value.trim().indexOf("<svg") === 0) {
-        return '<img src="' + value + '" alt="asset" loading="lazy" />';
-      }
-      // emoji / 文本素材
-      return '<div class="emoji">' + value + "</div>";
-    }
+    // 不在 assets.js 内联、但属于游戏界面/图标的位图
+    var EXTRA = [
+      { id: "UI", title: "导航与界面预览图", items: [
+        { bank: "PREVIEW", key: "preview-map", src: "assets/preview-map.png" },
+        { bank: "PREVIEW", key: "preview-island", src: "assets/preview-island.png" },
+        { bank: "PREVIEW", key: "preview-level", src: "assets/preview-level.png" },
+        { bank: "PREVIEW", key: "preview-reward", src: "assets/preview-reward.png" },
+        { bank: "PREVIEW", key: "preview-counting", src: "assets/preview-counting.png" }
+      ]},
+      { id: "ICON", title: "应用图标（PWA）", items: [
+        { bank: "ICON", key: "icon", src: "icon.png" },
+        { bank: "ICON", key: "apple-touch-icon-180", src: "icons/apple-touch-icon-180.png" },
+        { bank: "ICON", key: "icon-192", src: "icons/icon-192.png" },
+        { bank: "ICON", key: "icon-512", src: "icons/icon-512.png" },
+        { bank: "ICON", key: "icon-maskable-512", src: "icons/icon-maskable-512.png" }
+      ]}
+    ];
 
     var content = document.getElementById("content");
     var loading = document.getElementById("loading");
-
-    // 动态解析 assets.js 中所有图片对象
-    var groups = Object.keys(window)
-      .filter(function (k) { return isImageAssetMap(window[k]); })
-      .sort();
-
-    if (groups.length === 0) {
-      loading.className = "loading err";
-      loading.textContent = "未能从 assets.js 解析到图片数据。请确认 review.html 与 assets.js 位于同一目录（仓库根目录）。";
-      return;
-    }
-
-    var total = groups.reduce(function (s, g) { return s + Object.keys(window[g]).length; }, 0);
-    document.getElementById("s-groups").textContent = groups.length;
-    document.getElementById("s-total").textContent = total;
-
     loading.remove();
 
-    var fixCount = 0;
+    var total = 0;
 
-    groups.forEach(function (group) {
-      var map = window[group];
-      var keys = Object.keys(map);
+    function el(tag, cls, html) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (html != null) e.innerHTML = html;
+      return e;
+    }
 
-      var section = document.createElement("section");
-      section.className = "group";
+    function renderImage(value) {
+      return '<img src="' + value + '" alt="" loading="lazy" />';
+    }
 
-      var title = document.createElement("div");
-      title.className = "group-title";
-      title.innerHTML = group + ' <span class="count">' + keys.length + " 张</span>";
-      section.appendChild(title);
+    function makeCard(bank, key, value) {
+      total++;
+      var card = el("div", "card");
+      card.setAttribute("data-bank", bank);
+      card.setAttribute("data-key", key);
 
-      var grid = document.createElement("div");
-      grid.className = "grid";
+      var wrap = el("div", "img-wrap");
+      wrap.innerHTML = renderImage(value);
+      card.appendChild(wrap);
 
-      keys.forEach(function (key) {
-        var card = document.createElement("div");
-        card.className = "card";
-        card.setAttribute("data-group", group);
-        card.setAttribute("data-key", key);
+      var label = el("div", "key");
+      label.innerHTML = '<span class="cat">' + bank + ".</span>" + key;
+      card.appendChild(label);
 
-        var wrap = document.createElement("div");
-        wrap.className = "img-wrap";
-        wrap.innerHTML = renderImage(map[key]);
-        card.appendChild(wrap);
+      var radios = el("div", "radios");
+      var rid = "r_" + bank + "_" + key;
+      radios.innerHTML =
+        '<label class="l-ok sel"><input type="radio" name="' + rid + '" value="ok" checked /><span class="ok">满意</span></label>' +
+        '<label class="l-fix"><input type="radio" name="' + rid + '" value="fix" /><span class="fix">需修改</span></label>';
+      card.appendChild(radios);
 
-        var label = document.createElement("div");
-        label.className = "key";
-        label.innerHTML = '<span class="cat">' + group + ".</span>" + key;
-        card.appendChild(label);
-
-        var radios = document.createElement("div");
-        radios.className = "radios";
-        var rid = "r_" + group + "_" + key;
-        radios.innerHTML =
-          '<label class="l-ok sel"><input type="radio" name="' + rid + '" value="ok" checked /><span class="ok">满意</span></label>' +
-          '<label class="l-fix"><input type="radio" name="' + rid + '" value="fix" /><span class="fix">需修改</span></label>';
-        card.appendChild(radios);
-
-        // 选中态样式
-        var inputs = radios.querySelectorAll("input");
-        inputs.forEach(function (inp) {
-          inp.addEventListener("change", function () {
-            var okLabel = radios.querySelector(".l-ok");
-            var fixLabel = radios.querySelector(".l-fix");
-            okLabel.classList.toggle("sel", inp.value === "ok" && inp.checked);
-            fixLabel.classList.toggle("sel", inp.value === "fix" && inp.checked);
-            card.classList.toggle("flagged", inp.value === "fix" && inp.checked);
-            updateProgress();
-          });
+      var inputs = radios.querySelectorAll("input");
+      inputs.forEach(function (inp) {
+        inp.addEventListener("change", function () {
+          var okL = radios.querySelector(".l-ok");
+          var fixL = radios.querySelector(".l-fix");
+          okL.classList.toggle("sel", inp.value === "ok" && inp.checked);
+          fixL.classList.toggle("sel", inp.value === "fix" && inp.checked);
+          card.classList.toggle("flagged", inp.value === "fix" && inp.checked);
+          updateProgress();
         });
-
-        grid.appendChild(card);
       });
+      return card;
+    }
 
-      section.appendChild(grid);
-      content.appendChild(section);
+    // 关卡覆盖矩阵（静态说明）
+    function buildMatrix() {
+      var box = el("div", "matrix");
+      box.appendChild(el("h2", null, "关卡覆盖矩阵（第一岛1-1 → 第三岛3-3）"));
+      var rows = [
+        ["第一岛", "1-1", "数字与水果", "FRUIT_IMG ×15", "have"],
+        ["第一岛", "1-2", "16–20 与数量", "复用 1-1 水果/数字", "pending"],
+        ["第一岛", "1-3", "21–29 与短句", "复用 1-1 水果/数字", "pending"],
+        ["第一岛", "1-4", "颜色初体验", "COLOR_IMG ×20", "have"],
+        ["第一岛", "1-5", "游乐场·终极考验", "水果+颜色综合", "pending"],
+        ["第二岛", "2-1", "基础形状", "暂无位图（CSS/SVG/Emoji）", "none"],
+        ["第二岛", "2-2", "（待建设）", "暂无位图", "none"],
+        ["第二岛", "2-3", "（待建设）", "暂无位图", "none"],
+        ["第二岛", "2-4", "（待建设）", "暂无位图", "none"],
+        ["第二岛", "2-5", "（待建设）", "暂无位图", "none"],
+        ["第三岛", "3-1", "大与小", "ANIMAL_IMG ×4", "have"],
+        ["第三岛", "3-2", "多·少（待补充）", "复用 3-1 动物", "pending"],
+        ["第三岛", "3-3", "长·短（待补充）", "复用 3-1 动物", "pending"]
+      ];
+      var tagText = { have: "有位图素材", none: "无位图", pending: "复用/待补充" };
+      var table = '<table><thead><tr><th>岛屿</th><th>关卡</th><th>名称</th><th>素材</th><th>状态</th></tr></thead><tbody>';
+      rows.forEach(function (r) {
+        table += '<tr><td>' + r[0] + '</td><td><span class="lv">' + r[1] +
+          '</span></td><td>' + r[2] + '</td><td>' + r[3] +
+          '</td><td><span class="tag ' + r[4] + '">' + tagText[r[4]] + "</span></td></tr>";
+      });
+      table += "</tbody></table>";
+      box.insertAdjacentHTML("beforeend", table);
+      box.insertAdjacentHTML("beforeend",
+        '<div class="desc" style="color:var(--muted);font-size:12px;margin-top:10px">' +
+        "说明：同一素材在多个关卡复用（如水果用于 1-1/1-2/1-3），仅在其主关卡展示一次；第二岛（形状/空间/身体部位等）目前由 CSS/SVG/Emoji 绘制，无位图素材；第三岛 3-2/3-3 复用 3-1 动物素材，待后续补充。</div>");
+      return box;
+    }
+
+    content.appendChild(buildMatrix());
+
+    // 逐岛逐关渲染
+    STRUCTURE.forEach(function (isl) {
+      var sec = el("section", "island");
+      var head = el("div", "island-head");
+      head.innerHTML = '<span class="name">' + isl.island + "</span><span class=\"desc\">" + isl.name + "</span>";
+      sec.appendChild(head);
+
+      isl.levels.forEach(function (lv) {
+        var lvEl = el("div", "level");
+        lvEl.appendChild(el("div", "level-head", '<span class="lv">' + lv.id + "</span><span>" + lv.title + "</span>"));
+
+        if (lv.banks && lv.banks.length) {
+          var grid = el("div", "grid");
+          var anyMissing = false;
+          lv.banks.forEach(function (bank) {
+            var map = window[bank];
+            if (!map || typeof map !== "object") { anyMissing = true; return; }
+            Object.keys(map).forEach(function (k) {
+              grid.appendChild(makeCard(bank, k, map[k]));
+            });
+          });
+          if (anyMissing) {
+            lvEl.appendChild(el("div", "note err", "⚠️ 未能从 assets.js 读取该素材组，请确认 review.html 与 assets.js 位于同一目录（仓库根目录）。"));
+          }
+          lvEl.appendChild(grid);
+        } else if (lv.noAsset) {
+          lvEl.appendChild(el("div", "note", "本关暂无位图素材：形状 / 空间 / 身体部位等内容由 CSS / SVG / Emoji 绘制，无需位图美术审查。若后续改为位图，请告知开发补充。"));
+        } else if (lv.reuse) {
+          lvEl.appendChild(el("div", "note", "本关复用 <b>" + lv.reuse + "</b> 的素材，已在上方的对应关卡中列出，不重复展示。"));
+        }
+        sec.appendChild(lvEl);
+      });
+      content.appendChild(sec);
     });
 
-    function updateProgress() {
-      fixCount = document.querySelectorAll('input[type="radio"][value="fix"]:checked').length;
-      document.getElementById("s-fix").textContent = fixCount;
-      document.getElementById("bar-fix").textContent = fixCount;
-    }
-
-    function buildFeedback() {
-      var result = {};
-      var flat = [];
-      document.querySelectorAll('input[type="radio"][value="fix"]:checked').forEach(function (inp) {
-        var card = inp.closest(".card");
-        var group = card.getAttribute("data-group");
-        var key = card.getAttribute("data-key");
-        if (!result[group]) result[group] = [];
-        result[group].push(key);
-        flat.push(group + "." + key);
+    // 界面预览图 + 图标
+    EXTRA.forEach(function (grp) {
+      var sec = el("section", "island");
+      var head = el("div", "island-head");
+      head.innerHTML = '<span class="name">界面与图标</span><span class="desc">' + grp.title + "</span>";
+      sec.appendChild(head);
+      var grid = el("div", "grid");
+      grp.items.forEach(function (it) {
+        grid.appendChild(makeCard(it.bank, it.key, it.src));
       });
-      return { grouped: result, flat: flat };
+      sec.appendChild(grid);
+      content.appendChild(sec);
+    });
+
+    document.getElementById("s-total").textContent = total;
+
+    function updateProgress() {
+      var fix = document.querySelectorAll('input[type="radio"][value="fix"]:checked').length;
+      document.getElementById("s-fix").textContent = fix;
+      document.getElementById("bar-fix").textContent = fix;
     }
 
-    // 批量操作
     document.getElementById("btn-all-ok").addEventListener("click", function () {
       document.querySelectorAll('input[type="radio"][value="ok"]').forEach(function (i) {
         i.checked = true; i.dispatchEvent(new Event("change"));
@@ -325,39 +343,47 @@
       });
     });
 
-    // 生成反馈清单
     var overlay = document.getElementById("overlay");
     var modalBody = document.getElementById("modal-body");
 
     document.getElementById("btn-generate").addEventListener("click", function () {
-      var fb = buildFeedback();
-      if (fb.flat.length === 0) {
+      var byBank = {};
+      var flat = [];
+      document.querySelectorAll('input[type="radio"][value="fix"]:checked').forEach(function (inp) {
+        var card = inp.closest(".card");
+        var bank = card.getAttribute("data-bank");
+        var key = card.getAttribute("data-key");
+        if (!byBank[bank]) byBank[bank] = [];
+        byBank[bank].push(key);
+        flat.push(bank + "." + key);
+      });
+
+      if (flat.length === 0) {
         modalBody.innerHTML = '<div class="empty">✅ 当前没有标记「需修改」的素材。若确有需要替换的图，请在对应卡片选择「需修改」。</div>';
       } else {
-        var json = JSON.stringify(fb.grouped, null, 2);
+        var out = {
+          _meta: { total_reviewed: total, flagged: flat.length, scope: "第一岛1-1 ~ 第三岛3-3（含界面预览图与应用图标）" },
+          flagged_by_bank: byBank,
+          flagged_keys: flat
+        };
+        var json = JSON.stringify(out, null, 2);
         modalBody.innerHTML =
           '<pre id="feedback-json">' + json.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</pre>" +
-          '<div class="desc" style="padding:12px 22px 0">共 ' + fb.flat.length + " 项需修改：" +
-          fb.flat.join("、") + "</div>";
+          '<div class="desc" style="padding:12px 22px 0">共 ' + flat.length + " 项需修改：" + flat.join("、") + "</div>";
         overlay._json = json;
       }
       overlay.classList.add("show");
       updateProgress();
     });
 
-    document.getElementById("btn-close").addEventListener("click", function () {
-      overlay.classList.remove("show");
-    });
-    overlay.addEventListener("click", function (e) {
-      if (e.target === overlay) overlay.classList.remove("show");
-    });
+    document.getElementById("btn-close").addEventListener("click", function () { overlay.classList.remove("show"); });
+    overlay.addEventListener("click", function (e) { if (e.target === overlay) overlay.classList.remove("show"); });
 
     document.getElementById("btn-copy").addEventListener("click", function () {
       var text = overlay._json || "";
       if (!text) return;
-      navigator.clipboard?.writeText(text).then(function () {
-        var b = document.getElementById("btn-copy");
-        var t = b.textContent; b.textContent = "已复制 ✓";
+      navigator.clipboard && navigator.clipboard.writeText(text).then(function () {
+        var b = document.getElementById("btn-copy"); var t = b.textContent; b.textContent = "已复制 ✓";
         setTimeout(function () { b.textContent = t; }, 1500);
       });
     });
@@ -367,9 +393,7 @@
       if (!text) return;
       var blob = new Blob([text], { type: "application/json" });
       var a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "art-review-feedback.json";
-      a.click();
+      a.href = URL.createObjectURL(blob); a.download = "art-review-feedback.json"; a.click();
       URL.revokeObjectURL(a.href);
     });
 
