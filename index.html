@@ -5763,7 +5763,7 @@ window.VOICE_BANK = {
     if (raw.unlockedLevel && typeof raw.unlockedLevel === 'object') {
       Object.keys(raw.unlockedLevel).forEach(function (k) {
         var v = raw.unlockedLevel[k] | 0;
-        if (v >= 1) out.unlockedLevel[k] = v;
+        if (v >= 1) out.unlockedLevel[k] = Math.min(LEVELS_PER_ISLAND, v);
       });
     }
     if (!out.unlockedLevel[1]) out.unlockedLevel[1] = 1;
@@ -5781,7 +5781,7 @@ window.VOICE_BANK = {
     return out;
   }
 
-  /** 合并：通关记录取并集，解锁取最远，星星取最高（任何一方都不会被覆盖掉） */
+  /** 合并（最高进度优先，RULES §五.9）：通关取并集，解锁取最远，星星取最高——进度只前进、绝不倒退 */
   function mergeProgress(local, remote) {
     var a = normalizeProgress(local);
     var b = normalizeProgress(remote);
@@ -5869,14 +5869,22 @@ window.VOICE_BANK = {
         // 云端还没有存档文件：把本地这份推上去
         return cloudWriteGist().then(function () { return true; });
       }
-      var merged = mergeProgress(progress, remote);
-      var changed = JSON.stringify(merged) !== JSON.stringify(normalizeProgress(progress));
+      var localNorm = normalizeProgress(progress);
+      var remoteNorm = normalizeProgress(remote);
+      var merged = mergeProgress(localNorm, remoteNorm);
+      var changedLocal = JSON.stringify(merged) !== JSON.stringify(localNorm);
+      var changedRemote = JSON.stringify(merged) !== JSON.stringify(remoteNorm);
       applyProgress(merged);
       cloud.lastSync = Date.now();
       cloudRetry = 0;
       cloudPersist();
       cloudState('synced');
-      return changed;
+      // 最高进度优先（RULES §五.9）：合并结果若比云端新（本地有云端没有的进度），
+      // 必须立刻写回，绝不让另一台设备拉到旧数据——低进度设备也绝无机会覆盖高进度
+      if (changedRemote) {
+        return cloudWriteGist().then(function () { return true; });
+      }
+      return changedLocal;
     }).catch(function (err) {
       cloudState('error', err && err.status === 401 ? '令牌无效或已过期' : '同步失败，稍后自动重试');
       cloudRetryLater();
