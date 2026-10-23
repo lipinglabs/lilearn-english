@@ -2679,7 +2679,17 @@
 (function () {
   'use strict';
 
-  var bank = window.VOICE_BANK || {};
+  /*
+   * 语音库由 voice.js 在本脚本之前加载，并挂载为 window.VOICE_BANK。
+   * 这里绝不再写 var VOICE_BANK = ...（那会用一个空对象覆盖全局库）；
+   * 也不再在启动时把 window.VOICE_BANK 快照成局部变量，而是每次取用时现读 window，
+   * 避免「脚本晚到 / 缓存命中旧 HTML」等时序问题导致拿到空库。
+   */
+  function voiceBank() {
+    var b = window.VOICE_BANK;
+    return (b && typeof b === 'object') ? b : {};
+  }
+
   var cache = new Map();
   var current = null;
   var lastKey = null;
@@ -3375,7 +3385,47 @@
 
   /* ---------------- 语音 ---------------- */
 
+  /* ============================================================
+     音频解锁（iOS / Safari 必需）
+     ------------------------------------------------------------
+     iOS 的自动播放策略：在「真实用户手势」发生之前，new Audio().play()
+     一律被 NotAllowedError 拒绝，且不报错、不提示，外部表现就是
+     「彻底没有声音」。WebAudio（叮声音效）同理，会一直 suspended。
+
+     做法：在第一次触摸/点击的**捕获阶段**先播一个 0.05 秒的静音 WAV，
+     把 HTMLAudio 与 AudioContext 一起解锁；之后所有语音可直接 play()。
+     ============================================================ */
+
+  /* 0.05 秒 / 8kHz / 8bit 单声道静音 WAV（444 字节） */
+  var SILENT_WAV = 'data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA';
+
+  var audioUnlocked = false;
+
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    /* 1) 解锁 WebAudio：必须真正 resume，否则 iOS 上 AudioContext 一直 suspended */
+    try {
+      var ctx = ensureCtx();
+      if (ctx && ctx.state === 'suspended' && typeof ctx.resume === 'function') ctx.resume();
+    } catch (e) { /* 音效失败不影响流程 */ }
+    /* 2) 解锁 HTMLAudio：静音播放一次，音量不为 0（iOS 会把 0 当作 muted） */
+    try {
+      var el = new Audio(SILENT_WAV);
+      el.setAttribute('playsinline', '');
+      el.volume = 0.001;
+      var p = el.play();
+      if (p && typeof p.catch === 'function') p.catch(function () { /* 忽略 */ });
+    } catch (e) { /* 忽略 */ }
+  }
+
+  /* capture + passive：最早拿到手势，且不干扰任何关卡自己的点击逻辑 */
+  ['touchstart', 'pointerdown', 'mousedown', 'keydown', 'click'].forEach(function (t) {
+    document.addEventListener(t, unlockAudio, { capture: true, passive: true });
+  });
+
   function getAudio(key) {
+    var bank = voiceBank();
     if (!Object.prototype.hasOwnProperty.call(bank, key)) return null;
     if (!cache.has(key)) {
       var el = new Audio(bank[key]);
@@ -3430,7 +3480,17 @@
     guardTimer = setTimeout(finish, dur + 1600);
 
     var p = el.play();
-    if (p && typeof p.catch === 'function') p.catch(finish);
+    if (p && typeof p.catch === 'function') {
+      p.catch(function (err) {
+        /*
+         * iOS 在尚未解锁时会把 play() 拒绝为 NotAllowedError。
+         * 这里不能只 finish()：要把解锁标记复位并重新挂监听，
+         * 否则本次手势之后的所有语音都会永久静默。
+         */
+        if (err && err.name === 'NotAllowedError') audioUnlocked = false;
+        finish();
+      });
+    }
     return true;
   }
 
@@ -8657,7 +8717,21 @@
     });
   }
 
-  Object.keys(bank).forEach(getAudio);
+  /*
+   * 预热语音：只建首屏与结算会马上用到的少量元素。
+   * 早先这里写的是 Object.keys(bank).forEach(getAudio)，会一次性 new 出全部 305 个
+   * <audio>；iOS Safari 对同时存在的 HTMLMediaElement 数量有硬限制，超限后所有
+   * play() 会静默失败（表现就是「一点声音都没有」，且控制台无报错）。
+   * 现在其余语音在 speak() 时按需创建——getAudio 内部有 cache，同一 key 不会重复建。
+   */
+  var WARM_KEYS = ['intro', 'win1', 'win2', 'win3',
+    'praise_1', 'praise_2', 'praise_3', 'praise_4', 'praise_5', 'praise_6'];
+  WARM_KEYS.forEach(function (k) { getAudio(k); });
+
+  if (!Object.keys(voiceBank()).length) {
+    /* 排查用：voice.js 未加载成功时给出明确线索，而不是静悄悄地没声音 */
+    console.warn('[voice] window.VOICE_BANK 为空：请确认 voice.js 已在本脚本之前加载成功');
+  }
 
   window.Game = {
     speak: speak,
@@ -8749,7 +8823,7 @@
         } : null
       };
     },
-    voiceKeys: Object.keys(bank),
+    voiceKeys: Object.keys(voiceBank()),
     cloud: {
       get state() { return cloud.state; },
       get connected() { return !!(cloud.token && cloud.gistId); },
