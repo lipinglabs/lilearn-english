@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>儿童英语启蒙游戏 · 美术替换候选审核台（每图 3 选 1）</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --card: #1e222b; --card-hover: #252a35;
+    --border: #2c323d; --text: #e8eaf0; --muted: #98a0ad;
+    --accent: #ffb547; --accent-2: #4f9cff; --ok: #3ecf8e; --fix: #ff6b6b;
+    --shadow: 0 6px 20px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+    line-height: 1.5; padding-bottom: 100px;
+  }
+  header {
+    position: sticky; top: 0; z-index: 20;
+    background: linear-gradient(180deg, #14171d, #11141a);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 18px; box-shadow: var(--shadow);
+  }
+  header h1 { font-size: 18px; margin: 0 0 4px; }
+  header p { margin: 0; font-size: 12.5px; color: var(--muted); }
+  .note {
+    margin: 12px 18px 0; padding: 10px 14px; border-radius: 10px;
+    background: rgba(79,156,255,.08); border: 1px solid rgba(79,156,255,.35);
+    font-size: 13px; color: #cfe2ff;
+  }
+  .note b { color: #9cc4ff; }
+  .loader {
+    margin: 12px 18px 0; padding: 12px 14px; border-radius: 10px;
+    background: var(--panel); border: 1px solid var(--border); font-size: 13px;
+  }
+  .loader textarea {
+    width: 100%; min-height: 84px; resize: vertical; margin-top: 8px;
+    background: #0c0e12; color: #d6deea; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px;
+  }
+  .loader .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 14px; }
+  section { margin-top: 26px; }
+  .sec-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 4px 10px; }
+  .sec-head h2 { font-size: 16px; margin: 0; }
+  .sec-head .sub { font-size: 12.5px; color: var(--muted); }
+  .block {
+    border: 1px solid var(--border); border-radius: 14px; background: var(--card);
+    padding: 14px; margin-bottom: 18px;
+  }
+  .block.flagged { border-color: var(--fix); box-shadow: 0 0 0 1px var(--fix) inset; }
+  .bhead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .bhead .key { font-size: 13px; font-weight: 700; color: #dfe3ec; }
+  .bhead .key .bank { color: var(--accent); }
+  .bhead .tag { font-size: 11px; padding: 1px 8px; border-radius: 999px; background: rgba(255,107,107,.15); color: var(--fix); }
+  .compare {
+    display: grid; gap: 12px;
+    grid-template-columns: 130px repeat(3, minmax(120px, 1fr));
+  }
+  @media (max-width: 720px) { .compare { grid-template-columns: 1fr 1fr; } }
+  .cell { background: #161a22; border: 1px solid var(--border); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .cell .cap { font-size: 11.5px; color: var(--muted); }
+  .cell .cap b { color: var(--accent-2); }
+  .art {
+    height: 110px; border-radius: 10px; background:
+      linear-gradient(45deg, #20242e 25%, transparent 25%) 0 0/16px 16px,
+      linear-gradient(-45deg, #20242e 25%, transparent 25%) 0 0/16px 16px,
+      linear-gradient(45deg, transparent 75%, #20242e 75%) 0 0/16px 16px,
+      linear-gradient(-45deg, transparent 75%, #20242e 75%) 0 0/16px 16px,
+      #1a1e26;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .art img { max-width: 92%; max-height: 92%; object-fit: contain; }
+  .art svg { width: 84%; height: 84%; }
+  .art .emoji { font-size: 56px; line-height: 1; }
+  .art .placeholder { color: var(--muted); font-size: 11px; text-align: center; padding: 6px; }
+  .pick { display: flex; align-items: center; gap: 6px; font-size: 12.5px; cursor: pointer; }
+  .pick input { accent-color: var(--accent); }
+  .bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    background: linear-gradient(180deg, #14171d, #0f1115);
+    border-top: 1px solid var(--border);
+    padding: 12px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .bar .grow { flex: 1; font-size: 13px; color: var(--muted); }
+  .bar .grow b { color: var(--accent); }
+  button {
+    font-family: inherit; font-size: 13.5px; padding: 9px 16px; border-radius: 10px;
+    border: 1px solid var(--border); background: #1e222b; color: var(--text); cursor: pointer;
+  }
+  button:hover { background: #262b36; }
+  button.primary { background: var(--accent); color: #1a1205; border-color: var(--accent); font-weight: 700; }
+  button.primary:hover { filter: brightness(1.06); }
+  .modal { position: fixed; inset: 0; z-index: 50; display: none; background: rgba(0,0,0,.6); padding: 24px; overflow: auto; }
+  .modal.show { display: block; }
+  .modal-box { max-width: 760px; margin: 0 auto; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+  .modal-box h3 { margin: 0 0 12px; font-size: 16px; }
+  pre { background: #0c0e12; border: 1px solid var(--border); border-radius: 10px; padding: 14px; overflow: auto; font-size: 12px; line-height: 1.5; max-height: 50vh; color: #d6deea; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .missing { color: var(--fix); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>美术替换候选审核台 · 每图 3 选 1（第一岛 1-1 → 第三岛 3-3）</h1>
+  <p>针对「需修改」的素材，每张提供 3 个新候选（SVG / Emoji），供你勾选其一。右上方可粘贴你的真实反馈清单自动重载。</p>
+</header>
+
+<div class="note">
+  <b>用法：</b>本页默认展示一组<b>示例</b>（含你提到的小蛇 snake，以及水果/颜色/动物/形状/物品/房子各一类）。
+  下方文本框可粘贴 review.html 导出的「需修改」JSON（包含 <code>flagged_keys</code> 数组），点「载入我的清单」即可按你的真实 key 重新填充候选。
+  每个 key 展示【原图】+【候选 A / B / C】，单选其一（默认「保持原图」）。点底部「生成替换方案」导出你的最终选择。
+</div>
+
+<div class="loader">
+  <div>粘贴你的反馈清单 JSON（可选，覆盖下方示例）：</div>
+  <textarea id="pasteBox" placeholder='{"flagged_keys":["FRUIT_IMG.apple","LS_OBJECT.snake.long", ...]}'></textarea>
+  <div class="row">
+    <button id="btnLoad">载入我的清单</button>
+    <button id="btnReset">恢复示例</button>
+    <span id="loadMsg" style="color:var(--muted);font-size:12px;"></span>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="sections"></div>
+</div>
+
+<div class="bar">
+  <div class="grow">已选替换：<b id="pickCount">0</b> 项（共 <span id="totalCount">0</span> 个待替换素材）</div>
+  <button id="btnGen" class="primary">生成替换方案</button>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3>最终替换方案</h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button id="btnCopy">复制 JSON</button>
+      <button id="btnDownload">下载 .json</button>
+      <button id="btnClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 游戏原始数据：仅读取，绝不修改 -->
+<script src="assets.js"></script>
+<!-- 从 index.html 提取的代码绘制图形函数（只读副本） -->
+<script src="visual_parts.js"></script>
+<script>
+/* ============ 候选素材库（每 key 3 个新候选） ============ */
+/* 说明：bitmap 类（FRUIT/COLOR/ANIMAL）原图为 PNG，候选用 Emoji / 重绘 SVG；
+   代码绘制类（SHAPE/OBJECT/HOUSE/LS_*）原图为 JS 现画 SVG，候选用不同风格/配色。 */
+
+function svg(inner, vb){ return '<svg viewBox="'+(vb||'0 0 100 100')+'" preserveAspectRatio="xMidYMid meet">'+inner+'</svg>'; }
+function emoji(ch){ return '<div class="emoji">'+ch+'</div>'; }
+
+var CANDIDATES = {
+  /* ---- 第一岛 水果 ---- */
+  'FRUIT_IMG.apple': [
+    { label: 'A · Emoji 🍎', html: emoji('🍎') },
+    { label: 'B · 扁平红苹果', html: svg('<path d="M50 34 C36 24 22 34 26 52 C29 68 43 82 50 82 C57 82 71 68 74 52 C78 34 64 24 50 34 Z" fill="#e23b3b"/><path d="M50 34 C49 26 52 21 58 19" stroke="#7a4a2b" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M58 21 C67 15 77 20 73 30 C70 38 60 36 58 30 Z" fill="#4caf50"/>') },
+    { label: 'C · 卡通红苹果', html: svg('<ellipse cx="50" cy="58" rx="30" ry="33" fill="#ff5a5a"/><path d="M50 28 C46 18 55 13 61 14" stroke="#6b3f1d" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M61 16 C71 10 81 16 77 27 C73 35 62 33 61 27 Z" fill="#5cb85c"/><ellipse cx="39" cy="48" rx="7" ry="11" fill="#ffffff" opacity="0.55"/>') }
+  ],
+  /* ---- 第一岛 颜色（红苹果） ---- */
+  'COLOR_IMG.apple_red': [
+    { label: 'A · Emoji 🍎', html: emoji('🍎') },
+    { label: 'B · 红色苹果', html: svg('<path d="M50 34 C36 24 22 34 26 52 C29 68 43 82 50 82 C57 82 71 68 74 52 C78 34 64 24 50 34 Z" fill="#e23b3b"/><path d="M50 34 C49 26 52 21 58 19" stroke="#7a4a2b" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M58 21 C67 15 77 20 73 30 C70 38 60 36 58 30 Z" fill="#4caf50"/>') },
+    { label: 'C · 红苹果+高光', html: svg('<ellipse cx="50" cy="58" rx="30" ry="33" fill="#e23b3b"/><path d="M50 28 C46 18 55 13 61 14" stroke="#6b3f1d" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M61 16 C71 10 81 16 77 27 C73 35 62 33 61 27 Z" fill="#5cb85c"/><ellipse cx="39" cy="48" rx="7" ry="11" fill="#ffffff" opacity="0.5"/>') }
+  ],
+  /* ---- 第三岛 3-1 动物 大象 ---- */
+  'ANIMAL_IMG.elephant': [
+    { label: 'A · Emoji 🐘', html: emoji('🐘') },
+    { label: 'B · 扁平灰象', html: svg('<ellipse cx="52" cy="62" rx="30" ry="25" fill="#a7adb5"/><circle cx="40" cy="40" r="16" fill="#a7adb5"/><path d="M28 44 C16 50 16 68 28 72 C33 74 33 62 28 56" fill="#a7adb5"/><circle cx="35" cy="38" r="2.6" fill="#333"/><path d="M52 26 C60 20 74 22 75 34 C76 44 62 46 56 39 Z" fill="#8f969f"/><rect x="32" y="80" width="11" height="14" rx="3" fill="#8f969f"/><rect x="58" y="80" width="11" height="14" rx="3" fill="#8f969f"/>') },
+    { label: 'C · 卡通亮象', html: svg('<ellipse cx="52" cy="62" rx="30" ry="25" fill="#b9bfc7"/><circle cx="40" cy="40" r="16" fill="#b9bfc7"/><path d="M28 44 C16 50 16 68 28 72 C33 74 33 62 28 56" fill="#b9bfc7"/><circle cx="35" cy="38" r="2.8" fill="#333"/><ellipse cx="44" cy="58" rx="14" ry="12" fill="#cfd4da" opacity="0.7"/><path d="M52 26 C60 20 74 22 75 34 C76 44 62 46 56 39 Z" fill="#9aa1aa"/><rect x="32" y="80" width="11" height="14" rx="3" fill="#9aa1aa"/><rect x="58" y="80" width="11" height="14" rx="3" fill="#9aa1aa"/>') }
+  ],
+  /* ---- 第二岛 形状 圆 ---- */
+  'SHAPE.circle': [
+    { label: 'A · 红实心圆', html: (function(){ var n=vpShapeSvg('circle','#EA5A4F'); return n.outerHTML; })() },
+    { label: 'B · 蓝圆环', html: (function(){ var n=vpShapeSvg('circle','#4C8FE8'); return n.outerHTML; })() },
+    { label: 'C · 绿点环', html: (function(){ var n=vpShapeSvg('circle','#57B96B'); return n.outerHTML; })() }
+  ],
+  /* ---- 第二岛 物品 披萨(圆) ---- */
+  'OBJECT.pizza': [
+    { label: 'A · 红披萨', html: (function(){ var n=vpObjectSvg('circle','#EA5A4F'); return n.outerHTML; })() },
+    { label: 'B · 黄披萨', html: (function(){ var n=vpObjectSvg('circle','#F3B93E'); return n.outerHTML; })() },
+    { label: 'C · Emoji 🍕', html: emoji('🍕') }
+  ],
+  /* ---- 第三岛 3-3 长/短 小蛇（你提到的图） ---- */
+  'LS_OBJECT.snake.long': [
+    { label: 'A · Emoji 🐍', html: emoji('🐍') },
+    { label: 'B · 长绿蛇', html: svg('<path d="M8 30 C20 8 36 8 46 30 C56 52 72 52 82 30 C90 12 104 14 112 30" fill="none" stroke="#4caf50" stroke-width="11" stroke-linecap="round"/><circle cx="112" cy="30" r="7" fill="#4caf50"/><circle cx="114" cy="28" r="1.6" fill="#222"/><circle cx="110" cy="33" r="1.6" fill="#222"/>','0 0 120 60') },
+    { label: 'C · 长蓝蛇', html: svg('<path d="M8 32 C22 50 38 50 48 30 C58 10 74 10 84 30 C92 46 106 44 112 28" fill="none" stroke="#3d8bff" stroke-width="11" stroke-linecap="round"/><circle cx="112" cy="28" r="7" fill="#3d8bff"/><circle cx="114" cy="26" r="1.6" fill="#222"/><circle cx="110" cy="31" r="1.6" fill="#222"/>','0 0 120 60') }
+  ],
+  'LS_OBJECT.snake.short': [
+    { label: 'A · Emoji 🐍', html: emoji('🐍') },
+    { label: 'B · 短绿蛇', html: svg('<path d="M8 28 C20 10 40 10 52 28 C60 40 72 40 80 26" fill="none" stroke="#4caf50" stroke-width="10" stroke-linecap="round"/><circle cx="80" cy="26" r="6" fill="#4caf50"/><circle cx="82" cy="24" r="1.4" fill="#222"/><circle cx="78" cy="29" r="1.4" fill="#222"/>','0 0 90 50') },
+    { label: 'C · 短橙蛇', html: svg('<path d="M8 26 C18 42 38 42 50 26 C58 14 70 14 80 28" fill="none" stroke="#ff9f43" stroke-width="10" stroke-linecap="round"/><circle cx="80" cy="28" r="6" fill="#ff9f43"/><circle cx="82" cy="26" r="1.4" fill="#222"/><circle cx="78" cy="31" r="1.4" fill="#222"/>','0 0 90 50') }
+  ],
+  /* ---- 第二岛 房子拼图 ---- */
+  'HOUSE.all': [
+    { label: 'A · 原风格', html: (function(){ var n=vpHouseSvg(); return n.outerHTML; })() },
+    { label: 'B · Emoji 🏠', html: emoji('🏠') },
+    { label: 'C · 暖色房', html: svg('<polygon points="50,18 84,46 16,46" fill="#f0883e"/><rect x="24" y="46" width="52" height="40" fill="#e0c089"/><rect x="42" y="60" width="16" height="26" fill="#9b6b3a"/><circle cx="50" cy="73" r="2" fill="#ffe08a"/><rect x="30" y="52" width="12" height="12" fill="#7ec8e3"/>') }
+  ]
+};
+
+/* 示例清单（覆盖各类素材，含小蛇） */
+var DEMO_KEYS = [
+  'FRUIT_IMG.apple', 'COLOR_IMG.apple_red', 'ANIMAL_IMG.elephant',
+  'SHAPE.circle', 'OBJECT.pizza', 'LS_OBJECT.snake.long', 'LS_OBJECT.snake.short', 'HOUSE.all'
+];
+
+/* ============ 原图渲染（供对照） ============ */
+function originalHtml(key){
+  var parts = key.split('.');
+  var bank = parts[0];
+  if (bank === 'FRUIT_IMG' || bank === 'COLOR_IMG' || bank === 'ANIMAL_IMG') {
+    var id = parts.slice(1).join('.');
+    var src = (window[bank] && window[bank][id]) ? window[bank][id] : null;
+    return src ? '<img src="'+src+'" alt="'+key+'">' : '<div class="placeholder">原图缺失<br>'+key+'</div>';
+  }
+  if (key === 'SHAPE.circle') return vpShapeSvg('circle','#EA5A4F').outerHTML;
+  if (key === 'OBJECT.pizza') return vpObjectSvg('circle','#EA5A4F').outerHTML;
+  if (key === 'HOUSE.all') return vpHouseSvg().outerHTML;
+  if (key.indexOf('LS_OBJECT.') === 0) { var p=key.split('.'); return vpLsObjectSvg(p[1], p[2]); }
+  if (key.indexOf('LS_ANIMAL.') === 0) { var q=key.split('.'); return vpLsAnimalSvg(q[1]); }
+  return '<div class="placeholder">未识别的原图类型<br>'+key+'</div>';
+}
+
+/* ============ 渲染 ============ */
+var sectionsEl = document.getElementById('sections');
+var picks = {};   // key -> chosen candidate index (0..n) or 'orig'
+var total = 0;
+
+function buildPage(keys){
+  sectionsEl.innerHTML = '';
+  picks = {};
+  total = keys.length;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('pickCount').textContent = 0;
+
+  keys.forEach(function(key, idx){
+    var cands = CANDIDATES[key];
+    var block = document.createElement('div');
+    block.className = 'block' + (cands ? ' flagged' : '');
+
+    var bhead = document.createElement('div');
+    bhead.className = 'bhead';
+    var keyHtml = '<span class="bank">'+key.split('.')[0]+'</span>.'+key.split('.').slice(1).join('.');
+    bhead.innerHTML = '<span class="key">'+keyHtml+'</span>' + (cands ? '<span class="tag">需替换 · 已备 3 候选</span>' : '<span class="tag" style="background:rgba(255,107,107,.15);color:#ff9a9a;">未备候选</span>');
+    block.appendChild(bhead);
+
+    var compare = document.createElement('div');
+    compare.className = 'compare';
+
+    // 原图列
+    var origCell = document.createElement('div');
+    origCell.className = 'cell';
+    origCell.innerHTML = '<div class="cap"><b>原图</b>（对照）</div><div class="art">'+originalHtml(key)+'</div>';
+    var origPick = document.createElement('label');
+    origPick.className = 'pick';
+    origPick.innerHTML = '<input type="radio" name="p_'+idx+'" value="orig" checked> 保持原图';
+    origCell.appendChild(origPick);
+    compare.appendChild(origCell);
+
+    if (!cands) {
+      var miss = document.createElement('div');
+      miss.className = 'cell';
+      miss.style.gridColumn = 'span 3';
+      miss.innerHTML = '<div class="placeholder missing">该 key 暂无预设候选。请补充具体替换需求（形状/风格/配色），我会在正式版中补齐 3 个候选。</div>';
+      compare.appendChild(miss);
+    } else {
+      cands.forEach(function(c, ci){
+        var cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.innerHTML = '<div class="cap">候选 <b>'+String.fromCharCode(65+ci)+'</b> · '+c.label+'</div><div class="art">'+c.html+'</div>';
+        var pick = document.createElement('label');
+        pick.className = 'pick';
+        pick.innerHTML = '<input type="radio" name="p_'+idx+'" value="'+ci+'"> 选这个';
+        cell.appendChild(pick);
+        compare.appendChild(cell);
+      });
+    }
+    block.appendChild(compare);
+
+    // 事件：记录选择
+    block.querySelectorAll('input[type=radio]').forEach(function(inp){
+      inp.addEventListener('change', function(){
+        picks[key] = inp.value; // 'orig' 或索引字符串
+        updateCount();
+      });
+    });
+
+    sectionsEl.appendChild(block);
+  });
+  updateCount();
+}
+
+function updateCount(){
+  var n = 0;
+  Object.keys(picks).forEach(function(k){ if (picks[k] !== 'orig' && picks[k] !== undefined) n++; });
+  document.getElementById('pickCount').textContent = n;
+}
+
+/* ============ 载入 / 重置 ============ */
+document.getElementById('btnLoad').addEventListener('click', function(){
+  var txt = document.getElementById('pasteBox').value.trim();
+  if (!txt) { document.getElementById('loadMsg').textContent = '请先粘贴 JSON'; return; }
+  try {
+    var obj = JSON.parse(txt);
+    var keys = obj.flagged_keys || obj.keys || (obj.flagged_by_bank ? [].concat.apply([], Object.keys(obj.flagged_by_bank).map(function(b){return obj.flagged_by_bank[b];})) : null);
+    if (!keys || !keys.length) { document.getElementById('loadMsg').textContent = 'JSON 中未找到 flagged_keys'; return; }
+    buildPage(keys);
+    var withCand = keys.filter(function(k){return !!CANDIDATES[k];}).length;
+    document.getElementById('loadMsg').textContent = '已载入 '+keys.length+' 个 key，其中 '+withCand+' 个已有候选';
+  } catch(e){ document.getElementById('loadMsg').textContent = 'JSON 解析失败：'+e.message; }
+});
+document.getElementById('btnReset').addEventListener('click', function(){
+  document.getElementById('pasteBox').value = '';
+  buildPage(DEMO_KEYS);
+  document.getElementById('loadMsg').textContent = '';
+});
+
+/* ============ 生成替换方案 ============ */
+document.getElementById('btnGen').addEventListener('click', function(){
+  var choices = {};
+  var summary = [];
+  Object.keys(picks).forEach(function(k){
+    var v = picks[k];
+    if (v === 'orig' || v === undefined) { choices[k] = { decision: 'keep_original' }; }
+    else {
+      var ci = parseInt(v, 10);
+      var c = CANDIDATES[k][ci];
+      choices[k] = { decision: 'replace', candidate: String.fromCharCode(65+ci), label: c.label };
+      summary.push(k + ' -> 候选 ' + String.fromCharCode(65+ci) + ' (' + c.label + ')');
+    }
+  });
+  var payload = {
+    _meta: { source: 'art-replacement-review', generated_at: new Date().toISOString(), total_flagged: total, replaced: summary.length },
+    choices: choices
+  };
+  var json = JSON.stringify(payload, null, 2);
+  var body = document.getElementById('modalBody');
+  var html = '';
+  if (summary.length === 0) html += '<div class="placeholder">所有素材均选择「保持原图」，无替换项。</div>';
+  else { html += '<div class="grp" style="font-size:12.5px;color:var(--muted);margin:6px 0;">已选替换（'+summary.length+'）：</div><pre>'+summary.join('\n')+'</pre>'; }
+  html += '<div class="grp" style="font-size:12.5px;color:var(--muted);margin:10px 0 4px;">完整 JSON</div><pre id="jsonOut">'+json.replace(/</g,'&lt;')+'</pre>';
+  body.innerHTML = html;
+  document.getElementById('modal').classList.add('show');
+  window.__lastJson = json;
+});
+document.getElementById('btnClose').addEventListener('click', function(){ document.getElementById('modal').classList.remove('show'); });
+document.getElementById('btnCopy').addEventListener('click', function(){ if (window.__lastJson) navigator.clipboard.writeText(window.__lastJson); });
+document.getElementById('btnDownload').addEventListener('click', function(){
+  if (!window.__lastJson) return;
+  var blob = new Blob([window.__lastJson], { type: 'application/json' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'art-replacement.json'; a.click();
+});
+
+/* ============ 初始化 ============ */
+buildPage(DEMO_KEYS);
+</script>
+</body>
+</html>
