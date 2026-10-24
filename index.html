@@ -2897,7 +2897,7 @@
     { icon: '🦁', name: '动物与动作' },
     { icon: '🍰', name: '食物与饮料' },
     { icon: '🏠', name: '温馨家居' },
-    { icon: '☀️', name: '天气与季节' },
+    { icon: '👶', name: '身体与五官' },
     { icon: '👨‍👩‍👧', name: '家庭成员' },
     { icon: '👕', name: '衣物穿戴' },
     { icon: '🏠', name: '家居房间' },
@@ -3863,7 +3863,8 @@
     '6-2': { numbers: null,       make: 'makeF12', title: '第 2 关', tutorial: true },
     '6-3': { numbers: null,       make: 'makeF13', title: '第 3 关', tutorial: true },
     '6-4': { numbers: null,       make: 'makeF14', title: '第 4 关', tutorial: true },
-    '6-5': { numbers: null,       make: 'makeF15', title: '第 5 关', tutorial: true }
+    '6-5': { numbers: null,       make: 'makeF15', title: '第 5 关', tutorial: true },
+    '7-1': { numbers: null,       make: 'makeG1',  title: '第 1 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3903,6 +3904,24 @@
         '<path d="M43 84 V60 H57 V84 Z" fill="#c98f57"/>' +
         '<circle cx="53" cy="72" r="2" fill="#8a6142"/>';
       return house;
+    }
+    // 第 7 岛是「身体与五官」，地图图标用手写笑脸 SVG（免费 SVG，RULES §二.17，不用 emoji 字符）
+    if (index === 7) {
+      var faceIcon = document.createElementNS(SVG_NS, 'svg');
+      faceIcon.setAttribute('viewBox', '0 0 100 100');
+      faceIcon.setAttribute('class', 'mini-shapes');
+      faceIcon.innerHTML =
+        '<ellipse cx="50" cy="50" rx="40" ry="42" fill="#ffe0c2" stroke="#e8b98d" stroke-width="4"/>' +
+        '<ellipse cx="34" cy="44" rx="7.5" ry="9" fill="#fff" stroke="#5a4a42" stroke-width="3"/>' +
+        '<circle cx="34" cy="45" r="4" fill="#433a36"/>' +
+        '<ellipse cx="66" cy="44" rx="7.5" ry="9" fill="#fff" stroke="#5a4a42" stroke-width="3"/>' +
+        '<circle cx="66" cy="45" r="4" fill="#433a36"/>' +
+        '<path d="M50 50c-2 6-5 10-4 13 1 3 6 3 8 0" fill="none" stroke="#e0a06d" stroke-width="3.4" ' +
+        'stroke-linecap="round"/>' +
+        '<path d="M36 68q14 12 28 0" fill="none" stroke="#e8605c" stroke-width="4" stroke-linecap="round"/>' +
+        '<ellipse cx="24" cy="62" rx="5" ry="3.4" fill="#ffb2a2" opacity=".6"/>' +
+        '<ellipse cx="76" cy="62" rx="5" ry="3.4" fill="#ffb2a2" opacity=".6"/>';
+      return faceIcon;
     }
     if (index === 2) {
       var box = document.createElementNS(SVG_NS, 'svg');
@@ -4029,6 +4048,7 @@
     if (def && def.make === 'makeF13') return makeQuestionF13(typeIdx, prev);
     if (def && def.make === 'makeF14') return makeQuestionF14(typeIdx, prev);
     if (def && def.make === 'makeF15') return makeQuestionF15(typeIdx, prev);
+    if (def && def.make === 'makeG1') return makeQuestionG1(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -14723,6 +14743,617 @@
   var F15_OUTRO = [['book', 'bookshelf', 'on', 'bookShelf'], ['toy', 'box', 'in', 'toyBox'], ['clothes', 'bed', 'on', 'clothesBed']];
   var runF15Tutorial = makeRoomTutorial(F15_ACTS, F15_OUTRO);
 
+  /* ============================================================
+     第 7 岛第 1 关（L7-W1：认识五官 eye / nose / mouth / ear）—— 新岛开篇
+     概念：把「器官零件」与「用途」建立强联系（eyes → see / nose → smell /
+           mouth → eat / ears → hear），并用「拼一张脸」的方式反复操作。
+     教学 13 环节（RULES §三.10 双倍量）：眼 2 演示 + 1 互动 → 鼻 2 演示 + 1 互动 →
+          嘴 2 演示 + 1 互动 → 耳 2 演示 + 1 互动 → 综合互动（点耳）→ 过渡；
+           演示一律「语音播完定格，点屏幕才继续」（§三.14），互动卡 4 秒出小手（§二.12）。
+     答题 12 轮（4/4/4）：A 听音拼脸（缺一个器官的脸 + 3 个零件，拖/点到脸上）/
+           B 听音找五官（3 张小脸，各高亮不同器官）/ C 快速反应（4 个器官，点目标）。
+     规则：无英文字母外显（图 + 中文 aria-label）、答对只音效 + 星星、答错 again、
+           投放热区比视觉大一圈（§三.15）、无生图无 emoji（§二.17）、
+           定格监听不得吞顶栏点击 + 重听不作废本步回调（§三.18）。
+     ============================================================ */
+
+  /* ---- 手写 SVG：圆润空白脸 + 四个器官零件 ---- */
+  var G1_FACE_SVG =
+    '<ellipse cx="50" cy="50" rx="41" ry="43" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.2"/>' +
+    '<ellipse cx="24" cy="63" rx="7.5" ry="5" fill="#ffb2a2" opacity=".5"/>' +
+    '<ellipse cx="76" cy="63" rx="7.5" ry="5" fill="#ffb2a2" opacity=".5"/>';
+
+  var G1_EYE_SVG =
+    '<ellipse cx="23" cy="23" rx="14" ry="16" fill="#fff" stroke="#5a4a42" stroke-width="3"/>' +
+    '<circle cx="23" cy="24" r="7.4" fill="#433a36"/>' +
+    '<circle cx="20.6" cy="21" r="2.4" fill="#fff"/>' +
+    '<path d="M8 10q15-8 30 0" fill="none" stroke="#5a4a42" stroke-width="3" stroke-linecap="round"/>' +
+    '<ellipse cx="77" cy="23" rx="14" ry="16" fill="#fff" stroke="#5a4a42" stroke-width="3"/>' +
+    '<circle cx="77" cy="24" r="7.4" fill="#433a36"/>' +
+    '<circle cx="74.6" cy="21" r="2.4" fill="#fff"/>' +
+    '<path d="M62 10q15-8 30 0" fill="none" stroke="#5a4a42" stroke-width="3" stroke-linecap="round"/>';
+
+  var G1_NOSE_SVG =
+    '<path d="M50 24c-3 13-10 24-8 31 1 6 8 9 14 6 5-2 7-8 5-12" fill="none" stroke="#e0a06d" ' +
+    'stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<ellipse cx="42" cy="58" rx="3.6" ry="2.8" fill="#e0a06d" opacity=".55"/>' +
+    '<ellipse cx="58" cy="58" rx="3.6" ry="2.8" fill="#e0a06d" opacity=".55"/>';
+
+  var G1_MOUTH_SVG =
+    '<path d="M12 14q38 32 76 0q-38-17-76 0z" fill="#e8605c" stroke="#c94a48" stroke-width="3" ' +
+    'stroke-linejoin="round"/>' +
+    '<path d="M24 17q26 20 52 0" fill="none" stroke="#fff" stroke-width="2.6" opacity=".75" ' +
+    'stroke-linecap="round"/>';
+
+  var G1_EAR_SVG =
+    '<path d="M63 13c-17-8-35 3-35 27 0 20 8 34 18 40 8 5 18 0 15-11-2-9-10-13-10-27 0-13 9-20 19-17z" ' +
+    'fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.4" stroke-linejoin="round"/>' +
+    '<path d="M49 30c-9 3-13 12-11 24" fill="none" stroke="#e8b98d" stroke-width="3" stroke-linecap="round"/>';
+
+  var G1_PART_SVG = { eye: G1_EYE_SVG, nose: G1_NOSE_SVG, mouth: G1_MOUTH_SVG, ear: G1_EAR_SVG };
+  var G1_PART_CN = { eye: '眼睛', nose: '鼻子', mouth: '嘴巴', ear: '耳朵' };
+  var G1_PARTS = ['eye', 'nose', 'mouth', 'ear'];
+  /* 每个零件自己的取景框（眼睛是「一对」，所以是扁的） */
+  var G1_PART_BOX = { eye: '0 0 100 46', nose: '0 0 100 100', mouth: '0 0 100 44', ear: '0 0 100 100' };
+
+  function g1PartSvg(part) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', G1_PART_BOX[part] || '0 0 100 100');
+    s.setAttribute('class', 'g1-part-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = G1_PART_SVG[part] || '';
+    return s;
+  }
+
+  function g1FaceSvg() {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 100 100');
+    s.setAttribute('class', 'g1-face-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = G1_FACE_SVG;
+    return s;
+  }
+
+  function ensureG1Css() {
+    if (document.getElementById('g1-style')) return;
+    var s = document.createElement('style');
+    s.id = 'g1-style';
+    s.textContent =
+      /* 教学舞台 */
+      '.g1-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'width:100%;gap:1.6vh;padding-bottom:6vh;box-sizing:border-box}' +
+      /* 脸：外层只负责「投放热区」，内层负责视觉 —— 热区比图形大一圈（§三.15） */
+      '.g1-face{position:relative;width:min(76vw,300px);aspect-ratio:1/1;padding:7%;box-sizing:border-box;' +
+      'border-radius:28px;display:flex;align-items:center;justify-content:center}' +
+      '.g1-face.g1-drop{cursor:pointer}' +
+      '.g1-face.drop-hot,.g1-face.g1-hot{outline:4px dashed #ffb74d;outline-offset:2px}' +
+      '.g1-face.right{box-shadow:0 0 0 4px rgba(127,209,138,.45);border-radius:28px}' +
+      '.g1-face-in{position:relative;width:100%;height:100%}' +
+      '.g1-face-svg{position:absolute;inset:0;width:100%;height:100%;display:block}' +
+      /* 贴在脸上的器官 */
+      '.g1-on{position:absolute;display:flex;align-items:center;justify-content:center}' +
+      '.g1-on svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.g1-on[data-part="eye"]{left:24%;top:34%;width:52%;aspect-ratio:100/46}' +
+      '.g1-on[data-part="nose"]{left:40%;top:47%;width:20%;aspect-ratio:100/100}' +
+      '.g1-on[data-part="mouth"]{left:31%;top:63%;width:38%;aspect-ratio:100/44}' +
+      '.g1-on[data-part="ear"][data-side="left"]{left:-6%;top:34%;width:18%;aspect-ratio:100/100;' +
+      'transform:scaleX(-1)}' +
+      '.g1-on[data-part="ear"][data-side="right"]{right:-6%;top:34%;width:18%;aspect-ratio:100/100}' +
+      '.g1-on.g1-touchable{cursor:pointer;pointer-events:auto;padding:2%}' +
+      '.g1-on.g1-touchable svg{pointer-events:none}' +
+      '.g1-on.g1-hl{filter:drop-shadow(0 0 8px rgba(255,160,40,1));transform:scale(1.3)}' +
+      '.g1-on.g1-dim{opacity:.18}' +
+      '.g1-on.g1-pop{animation:g1pop .45s cubic-bezier(.2,1.5,.5,1)}' +
+      '.g1-on.wrong{animation:g1shake .5s;opacity:.5}' +
+      /* 空位虚线提示（演示 1：脸上没有眼睛） */
+      '.g1-slot{position:absolute;border:2.6px dashed #e8b98d;border-radius:50%;opacity:.8;' +
+      'animation:g1pulse 1.5s ease-in-out infinite}' +
+      '.g1-slot[data-part="eye"]{left:25%;top:35%;width:50%;height:15%}' +
+      '.g1-slot[data-part="nose"]{left:39%;top:47%;width:22%;height:19%;border-radius:45%}' +
+      '.g1-slot[data-part="mouth"]{left:30%;top:63%;width:40%;height:13%}' +
+      '.g1-slot[data-part="ear"]{left:-6%;top:34%;width:18%;height:26%}' +
+      /* 零件托盘（教学互动 / 演示里「拿出一件」） */
+      '.g1-tray{display:flex;gap:min(5vw,20px);justify-content:center;align-items:center;width:100%}' +
+      '.g1-part-btn{display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.72);' +
+      'border:3px solid #ffd9a0;border-radius:22px;padding:7%;width:min(24vw,108px);aspect-ratio:1/1;' +
+      'box-sizing:border-box;' +
+      'cursor:pointer;box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease}' +
+      '.g1-part-btn:active{transform:scale(.96)}' +
+      '.g1-part-btn svg{width:88%;height:88%;display:block;pointer-events:none}' +
+      '.g1-part-btn.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.g1-part-btn.wrong{animation:g1shake .5s;border-color:#f0a0a0}' +
+      '.g1-part-btn.picked{transform:translateY(-6px) scale(1.06);filter:drop-shadow(0 0 10px #ffc85e)}' +
+      '.g1-part-btn.g1-glow{animation:g1glow 1.1s ease-in-out infinite}' +
+      /* 答题 A：缺一个器官的脸 + 选项栏零件 */
+      '.g1-ask{display:flex;flex-direction:column;align-items:center;width:100%;gap:1.2vh}' +
+      '.option.g1-opt .slot svg{width:86%;max-width:108px;height:auto;display:block;' +
+      'filter:drop-shadow(0 4px 6px rgba(150,90,40,.28))}' +
+      /* 答题 B：三张小脸 */
+      '.g1-grid{display:flex;gap:min(3vw,12px);justify-content:center;align-items:center;' +
+      'width:100%;margin:1vh auto}' +
+      '.g1-mini{position:relative;width:min(29vw,140px);aspect-ratio:1/1;background:rgba(255,255,255,.7);' +
+      'border:3px solid #ffd9a0;border-radius:22px;padding:5%;cursor:pointer;display:block;' +
+      'box-sizing:border-box;' +
+      'box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease}' +
+      '.g1-mini:active{transform:scale(.96)}' +
+      '.g1-mini .g1-face-in{pointer-events:none}' +
+      '.g1-mini.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.g1-mini.wrong{animation:g1shake .5s;border-color:#f0a0a0}' +
+      /* 答题 C：四个器官 */
+      '.g1-grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:min(4vw,16px);' +
+      'width:min(84vw,360px);margin:1.2vh auto}' +
+      '.g1-opt-btn{display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.72);' +
+      'border:3px solid #ffd9a0;border-radius:22px;padding:8%;aspect-ratio:1/1;cursor:pointer;' +
+      'box-sizing:border-box;' +
+      'box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease}' +
+      '.g1-opt-btn:active{transform:scale(.96)}' +
+      '.g1-opt-btn svg{width:86%;height:86%;display:block;pointer-events:none}' +
+      '.g1-opt-btn.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.g1-opt-btn.wrong{animation:g1shake .5s;border-color:#f0a0a0}' +
+      '@keyframes g1pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}' +
+      '@keyframes g1pulse{0%,100%{opacity:.45}50%{opacity:.95}}' +
+      '@keyframes g1shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      '@keyframes g1glow{0%,100%{filter:drop-shadow(0 0 3px rgba(255,205,110,.5))}' +
+      '50%{filter:drop-shadow(0 0 14px rgba(255,190,80,.95))}}' +
+      /* 横屏矮屏：可点目标一律留在视口内（§三.15） */
+      '@media (max-height:560px){' +
+      '.g1-stage{gap:.8vh}.g1-face{width:min(34vw,168px)}.g1-part-btn{width:min(15vw,74px)}' +
+      '.g1-grid{margin:.6vh auto}.g1-mini{width:min(19vw,104px)}' +
+      '.g1-grid4{gap:min(2vw,10px);margin:.6vh auto;width:min(66vw,300px)}}';
+    document.head.appendChild(s);
+  }
+
+  /** 一张脸（parts = 已经贴上的器官） */
+  function g1FaceNode(parts) {
+    var wrap = document.createElement('div');
+    wrap.className = 'g1-face-in';
+    wrap.appendChild(g1FaceSvg());
+    parts.forEach(function (p) {
+      if (p === 'ear') {
+        ['left', 'right'].forEach(function (side) { wrap.appendChild(g1OnNode('ear', side)); });
+      } else {
+        wrap.appendChild(g1OnNode(p, null));
+      }
+    });
+    return wrap;
+  }
+
+  function g1OnNode(part, side) {
+    var d = document.createElement('div');
+    d.className = 'g1-on';
+    d.dataset.part = part;
+    if (side) d.dataset.side = side;
+    d.setAttribute('aria-hidden', 'true');
+    d.appendChild(g1PartSvg(part));
+    return d;
+  }
+
+  /** 把器官「贴」到脸上（带弹出动画）；ear 会一次贴两只 */
+  function g1PlaceOnFace(faceIn, part) {
+    if (!faceIn) return;
+    if (part === 'ear') {
+      ['left', 'right'].forEach(function (side) {
+        var n = g1OnNode('ear', side);
+        n.classList.add('g1-pop');
+        faceIn.appendChild(n);
+      });
+    } else {
+      var n = g1OnNode(part, null);
+      n.classList.add('g1-pop');
+      faceIn.appendChild(n);
+    }
+  }
+
+  /** 缺一个器官的脸：parts 里没有目标器官，并留一个虚线空位 */
+  function g1SlotNode(part) {
+    var slot = document.createElement('div');
+    slot.className = 'g1-slot';
+    slot.dataset.part = part;
+    slot.setAttribute('aria-hidden', 'true');
+    return slot;
+  }
+
+  /* ---------------- 题型 A：听音拼脸（缺一个器官 + 3 个零件） ---------------- */
+  function renderG1A(q) {
+    ensureG1Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'g1-ask';
+    var face = document.createElement('div');
+    face.className = 'g1-face g1-drop';
+    face.dataset.drop = 'face';
+    face.setAttribute('aria-label', '脸');
+    var restParts = G1_PARTS.filter(function (p) { return p !== q.part; });
+    var inner = g1FaceNode(restParts);
+    inner.appendChild(g1SlotNode(q.part));
+    face.appendChild(inner);
+    face.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      if (state.pickedFruit === null) return;
+      resolveG1A(state.pickedFruit, face);
+    });
+    box.appendChild(face);
+    askDisplay.appendChild(box);
+  }
+
+  function resolveG1A(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'G1A') return;
+    var drop = (typeof target === 'string') ? target
+      : (target && target.dataset ? target.dataset.drop : null);
+    var part = q.options[itemIdx] ? q.options[itemIdx].part : null;
+    var ok = (drop === 'face') && (part === q.part);
+    if (ok) {
+      var faceEl = (typeof target === 'string')
+        ? askDisplay.querySelector('.g1-face[data-drop="face"]') : target;
+      var inner = faceEl && faceEl.querySelector('.g1-face-in');
+      if (inner) {
+        g1PlaceOnFace(inner, part);
+        var slot = inner.querySelector('.g1-slot');
+        if (slot && slot.parentNode) slot.parentNode.removeChild(slot);
+      }
+      faceEl.classList.add('right');
+      judge(true, faceEl);
+    } else {
+      if (target && target.classList) {
+        target.classList.add('wrong');
+        setTimeout(function () { target.classList.remove('wrong'); }, 520);
+      }
+      judge(false, optionEls[itemIdx] || target);
+    }
+  }
+
+  /* ---------------- 题型 B：听音找五官（3 张小脸，各高亮不同器官） ---------------- */
+  function renderG1B(q) {
+    ensureG1Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'g1-grid';
+    grid.dataset.n = '3';
+    grid.setAttribute('aria-label', '小脸');
+    q.options.forEach(function (opt, i) {
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'g1-mini';
+      card.dataset.idx = String(i);
+      card.dataset.hl = opt.hl;
+      card.setAttribute('aria-label', '小脸');
+      var inner = g1FaceNode(G1_PARTS);
+      Array.prototype.forEach.call(inner.querySelectorAll('.g1-on'), function (n) {
+        if (n.dataset.part === opt.hl) n.classList.add('g1-hl');
+        else n.classList.add('g1-dim');
+      });
+      card.appendChild(inner);
+      card.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(card.dataset.idx) === state.question.correct, card);
+      });
+      grid.appendChild(card);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /* ---------------- 题型 C：快速反应（4 个器官点目标） ---------------- */
+  function renderG1C(q) {
+    ensureG1Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'g1-grid4';
+    grid.setAttribute('aria-label', '器官');
+    q.options.forEach(function (opt, i) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'g1-opt-btn';
+      btn.dataset.idx = String(i);
+      btn.dataset.part = opt.part;
+      btn.setAttribute('aria-label', G1_PART_CN[opt.part] || '器官');
+      btn.appendChild(g1PartSvg(opt.part));
+      btn.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(btn.dataset.idx) === state.question.correct, btn);
+      });
+      grid.appendChild(btn);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /* ---------------- 出题：A 拼脸 / B 找五官 / C 快速反应 ---------------- */
+  function makeQuestionG1(type, prev) {
+    ensureG1Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var want = pick(G1_PARTS);
+        var others = G1_PARTS.filter(function (p) { return p !== want; });
+        shuffle(others);
+        var optsA = [want].concat(others.slice(0, 2));
+        shuffle(optsA);
+        q = {
+          type: 'G1A', sig: 'A:' + want + ':' + optsA.join(','), part: want,
+          options: optsA.map(function (p) { return { kind: 'g1part', part: p }; }),
+          correct: optsA.indexOf(want), audio: ['g1_a_' + want]
+        };
+      } else if (type === 1) {
+        var hl = pick(G1_PARTS);
+        var rest = G1_PARTS.filter(function (p) { return p !== hl; });
+        shuffle(rest);
+        var faces = [hl].concat(rest.slice(0, 2));
+        shuffle(faces);
+        q = {
+          type: 'G1B', sig: 'B:' + hl + ':' + faces.join(','), hl: hl,
+          options: faces.map(function (p) { return { kind: 'g1face', hl: p }; }),
+          correct: faces.indexOf(hl), audio: ['g1_b_' + hl]
+        };
+      } else {
+        var target = pick(G1_PARTS);
+        var order = G1_PARTS.slice();
+        shuffle(order);
+        q = {
+          type: 'G1C', sig: 'C:' + target + ':' + order.join(','), part: target,
+          options: order.map(function (p) { return { kind: 'g1part', part: p }; }),
+          correct: order.indexOf(target), audio: ['g1_c_' + target]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /** 教学互动判定：把零件放到脸上（拖 / 点都走这里） */
+  function resolveG1T(itemIdx, target) {
+    var me = state.tut;
+    if (!me || !me.askPart) return;
+    var drop = (typeof target === 'string') ? target
+      : (target && target.dataset ? target.dataset.drop : null);
+    var part = (me.items && me.items[itemIdx]) ? me.items[itemIdx] : null;
+    if (drop === 'face' && part === me.askPart) {
+      var faceEl = askDisplay.querySelector('.g1-face[data-drop="face"]');
+      var inner = faceEl && faceEl.querySelector('.g1-face-in');
+      if (inner) {
+        g1PlaceOnFace(inner, part);
+        var slot = inner.querySelector('.g1-slot');
+        if (slot && slot.parentNode) slot.parentNode.removeChild(slot);
+      }
+      if (faceEl) faceEl.classList.add('right');
+      clearHint(); coin(); ting();
+      me.askPart = null;
+      setTimeout(function () { if (state.tut === me && me._advance) me._advance(); }, 900);
+    } else {
+      if (target && target.classList) {
+        target.classList.add('wrong');
+        setTimeout(function () { target.classList.remove('wrong'); }, 520);
+      }
+      say(['again']);
+      if (state.tut === me) armHint();
+    }
+  }
+
+  /* 教学：8 个演示 + 4 个互动 + 过渡（RULES §三.10 双倍量、§三.14 点按推进、§二.12 四秒小手） */
+  var runG1Tutorial = (function () {
+    var ACTS = [
+      /* 眼睛：空白脸 → 拿出眼睛并贴上 → 互动 */
+      { t: 'demo', sid: 'face',     word: 'g1_t_face',      have: [] },
+      { t: 'demo', sid: 'eye',      word: 'g1_t_eyes',      have: [],      show: 'eye',   add: 'eye' },
+      { t: 'ask',  sid: 'askEye',   word: 'g1_t_eyes_ask',  have: [],      items: ['eye', 'nose', 'mouth'], ans: 'eye' },
+      /* 鼻子 */
+      { t: 'demo', sid: 'nose1',    word: 'g1_t_nose1',     have: ['eye'], show: 'nose' },
+      { t: 'demo', sid: 'nose2',    word: 'g1_t_nose2',     have: ['eye'], show: 'nose', add: 'nose' },
+      { t: 'ask',  sid: 'askNose',  word: 'g1_t_nose_ask',  have: ['eye'], items: ['nose', 'ear'], ans: 'nose' },
+      /* 嘴巴 */
+      { t: 'demo', sid: 'mouth1',   word: 'g1_t_mouth1',    have: ['eye', 'nose'], show: 'mouth' },
+      { t: 'demo', sid: 'mouth2',   word: 'g1_t_mouth2',    have: ['eye', 'nose'], show: 'mouth', add: 'mouth' },
+      { t: 'ask',  sid: 'askMouth', word: 'g1_t_mouth_ask', have: ['eye', 'nose'], items: ['mouth', 'eye'], ans: 'mouth' },
+      /* 耳朵 */
+      { t: 'demo', sid: 'ear1',     word: 'g1_t_ear1',      have: ['eye', 'nose', 'mouth'], show: 'ear' },
+      { t: 'demo', sid: 'ear2',     word: 'g1_t_ear2',      have: ['eye', 'nose', 'mouth'], show: 'ear', add: 'ear' },
+      /* 综合互动：完整脸，点耳朵 */
+      { t: 'ask',  sid: 'askEar',   word: 'g1_t_ear_ask',   have: G1_PARTS.slice(), touch: 'ear' },
+      /* 过渡 */
+      { t: 'out',  sid: 'out',      word: 'g1_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.askPart = null; me.pick = null; me.waitTap = false;
+      me.canDrag = false; me.customMode = null; me.replay = null; me._advance = null;
+      me.items = null; me.touchPart = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid) {
+      blank(me);
+      ensureG1Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'g1-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', '拼五官');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /* 演示定格：等用户点屏幕任意位置才 next()（禁止定时器自动前进） */
+    function gate(me, next) {
+      if (me.waitTap) return;      // 幂等：已在定格中就不要重复挂监听（否则一次点击会连跳两步）
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;   // 顶栏「重播 / 返回」的点击不算教学里的「轻点继续」
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    function faceBox(parts, slotPart) {
+      var face = document.createElement('div');
+      face.className = 'g1-face g1-drop';
+      face.dataset.drop = 'face';
+      face.setAttribute('aria-label', '脸');
+      var inner = g1FaceNode(parts);
+      if (slotPart) inner.appendChild(g1SlotNode(slotPart));
+      face.appendChild(inner);
+      return face;
+    }
+    function tray(me, parts) {
+      var row = document.createElement('div');
+      row.className = 'g1-tray';
+      parts.forEach(function (part, idx) {
+        var btn = document.createElement('div');
+        btn.className = 'g1-part-btn';
+        btn.dataset.part = part;
+        btn.dataset.item = part;
+        btn.dataset.idx = String(idx);
+        btn.dataset.drag = 'item';        // 必须挂上，才能走全局拖拽引擎（教学互动 = 拖 / 点两条路径）
+        btn.setAttribute('aria-label', G1_PART_CN[part] || '器官');
+        btn.appendChild(g1PartSvg(part));
+        btn.addEventListener('click', function () {
+          if (state.tut !== me || !me.askPart || state.busy) return;
+          me.pick = idx;
+          Array.prototype.forEach.call(row.querySelectorAll('.picked'), function (p) {
+            p.classList.remove('picked');
+          });
+          btn.classList.add('picked');
+        });
+        row.appendChild(btn);
+      });
+      return row;
+    }
+    function playDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var face = faceBox(act.have, (act.sid === 'face') ? 'eye' : null);   // 空白脸：只留眼睛空位
+      w.appendChild(face);
+      if (act.show) {
+        var row = tray(me, [act.show]);
+        var btn = row.firstChild;
+        btn.classList.add('g1-glow');
+        w.appendChild(row);
+      }
+      var inner = face.querySelector('.g1-face-in');
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        if (act.add) {
+          g1PlaceOnFace(inner, act.add);
+          var slot = inner.querySelector('.g1-slot');
+          if (slot && slot.parentNode) slot.parentNode.removeChild(slot);
+        }
+        gate(me, next);
+      });
+    }
+    /* 互动：把器官拖 / 点到脸上（热区=整张脸 + 外扩 7%） */
+    function playAsk(me, act, next) {
+      var w = stage(me, act.sid);
+      if (act.touch) {
+        /* 综合互动：完整脸，点指定器官 */
+        var fbox = faceBox(act.have, null);
+        var fin = fbox.querySelector('.g1-face-in');
+        var targetNode = null;
+        Array.prototype.forEach.call(fin.querySelectorAll('.g1-on'), function (n) {
+          if (n.dataset.part === act.touch) {
+            /* 综合互动考的是「听」：整张脸保持正常显示，不做任何高亮/淡化，
+               否则孩子看高亮就能点对，等于没听（RULES §三.16）。 */
+            n.classList.add('g1-touchable');
+            if (!targetNode) targetNode = n;
+            n.addEventListener('click', function (ev) {
+              if (state.tut !== me || !me.touchPart) return;
+              if (ev && ev.stopPropagation) ev.stopPropagation();
+              clearHint(); coin(); ting();
+              me.touchPart = null;
+              n.classList.add('g1-hl');
+              fbox.classList.add('right');
+              setTimeout(function () { if (state.tut === me) next(); }, 900);
+            });
+          } else {
+            /* 点错也要有温柔反馈（RULES §二.12 / §1.6），而不是毫无反应 */
+            n.addEventListener('click', function (ev) {
+              if (state.tut !== me || !me.touchPart) return;
+              if (ev && ev.stopPropagation) ev.stopPropagation();
+              n.classList.add('wrong');
+              setTimeout(function () { n.classList.remove('wrong'); }, 520);
+              say(['again']);
+              armHint();
+            });
+          }
+        });
+        w.appendChild(fbox);
+        me.touchPart = act.touch;
+        me.hintTarget = targetNode;
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () { if (state.tut === me) armHint(); });
+        return;
+      }
+      var face = faceBox(act.have, null);
+      w.appendChild(face);
+      var row = tray(me, act.items);
+      w.appendChild(row);
+      var ansBtn = row.querySelector('[data-part="' + act.ans + '"]');
+      me.items = act.items.slice();
+      me.askPart = act.ans;
+      me.canDrag = true;
+      me.customMode = 'G1T';
+      me._advance = next;
+      me.pick = null;
+      me.hintFrom = ansBtn;
+      me.hintTo = face;
+      me.hintToY = 0.5;
+      me.hintTarget = face;
+      face.addEventListener('click', function () {
+        if (state.tut !== me || !me.askPart || state.busy) return;
+        if (me.pick === null) return;
+        resolveG1T(me.pick, face);
+      });
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) armHint(); });
+    }
+    function playOutro(me, act) {
+      var w = stage(me, act.sid);
+      var face = faceBox(G1_PARTS, null);
+      face.classList.add('right');
+      w.appendChild(face);
+      var row = document.createElement('div');
+      row.className = 'g1-tray';
+      G1_PARTS.forEach(function (p) {
+        var d = document.createElement('div');
+        d.className = 'g1-part-btn g1-glow';
+        d.dataset.part = p;
+        d.setAttribute('aria-hidden', 'true');
+        d.appendChild(g1PartSvg(p));
+        row.appendChild(d);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'out') { playOutro(me, act); return; }
+      playAsk(me, act, next);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
   var runB4Tutorial = (function () {
@@ -14979,6 +15610,10 @@
     if (q.type === 'B5A') { optionsBar.classList.add('gone'); renderB5A(q); return; }
     if (q.type === 'B5B') { optionsBar.classList.add('gone'); renderB5B(q); return; }
     if (q.type === 'B5C') { renderB5C(q); return; }
+    /* ---- 第 7 岛第 1 关：认识五官（A 缺一个器官的脸 + 选项栏零件可拖；B/C 宫格） ---- */
+    if (q.type === 'G1A') { renderG1A(q); return; }
+    if (q.type === 'G1B') { optionsBar.classList.add('gone'); renderG1B(q); return; }
+    if (q.type === 'G1C') { optionsBar.classList.add('gone'); renderG1C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -15401,6 +16036,11 @@
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
+    // 第 7 岛第 1 关 B/C：题目画在中央宫格，选项栏收起
+    if (q.type === 'G1B' || q.type === 'G1C') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
     if (q.type === 'F1A' || q.type === 'F1B') { renderF1Grid(q); return; }
     if (q.type === 'F2A' || q.type === 'F2B') { renderF2Grid(q); return; }
     if (q.type === 'F3A' || q.type === 'F3B') { renderF3Grid(q); return; }
@@ -15578,6 +16218,10 @@
         // 第 3 岛第 5 关题型 C：可拖进「重箱 / 轻箱」的物品（A/B 用独立宫格）
         btn.classList.add('b5x-opt');
         slot.appendChild(b5xItemSvg(opt.item));
+      } else if (opt.kind === 'g1part') {
+        // 第 7 岛第 1 关题型 A：可拖到脸上的器官零件
+        btn.classList.add('g1-opt');
+        slot.appendChild(g1PartSvg(opt.part));
       } else if (opt.kind === 'f1animal') {
         // 第 4 岛第 1 关题型 C：可拖进农场的动物
         btn.classList.add('f1-opt');
@@ -15719,6 +16363,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'B5C') {
         // 第 3 岛第 5 关题型 C：物品可拖进游乐场入口
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'G1A') {
+        // 第 7 岛第 1 关题型 A：器官零件可拖到脸上
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -15955,7 +16604,8 @@
         // 答错后把选项重新打乱，避免靠记位置蒙对。
         // 注意：第 3 岛第 4 / 5 关 A/B 的题目画在中央、不走选项栏，重洗会让 q.options 与 DOM 错位（点对也判错），故跳过。
         var qt = state.question && state.question.type;
-        if (qt !== 'B4A' && qt !== 'B4B' && qt !== 'B5A' && qt !== 'B5B') {
+        if (qt !== 'B4A' && qt !== 'B4B' && qt !== 'B5A' && qt !== 'B5B' &&
+            qt !== 'G1B' && qt !== 'G1C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -16118,6 +16768,10 @@
         resolveB5C(d.idx, target);
       } else if (d.mode === 'B5T') {
         resolveB5T(d.idx, target);
+      } else if (d.mode === 'G1A') {
+        resolveG1A(d.idx, target);
+      } else if (d.mode === 'G1T') {
+        resolveG1T(d.idx, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -17089,6 +17743,14 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '7-1': {
+      // 认识五官（eye / nose / mouth / ear）：眼鼻嘴耳各 2 演示 + 1 互动，最后一张完整脸点耳朵，共 13 环节；
+      // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、互动一律「把零件拖/点到脸上」
+      custom: runG1Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -17340,6 +18002,7 @@
         q.type === 'F4C' ||         q.type === 'F6C' || q.type === 'F7C' ||
         q.type === 'F8C' || q.type === 'F9B' || q.type === 'F10A' || q.type === 'F11C' || q.type === 'F12C' || q.type === 'F13C' ||
         q.type === 'F14A' || q.type === 'F14C' || q.type === 'F15A' || q.type === 'F15C' ||
+        q.type === 'G1A' ||
         q.type === 'B4C') return q.type;
     return null;
   }
@@ -17611,6 +18274,12 @@
 
       // 第 3 岛第 5 关题型 C：点物品选中，再点游乐场入口投放
       if (q.type === 'B5C') {
+        tapFruit(idx, btn);
+        return;
+      }
+
+      // 第 7 岛第 1 关题型 A：点器官选中，再点脸投放（拖拽的等价路径）
+      if (q.type === 'G1A') {
         tapFruit(idx, btn);
         return;
       }
@@ -18025,6 +18694,8 @@
             if (o.kind === 'b4item') return 'i:' + o.item;
             if (o.kind === 'b5xitem') return 'i:' + o.item;
             if (o.kind === 'b5xscene') return 's:' + o.scene;
+            if (o.kind === 'g1part') return 'i:' + o.part;
+            if (o.kind === 'g1face') return 's:' + o.hl;
             if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
@@ -18040,7 +18711,9 @@
           ansItem: q.ansItem || null,
           ansBox: q.ansBox || null,
           cmp: q.cmp || null,
-          ansScene: q.ansScene || null
+          ansScene: q.ansScene || null,
+          part: q.part || null,
+          hl: q.hl || null
         } : null
       };
     },

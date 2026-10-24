@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**733** 条（英文 727 + 中文 6）
+总条目：**758** 条（英文 752 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -717,20 +717,45 @@
 | `b4_c_balloon` | en | Put the light balloon in the light box. | 已存在 |
 | `b4_c_elephant` | en | Put the heavy elephant in the heavy box. | 已存在 |
 | `b4_c_apple` | en | Put the light apple in the light box. | 已存在 |
-| `b5x_t_gate` | en | Look! The big key and the small key. We need the big key. | 待生成 |
-| `b5x_t_ask1` | en | Find the big animal to help us. | 待生成 |
-| `b5x_t_bridge` | en | The short board is too short. We need the long board. | 待生成 |
-| `b5x_t_ask2` | en | Find the long one. | 待生成 |
-| `b5x_t_coins` | en | We have few coins. We need more coins! | 待生成 |
-| `b5x_t_seesaw` | en | The elephant is heavy. The feather is light. | 待生成 |
-| `b5x_t_ask3` | en | Put the heavy rock on the seesaw. | 待生成 |
-| `b5x_t_out` | en | Wow! You know big, long, more and heavy! Let's play! | 待生成 |
-| `b5x_a_heavy` | en | Which one is heavy? | 待生成 |
-| `b5x_a_light` | en | Which one is light? | 待生成 |
-| `b5x_b_bridge` | en | We need the long board. Find the picture. | 待生成 |
-| `b5x_b_gate` | en | We need the big key. Find the picture. | 待生成 |
-| `b5x_b_seesaw` | en | The elephant is heavy. The feather is light. Find the picture. | 待生成 |
-| `b5x_c_feather` | en | Put the light feather in the light box. | 待生成 |
+| `b5x_t_gate` | en | Look! The big key and the small key. We need the big key. | 已存在 |
+| `b5x_t_ask1` | en | Find the big animal to help us. | 已存在 |
+| `b5x_t_bridge` | en | The short board is too short. We need the long board. | 已存在 |
+| `b5x_t_ask2` | en | Find the long one. | 已存在 |
+| `b5x_t_coins` | en | We have few coins. We need more coins! | 已存在 |
+| `b5x_t_seesaw` | en | The elephant is heavy. The feather is light. | 已存在 |
+| `b5x_t_ask3` | en | Put the heavy rock on the seesaw. | 已存在 |
+| `b5x_t_out` | en | Wow! You know big, long, more and heavy! Let's play! | 已存在 |
+| `b5x_a_heavy` | en | Which one is heavy? | 已存在 |
+| `b5x_a_light` | en | Which one is light? | 已存在 |
+| `b5x_b_bridge` | en | We need the long board. Find the picture. | 已存在 |
+| `b5x_b_gate` | en | We need the big key. Find the picture. | 已存在 |
+| `b5x_b_seesaw` | en | The elephant is heavy. The feather is light. Find the picture. | 已存在 |
+| `b5x_c_feather` | en | Put the light feather in the light box. | 已存在 |
+| `g1_t_face` | en | Look! A face. But it has no eyes. Where are the eyes? | 待生成 |
+| `g1_t_eyes` | en | Eyes. We see with our eyes. | 待生成 |
+| `g1_t_eyes_ask` | en | Find the eyes. Put the eyes on the face. | 待生成 |
+| `g1_t_nose1` | en | A nose. | 待生成 |
+| `g1_t_nose2` | en | We smell with our nose. | 待生成 |
+| `g1_t_nose_ask` | en | Put the nose on the face. | 待生成 |
+| `g1_t_mouth1` | en | A mouth. | 待生成 |
+| `g1_t_mouth2` | en | We eat with our mouth. | 待生成 |
+| `g1_t_mouth_ask` | en | Put the mouth on the face. | 待生成 |
+| `g1_t_ear1` | en | Ears. | 待生成 |
+| `g1_t_ear2` | en | We hear with our ears. | 待生成 |
+| `g1_t_ear_ask` | en | Where is the ear? Touch the ear. | 待生成 |
+| `g1_t_out` | en | Wow! A happy face! Let's play! | 待生成 |
+| `g1_a_eye` | en | Where are the eyes? Put the eyes on the face. | 待生成 |
+| `g1_a_nose` | en | Where is the nose? Put the nose on the face. | 待生成 |
+| `g1_a_mouth` | en | Where is the mouth? Put the mouth on the face. | 待生成 |
+| `g1_a_ear` | en | Where is the ear? Put the ear on the face. | 待生成 |
+| `g1_b_eye` | en | Find the eyes. | 待生成 |
+| `g1_b_nose` | en | Find the nose. | 待生成 |
+| `g1_b_mouth` | en | Find the mouth. | 待生成 |
+| `g1_b_ear` | en | Find the ear. | 待生成 |
+| `g1_c_eye` | en | Touch your eyes! | 待生成 |
+| `g1_c_nose` | en | Touch your nose! | 待生成 |
+| `g1_c_mouth` | en | Touch your mouth! | 待生成 |
+| `g1_c_ear` | en | Touch your ear! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

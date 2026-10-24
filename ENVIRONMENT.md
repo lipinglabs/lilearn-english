@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-24（教学音频修复：定格监听不再吞顶栏「重播/返回」点击、重听不再作废本步回调；新增 `tools/probe_audio.js`；第 3 岛第 5 关彻底重做：旧「比较与分类」全删 → 全新「游乐场 · 综合比较大考」，第 3 岛 5 关全通；第 6 岛 5 关全通；语音 733 条）
+> 最后更新：2026-10-24（第 7 岛第 1 关「认识五官 eye / nose / mouth / ear」上线：新岛「身体与五官」（原「天气与季节」让位），解锁链 = 6-5 通关；第 3 岛第 5 关已重做为「游乐场综合大考」；教学音频修复（定格不再吞顶栏点击、重听不再卡死）；语音 758 条）
 
 ---
 
@@ -14,7 +14,7 @@
 | 线上地址 | https://lipinglabs.github.io/lilearn-english/ |
 | 仓库 | `lipinglabs/lilearn-english`（**public**） |
 | 技术形态 | 纯静态：单页 HTML + 两个数据脚本 + Service Worker。**无构建、无框架、无后端、无 npm 依赖** |
-| 内容规模 | 12 岛 × 5 关框架；已做第 1–5 岛全部 + 第 6 岛第 1–5 关（第 6 岛已全通） |
+| 内容规模 | 12 岛 × 5 关框架；已做第 1–5 岛全部 + 第 6 岛第 1–5 关（已全通）+ 第 7 岛第 1 关 |
 | 部署 | GitHub Pages（源 `main` 分支根目录 `/`，legacy 构建），推送即自动重建 |
 
 ---
@@ -63,8 +63,8 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   768,096 B / 17,990 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  22,818,683 B /  6,808 行   ← window.VOICE_BANK，733 条 base64 mp3
+index.html   823,853 B / 18,736 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  23,570,253 B /  7,033 行   ← window.VOICE_BANK，758 条 base64 mp3
 assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
 ```
 
@@ -126,7 +126,7 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_food.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_audio.js` / `probe_b3.js` / `probe_b4.js` / `probe_b5.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `probe_f11.js` / `probe_f12.js` / `probe_f13.js` / `probe_f14.js` / `probe_f15.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的十四个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**；`probe_f11.js` 起额外断言「演示步不点按则不自动前进」；`probe_f13.js` 额外断言「球的热区比图形大一圈、画得够大」；`probe_f14.js` 用「轻点拾起→点家具」路径跑教学互动，按**期望舞台指纹**匹配（自动跳过物品落位产生的额外指纹），并断言多步 `stepsDone` 落位、第二步口播不计入「答对禁人声」；`probe_f15.js` 为第 6 岛第 5 关综合关，额外断言通关走 grand（岛内收官）、地图第 6 岛 `cleared` 点亮、纵向越界一并检查；`probe_b4.js` 为第 3 岛第 4 关「轻重感知」，断言演示点按推进、互动 4 秒小手、A/B/C 三型语音与重量/跷跷板/分类框一致、拖错框不推进、答对禁人声；`probe_b5.js` 为第 3 岛第 5 关「游乐场综合大考」，教学按 `.b5x-stage[data-sid]` 指纹逐步校验 8 环节（含互动 3 的拖错不推进 + 拖对推进），断言 A/B/C 语音与比较词/答案场景/轻重框一致、通关走 grand、地图第 3 岛 `cleared` 点亮；其 `overflow()` 会跳过已隐藏视图（`#viewAsk/#viewDone/#viewStart`）内的旧节点；`probe_audio.js` 是**真实音频**的教学音频专项探针（不 stub `Audio`），用法 `node tools/probe_audio.js <island> <level>`，断言「语音播放中点喇叭不卡死、定格中点喇叭要发声且不跳步、喇叭 click 能到达冒泡阶段」）。**注意**：多个探针并行跑会因沙箱 PNG 写入串行化而偶发 `EPERM`，回归请**串行**执行。 |
+| `tools/probe_audio.js` / `probe_b3.js` / `probe_b4.js` / `probe_b5.js` / `probe_g1.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `probe_f11.js` / `probe_f12.js` / `probe_f13.js` / `probe_f14.js` / `probe_f15.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的十四个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**；`probe_f11.js` 起额外断言「演示步不点按则不自动前进」；`probe_f13.js` 额外断言「球的热区比图形大一圈、画得够大」；`probe_f14.js` 用「轻点拾起→点家具」路径跑教学互动，按**期望舞台指纹**匹配（自动跳过物品落位产生的额外指纹），并断言多步 `stepsDone` 落位、第二步口播不计入「答对禁人声」；`probe_f15.js` 为第 6 岛第 5 关综合关，额外断言通关走 grand（岛内收官）、地图第 6 岛 `cleared` 点亮、纵向越界一并检查；`probe_b4.js` 为第 3 岛第 4 关「轻重感知」，断言演示点按推进、互动 4 秒小手、A/B/C 三型语音与重量/跷跷板/分类框一致、拖错框不推进、答对禁人声；`probe_b5.js` 为第 3 岛第 5 关「游乐场综合大考」，教学按 `.b5x-stage[data-sid]` 指纹逐步校验 8 环节（含互动 3 的拖错不推进 + 拖对推进），断言 A/B/C 语音与比较词/答案场景/轻重框一致、通关走 grand、地图第 3 岛 `cleared` 点亮；其 `overflow()` 会跳过已隐藏视图（`#viewAsk/#viewDone/#viewStart`）内的旧节点；`probe_audio.js` 是**真实音频**的教学音频专项探针（不 stub `Audio`），用法 `node tools/probe_audio.js <island> <level>`，断言「语音播放中点喇叭不卡死、定格中点喇叭要发声且不跳步、喇叭 click 能到达冒泡阶段」；`probe_g1.js` 为第 7 岛第 1 关「认识五官」，按 `.g1-stage[data-sid]` 指纹逐步校验 13 环节（8 演示 + 4 互动 + 过渡），断言拼脸拖错零件 / 点错器官都不推进、A/B/C 三型语音与缺失器官 / 高亮小脸 / 目标器官一致、G1B 正确小脸里确有放大高亮的器官、通关后 7-2 解锁）。**注意**：多个探针并行跑会因沙箱 PNG 写入串行化而偶发 `EPERM`，回归请**串行**执行。 |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
@@ -322,7 +322,11 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   复用第 4 关的整套房间渲染 / 判定 / 拖拽引擎（题型 kind 仍用 `f14item` / `f14scene`）；把 `runF14Tutorial` 重构成工厂 `makeRoomTutorial(ACTS, OUTRO_SCENES)`，第 4/5 关共用同一套教学引擎（差异只在 ACTS 与收尾三图）。
   `snapshot()` 增补 `steps / stepsDone / stepAudios / furns`，供探针校验多步落位与家具集合。
   语音去重复用：`Put the book on the bed.` / `Put the toy in the box.` / `Put the ball under the table.` / `The book is on the bed. Find the picture.` / `The toy is in the box. Find the picture.` / 5 条 C 组句均复用既有 key，本关只新生成 10 条。
-- **未完成**：第 7–12 岛（第 5 岛「食物与饮料」、第 6 岛「温馨家居」5 关均已全部收官）。
+- **第 7 岛 W1 已完成（2026-10-24）**：认识五官 eye / nose / mouth / ear——8 演示 + 4 互动 + 过渡的「拼脸」教学，
+  答题 12 轮（A 听音拼脸 / B 听音找五官 / C 快速反应），全部手写 SVG（空白脸 + 眼鼻嘴耳零件），零生图零 emoji。
+- **未完成**：第 7 岛 W2–W5、第 8–12 岛（第 5 岛「食物与饮料」、第 6 岛「温馨家居」5 关均已全部收官）。
+- **第 7 岛主题**：`ISLANDS[6]` 由原来的「天气与季节」改为**「身体与五官」**（本岛第 1 关就是五官 eye / nose / mouth / ear）；
+  地图图标为手写笑脸 SVG（`islandIconNode` index===7），不用 emoji 字符（RULES §二.5 / §二.17）。
 - **第 5 岛主题**：`ISLANDS[4]` 为**「食物与饮料」**，地图图标用 3D 面包 PNG；
   **第 6 岛改为「温馨家居」**（`ISLANDS[5]`，原「交通工具」主题让位；地图图标已用手写小房子 SVG，不再用 emoji 字符）。
 - **第 4 岛主题**：`ISLANDS[3]` 为**「动物与动作」**，地图图标为 3D 狮子 PNG

@@ -1071,6 +1071,41 @@ add("b5x_b_seesaw", "The elephant is heavy. The feather is light. Find the pictu
 # 题型 C：终极大拖拽（其余三句复用第 4 关）
 add("b5x_c_feather", "Put the light feather in the light box.", "en", -15, EN_ASK)
 
+# ---- 第 7 岛第 1 关：认识五官 eye / nose / mouth / ear ----
+# 全部为长句/短句混排，统一 rate -15（≈0.85x）；本批 25 条都是新句（去重自检已确认无重复文本）。
+# 教学 13 环节：空白脸 → 眼睛(演示×2+互动) → 鼻子(×2+互动) → 嘴巴(×2+互动) → 耳朵(×2) → 综合互动(点耳) → 过渡
+add("g1_t_face",      "Look! A face. But it has no eyes. Where are the eyes?", "en", -15, EN_ASK)
+add("g1_t_eyes",      "Eyes. We see with our eyes.", "en", -15, EN_ASK)
+add("g1_t_eyes_ask",  "Find the eyes. Put the eyes on the face.", "en", -15, EN_ASK)
+add("g1_t_nose1",     "A nose.", "en", -15, EN_ASK)
+add("g1_t_nose2",     "We smell with our nose.", "en", -15, EN_ASK)
+add("g1_t_nose_ask",  "Put the nose on the face.", "en", -15, EN_ASK)
+add("g1_t_mouth1",    "A mouth.", "en", -15, EN_ASK)
+add("g1_t_mouth2",    "We eat with our mouth.", "en", -15, EN_ASK)
+add("g1_t_mouth_ask", "Put the mouth on the face.", "en", -15, EN_ASK)
+add("g1_t_ear1",      "Ears.", "en", -15, EN_ASK)
+add("g1_t_ear2",      "We hear with our ears.", "en", -15, EN_ASK)
+add("g1_t_ear_ask",   "Where is the ear? Touch the ear.", "en", -15, EN_ASK)
+add("g1_t_out",       "Wow! A happy face! Let's play!", "en", -12, EN_PRAISE)
+
+# 题型 A：听音拼脸（缺一个器官）
+add("g1_a_eye",   "Where are the eyes? Put the eyes on the face.", "en", -15, EN_ASK)
+add("g1_a_nose",  "Where is the nose? Put the nose on the face.", "en", -15, EN_ASK)
+add("g1_a_mouth", "Where is the mouth? Put the mouth on the face.", "en", -15, EN_ASK)
+add("g1_a_ear",   "Where is the ear? Put the ear on the face.", "en", -15, EN_ASK)
+
+# 题型 B：听音找五官（三张小脸选一张）
+add("g1_b_eye",   "Find the eyes.", "en", -15, EN_ASK)
+add("g1_b_nose",  "Find the nose.", "en", -15, EN_ASK)
+add("g1_b_mouth", "Find the mouth.", "en", -15, EN_ASK)
+add("g1_b_ear",   "Find the ear.", "en", -15, EN_ASK)
+
+# 题型 C：快速反应（四个器官点目标）
+add("g1_c_eye",   "Touch your eyes!", "en", -15, EN_ASK)
+add("g1_c_nose",  "Touch your nose!", "en", -15, EN_ASK)
+add("g1_c_mouth", "Touch your mouth!", "en", -15, EN_ASK)
+add("g1_c_ear",   "Touch your ear!", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
