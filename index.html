@@ -3693,7 +3693,7 @@
     btnBack.hidden = name === 'map';
     starsBox.hidden = name !== 'level';
     optionsBar.classList.toggle('gone', name !== 'level');
-    if (name !== 'level') { optionsBar.classList.add('off'); stop(); clearHint(); }
+    if (name !== 'level') { optionsBar.classList.add('off'); stop(); tutCancelTap(); clearHint(); }
   }
 
   /* ---------------- 地图 ---------------- */
@@ -5506,17 +5506,15 @@
       say(['cb_listen'], function () {
         if (state.tut !== me) return;
         stage.classList.add('ring-on');
-        setTimeout(function () {
-          if (state.tut !== me) return;
+        tutAwaitTap(me, function () {
           stage.dataset.pos = 'on';
-          setTimeout(function () {
-            if (state.tut !== me) return;
+          tutAwaitTap(me, function () {
             say(['cb_star_on_circle'], function () {
               if (state.tut !== me) return;
               askStep(me);
             });
-          }, 1000);
-        }, 760);
+          });
+        });
       });
     };
   })();
@@ -6992,7 +6990,7 @@
           var hiEl = null;
           built.entries.forEach(function (e) { if (e.key === act.hi) hiEl = e; });
           if (hiEl) hiEl.el.classList.add('b5-glow');
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -7297,7 +7295,7 @@
           var hiEl = null;
           built.entries.forEach(function (e) { if (e.key === act.hi) hiEl = e; });
           if (hiEl) hiEl.el.classList.add('f1-glow');
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -7799,7 +7797,7 @@
           var hiEl = null;
           built.entries.forEach(function (e) { if (e.key === act.hi) hiEl = e; });
           if (hiEl) hiEl.el.classList.add('f2-glow');
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -8428,7 +8426,7 @@
           var hiEl = null;
           built.entries.forEach(function (e) { if (e.key === act.hi) hiEl = e; });
           if (hiEl) hiEl.el.classList.add('f3-glow');
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -9032,7 +9030,7 @@
           built.entries.forEach(function (e) {
             if (!act.hi || e.key === act.hi) e.el.classList.add('f4-glow');
           });
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -9048,7 +9046,7 @@
           say([act.word], function () {
             if (state.tut !== me) return;
             if (rightBtn) rightBtn.classList.add('f4-yn-right', 'f4-glow');
-            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1800);
+            tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
           });
           return;
         }
@@ -9561,7 +9559,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           built.cam.classList.add('f5-cam-hot');
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1800);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -9574,7 +9572,7 @@
           built.entries.forEach(function (e) {
             if (!act.hi || e.key === act.hi) e.el.classList.add('f4-glow');
           });
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -10124,7 +10122,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           card.classList.add('f6-glow');
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -10697,7 +10695,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           card.classList.add('f7-glow');
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -11372,7 +11370,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           card.classList.add('f8-glow');
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -11940,7 +11938,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           card.classList.add('f9-glow');
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -12371,7 +12369,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           card.classList.add('f9-glow');
-          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
         });
         return;
       }
@@ -13655,7 +13653,7 @@
       say(['l3w4_tut_demo'], function () {
         if (state.tut !== me) return;
         banana.classList.add('glow');
-        setTimeout(function () { if (state.tut === me) interactive(me); }, 1500);
+        tutAwaitTap(me, function () { if (state.tut === me) interactive(me); });
       });
     }
     function interactive(me) {
@@ -13742,10 +13740,10 @@
       say([c.word], function () {
         if (state.tut !== me) return;
         target.classList.add(c.anim);   // 拉长发光 / 弹跳 / 缩小闪烁 / 摇摆
-        setTimeout(function () {
+        tutAwaitTap(me, function () {
           if (state.tut !== me) return;
           teachCase(me, i + 1);
-        }, 1500);
+        });
       });
     }
 
@@ -15053,10 +15051,10 @@
         if (st.say) {
           say([st.say], function () {
             if (state.tut !== me) return;
-            setTimeout(function () { if (state.tut === me) next(); }, wait);
+            tutAwaitTap(me, function () { if (state.tut === me) next(); });
           });
         } else {
-          setTimeout(function () { if (state.tut === me) next(); }, wait || 90);
+          tutAwaitTap(me, function () { if (state.tut === me) next(); });
         }
       }
       next();
@@ -15091,7 +15089,10 @@
         if (i > 0) cards[i - 1].classList.remove('off');
         var key = keys[i];
         i += 1;
-        say([key], step);
+        say([key], function () {
+          if (state.tut !== me) return;
+          tutAwaitTap(me, step);
+        });
       })();
     }
 
@@ -15439,10 +15440,10 @@
       say(['l3_tut_big'], function () {
         if (state.tut !== me) return;
         el.classList.add('grow');          // 大象发光并且再长大一点
-        setTimeout(function () {
+        tutAwaitTap(me, function () {
           if (state.tut !== me) return;
           askBig(me);
-        }, 900);
+        });
       });
     }
 
@@ -15465,10 +15466,10 @@
       say(['l3_tut_small'], function () {
         if (state.tut !== me) return;
         me.nodes.mouse.classList.add('squeeze');   // 老鼠缩成一团
-        setTimeout(function () {
+        tutAwaitTap(me, function () {
           if (state.tut !== me) return;
           askSmall(me);
-        }, 900);
+        });
       });
     }
 
@@ -15616,16 +15617,15 @@
       say(['l3w2_tut_more'], function () {
         if (state.tut !== me) return;
         left.classList.add('bounce');          // 左筐（更多）发光并轻轻弹跳
-        setTimeout(function () {
-          if (state.tut !== me) return;
+        tutAwaitTap(me, function () {
           say(['l3w2_tut_less'], function () {
             if (state.tut !== me) return;
             right.classList.add('shrink');     // 右筐（更少）缩小一下
-            setTimeout(function () {
+            tutAwaitTap(me, function () {
               if (state.tut === me) askMore(me);
-            }, 900);
+            });
           });
-        }, 900);
+        });
       });
     }
 
@@ -15645,6 +15645,70 @@
     api.check = function () { return false; };
     return api;
   })();
+
+  /* ---------------- 教学演示阶段：点按推进（RULES §三.13） ----------------
+   * 第 6 岛第 1 关定下的全局教学规则，现统一应用到第 1-5 岛全部教学关：
+   * 每段演示语音播放完毕后画面必须定格停留，孩子点击屏幕任意位置
+   * （重播 / 返回按钮除外）才进入下一个演示步骤 —— 禁止定时器自动推进。
+   * 所有关卡（通用框架 + 各岛 custom 教学）共用这几个原语。 */
+  var tutTapListener = null;
+
+  /** 演示定格期间底部轻提示（与第 6 岛同款；pointer-events:none，绝不拦截点击） */
+  function tutTapHint(on) {
+    var old = document.querySelector('.tut-tap-hint');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    if (!on) return;
+    if (!document.getElementById('tut-tap-hint-style')) {
+      var s = document.createElement('style');
+      s.id = 'tut-tap-hint-style';
+      s.textContent =
+        '.tut-tap-hint{position:fixed;left:50%;bottom:5vh;transform:translateX(-50%);z-index:20;' +
+        'padding:9px 20px;border-radius:24px;background:rgba(255,255,255,.92);border:2px solid #ffe0b8;' +
+        'color:#b57a3a;font-size:clamp(15px,3.8vw,19px);font-weight:600;letter-spacing:2px;' +
+        'box-shadow:0 8px 18px rgba(214,164,110,.24);pointer-events:none;' +
+        'animation:tutTapBreathe 1.7s ease-in-out infinite}' +
+        '@keyframes tutTapBreathe{0%,100%{opacity:.68;transform:translateX(-50%) scale(1)}' +
+        '50%{opacity:1;transform:translateX(-50%) scale(1.06)}}';
+      document.head.appendChild(s);
+    }
+    var t = document.createElement('div');
+    t.className = 'tut-tap-hint';
+    t.textContent = '轻点继续';
+    t.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(t);
+  }
+
+  /** 摘掉当前「点按推进」监听（进入下一步 / 教学结束 / 离开关卡时都要调用） */
+  function tutCancelTap() {
+    if (tutTapListener) {
+      document.removeEventListener('click', tutTapListener.onTap, true);
+      tutTapListener = null;
+    }
+    tutTapHint(false);
+  }
+
+  /** 教学演示阶段专用：等孩子点一下屏幕（任意位置），再执行 next。
+   *  重播 / 返回按钮不触发推进；推进用的这一击会止损，绝不穿透到关卡元素，
+   *  否则同一击会被关卡自己的点击逻辑重复消费（如把演示点击判成答对）。 */
+  function tutAwaitTap(me, next) {
+    tutCancelTap();
+    if (state.tut !== me || typeof next !== 'function') return;
+    var done = false;
+    function onTap(e) {
+      if (done) return;
+      var t = e.target;
+      if (t && t.closest && t.closest('#btnReplay, #btnBack, [data-no-advance]')) return;
+      done = true;
+      if (e.cancelable) e.preventDefault();
+      e.stopPropagation();
+      tutCancelTap();
+      if (state.tut !== me) return;
+      next();
+    }
+    tutTapListener = { me: me, onTap: onTap };
+    document.addEventListener('click', onTap, true);
+    tutTapHint(true);   // 定格停留：底部轻提示引导孩子点屏幕
+  }
 
   /* ---------------- 先教后练（Tutorial，按关卡配置） ---------------- */
 
@@ -15878,22 +15942,20 @@
     say([st.word], function () {
       if (state.tut !== me) return;
       scene.dataset.pos = st.pos;       // CSS 过渡：演示动画
-      setTimeout(function () {
-        if (state.tut !== me) return;
+      tutAwaitTap(me, function () {
         say([st.sentence], function () {
           if (state.tut !== me) return;
           // 演示完先回到原位，孩子才有「自己放一次」的动作可做
           scene.dataset.pos = st.from || st.pos;
-          setTimeout(function () {
-            if (state.tut !== me) return;
+          tutAwaitTap(me, function () {
             say([st.ask], function () {
               if (state.tut !== me) return;
               me.canDrag = true;
               scene.classList.add('ready');
             });
-          }, 820);
+          });
         });
-      }, 880);
+      });
     });
   }
 
@@ -16021,6 +16083,7 @@
    *  readyKey 可指定过渡语；传 false 表示过渡语已由关卡自己播完，直接进答题 */
   function tutFinish(me, readyKey) {
     if (state.tut !== me) return;
+    tutCancelTap();
     me.canDrag = false;
     clearHint();
     function go() {
@@ -16151,6 +16214,7 @@
     state.pickedFruit = null;
     state.drag = null;
     state.tut = null;                       // 离开/重进关卡时清掉教学状态
+    tutCancelTap();                          // 同时摘掉演示阶段的「点按推进」监听，防止串关
     clearHint();
     if (askDisplay) askDisplay.innerHTML = '';
     optionsBar.classList.remove('gone');
@@ -16628,6 +16692,14 @@
       } : null;
     },
     get progress() { return JSON.parse(JSON.stringify(progress)); },
+    /* 教学互动阶段「正确答案」元素的中心坐标（供自动化测试 / 调试使用） */
+    hintTargetRect: function () {
+      var t = state.tut && state.tut.hintTarget;
+      if (!t || !t.getBoundingClientRect) return null;
+      var r = t.getBoundingClientRect();
+      if (!r.width || !r.height) return null;
+      return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+    },
     get sandbox() { return dev.active; },
     openIsland: enterIsland,
     enterLevel: enterLevel,
