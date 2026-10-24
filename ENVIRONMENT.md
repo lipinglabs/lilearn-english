@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-23（第 5 岛第 2 关「餐具」上线；碗 / 勺 / 杯 / 叉全部手写 SVG、语音 523 条）
+> 最后更新：2026-10-24（第 5 岛第 3 关「喜好与需求表达」上线；四个句型各 2 演示 + 2 互动、语音 552 条）
 
 ---
 
@@ -14,7 +14,7 @@
 | 线上地址 | https://lipinglabs.github.io/lilearn-english/ |
 | 仓库 | `lipinglabs/lilearn-english`（**public**） |
 | 技术形态 | 纯静态：单页 HTML + 两个数据脚本 + Service Worker。**无构建、无框架、无后端、无 npm 依赖** |
-| 内容规模 | 12 岛 × 5 关框架；已做第 1–4 岛全部 + 第 5 岛第 1–2 关 |
+| 内容规模 | 12 岛 × 5 关框架；已做第 1–4 岛全部 + 第 5 岛第 1–3 关 |
 | 部署 | GitHub Pages（源 `main` 分支根目录 `/`，legacy 构建），推送即自动重建 |
 
 ---
@@ -63,8 +63,8 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   563,619 B / 13,586 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  15,581,742 B /  4,687 行   ← window.VOICE_BANK，523 条 base64 mp3
+index.html   600,424 B / 14,312 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  16,500,939 B /  4,959 行   ← window.VOICE_BANK，552 条 base64 mp3
 assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
 ```
 
@@ -122,11 +122,11 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `sw.js` | PWA Service Worker（Android 全屏必需 + 离线可玩） |
 | `manifest.json`、`icons/` | PWA 清单与图标（192/512/maskable/apple-touch-180） |
 | `assets/{fruit,color,animal,food}/*.png` | 3D 图标源图（Fluent Emoji 3D，MIT），构建期内联；`food/` 只有 bread / egg / rice（牛奶是手写 SVG）。**第 5 岛第 2 关一件 PNG 都没加**——餐具的 Fluent 素材全是复合图，整组改手写 SVG |
-| `voice/*.mp3` | 语音源文件 523 个（`manifest.md` 为目标清单） |
+| `voice/*.mp3` | 语音源文件 552 个（`manifest.md` 为目标清单） |
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_food.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的七个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**） |
+| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的八个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**） |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
@@ -261,14 +261,19 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   答题 A 听音找食物 / B 听描述找食物 / C 把食物拖到盘子上）、
   **第 5 岛 W2「餐具」**（bowl / spoon / cup / fork：4 个词各 2 演示 + 2 互动、
   答题 A 听音找餐具 / B 听句子找场景（汤在碗里 / 勺在碗里 / 水倒进杯里 / 叉子叉着肉）/
-  C 把餐具拖进碗里）。
+  C 把餐具拖进碗里）、
+  **第 5 岛 W3「喜好与需求表达」**（I like it / I don't like it / More, please / All done：
+  4 个句型各 2 演示 + 2 互动、答题 A 听短语找画面 / B 听情境选回答 / C 把食物拖进笑脸框或摇头框，
+  柠檬永远进摇头框——语义由探针断言）。
   `ANIMAL_IMG` 现为 14 张、`FOOD_IMG` 3 张，全部由 `tools/make_animals.py` / `make_food.py`
   从 Fluent 3D Emoji 下载缩放，**没有调用过任何生图接口**；
   手写内联 SVG 的部分：W3 的小男孩 / W5 的跳跃小人（跑 / 走 / 跳 / 睡四姿态）、W4 的 7 张场景背景
   （草地 / 垫子 / 沙发 / 大树 / 草原 / 床 / 树林）、第 5 岛的**牛奶杯 / 清水杯 / 倒奶场景 / 煎蛋锅 /
-  盘子 / 热气**，以及第 5 岛第 2 关**整套餐具**（碗 / 汤 / 勺 / 杯 / 叉 + 勺在碗里 / 倒水 / 叉叉肉三个场景）（肢体用 CSS `transform-box:view-box` 摆动，睡姿的「Z」与相机 / 放大镜也都是 path，
+  盘子 / 热气**、第 5 岛第 2 关**整套餐具**（碗 / 汤 / 勺 / 杯 / 叉 + 勺在碗里 / 倒水 / 叉叉肉三个场景）、
+  第 5 岛第 3 关**同一个小男孩的四种用餐姿态**（开心吃苹果 / 皱眉推开柠檬 / 双手递空杯 / 摸圆肚子 +
+  推开盘子，同一套肤色 / 发型 / 描边 / 腮红，只换姿态与道具）（肢体用 CSS `transform-box:view-box` 摆动，睡姿的「Z」与相机 / 放大镜也都是 path，
   页面里没有任何 emoji 字符充当图形）。
-- **未完成**：第 5 岛 W3–W5；第 6–12 岛（第 5 岛 W2 通关后 W3 已解锁但内容未做）。
+- **未完成**：第 5 岛 W4–W5；第 6–12 岛（第 5 岛 W3 通关后 W4 已解锁但内容未做）。
 - **第 5 岛主题**：`ISLANDS[4]` 为**「食物与饮料」**，地图图标用 3D 面包 PNG；
   **原「交通工具」后移到第 6 岛**（`ISLANDS[5]`，仍是 emoji 字符兜底，做那一岛时要换成 3D 素材）。
 - **第 4 岛主题**：`ISLANDS[3]` 为**「动物与动作」**，地图图标为 3D 狮子 PNG
@@ -280,7 +285,9 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   第 5 岛 W1 起追加 `RULES.md §二.14`「素材按实际卡片尺寸验语义」——牛奶的 3D 图缩小后与清水不可分，
   改为手写 SVG（同一条杯身 path、只换内容物）；
   第 5 岛 W2 起追加 `RULES.md §二.15`「复合素材不能教单词」——餐具的 Fluent 素材全是碗配勺 / 叉配刀 /
-  杯配吸管，整组改手写 SVG，勺与叉靠轮廓分开、场景必须把动作画出来。
+  杯配吸管，整组改手写 SVG，勺与叉靠轮廓分开、场景必须把动作画出来；
+  第 5 岛 W3 起追加 `RULES.md §二.16`「同人物多姿态必须共用一套零件」——四个句型用同一个小男孩，
+  只换嘴型 / 眉毛 / 手臂与道具，孩子认的是「同一个他在做不同的事」，不是四张不相干的脸。
 - **文档已知过期**：`README.md` 里「当前进度仅到第 3 岛第 1 关」等段落已过时，以本文件与 commit 记录为准。
 
 ---

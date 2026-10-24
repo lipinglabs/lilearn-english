@@ -627,6 +627,11 @@
   .option[data-idx="1"] { background: linear-gradient(180deg, #f8fbff, #e8f3fb); }
   .option[data-idx="2"] { background: linear-gradient(180deg, #f9fff4, #ecf8e6); }
 
+  /* 选项不足三个时（对错题 2 个、第 5 岛第 3 关拖拽题 2 个），多出来的槽位靠 el.hidden 收起。
+     但上面的 .option{display:grid} 会盖掉浏览器默认的 [hidden]{display:none}，
+     结果屏幕上留一张彩色空卡 —— 必须显式补这条规则（第 5 岛第 3 关实测发现）。 */
+  .option[hidden] { display: none; }
+
   .option:active { transform: scale(.95); }
 
   .slot {
@@ -3793,7 +3798,8 @@
     '4-4': { numbers: null,       make: 'makeF4', title: '第 4 关', tutorial: true },
     '4-5': { numbers: null,       make: 'makeF5', title: '第 5 关', tutorial: true },
     '5-1': { numbers: null,       make: 'makeF6', title: '第 1 关', tutorial: true },
-    '5-2': { numbers: null,       make: 'makeF7', title: '第 2 关', tutorial: true }
+    '5-2': { numbers: null,       make: 'makeF7', title: '第 2 关', tutorial: true },
+    '5-3': { numbers: null,       make: 'makeF8', title: '第 3 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3938,6 +3944,7 @@
     if (def && def.make === 'makeF5') return makeQuestionF5(typeIdx, prev);
     if (def && def.make === 'makeF6') return makeQuestionF6(typeIdx, prev);
     if (def && def.make === 'makeF7') return makeQuestionF7(typeIdx, prev);
+    if (def && def.make === 'makeF8') return makeQuestionF8(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -10680,6 +10687,681 @@
     return api;
   })();
 
+  /* ==================== 第 5 岛第 3 关（L5-W3：喜好与需求表达） ==================== */
+  /* 核心句型：I like it / I don't like it / More, please / All done。
+     教学 17 环节（RULES §三.10 双倍量）：每个句型 2 次演示 + 2 次互动，最后一条过渡语自带。
+       I like it      ：开心吃苹果 → 开心喝牛奶 / 「喜欢」vs「推开」二选一 / 三选一（认苹果）
+       I don't like it：皱眉摇头推柠檬 → 柠檬特写（酸）/ 二选一 / 三选一（认柠檬）
+       More, please   ：双手递空杯 → 桌上空杯特写 / 空盘 vs 满盘 / 三选一（谁在要）
+       All done       ：摸肚子 → 推开盘子 / 二选一 / 三选一（谁吃饱了）
+     答题 12 轮（4/4/4）：A 听短语找画面 / B 听情境选回答 / C 把食物拖进「喜欢 / 不喜欢」框。
+     图片：小孩 + 苹果 / 柠檬 / 杯子 / 盘子全部手写内联 SVG，零 PNG、零生图。
+       原因：本关的知识点是**表情与动作**——素材库里没有任何「小孩开心吃苹果」这种复合场景，
+        单独的表情图只有一张圆形脸，孩子看到的是「一张脸」而不是「他在喜欢这个苹果」。
+        四个句型必须靠**同一个人物的四种姿态**区分（吃 / 推开 / 递杯 / 摸肚子），
+        所以整关一套人物，同一套描边 / 腮红 / 落影（RULES §二.14、§二.15）。 */
+
+  /* 四个句型各自的「标准画面」：题型 A 与教学里的综合互动只从这四个里出，
+     保证「一句话 ↔ 一个画面」，不会出现两张卡都算对（RULES §三.10 最后一条） */
+  var F8_ACTS = ['likeApple', 'dislike', 'more', 'full'];
+  /* 题型 C 托盘里的三样食物（苹果 / 柠檬 / 牛奶） */
+  var F8_FOODS = ['apple', 'lemon', 'milk'];
+
+  var F8_SKIN = '#ffdcbb', F8_SKIN2 = '#ffd0ab', F8_HAIR = '#6b4a34';
+  var F8_INK = '#4a3628', F8_MOUTH = '#c2604f';
+
+  /** 脸：happy（圆眼笑）/ open（张大嘴）/ closed（闭眼满足）/ frown（皱眉） */
+  function f8Face(mood) {
+    if (mood === 'frown') {
+      return '<path d="M-16 -2 q6 5 12 2" stroke="' + F8_HAIR + '" stroke-width="2.8" fill="none" ' +
+               'stroke-linecap="round"/>' +
+             '<path d="M4 0 q6 -3 12 -2" stroke="' + F8_HAIR + '" stroke-width="2.8" fill="none" ' +
+               'stroke-linecap="round"/>' +
+             '<circle cx="-9" cy="6" r="2.9" fill="' + F8_INK + '"/>' +
+             '<circle cx="9" cy="6" r="2.9" fill="' + F8_INK + '"/>' +
+             // 嘴角向下 = 不喜欢（弧线开口朝下，缩到 100px 也读得出是「不高兴」）
+             '<path d="M-8 20 q8 -8 16 0" stroke="' + F8_MOUTH + '" stroke-width="3" fill="none" ' +
+               'stroke-linecap="round"/>';
+    }
+    if (mood === 'closed') {
+      return '<path d="M-14 5 q5 -7 10 0" stroke="' + F8_INK + '" stroke-width="2.8" fill="none" ' +
+               'stroke-linecap="round"/>' +
+             '<path d="M4 5 q5 -7 10 0" stroke="' + F8_INK + '" stroke-width="2.8" fill="none" ' +
+               'stroke-linecap="round"/>' +
+             '<path d="M-9 15 q9 11 18 0 q-9 -4 -18 0" fill="' + F8_MOUTH + '"/>';
+    }
+    return '<circle cx="-9" cy="5" r="3.4" fill="' + F8_INK + '"/>' +
+           '<circle cx="9" cy="5" r="3.4" fill="' + F8_INK + '"/>' +
+           '<circle cx="-10.3" cy="3.6" r="1.2" fill="#ffffff"/>' +
+           '<circle cx="7.7" cy="3.6" r="1.2" fill="#ffffff"/>' +
+           (mood === 'open'
+             ? // 张大嘴：整关只有「还要」用这张嘴，和笑嘴拉开差别
+               '<ellipse cx="0" cy="18" rx="7.6" ry="6.4" fill="' + F8_MOUTH + '"/>' +
+               '<path d="M-4 21 q4 4 8 0" fill="#f08a86"/>'
+             : '<path d="M-9 14 q9 11 18 0 q-9 -4 -18 0" fill="' + F8_MOUTH + '"/>');
+  }
+
+  /** 小孩的头（含耳朵、锅盖头、腮红）。tilt 传角度时整颗头歪过去 = 「扭头」 */
+  function f8Head(mood, tilt) {
+    return '<g transform="translate(80 52)' + (tilt ? ' rotate(' + tilt + ')' : '') + '">' +
+      '<circle cx="-27" cy="4" r="6.4" fill="' + F8_SKIN2 + '"/>' +
+      '<circle cx="27" cy="4" r="6.4" fill="' + F8_SKIN2 + '"/>' +
+      '<circle r="27" fill="' + F8_SKIN + '"/>' +
+      // 锅盖头：整个上半圆 + 一条向上弯的发际线（只画一条细带会像「戴了发箍」）
+      '<path d="M-27 0 A27 27 0 0 1 27 0 Q18 -9 0 -9 Q-18 -9 -27 0 Z" fill="' + F8_HAIR + '"/>' +
+      '<path d="M-2 -32 q7 -9 15 -3" stroke="' + F8_HAIR + '" stroke-width="4.5" fill="none" ' +
+        'stroke-linecap="round"/>' +
+      '<circle cx="-16" cy="13" r="4.2" fill="#ffb9b9" opacity=".55"/>' +
+      '<circle cx="16" cy="13" r="4.2" fill="#ffb9b9" opacity=".55"/>' +
+      f8Face(mood) +
+    '</g>';
+  }
+
+  /** 脖子 + 上身。round=true 时是「吃饱了的圆肚子」 */
+  function f8Body(shirt, round) {
+    return '<rect x="70" y="68" width="20" height="30" rx="9" fill="#f7cfa8"/>' +
+      (round
+        ? '<path d="M40 160 v-24 q0 -40 40 -40 q40 0 40 40 v24 z" fill="' + shirt + '"/>'
+        : '<path d="M52 160 v-30 q0 -28 28 -28 q28 0 28 28 v30 z" fill="' + shirt + '"/>');
+  }
+
+  /** 手臂：全部用同一支 11px 圆头描边，缩到 100px 也是「肉肉的小胳膊」 */
+  function f8Arm(d) {
+    return '<path d="' + d + '" stroke="' + F8_SKIN + '" stroke-width="11" stroke-linecap="round" ' +
+      'fill="none"/>';
+  }
+
+  /** 苹果（cx,cy 为果心，r 为**半径**——注意不是缩放比例，传 1.15 会被缩到看不见）。 */
+  function f8Apple(cx, cy, r) {
+    var k = (r / 30).toFixed(3);
+    return '<g transform="translate(' + cx + ' ' + cy + ') scale(' + k + ')">' +
+      '<circle r="30" fill="#e2544a"/>' +
+      '<path d="M0 -28 q0 -14 9 -18" stroke="#8a6142" stroke-width="5.5" fill="none" ' +
+        'stroke-linecap="round"/>' +
+      '<path d="M6 -33 q16 -15 27 -3 q-10 16 -27 3" fill="#7cc46b"/>' +
+      '<path d="M-15 -11 q-6 14 2 26" stroke="#ffffff" stroke-width="6" fill="none" opacity=".5" ' +
+        'stroke-linecap="round"/>' +
+      '<circle cx="15" cy="9" r="6" fill="#c8443f" opacity=".4"/>' +
+    '</g>';
+  }
+
+  /** 柠檬（两端各一个小尖，缩到 100px 才不会被当成橙子） */
+  function f8Lemon(cx, cy, k) {
+    return '<g transform="translate(' + cx + ' ' + cy + ') scale(' + k + ') rotate(-10)">' +
+      '<path d="M-38 0 q-12 -2 -14 -12 q14 2 14 12 z" fill="#f7d551" stroke="#e0b62c" ' +
+        'stroke-width="2.6" stroke-linejoin="round"/>' +
+      '<ellipse rx="38" ry="27" fill="#f7d551" stroke="#e0b62c" stroke-width="3"/>' +
+      '<path d="M38 0 q12 -2 14 -12 q-14 2 -14 12 z" fill="#f7d551" stroke="#e0b62c" ' +
+        'stroke-width="2.6" stroke-linejoin="round"/>' +
+      '<ellipse cx="-11" cy="-9" rx="12" ry="7" fill="#fdf0a0" opacity=".85"/>' +
+      '<circle cx="6" cy="8" r="1.7" fill="#e0b62c" opacity=".55"/>' +
+      '<circle cx="20" cy="-3" r="1.5" fill="#e0b62c" opacity=".45"/>' +
+    '</g>';
+  }
+
+  /** 杯子：milk=true 时是满杯牛奶，否则是空杯（杯口露出发暗的内腔 = 空的） */
+  function f8Cup(cx, cy, k, milk) {
+    return '<g transform="translate(' + cx + ' ' + cy + ') scale(' + k + ')">' +
+      '<ellipse cy="40" rx="34" ry="7" fill="#d9bda0" opacity=".3"/>' +
+      // 把手先画，压在杯身下面
+      '<path d="M22 -22 q22 3 22 18 q0 15 -22 18" stroke="#e6d6ba" stroke-width="12" fill="none" ' +
+        'stroke-linecap="round"/>' +
+      '<path d="M22 -22 q22 3 22 18 q0 15 -22 18" stroke="#fdfaf3" stroke-width="7" fill="none" ' +
+        'stroke-linecap="round"/>' +
+      '<path d="M-30 -26 h60 l-6 52 q-1 7 -8 7 h-32 q-7 0 -8 -7 z" fill="#fdfaf3" ' +
+        'stroke="#e0c9a6" stroke-width="3.2" stroke-linejoin="round"/>' +
+      (milk
+        ? '<path d="M-25 -18 h50 l-5 42 q-1 5 -6 5 h-28 q-5 0 -6 -5 z" fill="#fffdf6"/>' : '') +
+      '<ellipse cy="-26" rx="30" ry="8.5" fill="' + (milk ? '#fffdf6' : '#dcc7a4') + '" ' +
+        'stroke="#e0c9a6" stroke-width="3.2"/>' +
+      (milk ? '' :
+        // 空杯：内壁下缘压一道暗弧，缩到 100px 才读得出「里面没有东西」
+        '<path d="M-18 -18 q-1 22 2 34" stroke="#c9b28e" stroke-width="4" fill="none" ' +
+          'opacity=".55" stroke-linecap="round"/>') +
+      '<path d="M-22 -12 q-2 20 2 34" stroke="#ffffff" stroke-width="4.5" fill="none" ' +
+        'opacity=".85" stroke-linecap="round"/>' +
+    '</g>';
+  }
+
+  /** 桌面：一道暖色横带，让「放在桌上」和「拿在手里」分得开 */
+  var F8_TABLE =
+    '<path d="M0 146 q80 -9 160 0 v14 h-160 z" fill="#f4e3ca"/>' +
+    '<path d="M0 146 q80 -9 160 0" stroke="#e5cdaa" stroke-width="3" fill="none"/>';
+
+  /** 四角星（喜欢 / 好吃的高光）。
+      注意 q 必须是**数字**：写成 (r*0.24).toFixed(1) 会得到字符串，
+      (cx + q) 就变成字符串拼接（"34" + "2.2" = "342.2"），星星会拉成横贯整张卡的大黄线（实测踩过）。 */
+  function f8Spark(cx, cy, r, op) {
+    var q = Math.round(r * 0.24 * 10) / 10;
+    return '<path d="M' + cx + ' ' + (cy - r) + ' Q' + (cx + q) + ' ' + (cy - q) + ' ' + (cx + r) + ' ' + cy +
+      ' Q' + (cx + q) + ' ' + (cy + q) + ' ' + cx + ' ' + (cy + r) +
+      ' Q' + (cx - q) + ' ' + (cy + q) + ' ' + (cx - r) + ' ' + cy +
+      ' Q' + (cx - q) + ' ' + (cy - q) + ' ' + cx + ' ' + (cy - r) + ' Z" ' +
+      'fill="#ffd15c" opacity="' + (op || '.95') + '"/>';
+  }
+
+  /** 摇头的两道弧（只在「不喜欢」出现，缩到 100px 也读得出「他在摇头」） */
+  var F8_SHAKE =
+    '<path d="M38 32 q-15 18 0 36" stroke="#f3a7a7" stroke-width="5.5" fill="none" ' +
+      'stroke-linecap="round" opacity=".9"/>' +
+    '<path d="M122 32 q15 18 0 36" stroke="#f3a7a7" stroke-width="5.5" fill="none" ' +
+      'stroke-linecap="round" opacity=".9"/>';
+
+  /** 酸出来的水滴 */
+  function f8Drop(cx, cy, k) {
+    return '<path d="M' + cx + ' ' + (cy - 7 * k) + ' q' + (6 * k) + ' ' + (8 * k) + ' 0 ' + (11 * k) +
+      ' q' + (-6 * k) + ' ' + (-3 * k) + ' 0 ' + (-11 * k) + ' z" fill="#bfe4f5" opacity=".95"/>';
+  }
+
+  /** 场景 1：我喜欢（开心吃苹果）。
+      苹果必须先画、再补一只「手」压在果子上，否则缩到 100px 会读成「苹果飘在脸旁边」。 */
+  var F8_LIKE_APPLE =
+    f8Body('#a8dcb9', false) +
+    f8Arm('M54 116 q-6 14 -4 26') +
+    f8Arm('M106 116 q16 -8 13 -26') +
+    f8Head('happy') +
+    f8Apple(118, 80, 26) +
+    '<circle cx="110" cy="99" r="8" fill="' + F8_SKIN + '"/>' +
+    f8Spark(34, 46, 9) + f8Spark(136, 118, 7, '.85');
+
+  /** 场景 2：我喜欢（开心喝牛奶）—— 换视觉不换句子 */
+  var F8_LIKE_MILK =
+    f8Body('#8fd0f0', false) +
+    f8Arm('M54 116 q-6 14 -4 26') +
+    f8Arm('M106 116 q16 -4 15 -22') +
+    f8Head('closed') +
+    f8Cup(115, 78, 0.92, true) +
+    '<circle cx="86" cy="100" r="8" fill="' + F8_SKIN + '"/>' +
+    f8Spark(36, 48, 9) + f8Spark(136, 120, 7, '.85');
+
+  /** 场景 3：我不喜欢（皱眉、扭头、把柠檬推开） */
+  var F8_DISLIKE =
+    f8Body('#f0c3c3', false) +
+    f8Arm('M54 116 q-8 12 -8 24') +
+    f8Arm('M106 116 q16 8 20 22') +
+    f8Head('frown', -7) +
+    F8_SHAKE +
+    f8Lemon(126, 142, 0.72);
+
+  /** 场景 4：柠檬特写（「It's sour.」的第二层语义，无人物） */
+  var F8_SOUR =
+    f8Lemon(80, 92, 1.5) +
+    f8Drop(54, 46, 1.1) + f8Drop(112, 40, 0.9) + f8Drop(128, 62, 0.7) +
+    '<path d="M52 34 q10 -9 20 0 q10 9 20 0" stroke="#f0b429" stroke-width="4" fill="none" ' +
+      'stroke-linecap="round" opacity=".8"/>';
+
+  /** 场景 5：还要（张大嘴，双手把空杯递过来） */
+  var F8_MORE =
+    f8Body('#f7cf8f', false) +
+    f8Arm('M54 116 q12 16 18 24') +
+    f8Arm('M106 116 q-12 16 -18 24') +
+    f8Head('open') +
+    f8Cup(80, 128, 0.78, false) +
+    '<circle cx="60" cy="140" r="8" fill="' + F8_SKIN + '"/>' +
+    '<circle cx="100" cy="140" r="8" fill="' + F8_SKIN + '"/>';
+
+  /** 场景 6：吃饱了（闭眼满足，两只手摸着圆肚子，肚子有一道鼓起来的高光） */
+  var F8_FULL =
+    f8Body('#c9b8ea', true) +
+    '<ellipse cx="80" cy="136" rx="24" ry="13" fill="#ffffff" opacity=".2"/>' +
+    f8Arm('M50 116 q10 20 20 22') +
+    f8Arm('M110 116 q-10 20 -20 22') +
+    f8Head('closed') +
+    f8Spark(34, 44, 8);
+
+  /** 场景 7：吃饱了（把盘子推开 + 一只手摆手）—— 演示 2，与场景 6 视觉不同 */
+  var F8_FULL_PUSH =
+    f8Body('#c9b8ea', true) +
+    '<ellipse cx="80" cy="136" rx="24" ry="13" fill="#ffffff" opacity=".2"/>' +
+    f8Arm('M50 116 q10 20 20 22') +
+    // 右手往外推：掌心朝着盘子
+    f8Arm('M110 116 q18 2 24 14') +
+    f8Head('closed', 7) +
+    // 盘子推到右下角，画在最上层（压在手上 = 真的推到了），别让画布裁掉
+    '<g transform="translate(72 94) scale(.5)">' + F6_PLATE + '</g>' +
+    // 手压回盘子边缘：不然盘子悬空，读不出「他在推盘子」
+    '<circle cx="128" cy="122" r="8" fill="' + F8_SKIN + '"/>';
+
+  /** 道具：桌上的空杯（题型 B「He wants more milk.」的情境卡） */
+  var F8_EMPTY_CUP = F8_TABLE + f8Cup(74, 100, 1.3, false);
+  /** 道具：吃完的盘子（少量碎屑 + 横放的勺子 = 「吃完了」） */
+  var F8_DONE_TABLE =
+    F8_TABLE +
+    '<g transform="translate(0 -6) scale(.92)">' + F6_PLATE + '</g>' +
+    '<circle cx="66" cy="70" r="2.6" fill="#d9b48a"/>' +
+    '<circle cx="82" cy="76" r="2" fill="#d9b48a"/>' +
+    '<circle cx="94" cy="68" r="2.3" fill="#d9b48a"/>' +
+    '<g transform="translate(0 8) rotate(90 80 92) scale(.42) translate(80 62)">' + F7_SPOON_BODY + '</g>';
+  /** 道具：空盘子 / 满盘子（互动 5 的两个选项） */
+  var F8_EMPTY_PLATE = '<g transform="translate(0 8)">' + F6_PLATE + '</g>';
+  var F8_FULL_PLATE =
+    '<g transform="translate(0 8)">' + F6_PLATE + '</g>' +
+    // 面包 + 煎蛋：用最简的形状，缩到 100px 也读得出「盘子里有吃的」
+    '<rect x="44" y="56" width="42" height="30" rx="12" fill="#e8bb7f" stroke="#cf9a58" ' +
+      'stroke-width="3"/>' +
+    '<path d="M50 66 q8 -5 15 0 q7 5 15 0" stroke="#cf9a58" stroke-width="2.6" fill="none" ' +
+      'stroke-linecap="round"/>' +
+    '<ellipse cx="104" cy="72" rx="23" ry="16" fill="#fffdf6" stroke="#efdcc0" stroke-width="3"/>' +
+    '<circle cx="104" cy="71" r="9" fill="#f7c34b"/>' +
+    '<circle cx="101" cy="68" r="3" fill="#ffd977"/>';
+  /** 道具：大苹果 / 大柠檬（题型 B 的情境卡） */
+  var F8_APPLE_BIG = F8_TABLE + f8Apple(80, 92, 30) + f8Spark(36, 46, 9) + f8Spark(126, 52, 7, '.85');
+  /** 题型 C 托盘里的裸食物（不放桌面，卡片本身就是托盘） */
+  var F8_ITEM_APPLE = f8Apple(80, 78, 34) + '<ellipse cx="80" cy="122" rx="30" ry="7" fill="#d3b28a" opacity=".28"/>';
+  var F8_ITEM_LEMON = f8Lemon(80, 80, 1.25) + '<ellipse cx="80" cy="122" rx="30" ry="7" fill="#d3b28a" opacity=".28"/>';
+  var F8_ITEM_MILK = f8Cup(74, 82, 1.25, true);
+
+  /** 题型 C 的两个大框：笑脸（喜欢）/ 摇头（不喜欢）。框本身就是投放目标 */
+  var F8_BOX_HAPPY =
+    '<rect x="12" y="18" width="136" height="124" rx="30" fill="#fffdf8" stroke="#ffc978" ' +
+      'stroke-width="4.5"/>' +
+    '<circle cx="80" cy="80" r="40" fill="#ffe9c2"/>' +
+    '<path d="M58 72 q9 -11 18 0" stroke="#7a5a3a" stroke-width="4.6" fill="none" stroke-linecap="round"/>' +
+    '<path d="M84 72 q9 -11 18 0" stroke="#7a5a3a" stroke-width="4.6" fill="none" stroke-linecap="round"/>' +
+    '<path d="M62 90 q18 22 36 0 q-18 -7 -36 0" fill="#c2604f"/>' +
+    '<path d="M70 94 q10 9 20 0 q-10 5 -20 0" fill="#f08a86"/>' +
+    '<circle cx="50" cy="88" r="7" fill="#ffb9b9" opacity=".7"/>' +
+    '<circle cx="110" cy="88" r="7" fill="#ffb9b9" opacity=".7"/>';
+  var F8_BOX_SAD =
+    '<rect x="12" y="18" width="136" height="124" rx="30" fill="#fffdf8" stroke="#a9c6e6" ' +
+      'stroke-width="4.5"/>' +
+    '<circle cx="80" cy="80" r="40" fill="#e8f1fb"/>' +
+    '<path d="M58 66 q9 5 18 2" stroke="#5c7080" stroke-width="4.6" fill="none" stroke-linecap="round"/>' +
+    '<path d="M84 68 q9 -4 18 2" stroke="#5c7080" stroke-width="4.6" fill="none" stroke-linecap="round"/>' +
+    '<circle cx="67" cy="78" r="3.6" fill="#4a5a68"/>' +
+    '<circle cx="93" cy="78" r="3.6" fill="#4a5a68"/>' +
+    '<path d="M66 100 q14 -11 28 0" stroke="#c2604f" stroke-width="3.6" fill="none" ' +
+      'stroke-linecap="round"/>' +
+    // 摇头弧
+    '<path d="M30 62 q-12 18 0 36" stroke="#a9c6e6" stroke-width="5" fill="none" ' +
+      'stroke-linecap="round"/>' +
+    '<path d="M130 62 q12 18 0 36" stroke="#a9c6e6" stroke-width="5" fill="none" ' +
+      'stroke-linecap="round"/>';
+
+  var F8_SVG_LIB = {
+    likeApple: F8_LIKE_APPLE, likeMilk: F8_LIKE_MILK, dislike: F8_DISLIKE,
+    sour: F8_SOUR, more: F8_MORE, full: F8_FULL, fullPush: F8_FULL_PUSH,
+    emptyCup: F8_EMPTY_CUP, doneTable: F8_DONE_TABLE,
+    emptyPlate: F8_EMPTY_PLATE, fullPlate: F8_FULL_PLATE,
+    appleBig: F8_APPLE_BIG,
+    lemonBig: F8_SOUR,
+    apple: F8_ITEM_APPLE, lemon: F8_ITEM_LEMON, milk: F8_ITEM_MILK,
+    boxHappy: F8_BOX_HAPPY, boxSad: F8_BOX_SAD
+  };
+
+  function f8Svg(markup, cls) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 160 160');
+    s.setAttribute('class', cls || 'f8-draw');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = markup;
+    return s;
+  }
+
+  /** 一张卡：暖白圆角底 + 手绘场景。data-subj 是舞台指纹（测试与去重都靠它） */
+  function f8SceneNode(key, cls) {
+    var card = document.createElement('div');
+    card.className = 'f8-card' + (cls ? ' ' + cls : '');
+    card.dataset.subj = key;
+    var markup = F8_SVG_LIB[key];
+    if (!markup) return card;
+    card.classList.add('f8-draw-card');
+    card.appendChild(f8Svg(markup));
+    return card;
+  }
+
+  function ensureF8Css() {
+    if (document.getElementById('f8-style')) return;
+    var s = document.createElement('style');
+    s.id = 'f8-style';
+    s.textContent =
+      // 宽度一律 min(NNvw, NNpx)：父级 #askDisplay 是 place-items:center 的 grid，
+      // 写 width:100% 会形成循环依赖被解析成 0（RULES §三.11）
+      '.f8-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'gap:1.4vh;width:min(84vw,460px);box-sizing:border-box;min-height:38vh}' +
+      '.f8-grid{display:grid;gap:10px;width:min(88vw,460px);margin:2vh auto;box-sizing:border-box;' +
+      'grid-template-columns:repeat(3,minmax(0,1fr))}' +
+      '.f8-grid[data-n="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}' +
+      '.f8-grid[data-n="4"]{grid-template-columns:repeat(2,minmax(0,1fr))}' +
+      '.f8-tile{display:block;min-width:0;padding:6px;box-sizing:border-box;cursor:pointer;' +
+      'background:rgba(255,255,255,.9);border:3px solid #ffe0b8;border-radius:26px;' +
+      'box-shadow:0 8px 16px rgba(214,164,110,.18);transition:transform .15s ease,box-shadow .15s ease}' +
+      '.f8-tile:active{transform:scale(.96)}' +
+      '.f8-tile.right{border-color:#7FD18A;box-shadow:0 0 0 5px rgba(127,209,138,.5)}' +
+      '.f8-tile.wrong{animation:f8shake .5s;border-color:#f0a0a0}' +
+      '.f8-card{position:relative;display:flex;align-items:center;justify-content:center;width:100%;' +
+      'aspect-ratio:1 / 1;border-radius:22px;overflow:hidden;box-sizing:border-box;' +
+      'background:radial-gradient(120% 100% at 50% 6%,#fffdf8 0%,#fbefdc 58%,#f3ddc0 100%)}' +
+      '.f8-draw-card{background:linear-gradient(180deg,#fffdf8 0%,#fdf1dc 100%)}' +
+      '.f8-draw{display:block;width:88%;height:auto;overflow:visible}' +
+      '.f8-big{width:min(62vw,240px);border-radius:30px;box-shadow:0 12px 24px rgba(200,160,110,.2)}' +
+      '.f8-big .f8-draw{width:84%}' +
+      // 教学里被强调的那一张发光
+      '.f8-glow{animation:f8glow 1.1s ease-in-out infinite}' +
+      // 题型 B：上方情境卡 + 下方三张「他说什么」的小卡（走公共选项栏）
+      '.option .f8-card{width:100%;aspect-ratio:1 / 1;border-radius:16px}' +
+      '.option .f8-draw{width:86%}' +
+      // 题型 C：两个大框并排（框本身就是投放目标，RULES §三.8）
+      '.f8-boxes{display:flex;align-items:center;justify-content:center;gap:12px;' +
+      'width:min(90vw,470px);box-sizing:border-box;min-height:34vh;margin:1vh auto}' +
+      '.f8-box{position:relative;flex:1 1 0;min-width:0;box-sizing:border-box;cursor:pointer;' +
+      'transition:transform .15s ease}' +
+      '.f8-box svg{display:block;width:100%;height:auto}' +
+      '.f8-box.drop-hot{filter:drop-shadow(0 0 16px rgba(255,205,120,.95));transform:scale(1.03)}' +
+      '.f8-box.right{animation:f8pop .5s ease-out}' +
+      // 放进框里的那件食物：落在框内中央
+      // 落在框的下半部：框里那张脸得露出来，否则两个框就没区别了
+      '.f8-inbox{position:absolute;left:50%;top:70%;width:40%;aspect-ratio:1 / 1;' +
+      'transform:translate(-50%,-50%);z-index:3;pointer-events:none;background:none !important;' +
+      'border-radius:14px;overflow:visible;animation:f8drop .38s cubic-bezier(.34,1.56,.64,1)}' +
+      '.f8-inbox .f8-draw{width:96%}' +
+      '@keyframes f8glow{0%,100%{box-shadow:0 0 0 3px rgba(255,210,120,.5)}' +
+      '50%{box-shadow:0 0 24px 9px rgba(255,210,120,.92)}}' +
+      '@keyframes f8pop{0%,100%{transform:scale(1)}45%{transform:scale(1.06)}}' +
+      '@keyframes f8drop{0%{transform:translate(-50%,-130%) scale(.6);opacity:0}' +
+      '100%{transform:translate(-50%,-50%) scale(1);opacity:1}}' +
+      '@keyframes f8shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}';
+    document.head.appendChild(s);
+  }
+
+  /** 题型 A：三张人物卡宫格（选项栏隐藏，卡更大更好点） */
+  function renderF8Grid(q) {
+    ensureF8Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'f8-grid';
+    grid.dataset.n = String(q.options.length);
+    grid.setAttribute('aria-label', '人物图片');
+    q.options.forEach(function (opt, i) {
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'f8-tile';
+      tile.dataset.idx = String(i);
+      tile.dataset.subj = opt.scene;
+      tile.setAttribute('aria-label', '人物图片');
+      tile.appendChild(f8SceneNode(opt.scene));
+      tile.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(tile.dataset.idx) === state.question.correct, tile);
+      });
+      grid.appendChild(tile);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 B：上方一张「情境卡」（空杯子 / 苹果 / 柠檬 / 吃空的盘子），选项栏里放三张「他说什么」 */
+  function renderF8Situation(q) {
+    ensureF8Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'f8-stage';
+    wrap.appendChild(f8SceneNode(q.situation, 'f8-big'));
+    askDisplay.appendChild(wrap);
+  }
+
+  /** 题型 C：两个大框（喜欢 / 不喜欢），食物在下方选项栏里 */
+  function renderF8Boxes(q) {
+    ensureF8Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'f8-boxes';
+    [['happy', '喜欢'], ['sad', '不喜欢']].forEach(function (pair) {
+      var box = document.createElement('div');
+      box.className = 'f8-box';
+      box.dataset.drop = 'f8' + pair[0];
+      box.dataset.box = pair[0];
+      box.setAttribute('aria-label', pair[1] + '的框');
+      box.appendChild(f8Svg(pair[0] === 'happy' ? F8_BOX_HAPPY : F8_BOX_SAD));
+      wrap.appendChild(box);
+      // 点选兜底：先点食物、再点框 = 放进去（RULES §二.11）
+      box.addEventListener('click', function () {
+        if (state.pickedFruit === null) return;
+        resolveF8C(state.pickedFruit, box);
+      });
+    });
+    askDisplay.appendChild(wrap);
+  }
+
+  /** 答对后把那件食物摆进框里（下一题重绘自动清掉） */
+  function f8PlaceInBox(food, box) {
+    var target = askDisplay.querySelector('.f8-box[data-box="' + (box || 'happy') + '"]');
+    if (!target) return;
+    target.appendChild(f8SceneNode(food, 'f8-inbox'));
+  }
+
+  function resolveF8C(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'F8C') return;
+    var drop = target && target.dataset ? target.dataset.drop : null;
+    var ok = (drop === 'f8' + q.box) && itemIdx === q.correct;
+    judge(ok, ok ? target : optionEls[itemIdx]);
+  }
+
+  /** 题型 A：听短语找画面（四个句型各一张标准画面） */
+  var F8_A_CASES = [
+    { scene: 'likeApple', key: 'l5w3_a_like' },
+    { scene: 'dislike',   key: 'l5w3_a_nolike' },
+    { scene: 'more',      key: 'l5w3_a_more' },
+    { scene: 'full',      key: 'l5w3_a_done' }
+  ];
+  /** 题型 B：听情境选回答（上方情境 → 三张「他说什么」里挑一张） */
+  var F8_B_CASES = [
+    { situation: 'appleBig',  answer: 'likeApple', key: 'l5w3_b_like' },
+    { situation: 'lemonBig',  answer: 'dislike',   key: 'l5w3_b_nolike' },
+    { situation: 'emptyCup',  answer: 'more',      key: 'l5w3_b_more' },
+    { situation: 'doneTable', answer: 'full',      key: 'l5w3_b_done' }
+  ];
+  /** 题型 C：把食物拖进「喜欢 / 不喜欢」框。托盘里固定两样（一件能吃、一件柠檬），
+      保证只有唯一正确答案；柠檬永远进「不喜欢」框 */
+  var F8_C_CASES = [
+    { food: 'apple', box: 'happy', other: 'lemon', key: 'l5w3_c_apple' },
+    { food: 'milk',  box: 'happy', other: 'lemon', key: 'l5w3_c_milk' },
+    { food: 'lemon', box: 'sad',   other: 'apple', key: 'l5w3_c_lemon' },
+    { food: 'lemon', box: 'sad',   other: 'milk',  key: 'l5w3_c_lemon2' }
+  ];
+
+  /** 干扰项：从其余标准画面里抽，保证「只有一张是对的」 */
+  function f8Distract(target, n) {
+    var rest = F8_ACTS.filter(function (f) { return f !== target; });
+    shuffle(rest);
+    return rest.slice(0, n);
+  }
+
+  /** 出题：0 = A 听短语找画面 / 1 = B 听情境选回答 / 2 = C 拖进喜欢的框 */
+  function makeQuestionF8(type, prev) {
+    ensureF8Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var c = F8_A_CASES[randInt(0, F8_A_CASES.length - 1)];
+        var list = [c.scene].concat(f8Distract(c.scene, 2));
+        shuffle(list);
+        q = {
+          type: 'F8A', sig: 'A:' + c.key,
+          scene: c.scene, subj: c.scene,
+          options: list.map(function (f) { return { kind: 'f8kid', scene: f }; }),
+          correct: list.indexOf(c.scene),
+          audio: [c.key]
+        };
+      } else if (type === 1) {
+        var b = F8_B_CASES[randInt(0, F8_B_CASES.length - 1)];
+        var rest = F8_ACTS.filter(function (x) { return x !== b.answer; });
+        shuffle(rest);
+        var faces = [b.answer].concat(rest.slice(0, 2));
+        shuffle(faces);
+        q = {
+          type: 'F8B', sig: 'B:' + b.key,
+          situation: b.situation, answer: b.answer, subj: b.answer,
+          options: faces.map(function (f) { return { kind: 'f8kid', scene: f }; }),
+          correct: faces.indexOf(b.answer),
+          audio: [b.key]
+        };
+      } else {
+        var cc = F8_C_CASES[randInt(0, F8_C_CASES.length - 1)];
+        var pair = [cc.food, cc.other];
+        shuffle(pair);
+        q = {
+          type: 'F8C', sig: 'C:' + cc.key,
+          food: cc.food, box: cc.box, subj: cc.food,
+          options: pair.map(function (f) { return { kind: 'f8food', food: f }; }),
+          correct: pair.indexOf(cc.food),
+          audio: [cc.key]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* 教学（custom 分支）：17 个环节，收尾仍走 tutFinish() */
+  var runF8Tutorial = (function () {
+    function blank(me) {
+      me.ask = null;
+      me.hintTarget = null;
+      me.hintFrom = null;
+      me.hintTo = null;
+      me.hintToY = 0.5;
+      me.replay = null;
+      clearHint();
+    }
+    function stage(me) {
+      blank(me);
+      askDisplay.innerHTML = '';
+      ensureF8Css();
+      var w = document.createElement('div');
+      w.className = 'f8-stage';
+      askDisplay.appendChild(w);
+      return w;
+    }
+    /** 演示：一张大的人物 / 道具卡 */
+    function demoCard(me, key) {
+      var wrap = stage(me);
+      var card = f8SceneNode(key, 'f8-big');
+      wrap.appendChild(card);
+      return card;
+    }
+    /** 互动：二 / 三 / 四选一，点对推进，点错只抖 + again，4 秒不动出小手指（RULES §二.12） */
+    function askCards(me, act, i) {
+      var wrap = stage(me);
+      var grid = document.createElement('div');
+      grid.className = 'f8-grid';
+      grid.dataset.n = String(act.set.length);
+      wrap.appendChild(grid);
+
+      var order = shuffle(act.set.slice());
+      var tiles = {};
+      order.forEach(function (key, idx) {
+        var t = document.createElement('button');
+        t.type = 'button';
+        t.className = 'f8-tile';
+        t.dataset.idx = String(idx);
+        t.dataset.subj = key;
+        t.setAttribute('aria-label', '人物图片');
+        t.appendChild(f8SceneNode(key));
+        grid.appendChild(t);
+        tiles[key] = t;
+      });
+
+      me.ask = act.ans;
+      me.hintTarget = tiles[act.ans];
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+
+      order.forEach(function (key) {
+        var t = tiles[key];
+        t.addEventListener('click', function () {
+          if (state.tut !== me || !me.ask) return;
+          if (key === me.ask) {
+            clearHint();
+            coin();
+            ting();
+            t.classList.add('right');
+            me.ask = null;
+            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 950);
+          } else {
+            t.classList.add('wrong');
+            setTimeout(function () { t.classList.remove('wrong'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+      });
+    }
+
+    var ACTS = [
+      // ① I like it：2 次演示（吃苹果 / 喝牛奶）+ 2 次互动
+      { type: 'demo', word: 'l5w3_t_like1', key: 'likeApple' },
+      { type: 'demo', word: 'l5w3_t_like2', key: 'likeMilk' },
+      { type: 'ask',  word: 'l5w3_t_like3', set: ['likeApple', 'dislike'],          ans: 'likeApple' },
+      { type: 'ask',  word: 'l5w3_t_like4', set: ['likeApple', 'dislike', 'full'],  ans: 'likeApple' },
+      // ② I don't like it：2 + 2
+      { type: 'demo', word: 'l5w3_t_nolike1', key: 'dislike' },
+      { type: 'demo', word: 'l5w3_t_nolike2', key: 'sour' },
+      { type: 'ask',  word: 'l5w3_t_nolike3', set: ['likeApple', 'dislike'],         ans: 'dislike' },
+      { type: 'ask',  word: 'l5w3_t_nolike4', set: ['dislike', 'likeApple', 'full'], ans: 'dislike' },
+      // ③ More, please：2 + 2
+      { type: 'demo', word: 'l5w3_t_more1', key: 'more' },
+      { type: 'demo', word: 'l5w3_t_more2', key: 'emptyCup' },
+      { type: 'ask',  word: 'l5w3_t_more3', set: ['fullPlate', 'emptyPlate'],     ans: 'emptyPlate' },
+      { type: 'ask',  word: 'l5w3_t_more4', set: ['more', 'dislike', 'full'],     ans: 'more' },
+      // ④ All done：2 + 2（最后一个是三选一综合互动）
+      { type: 'demo', word: 'l5w3_t_done1', key: 'full' },
+      { type: 'demo', word: 'l5w3_t_done2', key: 'fullPush' },
+      { type: 'ask',  word: 'l5w3_t_done3', set: ['full', 'likeApple'],          ans: 'full' },
+      { type: 'ask',  word: 'l5w3_t_done4', set: ['more', 'dislike', 'full'],    ans: 'full' },
+      // ⑤ 过渡语（自带，不再叠 t_ready）
+      { type: 'outro', word: 'l5w3_t_out' }
+    ];
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+
+      // 过渡语：四张标准画面一起发光 → 说完直接进答题
+      if (act.type === 'outro') {
+        var wrap = stage(me);
+        var grid = document.createElement('div');
+        grid.className = 'f8-grid f8-final';   // f8-final 只是给测试用的舞台指纹标记，不影响样式
+        grid.dataset.n = '4';
+        wrap.appendChild(grid);
+        var cards = [];
+        F8_ACTS.forEach(function (f) {
+          var c = f8SceneNode(f);
+          grid.appendChild(c);
+          cards.push(c);
+        });
+        me.replay = function () { say([act.word]); };
+        cards.forEach(function (c) { c.classList.add('f8-glow'); });
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          tutFinish(me, false);
+        });
+        return;
+      }
+
+      // 演示：说完让这一张卡发光，停一下再走（动画挂 onDone，不猜音频时长）
+      if (act.type === 'demo') {
+        var card = demoCard(me, act.key);
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          card.classList.add('f8-glow');
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+        });
+        return;
+      }
+
+      askCards(me, act, i);
+    }
+
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
     function stage(me) {
@@ -10878,6 +11560,11 @@
     /* ---- 第 5 岛第 2 关：餐具（A/B 用宫格，C 用碗当投放目标） ---- */
     if (q.type === 'F7A' || q.type === 'F7B') { optionsBar.classList.add('gone'); return; }
     if (q.type === 'F7C') { renderF7Bowl(q); return; }
+
+    /* ---- 第 5 岛第 3 关：喜好与需求表达（A 用人物宫格，B 用情境卡 + 三张小卡，C 用两个大框） ---- */
+    if (q.type === 'F8A') { optionsBar.classList.add('gone'); return; }
+    if (q.type === 'F8B') { renderF8Situation(q); return; }
+    if (q.type === 'F8C') { renderF8Boxes(q); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -11237,6 +11924,7 @@
     if (q.type === 'F5C') { renderF4Grid(q); return; }   // 三只同种动物做不同动作，与第 4 关同款宫格
     if (q.type === 'F6A' || q.type === 'F6B') { renderF6Grid(q); return; }
     if (q.type === 'F7A' || q.type === 'F7B') { renderF7Grid(q); return; }
+    if (q.type === 'F8A') { renderF8Grid(q); return; }
     optionEls.forEach(function (btn, i) {
       removeDecor(btn);
       btn.className = 'option';
@@ -11423,6 +12111,14 @@
         // 第 5 岛第 2 关题型 C：可拖进碗里的餐具
         btn.classList.add('f7-opt');
         slot.appendChild(f7SceneNode(opt.item));
+      } else if (opt.kind === 'f8kid') {
+        // 第 5 岛第 3 关题型 B：三张「他说什么」的人物小卡（点选）
+        btn.classList.add('f8-opt');
+        slot.appendChild(f8SceneNode(opt.scene));
+      } else if (opt.kind === 'f8food') {
+        // 第 5 岛第 3 关题型 C：可拖进「喜欢 / 不喜欢」框的食物
+        btn.classList.add('f8-opt');
+        slot.appendChild(f8SceneNode(opt.food));
       } else if (opt.kind === 'f6food') {
         // 第 5 岛第 1 关题型 C：可拖到盘子上的食物
         btn.classList.add('f6-opt');
@@ -11458,6 +12154,8 @@
       btn.removeAttribute('data-drag');
       btn.removeAttribute('data-drop');
       btn.classList.toggle('drop-target', false);
+      // 被收起的空槽不参与拖拽：否则第 5 岛第 3 关的 2 选项题会多出一个「看不见但可拖」的槽
+      if (btn.hidden) return;
       if (q.type === 'W5A') {
         btn.dataset.drag = 'basket';
         btn.dataset.idx = String(i);
@@ -11513,6 +12211,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'F7C') {
         // 第 5 岛第 2 关题型 C：餐具可拖进碗里
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'F8C') {
+        // 第 5 岛第 3 关题型 C：食物可拖进「喜欢 / 不喜欢」框
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -11658,6 +12361,8 @@
       if (q.type === 'F6C') f6PlaceOnPlate(q.food);
       // 第 5 岛第 2 关题型 C：餐具当场被放进碗里（视觉反馈，仍然不播语音）
       if (q.type === 'F7C') f7PlaceInBowl(q.utensil);
+      // 第 5 岛第 3 关题型 C：食物当场被放进框里（视觉反馈，仍然不播语音）
+      if (q.type === 'F8C') f8PlaceInBox(q.food, q.box);
 
       // 必须先捕获索引：430ms 后 state.roundIndex 会自增，
       // 动画回调若晚于推进执行就会点亮错位/丢失（第 12 轮尤其明显）
@@ -11843,6 +12548,8 @@
         resolveF4C(d.idx, target);
       } else if (d.mode === 'F7C') {
         resolveF7C(d.idx, target);
+      } else if (d.mode === 'F8C') {
+        resolveF8C(d.idx, target);
       } else if (d.mode === 'F6C') {
         resolveF6C(d.idx, target);
       } else if (d.mode === 'TUT') {
@@ -12728,6 +13435,13 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '5-3': {
+      // 喜好与需求表达（RULES §三.10 双倍量）：4 个句型 × 4 环节（2 演示 + 2 互动）+ 过渡语 = 17 环节
+      custom: runF8Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -12952,7 +13666,8 @@
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
         q.type === 'F1C' || q.type === 'F2C' || q.type === 'F3C' ||
-        q.type === 'F4C' || q.type === 'F6C' || q.type === 'F7C') return q.type;
+        q.type === 'F4C' || q.type === 'F6C' || q.type === 'F7C' ||
+        q.type === 'F8C') return q.type;
     return null;
   }
 
@@ -13263,6 +13978,12 @@
         return;
       }
 
+      // 第 5 岛第 3 关题型 C：点食物选中，再点「喜欢 / 不喜欢」框
+      if (q.type === 'F8C') {
+        tapFruit(idx, btn);
+        return;
+      }
+
       // 第 5 关题型 B：先点水果选中，再点篮子投放
       if (q.type === 'W5B') {
         if (state.pickedFruit === null) return;
@@ -13534,6 +14255,9 @@
           food: q.food || null,
           utensil: q.utensil || null,
           scene: q.scene || null,
+          situation: q.situation || null,
+          box: q.box || null,
+          answer: q.answer || null,
           audio: q.audio[0],
           audios: q.audio.slice(),
           tray: q.tray ? q.tray.map(function (t) { return t.color.id + ':' + t.fruit.id; }) : null,
@@ -13559,6 +14283,8 @@
             if (o.kind === 'f6food') return o.food;
             if (o.kind === 'f7item') return 'i:' + o.item;
             if (o.kind === 'f7scene') return 's:' + o.scene;
+            if (o.kind === 'f8kid') return 'k:' + o.scene;
+            if (o.kind === 'f8food') return 'f:' + o.food;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
             if (o.color) return o.color.id;

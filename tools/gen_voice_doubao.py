@@ -737,6 +737,44 @@ add("l5w2_c_spoon", "Put the spoon in the bowl.", "en", -10, EN_ASK)
 add("l5w2_c_fork", "Put the fork in the bowl.", "en", -10, EN_ASK)
 add("l5w2_c_cup", "Put the cup in the bowl.", "en", -10, EN_ASK)
 
+# ---- 第 5 岛第 3 关：喜好与需求表达（I like it / I don't like it / More, please / All done） ----
+# 教学 17：4 个句型 × (2 演示 + 2 互动) + 过渡语
+add("l5w3_t_like1", "I like it! The apple is yummy.", "en", -10, EN_ASK)
+add("l5w3_t_like2", "I like it! I like milk.", "en", -10, EN_ASK)
+add("l5w3_t_like3", "Who likes it? Find the happy one.", "en", -10, EN_ASK)
+add("l5w3_t_like4", "Who likes the apple? Find him.", "en", -10, EN_ASK)
+add("l5w3_t_nolike1", "I don't like it. It's sour.", "en", -10, EN_ASK)
+add("l5w3_t_nolike2", "The lemon is sour. I don't like it.", "en", -10, EN_ASK)
+add("l5w3_t_nolike3", "Find the one who doesn't like it.", "en", -10, EN_ASK)
+add("l5w3_t_nolike4", "Who doesn't like the lemon? Find him.", "en", -10, EN_ASK)
+add("l5w3_t_more1", "More, please! I want more milk.", "en", -10, EN_ASK)
+add("l5w3_t_more2", "The cup is empty. More, please!", "en", -10, EN_ASK)
+add("l5w3_t_more3", "The plate is empty. Find the empty plate.", "en", -10, EN_ASK)
+add("l5w3_t_more4", "He wants more milk. Who is asking for more?", "en", -10, EN_ASK)
+add("l5w3_t_done1", "All done! I am full.", "en", -10, EN_ASK)
+add("l5w3_t_done2", "All done! No more, thank you.", "en", -10, EN_ASK)
+add("l5w3_t_done3", "Find the boy who is all done.", "en", -10, EN_ASK)
+add("l5w3_t_done4", "Find the boy who is full.", "en", -10, EN_ASK)
+add("l5w3_t_out", "You can tell me what you like. Let's play!", "en", -8, EN_PRAISE)
+
+# 题型 A：听短语找画面（4 条，固定用「冒号 + 短语」的听写式，与 B 的整句提问分开）
+add("l5w3_a_like", "Find: I like it.", "en", -10, EN_ASK)
+add("l5w3_a_nolike", "Find: I don't like it.", "en", -10, EN_ASK)
+add("l5w3_a_more", "Find: more, please.", "en", -10, EN_ASK)
+add("l5w3_a_done", "Find: all done.", "en", -10, EN_ASK)
+
+# 题型 B：听情境选回答（4 条，情境卡在屏幕上，问「他会说什么」）
+add("l5w3_b_like", "Look at the apple. What does he say?", "en", -10, EN_ASK)
+add("l5w3_b_nolike", "Look at the sour lemon. What does he say?", "en", -10, EN_ASK)
+add("l5w3_b_more", "The cup is empty. What does he say?", "en", -10, EN_ASK)
+add("l5w3_b_done", "He finished his food. What does he say?", "en", -10, EN_ASK)
+
+# 题型 C：把食物拖进「喜欢 / 不喜欢」框（4 条，柠檬永远进不喜欢的框）
+add("l5w3_c_apple", "Put the apple in the happy box.", "en", -10, EN_ASK)
+add("l5w3_c_milk", "Put the milk in the happy box.", "en", -10, EN_ASK)
+add("l5w3_c_lemon", "Put the lemon in the sad box.", "en", -10, EN_ASK)
+add("l5w3_c_lemon2", "He doesn't like the lemon. Put it in the sad box.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
