@@ -535,7 +535,7 @@ let id = 0; const pend = new Map();
     rep.checks.done.unlockedLevel === 2 &&
     rep.checks.islandAfter.node1Done === true &&
     rep.checks.islandAfter.node2Locked === false &&
-    rep.checks.islandAfter.node2Playable === false &&
+    rep.checks.islandAfter.node2Playable === true &&
     rep.checks.islandAfter.node2Text === '2' &&
     rep.checks.mapAfter.island6Unlocked === true && rep.checks.mapAfter.island6Cleared === false &&
     rep.checks.mapAfter.iconIsSvg === true &&

@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**625** 条（英文 619 + 中文 6）
+总条目：**651** 条（英文 645 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -623,6 +623,32 @@
 | `l6w1_b_sofa` | en | The cat is on the sofa. Find the picture. | 已存在 |
 | `l6w1_c_pillow` | en | Put the pillow on the bed. | 已存在 |
 | `l6w1_c_cat` | en | Put the cat on the sofa. | 已存在 |
+| `l6w2_t_tv1` | en | Look! The boy is watching TV. | 已存在 |
+| `l6w2_t_tv2` | en | He likes watching TV. | 已存在 |
+| `l6w2_t_tv_a1` | en | Who is watching TV? Touch the boy. | 已存在 |
+| `l6w2_t_tv_a2` | en | Touch the boy watching TV. | 已存在 |
+| `l6w2_t_read1` | en | Look! The girl is reading a book. | 已存在 |
+| `l6w2_t_read2` | en | She is reading a story. | 已存在 |
+| `l6w2_t_read_a1` | en | Find the one reading a book. | 已存在 |
+| `l6w2_t_read_a2` | en | Touch the girl reading a book. | 已存在 |
+| `l6w2_t_bath1` | en | Look! The baby is taking a bath. So many bubbles! | 已存在 |
+| `l6w2_t_bath2` | en | The baby has a little duck. Splash, splash! | 已存在 |
+| `l6w2_t_bath_a1` | en | Find the one taking a bath. | 已存在 |
+| `l6w2_t_bath_a2` | en | Touch the baby taking a bath. | 已存在 |
+| `l6w2_t_sleep1` | en | It's night. The baby is going to sleep. Good night! | 已存在 |
+| `l6w2_t_sleep2` | en | The baby is sleeping. Good night. | 已存在 |
+| `l6w2_t_sleep_a1` | en | Find the one going to sleep. | 已存在 |
+| `l6w2_t_sleep_a2` | en | Who is going to sleep? | 已存在 |
+| `l6w2_t_out` | en | You know your daily life! Let's play! | 已存在 |
+| `l6w2_a_tv` | en | Find the boy watching TV. | 已存在 |
+| `l6w2_a_read` | en | Find the girl reading a book. | 已存在 |
+| `l6w2_a_bath` | en | Find the baby taking a bath. | 已存在 |
+| `l6w2_a_sleep` | en | Find the baby going to sleep. | 已存在 |
+| `l6w2_b_bath` | en | Where is he taking a bath? Find the bathroom. | 已存在 |
+| `l6w2_b_tv` | en | Where is he watching TV? Find the living room. | 已存在 |
+| `l6w2_b_sleep` | en | Where is he going to sleep? Find the bedroom. | 已存在 |
+| `l6w2_c_sleep` | en | Put the baby on the bed. He is going to sleep. | 已存在 |
+| `l6w2_c_bath` | en | Put the baby in the bathtub. | 已存在 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

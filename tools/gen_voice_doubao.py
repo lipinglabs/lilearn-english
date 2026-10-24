@@ -877,6 +877,42 @@ add("l6w1_b_sofa", "The cat is on the sofa. Find the picture.", "en", -10, EN_AS
 add("l6w1_c_pillow", "Put the pillow on the bed.", "en", -10, EN_ASK)
 add("l6w1_c_cat", "Put the cat on the sofa.", "en", -10, EN_ASK)
 
+# ---- 第 6 岛第 2 关：家里的小日常（Watch TV / Read a book / Take a bath / Go to sleep） ----
+# 教学 17 环节：每个核心动作 2 演示 + 2 互动（RULES §三.10 双倍量）+ 过渡语；
+#   演示阶段点按推进（RULES §三.14，不自动进下一步）。
+add("l6w2_t_tv1", "Look! The boy is watching TV.", "en", -10, EN_ASK)
+add("l6w2_t_tv2", "He likes watching TV.", "en", -10, EN_ASK)
+add("l6w2_t_tv_a1", "Who is watching TV? Touch the boy.", "en", -10, EN_ASK)
+add("l6w2_t_tv_a2", "Touch the boy watching TV.", "en", -10, EN_ASK)
+add("l6w2_t_read1", "Look! The girl is reading a book.", "en", -10, EN_ASK)
+add("l6w2_t_read2", "She is reading a story.", "en", -10, EN_ASK)
+add("l6w2_t_read_a1", "Find the one reading a book.", "en", -10, EN_ASK)
+add("l6w2_t_read_a2", "Touch the girl reading a book.", "en", -10, EN_ASK)
+add("l6w2_t_bath1", "Look! The baby is taking a bath. So many bubbles!", "en", -10, EN_ASK)
+add("l6w2_t_bath2", "The baby has a little duck. Splash, splash!", "en", -10, EN_ASK)
+add("l6w2_t_bath_a1", "Find the one taking a bath.", "en", -10, EN_ASK)
+add("l6w2_t_bath_a2", "Touch the baby taking a bath.", "en", -10, EN_ASK)
+add("l6w2_t_sleep1", "It's night. The baby is going to sleep. Good night!", "en", -10, EN_ASK)
+add("l6w2_t_sleep2", "The baby is sleeping. Good night.", "en", -10, EN_ASK)
+add("l6w2_t_sleep_a1", "Find the one going to sleep.", "en", -10, EN_ASK)
+add("l6w2_t_sleep_a2", "Who is going to sleep?", "en", -10, EN_ASK)
+add("l6w2_t_out", "You know your daily life! Let's play!", "en", -8, EN_PRAISE)
+
+# 题型 A：听音找动作（看电视 / 看书 / 洗澡 / 睡觉）
+add("l6w2_a_tv", "Find the boy watching TV.", "en", -10, EN_ASK)
+add("l6w2_a_read", "Find the girl reading a book.", "en", -10, EN_ASK)
+add("l6w2_a_bath", "Find the baby taking a bath.", "en", -10, EN_ASK)
+add("l6w2_a_sleep", "Find the baby going to sleep.", "en", -10, EN_ASK)
+
+# 题型 B：听场景找房间（浴室 / 客厅 / 卧室）
+add("l6w2_b_bath", "Where is he taking a bath? Find the bathroom.", "en", -10, EN_ASK)
+add("l6w2_b_tv", "Where is he watching TV? Find the living room.", "en", -10, EN_ASK)
+add("l6w2_b_sleep", "Where is he going to sleep? Find the bedroom.", "en", -10, EN_ASK)
+
+# 题型 C：拖宝宝做日常（放床上睡觉、放浴缸洗澡）
+add("l6w2_c_sleep", "Put the baby on the bed. He is going to sleep.", "en", -10, EN_ASK)
+add("l6w2_c_bath", "Put the baby in the bathtub.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

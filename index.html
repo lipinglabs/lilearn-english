@@ -3802,7 +3802,8 @@
     '5-3': { numbers: null,       make: 'makeF8', title: '第 3 关', tutorial: true },
     '5-4': { numbers: null,       make: 'makeF9', title: '第 4 关', tutorial: true },
     '5-5': { numbers: null,       make: 'makeF10', title: '第 5 关', tutorial: true },
-    '6-1': { numbers: null,       make: 'makeF11', title: '第 1 关', tutorial: true }
+    '6-1': { numbers: null,       make: 'makeF11', title: '第 1 关', tutorial: true },
+    '6-2': { numbers: null,       make: 'makeF12', title: '第 2 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3964,6 +3965,7 @@
     if (def && def.make === 'makeF9') return makeQuestionF9(typeIdx, prev);
     if (def && def.make === 'makeF10') return makeQuestionF10(typeIdx, prev);
     if (def && def.make === 'makeF11') return makeQuestionF11(typeIdx, prev);
+    if (def && def.make === 'makeF12') return makeQuestionF12(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -12783,6 +12785,438 @@
     return api;
   })();
 
+  /* ==================== 第 6 岛第 2 关（L6-W2：家里的小日常） ==================== */
+  /* 核心动作：Watch TV / Read a book / Take a bath / Go to sleep。
+     教学：演示阶段「点按推进」（RULES §三.14，复用 L6-W1 机制：每句演示播完画面定格，点屏幕任意位置才进下一步）；
+     每个核心动作 2 次不同演示 + 2 次互动（RULES §三.10 双倍量）+ 过渡语，共 17 环节。
+     答题 12 轮（4/4/4）：A 听音找动作 / B 听场景找房间（卧室 / 浴室 / 客厅）/ C 拖宝宝做日常（放床上睡觉、放浴缸洗澡）。
+     图片：全部手写内联 SVG，复用 F8 男孩 / F10 女孩 / F11 床沙发零件，零新增 PNG、零生图（图片最高优先 = 免费 SVG，RULES §二.17）。 */
+
+  /* ---- 零件 ---- */
+  function f12Boy(x, shirt, mood) {
+    return '<g transform="translate(' + x + ' 0)">' + f8Body(shirt, false) +
+      f8Arm('M54 116 q-8 14 -6 24') + f8Arm('M106 116 q8 14 6 24') + f8Head(mood) + '</g>';
+  }
+  function f12Duck(cx, cy, k) {
+    return '<g transform="translate(' + cx + ' ' + cy + ') scale(' + k + ')">' +
+      '<ellipse cx="0" cy="10" rx="19" ry="12" fill="#ffd94d" stroke="#e8b820" stroke-width="2.4"/>' +
+      '<circle cx="13" cy="-5" r="10.5" fill="#ffd94d" stroke="#e8b820" stroke-width="2.4"/>' +
+      '<path d="M22 -4 l10 3 l-10 3 z" fill="#e8763a" stroke="#c85f28" stroke-width="1.5" stroke-linejoin="round"/>' +
+      '<circle cx="15" cy="-7" r="1.9" fill="#4a3628"/></g>';
+  }
+  /** 小宝宝（大头 + 小连体衣）；prop='sleep' 闭眼，'bath' 张眼 */
+  function f12BabyFig(cx, cy, k, prop) {
+    var face = (prop === 'sleep')
+      ? '<path d="M-11 -1 q3 -4 6 0" stroke="' + F8_INK + '" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+        '<path d="M5 -1 q3 -4 6 0" stroke="' + F8_INK + '" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+        '<path d="M-4 8 q4 4 8 0" stroke="' + F8_MOUTH + '" stroke-width="2" fill="none" stroke-linecap="round"/>'
+      : '<circle cx="-7" cy="-1" r="2.4" fill="' + F8_INK + '"/><circle cx="7" cy="-1" r="2.4" fill="' + F8_INK + '"/>' +
+        '<path d="M-4 8 q4 4 8 0" stroke="' + F8_MOUTH + '" stroke-width="2" fill="none" stroke-linecap="round"/>';
+    return '<g transform="translate(' + cx + ' ' + cy + ') scale(' + k + ')">' +
+      '<path d="M-15 28 q0 -24 15 -24 q15 0 15 28 z" fill="#bfe4f5" stroke="#9ecfe4" stroke-width="2.2"/>' +
+      '<circle cx="0" cy="-16" r="22" fill="' + F8_SKIN + '"/>' +
+      '<path d="M-16 -28 q6 -8 15 -4" stroke="' + F8_HAIR + '" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+      '<circle cx="-13" cy="-8" r="3.4" fill="#ffb9b9" opacity=".6"/><circle cx="13" cy="-8" r="3.4" fill="#ffb9b9" opacity=".6"/>' +
+      face + '</g>';
+  }
+
+  var F12_TUB =
+    '<path d="M26 84 h108 v32 q0 12 -12 12 h-84 q-12 0 -12 -12 z" fill="#dfeef5" stroke="#a9cadd" stroke-width="3"/>' +
+    '<rect x="20" y="74" width="120" height="12" rx="6" fill="#eef7fb" stroke="#a9cadd" stroke-width="2.6"/>' +
+    '<rect x="32" y="126" width="9" height="14" rx="3" fill="#a9cadd"/>' +
+    '<rect x="119" y="126" width="9" height="14" rx="3" fill="#a9cadd"/>';
+
+  /** 看电视（客厅 + 亮屏电视 + 男孩） */
+  var F12_WATCH_TV =
+    '<rect x="8" y="22" width="144" height="118" rx="10" fill="#f7e9d4"/>' +
+    '<rect x="92" y="44" width="56" height="42" rx="6" fill="#5a6b7a" stroke="#3f4c58" stroke-width="3"/>' +
+    '<rect x="97" y="49" width="46" height="32" rx="3" fill="#bfe6f7"/>' +
+    '<rect x="114" y="86" width="12" height="8" rx="2" fill="#3f4c58"/>' +
+    f12Boy(-34, '#8fd0f0', 'happy');
+
+  /** 电视特写（屏幕里的动画片：太阳 + 小山 + 小人） */
+  var F12_TV_CARTOON =
+    '<rect x="14" y="18" width="132" height="124" rx="12" fill="#5a6b7a" stroke="#3f4c58" stroke-width="4"/>' +
+    '<rect x="24" y="28" width="112" height="104" rx="6" fill="#bfe6f7"/>' +
+    '<circle cx="50" cy="54" r="12" fill="#ffd94d"/>' +
+    '<path d="M24 116 q26 -32 52 0 q26 -32 52 0 v16 h-104 z" fill="#8fd0a0"/>' +
+    '<circle cx="98" cy="76" r="9" fill="#ffdcbb"/>' +
+    '<path d="M90 132 q8 -20 16 0 z" fill="#e2544a"/>';
+
+  /** 看书（书房书架 + 女孩捧着书） */
+  var F12_READ =
+    '<rect x="8" y="22" width="144" height="118" rx="10" fill="#eef3f7"/>' +
+    '<rect x="12" y="38" width="30" height="84" rx="4" fill="#d9a066" stroke="#c08848" stroke-width="2.4"/>' +
+    '<rect x="16" y="50" width="22" height="6" rx="2" fill="#e2544a"/>' +
+    '<rect x="16" y="64" width="22" height="6" rx="2" fill="#4c8fe8"/>' +
+    '<rect x="16" y="78" width="22" height="6" rx="2" fill="#8fd0a0"/>' +
+    '<rect x="16" y="92" width="22" height="6" rx="2" fill="#ffd94d"/>' +
+    '<g transform="translate(40 0)">' + f10GirlBody('#f2a6c0') +
+      f8Arm('M59 116 q10 10 12 22') + f8Arm('M101 116 q-6 8 -8 20') + f10GirlHead('happy') + '</g>' +
+    '<g transform="translate(120 122)">' +
+      '<path d="M-22 -12 h22 v24 h-22 z" fill="#fffdf6" stroke="#e0c9a6" stroke-width="2.2"/>' +
+      '<path d="M0 -12 h22 v24 h-22 z" fill="#fdf1dc" stroke="#e0c9a6" stroke-width="2.2"/></g>';
+
+  /** 书本特写（摊开的书 + 星星） */
+  var F12_BOOK_CLOSEUP =
+    '<path d="M80 58 q-32 -16 -66 -8 v58 q34 -8 66 8 z" fill="#fffdf6" stroke="#e0c9a6" stroke-width="3"/>' +
+    '<path d="M80 58 q32 -16 66 -8 v58 q-34 -8 -66 8 z" fill="#fdf1dc" stroke="#e0c9a6" stroke-width="3"/>' +
+    '<path d="M40 76 h28 M40 90 h28 M40 104 h22" stroke="#e8d4b0" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+    '<path d="M92 76 h28 M92 90 h28 M92 104 h22" stroke="#e8d4b0" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+    f8Spark(38, 44, 7) + f8Spark(122, 42, 8);
+
+  /** 浴缸 + 泡泡（演示 / 题型 B 浴室） */
+  var F12_BATH =
+    F12_TUB +
+    '<ellipse cx="80" cy="80" rx="54" ry="16" fill="#ffffff" opacity=".92"/>' +
+    '<circle cx="48" cy="70" r="12" fill="#ffffff" opacity=".9" stroke="#e2f0f7" stroke-width="2"/>' +
+    '<circle cx="72" cy="60" r="15" fill="#ffffff" opacity=".9" stroke="#e2f0f7" stroke-width="2"/>' +
+    '<circle cx="100" cy="68" r="13" fill="#ffffff" opacity=".88" stroke="#e2f0f7" stroke-width="2"/>' +
+    '<circle cx="120" cy="78" r="10" fill="#ffffff" opacity=".85" stroke="#e2f0f7" stroke-width="2"/>' +
+    '<circle cx="86" cy="52" r="8" fill="#ffffff" opacity=".8"/>' +
+    '<circle cx="58" cy="86" r="8" fill="#ffffff" opacity=".75"/>';
+
+  /** 宝宝在浴缸里洗澡（头露出泡泡 + 小黄鸭）——动作「洗澡」 */
+  var F12_BATH_BABY =
+    F12_TUB +
+    '<ellipse cx="80" cy="88" rx="56" ry="18" fill="#ffffff" opacity=".92"/>' +
+    '<circle cx="52" cy="78" r="10" fill="#ffffff" opacity=".85"/>' +
+    '<circle cx="108" cy="80" r="9" fill="#ffffff" opacity=".8"/>' +
+    '<circle cx="80" cy="56" r="24" fill="' + F8_SKIN + '"/>' +
+    '<path d="M67 38 q7 -8 16 -4" stroke="' + F8_HAIR + '" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+    '<circle cx="72" cy="54" r="2.6" fill="' + F8_INK + '"/><circle cx="88" cy="54" r="2.6" fill="' + F8_INK + '"/>' +
+    '<path d="M74 64 q6 6 12 0" stroke="' + F8_MOUTH + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+    '<circle cx="67" cy="61" r="3.6" fill="#ffb9b9" opacity=".6"/><circle cx="93" cy="61" r="3.6" fill="#ffb9b9" opacity=".6"/>' +
+    f12Duck(122, 62, 0.6);
+
+  /** 卧室 + 月亮（演示 / 题型 B 卧室） */
+  var F12_SLEEP_ROOM =
+    '<rect x="8" y="18" width="144" height="122" rx="10" fill="#e8dcf0"/>' +
+    '<path d="M118 26 a16 16 0 1 0 0 32 a12 12 0 1 1 0 -32 z" fill="#ffe08a" stroke="#e8c45a" stroke-width="2"/>' +
+    f8Spark(96, 30, 6, '.85') + f8Spark(136, 48, 5, '.7') + f8Spark(84, 50, 4, '.6') +
+    F11_BED;
+
+  /** 宝宝在床上睡觉（头枕枕头 + 闭眼 + 小月亮）——动作「睡觉」 */
+  var F12_SLEEP_BABY =
+    F11_BED +
+    '<circle cx="52" cy="70" r="16" fill="' + F8_SKIN + '"/>' +
+    '<path d="M37 66 a16 16 0 0 1 30 0 q-6 -6 -15 -6 q-9 0 -15 6 z" fill="' + F8_HAIR + '"/>' +
+    '<path d="M44 70 q3 -4 6 0" stroke="' + F8_INK + '" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+    '<path d="M54 70 q3 -4 6 0" stroke="' + F8_INK + '" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+    '<circle cx="45" cy="77" r="2.8" fill="#ffb9b9" opacity=".55"/>' +
+    '<path d="M124 30 a10 10 0 1 0 0 20 a7.5 7.5 0 1 1 0 -20 z" fill="#ffe08a" stroke="#e8c45a" stroke-width="1.8"/>';
+
+  /** 客厅（沙发 + 电视）——题型 B */
+  var F12_LIVING =
+    '<rect x="8" y="22" width="144" height="118" rx="10" fill="#f7e9d4"/>' +
+    '<g transform="translate(-26 12) scale(0.8)">' + F11_SOFA + '</g>' +
+    '<rect x="96" y="42" width="50" height="38" rx="6" fill="#5a6b7a" stroke="#3f4c58" stroke-width="3"/>' +
+    '<rect x="100" y="46" width="42" height="30" rx="3" fill="#bfe6f7"/>' +
+    '<rect x="115" y="80" width="12" height="8" rx="2" fill="#3f4c58"/>';
+
+  /** 题型 C 的两个宝宝（睡着 / 洗澡） */
+  var F12_BABY_SLEEP = f12BabyFig(80, 92, 1.05, 'sleep') + '<ellipse cx="80" cy="150" rx="24" ry="6" fill="#d3b28a" opacity=".25"/>';
+  var F12_BABY_BATH = f12BabyFig(80, 92, 1.05, 'bath') + f12Duck(118, 122, 0.5) + '<ellipse cx="80" cy="150" rx="24" ry="6" fill="#d3b28a" opacity=".25"/>';
+
+  var F12_SVG_LIB = {
+    watchTV: F12_WATCH_TV, read: F12_READ, bath: F12_BATH_BABY, sleep: F12_SLEEP_BABY,
+    tvCartoon: F12_TV_CARTOON, bookCloseup: F12_BOOK_CLOSEUP,
+    bathBubbles: F12_BATH, sleepRoom: F12_SLEEP_ROOM,
+    bedroom: F12_SLEEP_ROOM, bathroom: F12_BATH, living: F12_LIVING,
+    babySleep: F12_BABY_SLEEP, babyBath: F12_BABY_BATH,
+    bed: F11_BED, tub: F12_TUB
+  };
+
+  /** 场景节点：复用 f9Svg 与 .f9-card / .f9-big / .f11-on 等既有样式（ensureF11Css 已定义） */
+  function f12SceneNode(key, cls) {
+    var card = document.createElement('div');
+    card.className = 'f9-card' + (cls ? ' ' + cls : '');
+    card.dataset.subj = key;
+    var markup = F12_SVG_LIB[key];
+    if (!markup) return card;
+    card.classList.add('f9-draw-card');
+    card.appendChild(f9Svg(markup));
+    return card;
+  }
+
+  /** 题型 A / B：三张卡宫格（选项栏隐藏）——复用 f9-grid / f9-tile */
+  function renderF12Grid(q) {
+    ensureF11Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'f9-grid';
+    grid.dataset.n = String(q.options.length);
+    grid.setAttribute('aria-label', '图片');
+    q.options.forEach(function (opt, i) {
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'f9-tile';
+      tile.dataset.idx = String(i);
+      tile.dataset.subj = opt.scene;
+      tile.setAttribute('aria-label', '图片');
+      tile.appendChild(f12SceneNode(opt.scene));
+      tile.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(tile.dataset.idx) === state.question.correct, tile);
+      });
+      grid.appendChild(tile);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 C：房间里摆好床 / 浴缸（两个投放目标），宝宝在选项栏（drag / 点选等价） */
+  function renderF12Room(q) {
+    ensureF11Css();
+    askDisplay.innerHTML = '';
+    var room = document.createElement('div');
+    room.className = 'f11-room';
+    room.setAttribute('aria-label', '房间');
+    ['bed', 'tub'].forEach(function (which) {
+      var f = document.createElement('div');
+      f.className = 'f11-furn';
+      f.dataset.drop = which;
+      f.dataset.subj = which;
+      f.setAttribute('aria-label', '家具');
+      f.appendChild(f12SceneNode(which));
+      f.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        if (state.pickedFruit === null) return;
+        resolveF12C(state.pickedFruit, f);
+      });
+      room.appendChild(f);
+    });
+    askDisplay.appendChild(room);
+  }
+
+  /** 答对后把宝宝摆到对应家具上（视觉反馈，不播语音）；drop 可为 DOM 或 'bed'/'tub' 键名 */
+  function f12PlaceInRoom(item, drop) {
+    var el = (typeof drop === 'string') ? askDisplay.querySelector('.f11-furn[data-drop="' + drop + '"]') : drop;
+    if (!el) return;
+    el.appendChild(f12SceneNode(item, 'f11-on'));
+    el.classList.add('f9-glow');
+  }
+
+  function resolveF12C(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'F12C') return;
+    var drop = target && target.dataset ? target.dataset.drop : null;
+    var ok = (itemIdx === q.correct) && (drop === q.target);
+    judge(ok, ok ? target : optionEls[itemIdx]);
+  }
+
+  /** 题型 A：听音找动作（4 个动作，目标 + 2 干扰） */
+  var F12_A_CASES = [
+    { act: 'watchTV', key: 'l6w2_a_tv' },
+    { act: 'read',    key: 'l6w2_a_read' },
+    { act: 'bath',    key: 'l6w2_a_bath' },
+    { act: 'sleep',   key: 'l6w2_a_sleep' }
+  ];
+  /** 题型 B：听场景找房间（卧室 / 浴室 / 客厅 三选一） */
+  var F12_B_CASES = [
+    { scene: 'bathroom', key: 'l6w2_b_bath' },
+    { scene: 'living',   key: 'l6w2_b_tv' },
+    { scene: 'bedroom',  key: 'l6w2_b_sleep' }
+  ];
+  /** 题型 C：拖宝宝做日常（放床上睡觉、放浴缸洗澡） */
+  var F12_C_CASES = [
+    { item: 'babySleep', target: 'bed', key: 'l6w2_c_sleep' },
+    { item: 'babyBath',  target: 'tub', key: 'l6w2_c_bath' }
+  ];
+
+  /** 出题：0 = A 找动作 / 1 = B 找房间 / 2 = C 布置日常 */
+  function makeQuestionF12(type, prev) {
+    ensureF11Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var a = F12_A_CASES[randInt(0, F12_A_CASES.length - 1)];
+        var others = F12_A_CASES.map(function (c) { return c.act; }).filter(function (x) { return x !== a.act; });
+        shuffle(others);
+        var picks = [a.act, others[0], others[1]];
+        shuffle(picks);
+        q = {
+          type: 'F12A', sig: 'A:' + picks.join(','),
+          subj: a.act,
+          options: picks.map(function (s) { return { kind: 'f12act', scene: s }; }),
+          correct: picks.indexOf(a.act),
+          audio: [a.key]
+        };
+      } else if (type === 1) {
+        var b = F12_B_CASES[randInt(0, F12_B_CASES.length - 1)];
+        var rooms = F12_B_CASES.map(function (c) { return c.scene; });
+        shuffle(rooms);
+        q = {
+          type: 'F12B', sig: 'B:' + rooms.join(','),
+          subj: b.scene,
+          options: rooms.map(function (s) { return { kind: 'f12room', scene: s }; }),
+          correct: rooms.indexOf(b.scene),
+          audio: [b.key]
+        };
+      } else {
+        var c = F12_C_CASES[randInt(0, F12_C_CASES.length - 1)];
+        var items = ['babySleep', 'babyBath'];
+        shuffle(items);
+        q = {
+          type: 'F12C', sig: 'C:' + c.item + ':' + items.join(','),
+          subj: c.item, item: c.item, target: c.target,
+          options: items.map(function (it) { return { kind: 'f12item', item: it }; }),
+          correct: items.indexOf(c.item),
+          audio: [c.key]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* 教学（custom 分支）：演示阶段点按推进（RULES §三.14，同 L6-W1 机制）+ 双倍量，收尾走 tutFinish() */
+  var runF12Tutorial = (function () {
+    function blank(me) {
+      me.ask = null; me.selected = null; me.waitTap = false;
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5; me.replay = null;
+      if (me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      clearHint();
+      var t = askDisplay.querySelector('.f11-tap'); if (t) t.parentNode.removeChild(t);
+    }
+    function stage(me) {
+      blank(me);
+      askDisplay.innerHTML = '';
+      ensureF11Css();
+      var w = document.createElement('div');
+      w.className = 'f9-stage';
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /** 演示：一句话 + 一个画面，播完定格停留，点屏幕任意位置才推进 */
+    function demo(me, act, i) {
+      var wrap = stage(me);
+      var card = f12SceneNode(act.key, 'f9-big');
+      wrap.appendChild(card);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        card.classList.add('f9-glow');
+        if (me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+        showTap();
+        me.waitTap = true;
+        var onTap = function (e) {
+          if (state.tut !== me || !me.waitTap) return;
+          me.waitTap = false;
+          document.removeEventListener('click', onTap, true);
+          me._onTap = null;
+          if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+          playAct(me, i + 1);
+        };
+        me._onTap = onTap;
+        document.addEventListener('click', onTap, true);
+      });
+    }
+    /** 互动：二 / 三 / 四选一，点对推进，点错只抖 + again，4 秒不动出小手指 */
+    function askCards(me, act, i) {
+      var wrap = stage(me);
+      var grid = document.createElement('div');
+      grid.className = 'f9-grid';
+      grid.dataset.n = String(act.set.length);
+      wrap.appendChild(grid);
+      var order = shuffle(act.set.slice());
+      var tiles = {};
+      order.forEach(function (key, idx) {
+        var t = document.createElement('button');
+        t.type = 'button';
+        t.className = 'f9-tile';
+        t.dataset.idx = String(idx);
+        t.dataset.subj = key;
+        t.setAttribute('aria-label', '图片');
+        t.appendChild(f12SceneNode(key));
+        grid.appendChild(t);
+        tiles[key] = t;
+      });
+      me.ask = act.ans;
+      me.hintTarget = tiles[act.ans];
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+      order.forEach(function (key) {
+        var t = tiles[key];
+        t.addEventListener('click', function () {
+          if (state.tut !== me || !me.ask) return;
+          if (key === me.ask) {
+            clearHint(); coin(); ting();
+            t.classList.add('right'); me.ask = null;
+            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 950);
+          } else {
+            t.classList.add('wrong');
+            setTimeout(function () { t.classList.remove('wrong'); }, 520);
+            say(['again']); armHint();
+          }
+        });
+      });
+    }
+
+    var ACTS = [
+      // Watch TV：2 演示 + 2 互动
+      { type: 'demo', word: 'l6w2_t_tv1',   key: 'watchTV' },
+      { type: 'demo', word: 'l6w2_t_tv2',   key: 'tvCartoon' },
+      { type: 'ask',  word: 'l6w2_t_tv_a1', set: ['read', 'watchTV'], ans: 'watchTV' },
+      { type: 'ask',  word: 'l6w2_t_tv_a2', set: ['watchTV', 'bath', 'sleep'], ans: 'watchTV' },
+      // Read a book：2 演示 + 2 互动
+      { type: 'demo', word: 'l6w2_t_read1',   key: 'read' },
+      { type: 'demo', word: 'l6w2_t_read2',   key: 'bookCloseup' },
+      { type: 'ask',  word: 'l6w2_t_read_a1', set: ['read', 'bath'], ans: 'read' },
+      { type: 'ask',  word: 'l6w2_t_read_a2', set: ['read', 'sleep', 'watchTV'], ans: 'read' },
+      // Take a bath：2 演示 + 2 互动
+      { type: 'demo', word: 'l6w2_t_bath1',   key: 'bathBubbles' },
+      { type: 'demo', word: 'l6w2_t_bath2',   key: 'bath' },
+      { type: 'ask',  word: 'l6w2_t_bath_a1', set: ['bath', 'sleep'], ans: 'bath' },
+      { type: 'ask',  word: 'l6w2_t_bath_a2', set: ['bath', 'read', 'watchTV', 'sleep'], ans: 'bath' },
+      // Go to sleep：2 演示 + 2 互动
+      { type: 'demo', word: 'l6w2_t_sleep1',   key: 'sleepRoom' },
+      { type: 'demo', word: 'l6w2_t_sleep2',   key: 'sleep' },
+      { type: 'ask',  word: 'l6w2_t_sleep_a1', set: ['sleep', 'read'], ans: 'sleep' },
+      { type: 'ask',  word: 'l6w2_t_sleep_a2', set: ['sleep', 'bath', 'watchTV'], ans: 'sleep' },
+      // 过渡语（自带）
+      { type: 'outro', word: 'l6w2_t_out' }
+    ];
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+
+      if (act.type === 'outro') {
+        var wrap = stage(me);
+        var grid = document.createElement('div');
+        grid.className = 'f9-grid f9-final';
+        grid.dataset.n = '4';
+        wrap.appendChild(grid);
+        ['watchTV', 'read', 'bath', 'sleep'].forEach(function (f) {
+          var c = f12SceneNode(f);
+          grid.appendChild(c);
+          c.classList.add('f9-glow');
+        });
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          tutFinish(me, false);
+        });
+        return;
+      }
+
+      if (act.type === 'demo') { demo(me, act, i); return; }
+      askCards(me, act, i);
+    }
+
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
     function stage(me) {
@@ -12997,6 +13431,10 @@
     /* ---- 第 6 岛第 1 关：家具（A/B 用家具/场景宫格，C 用房间当投放目标） ---- */
     if (q.type === 'F11A' || q.type === 'F11B') { optionsBar.classList.add('gone'); return; }
     if (q.type === 'F11C') { renderF11Room(q); return; }
+
+    /* ---- 第 6 岛第 2 关：家里的小日常（A/B 用宫格，C 用房间当投放目标） ---- */
+    if (q.type === 'F12A' || q.type === 'F12B') { optionsBar.classList.add('gone'); return; }
+    if (q.type === 'F12C') { renderF12Room(q); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -13360,6 +13798,7 @@
     if (q.type === 'F9A' || q.type === 'F9C') { renderF9Grid(q); return; }
     if (q.type === 'F10B') { renderF10Grid(q); return; }
     if (q.type === 'F11A' || q.type === 'F11B') { renderF11Grid(q); return; }
+    if (q.type === 'F12A' || q.type === 'F12B') { renderF12Grid(q); return; }
     optionEls.forEach(function (btn, i) {
       removeDecor(btn);
       btn.className = 'option';
@@ -13578,6 +14017,10 @@
         // 第 6 岛第 1 关题型 C：可拖进房间的物品（枕头 / 猫）
         btn.classList.add('f11-opt');
         slot.appendChild(f11SceneNode(opt.item));
+      } else if (opt.kind === 'f12item') {
+        // 第 6 岛第 2 关题型 C：可拖进房间的宝宝（睡觉 / 洗澡）
+        btn.classList.add('f12-opt');
+        slot.appendChild(f12SceneNode(opt.item));
       } else if (opt.kind === 'f6food') {
         // 第 5 岛第 1 关题型 C：可拖到盘子上的食物
         btn.classList.add('f6-opt');
@@ -13690,6 +14133,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'F11C') {
         // 第 6 岛第 1 关题型 C：物品可拖到房间的床 / 沙发上
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'F12C') {
+        // 第 6 岛第 2 关题型 C：宝宝可拖到房间的床 / 浴缸上
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -13840,6 +14288,7 @@
       if (q.type === 'F9B') f9PlaceOnBoy(q.food);
       if (q.type === 'F10A') f10PlaceOnGirl(q.food);
       if (q.type === 'F11C') f11PlaceInRoom(q.item, q.target);
+      if (q.type === 'F12C') f12PlaceInRoom(q.item, q.target);
 
       // 必须先捕获索引：430ms 后 state.roundIndex 会自增，
       // 动画回调若晚于推进执行就会点亮错位/丢失（第 12 轮尤其明显）
@@ -14033,6 +14482,8 @@
         resolveF10A(d.idx, target);
       } else if (d.mode === 'F11C') {
         resolveF11C(d.idx, target);
+      } else if (d.mode === 'F12C') {
+        resolveF12C(d.idx, target);
       } else if (d.mode === 'F6C') {
         resolveF6C(d.idx, target);
       } else if (d.mode === 'TUT') {
@@ -14941,8 +15392,15 @@
       onSuccess: function () { /* 教学无投放环节 */ }
     },
     '6-1': {
-      // 家具（Bed / Table / Chair / Sofa）：演示点按推进（RULES §三.13）+ 双倍量，17 环节
+      // 家具（Bed / Table / Chair / Sofa）：演示点按推进（RULES §三.14）+ 双倍量，17 环节
       custom: runF11Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '6-2': {
+      // 家里的小日常（Watch TV / Read a book / Take a bath / Go to sleep）：演示点按推进 + 双倍量，17 环节
+      custom: runF12Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
@@ -15171,7 +15629,7 @@
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
         q.type === 'F1C' || q.type === 'F2C' || q.type === 'F3C' ||
         q.type === 'F4C' ||         q.type === 'F6C' || q.type === 'F7C' ||
-        q.type === 'F8C' || q.type === 'F9B' || q.type === 'F10A' || q.type === 'F11C') return q.type;
+        q.type === 'F8C' || q.type === 'F9B' || q.type === 'F10A' || q.type === 'F11C' || q.type === 'F12C') return q.type;
     return null;
   }
 
@@ -15506,6 +15964,12 @@
         return;
       }
 
+      // 第 6 岛第 2 关题型 C：点宝宝选中，再点房间里的床 / 浴缸「放上去」
+      if (q.type === 'F12C') {
+        tapFruit(idx, btn);
+        return;
+      }
+
       // 第 5 关题型 B：先点水果选中，再点篮子投放
       if (q.type === 'W5B') {
         if (state.pickedFruit === null) return;
@@ -15817,6 +16281,9 @@
             if (o.kind === 'f11furn') return 's:' + o.scene;
             if (o.kind === 'f11scene') return 's:' + o.scene;
             if (o.kind === 'f11item') return 'i:' + o.item;
+            if (o.kind === 'f12act') return 's:' + o.scene;
+            if (o.kind === 'f12room') return 's:' + o.scene;
+            if (o.kind === 'f12item') return 'i:' + o.item;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
             if (o.color) return o.color.id;
