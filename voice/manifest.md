@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**599** 条（英文 593 + 中文 6）
+总条目：**625** 条（英文 619 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -597,6 +597,32 @@
 | `l5w5_a_apple` | en | The girl is hungry. She wants an apple. | 已存在 |
 | `l5w5_b` | en | Find the one who wants more. | 已存在 |
 | `l5w5_c` | en | The soup is hot. What do we need? | 已存在 |
+| `l6w1_t_bed1` | en | Look! A bed. We sleep on the bed. | 已存在 |
+| `l6w1_t_bed2` | en | The boy is sleeping on the bed. | 已存在 |
+| `l6w1_t_bed_a1` | en | Where is the bed? Touch the bed. | 已存在 |
+| `l6w1_t_bed_a2` | en | Touch the bed. | 已存在 |
+| `l6w1_t_table1` | en | Look! A table. | 已存在 |
+| `l6w1_t_table2` | en | The apple is on the table. | 已存在 |
+| `l6w1_t_table_a1` | en | Where is the table? Touch the table. | 已存在 |
+| `l6w1_t_table_a2` | en | Touch the table. | 已存在 |
+| `l6w1_t_chair1` | en | Look! A chair. We sit on the chair. | 已存在 |
+| `l6w1_t_chair2` | en | The cat is sitting on the chair. | 已存在 |
+| `l6w1_t_chair_a1` | en | Where is the chair? Touch the chair. | 已存在 |
+| `l6w1_t_chair_a2` | en | Touch the chair. | 已存在 |
+| `l6w1_t_sofa1` | en | Look! A sofa. The sofa is soft. | 已存在 |
+| `l6w1_t_sofa2` | en | The cat is on the sofa. | 已存在 |
+| `l6w1_t_sofa_a1` | en | Where is the sofa? Touch the sofa. | 已存在 |
+| `l6w1_t_sofa_a2` | en | Touch the sofa. | 已存在 |
+| `l6w1_t_out` | en | You know the house! Let's play! | 已存在 |
+| `l6w1_a_bed` | en | Find the bed. | 已存在 |
+| `l6w1_a_table` | en | Find the table. | 已存在 |
+| `l6w1_a_chair` | en | Find the chair. | 已存在 |
+| `l6w1_a_sofa` | en | Find the sofa. | 已存在 |
+| `l6w1_b_bed` | en | The boy is sleeping on the bed. Find the picture. | 已存在 |
+| `l6w1_b_table` | en | The apple is on the table. Find the picture. | 已存在 |
+| `l6w1_b_sofa` | en | The cat is on the sofa. Find the picture. | 已存在 |
+| `l6w1_c_pillow` | en | Put the pillow on the bed. | 已存在 |
+| `l6w1_c_cat` | en | Put the cat on the sofa. | 已存在 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

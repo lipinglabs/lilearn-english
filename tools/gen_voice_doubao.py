@@ -841,6 +841,42 @@ add("l5w5_b", "Find the one who wants more.", "en", -10, EN_ASK)
 # 题型 C：听场景选餐具（热汤要勺子：勺子 / 杯子 / 叉子 三选一）
 add("l5w5_c", "The soup is hot. What do we need?", "en", -10, EN_ASK)
 
+# ---- 第 6 岛第 1 关：家具（Bed / Table / Chair / Sofa） ----
+# 教学 17 环节：每个核心词 2 演示 + 2 互动（RULES §三.10 双倍量）+ 过渡语；
+#   演示阶段点按推进（RULES §三.14，不自动进下一步）。
+add("l6w1_t_bed1", "Look! A bed. We sleep on the bed.", "en", -10, EN_ASK)
+add("l6w1_t_bed2", "The boy is sleeping on the bed.", "en", -10, EN_ASK)
+add("l6w1_t_bed_a1", "Where is the bed? Touch the bed.", "en", -10, EN_ASK)
+add("l6w1_t_bed_a2", "Touch the bed.", "en", -10, EN_ASK)
+add("l6w1_t_table1", "Look! A table.", "en", -10, EN_ASK)
+add("l6w1_t_table2", "The apple is on the table.", "en", -10, EN_ASK)
+add("l6w1_t_table_a1", "Where is the table? Touch the table.", "en", -10, EN_ASK)
+add("l6w1_t_table_a2", "Touch the table.", "en", -10, EN_ASK)
+add("l6w1_t_chair1", "Look! A chair. We sit on the chair.", "en", -10, EN_ASK)
+add("l6w1_t_chair2", "The cat is sitting on the chair.", "en", -10, EN_ASK)
+add("l6w1_t_chair_a1", "Where is the chair? Touch the chair.", "en", -10, EN_ASK)
+add("l6w1_t_chair_a2", "Touch the chair.", "en", -10, EN_ASK)
+add("l6w1_t_sofa1", "Look! A sofa. The sofa is soft.", "en", -10, EN_ASK)
+add("l6w1_t_sofa2", "The cat is on the sofa.", "en", -10, EN_ASK)
+add("l6w1_t_sofa_a1", "Where is the sofa? Touch the sofa.", "en", -10, EN_ASK)
+add("l6w1_t_sofa_a2", "Touch the sofa.", "en", -10, EN_ASK)
+add("l6w1_t_out", "You know the house! Let's play!", "en", -8, EN_PRAISE)
+
+# 题型 A：听音找家具（目标 + 2 干扰，抽 3 个）
+add("l6w1_a_bed", "Find the bed.", "en", -10, EN_ASK)
+add("l6w1_a_table", "Find the table.", "en", -10, EN_ASK)
+add("l6w1_a_chair", "Find the chair.", "en", -10, EN_ASK)
+add("l6w1_a_sofa", "Find the sofa.", "en", -10, EN_ASK)
+
+# 题型 B：听句子找场景（男孩在床上 / 苹果在桌上 / 猫在沙发上）
+add("l6w1_b_bed", "The boy is sleeping on the bed. Find the picture.", "en", -10, EN_ASK)
+add("l6w1_b_table", "The apple is on the table. Find the picture.", "en", -10, EN_ASK)
+add("l6w1_b_sofa", "The cat is on the sofa. Find the picture.", "en", -10, EN_ASK)
+
+# 题型 C：拖物品布置房间（枕头→床、猫→沙发）
+add("l6w1_c_pillow", "Put the pillow on the bed.", "en", -10, EN_ASK)
+add("l6w1_c_cat", "Put the cat on the sofa.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

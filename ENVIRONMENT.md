@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-24（第 5 岛第 5 关「上菜终极挑战」上线，第 5 岛收官；语音 599 条）
+> 最后更新：2026-10-24（第 6 岛第 1 关「家具」上线；第 6 岛改主题为「温馨家居」；新增 RULES §三.14 演示阶段点按推进）
 
 ---
 
@@ -14,7 +14,7 @@
 | 线上地址 | https://lipinglabs.github.io/lilearn-english/ |
 | 仓库 | `lipinglabs/lilearn-english`（**public**） |
 | 技术形态 | 纯静态：单页 HTML + 两个数据脚本 + Service Worker。**无构建、无框架、无后端、无 npm 依赖** |
-| 内容规模 | 12 岛 × 5 关框架；已做第 1–4 岛全部 + 第 5 岛全部（第 5 岛收官） |
+| 内容规模 | 12 岛 × 5 关框架；已做第 1–5 岛全部 + 第 6 岛第 1 关 |
 | 部署 | GitHub Pages（源 `main` 分支根目录 `/`，legacy 构建），推送即自动重建 |
 
 ---
@@ -63,8 +63,8 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   633,184 B / 15,392 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  18,020,122 B /  5,410 行   ← window.VOICE_BANK，599 条 base64 mp3
+index.html   656,423 B / 15,842 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  18,790,363 B /  5,642 行   ← window.VOICE_BANK，625 条 base64 mp3
 assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
 ```
 
@@ -122,11 +122,11 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `sw.js` | PWA Service Worker（Android 全屏必需 + 离线可玩） |
 | `manifest.json`、`icons/` | PWA 清单与图标（192/512/maskable/apple-touch-180） |
 | `assets/{fruit,color,animal,food}/*.png` | 3D 图标源图（Fluent Emoji 3D，MIT），构建期内联；`food/` 只有 bread / egg / rice（牛奶是手写 SVG）。**第 5 岛第 2 关一件 PNG 都没加**——餐具的 Fluent 素材全是复合图，整组改手写 SVG |
-| `voice/*.mp3` | 语音源文件 599 个（`manifest.md` 为目标清单） |
+| `voice/*.mp3` | 语音源文件 625 个（`manifest.md` 为目标清单） |
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_food.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的九个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**） |
+| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `probe_f11.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的十个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**；`probe_f11.js` 起额外断言「演示步不点按则不自动前进」） |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
@@ -276,6 +276,12 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   通关走 finish() 的 grand 模式（大彩带 + 奖杯 + 第 5 岛小旗），地图上第 5 岛全亮、解锁第 6 岛。
   全部手写 SVG：复用第 2 关餐具（F7_SOUP / F7_SPOON / F7_CUP / F7_FORK）、第 3/4 关小男孩姿态（F8_* / F9_*），
   仅新画「小女孩客人」（A 字裙 + 双辫，与小男孩同一套轮廓 / 描边 / 肤色）与「餐厅门」两张，零新增 PNG、零生图。
+  **第 6 岛 W1「家具」**（Bed / Table / Chair / Sofa，第 6 岛改主题为「温馨家居」，地图图标改手写小房子 SVG）：
+  教学每个核心词 2 次不同演示 + 2 次互动（RULES §三.10 双倍量）+ 过渡语，共 17 环节；
+  **演示阶段「点按推进」**（RULES §三.14）——每句演示播完画面定格停留，必须孩子点击屏幕任意位置才进下一步，
+  禁止定时器自动前进（给孩子充足时间观察画面、听清语音，做到声音 ↔ 画面绝对匹配）；
+  答题 12 轮（4/4/4）：A 听音找家具（3 家具点选）/ B 听句子找场景（男孩在床上 / 苹果在桌上 / 猫在沙发上）/
+  C 拖物品布置房间（把枕头拖到床上、把猫拖到沙发上，床 / 沙发是两个投放目标）。整套家具 + 小猫 + 场景全手写 SVG，零新增 PNG、零生图。
   `ANIMAL_IMG` 现为 14 张、`FOOD_IMG` 3 张，全部由 `tools/make_animals.py` / `make_food.py`
   从 Fluent 3D Emoji 下载缩放，**没有调用过任何生图接口**；
   手写内联 SVG 的部分：W3 的小男孩 / W5 的跳跃小人（跑 / 走 / 跳 / 睡四姿态）、W4 的 7 张场景背景
@@ -285,10 +291,11 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   推开盘子，同一套肤色 / 发型 / 描边 / 腮红，只换姿态与道具）（肢体用 CSS `transform-box:view-box` 摆动，睡姿的「Z」与相机 / 放大镜也都是 path，
   页面里没有任何 emoji 字符充当图形）；第 5 岛第 4 关**餐厅点餐的小男孩 / 服务员姿态与法式面包**也全部手写 SVG——
   小男孩沿用第 3 关的同一套零件（`f8Body` / `f8Head` / `f8Apple` / `f8Cup`），服务员只换马甲 + 服务帽，
-  F9_BREAD 新画一条法式面包，饥饿 / 吃饱 / 在吃 / 在哭 / 在睡五态齐全；第 5 岛第 5 关只新画「小女孩客人 / 餐厅门」两张、其余全复用，同样无任何 emoji 字符充当图形）。
-- **未完成**：第 6–12 岛（第 5 岛「食物与饮料」5 关已全部收官）。
+  F9_BREAD 新画一条法式面包，饥饿 / 吃饱 / 在吃 / 在哭 / 在睡五态齐全；第 5 岛第 5 关只新画「小女孩客人 / 餐厅门」两张、其余全复用；
+  第 6 岛第 1 关**整套家具与场景**（床 / 桌子 / 椅子 / 沙发 / 枕头 / 小猫 + 男孩睡着 / 苹果在桌上 / 猫在椅上 / 猫在沙发上）也全部手写 SVG，地图小房子图标同为手写 SVG，同样无任何 emoji 字符充当图形）。
+- **未完成**：第 6 岛 W2–W5；第 7–12 岛（第 5 岛「食物与饮料」5 关已全部收官，第 6 岛「温馨家居」已开 W1）。
 - **第 5 岛主题**：`ISLANDS[4]` 为**「食物与饮料」**，地图图标用 3D 面包 PNG；
-  **原「交通工具」后移到第 6 岛**（`ISLANDS[5]`，仍是 emoji 字符兜底，做那一岛时要换成 3D 素材）。
+  **第 6 岛改为「温馨家居」**（`ISLANDS[5]`，原「交通工具」主题让位；地图图标已用手写小房子 SVG，不再用 emoji 字符）。
 - **第 4 岛主题**：`ISLANDS[3]` 为**「动物与动作」**，地图图标为 3D 狮子 PNG
   （RULES §二.5 禁止 emoji 充当配图）——该岛含农场动物、野生动物、动作动词、动作短句、听音模仿五类内容。
 - **教学口径**：从 W2 起按 `RULES.md §三.10`「双倍量」执行——每个新单词 / 新句型 2 次不同演示 + 2 次互动；
