@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**651** 条（英文 645 + 中文 6）
+总条目：**675** 条（英文 669 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -649,6 +649,30 @@
 | `l6w2_b_sleep` | en | Where is he going to sleep? Find the bedroom. | 已存在 |
 | `l6w2_c_sleep` | en | Put the baby on the bed. He is going to sleep. | 已存在 |
 | `l6w2_c_bath` | en | Put the baby in the bathtub. | 已存在 |
+| `l6w3_t_on1` | en | Where is the ball? It's on the sofa. | 待生成 |
+| `l6w3_t_on2` | en | Look! The ball is on the sofa. | 待生成 |
+| `l6w3_t_on_a1` | en | Can you see the ball? Touch the ball on the sofa. | 待生成 |
+| `l6w3_t_on_a2` | en | Now touch the ball on the table. | 待生成 |
+| `l6w3_t_under1` | en | Where is the ball? It's under the bed. | 待生成 |
+| `l6w3_t_under2` | en | Look! The ball is under the bed. | 待生成 |
+| `l6w3_t_under_a1` | en | Find the ball under the bed. | 待生成 |
+| `l6w3_t_under_a2` | en | Now touch the ball under the table. | 待生成 |
+| `l6w3_t_in1` | en | Where is the ball? It's in the box. | 待生成 |
+| `l6w3_t_in2` | en | Look! The ball is in the chest. | 待生成 |
+| `l6w3_t_in_a1` | en | Where is the ball? It's in the box. Touch the ball. | 待生成 |
+| `l6w3_t_in_a2` | en | Find the ball in the box. | 待生成 |
+| `l6w3_t_room1` | en | Look at the room! Where is the ball? It's in the box. | 待生成 |
+| `l6w3_t_room_a1` | en | It's on the table. Touch the ball. | 待生成 |
+| `l6w3_t_out` | en | You found it! Let's play! | 待生成 |
+| `l6w3_a_under_table` | en | Where is the ball? It's under the table. Touch the ball. | 待生成 |
+| `l6w3_a_on_sofa` | en | Where is the ball? It's on the sofa. Touch the ball. | 待生成 |
+| `l6w3_a_under_bed` | en | Where is the ball? It's under the bed. Touch the ball. | 待生成 |
+| `l6w3_a_on_table` | en | Where is the ball? It's on the table. Touch the ball. | 待生成 |
+| `l6w3_b_on_sofa` | en | The ball is on the sofa. Find the picture. | 待生成 |
+| `l6w3_b_under_bed` | en | The ball is under the bed. Find the picture. | 待生成 |
+| `l6w3_b_in_box` | en | The ball is in the box. Find the picture. | 待生成 |
+| `l6w3_c_on_sofa` | en | Put the ball on the sofa. | 待生成 |
+| `l6w3_c_under_table` | en | Put the ball under the table. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

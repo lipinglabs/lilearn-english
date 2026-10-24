@@ -480,6 +480,7 @@ let id = 0; const pend = new Map();
     var n3 = document.querySelector('.node[data-level="3"]');
     return { node2Done: n2.classList.contains('done'),
              node3Locked: n3.classList.contains('locked'),
+             // 第 6 岛第 3 关（F13）上线后，6-2 通关会让第 3 关亮起
              node3Playable: n3.classList.contains('playable'),
              node3Text: n3.textContent,
              unlocked: Game.snapshot().progress.unlockedLevel[6] };
@@ -507,7 +508,7 @@ let id = 0; const pend = new Map();
     rep.checks.done.unlockedLevel === 3 &&
     rep.checks.islandAfter.node2Done === true &&
     rep.checks.islandAfter.node3Locked === false &&
-    rep.checks.islandAfter.node3Playable === false &&
+    rep.checks.islandAfter.node3Playable === true &&   // F13（6-3）上线后第 3 关解锁
     rep.checks.islandAfter.node3Text === '3' &&
     rep.checks.mapAfter.island6Unlocked === true && rep.checks.mapAfter.island6Cleared === false &&
     rep.checks.mapAfter.iconIsSvg === true &&

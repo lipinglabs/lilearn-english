@@ -913,6 +913,40 @@ add("l6w2_b_sleep", "Where is he going to sleep? Find the bedroom.", "en", -10, 
 add("l6w2_c_sleep", "Put the baby on the bed. He is going to sleep.", "en", -10, EN_ASK)
 add("l6w2_c_bath", "Put the baby in the bathtub.", "en", -10, EN_ASK)
 
+# ---- 第 6 岛第 3 关：找东西（Where is the ball? It's in / on / under the ...） ----
+# 教学 15 环节：on / under / in 各 2 演示 + 2 互动（RULES §三.10 双倍量）+ 综合 1 演示 1 互动 + 过渡语；
+#   演示阶段点按推进（RULES §三.14，播完定格，点屏幕才进下一步）。
+add("l6w3_t_on1", "Where is the ball? It's on the sofa.", "en", -10, EN_ASK)
+add("l6w3_t_on2", "Look! The ball is on the sofa.", "en", -10, EN_ASK)
+add("l6w3_t_on_a1", "Can you see the ball? Touch the ball on the sofa.", "en", -10, EN_ASK)
+add("l6w3_t_on_a2", "Now touch the ball on the table.", "en", -10, EN_ASK)
+add("l6w3_t_under1", "Where is the ball? It's under the bed.", "en", -10, EN_ASK)
+add("l6w3_t_under2", "Look! The ball is under the bed.", "en", -10, EN_ASK)
+add("l6w3_t_under_a1", "Find the ball under the bed.", "en", -10, EN_ASK)
+add("l6w3_t_under_a2", "Now touch the ball under the table.", "en", -10, EN_ASK)
+add("l6w3_t_in1", "Where is the ball? It's in the box.", "en", -10, EN_ASK)
+add("l6w3_t_in2", "Look! The ball is in the chest.", "en", -10, EN_ASK)
+add("l6w3_t_in_a1", "Where is the ball? It's in the box. Touch the ball.", "en", -10, EN_ASK)
+add("l6w3_t_in_a2", "Find the ball in the box.", "en", -10, EN_ASK)
+add("l6w3_t_room1", "Look at the room! Where is the ball? It's in the box.", "en", -10, EN_ASK)
+add("l6w3_t_room_a1", "It's on the table. Touch the ball.", "en", -10, EN_ASK)
+add("l6w3_t_out", "You found it! Let's play!", "en", -8, EN_PRAISE)
+
+# 题型 A：单图寻物（一张图里 3 个球，点语音指定的那个）
+add("l6w3_a_under_table", "Where is the ball? It's under the table. Touch the ball.", "en", -10, EN_ASK)
+add("l6w3_a_on_sofa", "Where is the ball? It's on the sofa. Touch the ball.", "en", -10, EN_ASK)
+add("l6w3_a_under_bed", "Where is the ball? It's under the bed. Touch the ball.", "en", -10, EN_ASK)
+add("l6w3_a_on_table", "Where is the ball? It's on the table. Touch the ball.", "en", -10, EN_ASK)
+
+# 题型 B：多场景选一（三张小图，点语音描述的那张）
+add("l6w3_b_on_sofa", "The ball is on the sofa. Find the picture.", "en", -10, EN_ASK)
+add("l6w3_b_under_bed", "The ball is under the bed. Find the picture.", "en", -10, EN_ASK)
+add("l6w3_b_in_box", "The ball is in the box. Find the picture.", "en", -10, EN_ASK)
+
+# 题型 C：拖球藏球（拖到沙发上 / 桌子下）
+add("l6w3_c_on_sofa", "Put the ball on the sofa.", "en", -10, EN_ASK)
+add("l6w3_c_under_table", "Put the ball under the table.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
