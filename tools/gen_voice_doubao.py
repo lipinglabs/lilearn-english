@@ -1017,6 +1017,33 @@ add("f15_c2_s2", "Then, put the clothes on the bed.", "en", -15, EN_ASK)
 add("f15_c3_s2", "Then, put the book on the bookshelf.", "en", -15, EN_ASK)
 add("f15_c4_s1", "First, put the clothes on the chair.", "en", -15, EN_ASK)
 
+# ---- 第 3 岛第 4 关重做：重量感知 Heavy / Light（旧「找不同」已彻底删除）----
+# 长句统一 rate -15（≈0.85x，让孩子听清 heavy / light / who is ...）。去重：本批全部为新句。
+# 教学 7 环节：石头vs羽毛 / 石头坠地 / 大象vs气球(互动) / 羽毛特写 / 跷跷板 / 书vs羽毛(互动) / 过渡；
+# 互动 2 的 "Find the light one." 与题型 A 复用同一 key b4_a_light。
+add("b4_t_rock_feather", "Look! A rock and a feather. The rock is heavy.", "en", -15, EN_ASK)
+add("b4_t_rock_falls",   "The rock is heavy. It falls down fast.", "en", -15, EN_ASK)
+add("b4_t_elephant_ask", "The elephant is heavy. Find the heavy one.", "en", -15, EN_ASK)
+add("b4_t_feather",      "Look at the feather. It is light. It flies in the sky.", "en", -15, EN_ASK)
+add("b4_t_seesaw",       "The balloon is light. The rock is heavy.", "en", -15, EN_ASK)
+add("b4_t_out",          "You know heavy and light! Let's play!", "en", -12, EN_PRAISE)
+
+# 题型 A：听音找重量
+add("b4_a_heavy", "Find the heavy one.", "en", -15, EN_ASK)
+add("b4_a_light", "Find the light one.", "en", -15, EN_ASK)
+
+# 题型 B：跷跷板逻辑（长句）
+add("b4_b_elephant_monkey_heavy", "The elephant is heavy. The monkey is light. Who is heavy?", "en", -15, EN_ASK)
+add("b4_b_rock_balloon_light",    "The rock is heavy. The balloon is light. Who is light?", "en", -15, EN_ASK)
+add("b4_b_elephant_feather_heavy", "The elephant is heavy. The feather is light. Who is heavy?", "en", -15, EN_ASK)
+add("b4_b_rock_apple_light",      "The rock is heavy. The apple is light. Who is light?", "en", -15, EN_ASK)
+
+# 题型 C：拖拽分类
+add("b4_c_rock",     "Put the heavy rock in the heavy box.", "en", -15, EN_ASK)
+add("b4_c_balloon",  "Put the light balloon in the light box.", "en", -15, EN_ASK)
+add("b4_c_elephant", "Put the heavy elephant in the heavy box.", "en", -15, EN_ASK)
+add("b4_c_apple",    "Put the light apple in the light box.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

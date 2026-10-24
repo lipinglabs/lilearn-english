@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**703** 条（英文 697 + 中文 6）
+总条目：**719** 条（英文 713 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -691,16 +691,32 @@
 | `l6w4_c2_s2` | en | Then, put the book on the table. | 已存在 |
 | `l6w4_c3_s1` | en | First, put the ball under the table. | 已存在 |
 | `l6w4_c3_s2` | en | Then, put the toy in the box. | 已存在 |
-| `f15_t_messy` | en | Look! The room is messy. Let's clean it up. | 待生成 |
-| `f15_t_ask1` | en | Can you help me? Put the book on the bookshelf. | 待生成 |
-| `f15_t_out` | en | Wow! The room is so clean! You are a great helper! Let's play! | 待生成 |
-| `f15_a_clothes_bed` | en | Put the clothes on the bed. | 待生成 |
-| `f15_a_book_shelf` | en | Put the book on the bookshelf. | 待生成 |
-| `f15_a_clothes_chair` | en | Put the clothes on the chair. | 待生成 |
-| `f15_b_clothes_chair` | en | The clothes are on the chair. Find the picture. | 待生成 |
-| `f15_c2_s2` | en | Then, put the clothes on the bed. | 待生成 |
-| `f15_c3_s2` | en | Then, put the book on the bookshelf. | 待生成 |
-| `f15_c4_s1` | en | First, put the clothes on the chair. | 待生成 |
+| `f15_t_messy` | en | Look! The room is messy. Let's clean it up. | 已存在 |
+| `f15_t_ask1` | en | Can you help me? Put the book on the bookshelf. | 已存在 |
+| `f15_t_out` | en | Wow! The room is so clean! You are a great helper! Let's play! | 已存在 |
+| `f15_a_clothes_bed` | en | Put the clothes on the bed. | 已存在 |
+| `f15_a_book_shelf` | en | Put the book on the bookshelf. | 已存在 |
+| `f15_a_clothes_chair` | en | Put the clothes on the chair. | 已存在 |
+| `f15_b_clothes_chair` | en | The clothes are on the chair. Find the picture. | 已存在 |
+| `f15_c2_s2` | en | Then, put the clothes on the bed. | 已存在 |
+| `f15_c3_s2` | en | Then, put the book on the bookshelf. | 已存在 |
+| `f15_c4_s1` | en | First, put the clothes on the chair. | 已存在 |
+| `b4_t_rock_feather` | en | Look! A rock and a feather. The rock is heavy. | 待生成 |
+| `b4_t_rock_falls` | en | The rock is heavy. It falls down fast. | 待生成 |
+| `b4_t_elephant_ask` | en | The elephant is heavy. Find the heavy one. | 待生成 |
+| `b4_t_feather` | en | Look at the feather. It is light. It flies in the sky. | 待生成 |
+| `b4_t_seesaw` | en | The balloon is light. The rock is heavy. | 待生成 |
+| `b4_t_out` | en | You know heavy and light! Let's play! | 待生成 |
+| `b4_a_heavy` | en | Find the heavy one. | 待生成 |
+| `b4_a_light` | en | Find the light one. | 待生成 |
+| `b4_b_elephant_monkey_heavy` | en | The elephant is heavy. The monkey is light. Who is heavy? | 待生成 |
+| `b4_b_rock_balloon_light` | en | The rock is heavy. The balloon is light. Who is light? | 待生成 |
+| `b4_b_elephant_feather_heavy` | en | The elephant is heavy. The feather is light. Who is heavy? | 待生成 |
+| `b4_b_rock_apple_light` | en | The rock is heavy. The apple is light. Who is light? | 待生成 |
+| `b4_c_rock` | en | Put the heavy rock in the heavy box. | 待生成 |
+| `b4_c_balloon` | en | Put the light balloon in the light box. | 待生成 |
+| `b4_c_elephant` | en | Put the heavy elephant in the heavy box. | 待生成 |
+| `b4_c_apple` | en | Put the light apple in the light box. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

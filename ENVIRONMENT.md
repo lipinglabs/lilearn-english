@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-24（第 6 岛第 5 关「游乐场 · 帮小人整理房间综合大考」上线，第 6 岛 5 关全通；语音 703 条）
+> 最后更新：2026-10-24（第 3 岛第 4 关彻底重做：旧「找不同」全删 → 全新「轻重感知 Heavy / Light」；第 6 岛 5 关全通；语音 719 条）
 
 ---
 
@@ -63,8 +63,8 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   738,131 B / 17,442 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  21,586,087 B /  6,456 行   ← window.VOICE_BANK，703 条 base64 mp3
+index.html   755,599 B / 17,764 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  22,250,288 B /  6,646 行   ← window.VOICE_BANK，719 条 base64 mp3
 assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
 ```
 
@@ -126,7 +126,7 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_food.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `probe_f11.js` / `probe_f12.js` / `probe_f13.js` / `probe_f14.js` / `probe_f15.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的十四个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**；`probe_f11.js` 起额外断言「演示步不点按则不自动前进」；`probe_f13.js` 额外断言「球的热区比图形大一圈、画得够大」；`probe_f14.js` 用「轻点拾起→点家具」路径跑教学互动，按**期望舞台指纹**匹配（自动跳过物品落位产生的额外指纹），并断言多步 `stepsDone` 落位、第二步口播不计入「答对禁人声」；`probe_f15.js` 为第 6 岛第 5 关综合关，额外断言通关走 grand（岛内收官）、地图第 6 岛 `cleared` 点亮、纵向越界一并检查）。**注意**：多个探针并行跑会因沙箱 PNG 写入串行化而偶发 `EPERM`，回归请**串行**执行。 |
+| `tools/probe_b3.js` / `probe_b4.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `probe_f11.js` / `probe_f12.js` / `probe_f13.js` / `probe_f14.js` / `probe_f15.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的十四个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**；`probe_f11.js` 起额外断言「演示步不点按则不自动前进」；`probe_f13.js` 额外断言「球的热区比图形大一圈、画得够大」；`probe_f14.js` 用「轻点拾起→点家具」路径跑教学互动，按**期望舞台指纹**匹配（自动跳过物品落位产生的额外指纹），并断言多步 `stepsDone` 落位、第二步口播不计入「答对禁人声」；`probe_f15.js` 为第 6 岛第 5 关综合关，额外断言通关走 grand（岛内收官）、地图第 6 岛 `cleared` 点亮、纵向越界一并检查；`probe_b4.js` 为第 3 岛第 4 关「轻重感知」，断言演示点按推进、互动 4 秒小手、A/B/C 三型语音与重量/跷跷板/分类框一致、拖错框不推进、答对禁人声）。**注意**：多个探针并行跑会因沙箱 PNG 写入串行化而偶发 `EPERM`，回归请**串行**执行。 |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
@@ -250,7 +250,7 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 
 ## 6. 当前进度与下一步
 
-- **已完成**：第 1 岛（5 关）、第 2 岛（5 关）、第 3 岛（5 关，W4 找不同 / W5 结业复习）、
+- **已完成**：第 1 岛（5 关）、第 2 岛（5 关）、第 3 岛（5 关，W4 轻重感知 / W5 结业复习）、
   **第 4 岛全部 5 关**——W1「农场动物」（狗 / 猫 / 猪 / 牛）、W2「野生动物」（狮子 / 老虎 / 猴子 / 大象，
   并建立「丛林 vs 农场」栖息地分类）、W3「动词初识」（跑 / 跳 / 吃 / 睡）、
   W4「动物 + 动作短句」（The dog is running / The cat is sleeping / The monkey is eating，
@@ -339,6 +339,13 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   只换嘴型 / 眉毛 / 手臂与道具，孩子认的是「同一个他在做不同的事」，不是四张不相干的脸；
   第 5 岛 W4 起追加 `RULES.md §二.17`「图片生成最高优先」——第一优先免费手写 SVG、失败才降级 Emoji、
   严禁调用外部收费生图模型，本关全部人物与食物即以免费手写 SVG 实现（零 PNG、零生图）。
+- **第 3 岛第 4 关重做（2026-10-24，见 `RULES.md §三.16`）**：旧「找不同（Odd one out）」体验不佳、存在视觉作弊
+  （孩子不听语音、只看哪张图不一样就能点对，没训练到听力）。已**彻底删除**全部旧逻辑
+  （`B4_ANIMAL / B4_FRUIT / B4_COLOR`、`b4Img`、`renderB4Grid`、旧 `makeQuestionB4`、旧 `runB4Tutorial`），
+  重做为「轻重感知 Heavy / Light」：A 听音找重量（3 物品里点「重的/轻的」）/ B 跷跷板逻辑（看谁沉底，问谁重/谁轻）/
+  C 拖拽分类（拖进 ⬇重 / ⬆轻 两个框）；三种题型都必须听懂 heavy / light 才能作答。
+  教学 7 环节（4 演示 + 2 互动 + 过渡），演示点按推进、互动 4 秒小手；新画石头 / 羽毛 / 气球 / 大象 / 猴子 / 苹果 + 跷跷板 + 上下箭头，零生图、零 emoji 充当图形。
+  语音本关新增 16 条；`snapshot()` 增补 `weight / ask / ansItem / ansBox`，选项 kind 用 `b4item`。
 - **文档已知过期**：`README.md` 里「当前进度仅到第 3 岛第 1 关」等段落已过时，以本文件与 commit 记录为准。
 
 ---
