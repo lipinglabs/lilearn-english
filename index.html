@@ -3524,21 +3524,50 @@
     if (guardTimer) { clearTimeout(guardTimer); guardTimer = null; }
   }
 
+  /*
+   * 当前这条语音「播完后要做什么」：{ fn, tut }。
+   * 为什么需要它：教学里「点喇叭重听」会用一次新的 say() 顶掉正在播的语音，
+   * 而 speak() 内部 stop() 必须把上一条的 onended 解绑（否则会重复触发）。
+   * 一旦解绑，上一条的收尾回调就再也不会执行 —— 教学里那个回调正是「语音播完 → 定格出轻点继续」
+   * 或「语音播完 → 4 秒后出小手指」。结果就是：按一次喇叭，这一步永远不定格、点什么都没反应、
+   * 也没有下一句语音（看起来就是“语音坏了”）。所以被顶掉的语音要在这里补跑一次收尾回调。
+   * onlyTut：只有在教学阶段才补跑，避免影响答题 / 通关的语音链。
+   */
+  var currentDone = null;
+
   function stop() {
     clearGuard();
     setSpeaking(false);
-    if (!current) return;
-    var el = current;
-    current = null;
-    el.onended = null;
-    el.onerror = null;
-    try { el.pause(); } catch (e) { /* 忽略 */ }
-    try { el.currentTime = 0; } catch (e) { /* 忽略 */ }
+    var done = currentDone;      // 先取走，避免回调里 re-enter
+    currentDone = null;
+    if (current) {
+      var el = current;
+      current = null;
+      el.onended = null;
+      el.onerror = null;
+      try { el.pause(); } catch (e) { /* 忽略 */ }
+      try { el.currentTime = 0; } catch (e) { /* 忽略 */ }
+    }
+    /* 被顶掉 / 被停止的语音视为「已结束」：异步补跑收尾，保证教学流程不会卡死 */
+    if (done && done.tut && done.fn) setTimeout(done.fn, 0);
+  }
+
+  /* 顶栏（重播 / 返回 / 云存档）与弹层的点击不当作教学里的「轻点继续」——
+     否则定格的 document 捕获监听会 stopPropagation，把这些按钮自己的点击整条吞掉
+     （表现：点喇叭不发声，反而把这一步跳过去）。 */
+  function isChromeTap(e) {
+    var t = e && e.target;
+    if (!t || !t.closest) return false;
+    return !!t.closest('.topbar, #btnReplay, #btnBack, #btnCloud, .icon-btn, #cloudSheet, .sheet');
   }
 
   function speak(key, onDone) {
     var el = getAudio(key);
-    if (!el) return false;
+    if (!el) {
+      /* 不再静默失败：key 拼错 / 语音没生成时留一条明确痕迹，方便排查 */
+      console.warn('[voice] 缺少语音 key：' + key);
+      return false;
+    }
 
     stop();
     lastKey = key;
@@ -3550,18 +3579,29 @@
       if (finished) return;
       finished = true;
       clearGuard();
+      currentDone = null;
       if (current === el) { current = null; setSpeaking(false); }
       if (onDone) onDone();
     }
+    currentDone = { fn: finish, tut: !!(state && state.tut) };
 
     el.onended = finish;
     el.onerror = finish;
-    try { el.currentTime = 0; } catch (e) { /* 忽略 */ }
+    /* 只在已有元数据时回零：未加载时写 currentTime 在部分移动端会抛 InvalidStateError */
+    if (el.readyState > 0) { try { el.currentTime = 0; } catch (e) { /* 忽略 */ } }
 
     var dur = (isFinite(el.duration) && el.duration > 0) ? el.duration * 1000 : 8000;
     guardTimer = setTimeout(finish, dur + 1600);
 
-    var p = el.play();
+    var p;
+    try {
+      p = el.play();
+    } catch (err) {
+      /* play() 同步抛错不能冒泡进教学流程，否则这一步会直接断掉（没有定格、也没有下一句） */
+      console.warn('[voice] play() 同步失败：' + (err && err.name));
+      finish();
+      return true;
+    }
     if (p && typeof p.catch === 'function') {
       p.catch(function (err) {
         /*
@@ -3580,11 +3620,29 @@
     var list = Array.isArray(keys) ? keys.slice() : [keys];
     var myToken = ++speakToken;
     var i = 0;
+    var delivered = false;
+    function deliver() {
+      if (delivered) return;
+      delivered = true;
+      if (onDone) onDone();
+    }
+    /**
+     * 这一条播完了。
+     * 关键：整串播完时必须无条件交付 onDone（不看 token）——
+     * 因为「点喇叭重听」会新开一次 say 把 speakToken 顶掉，
+     * 而教学里那串语音的收尾正是「定格出轻点继续 / 4 秒出小手」；
+     * 老代码在这里用 token 一刀切，导致重听一次教学就永久卡住（没声音也不前进）。
+     */
+    function next() {
+      if (i >= list.length) { deliver(); return; }
+      if (myToken !== speakToken) return;   // 还有下一条、但这次 say 已被顶掉 → 不再继续
+      step();
+    }
     function step() {
       if (myToken !== speakToken) return;
-      if (i >= list.length) { if (onDone) onDone(); return; }
+      if (i >= list.length) { deliver(); return; }
       var key = list[i++];
-      if (!speak(key, step)) step();
+      if (!speak(key, next)) next();
     }
     step();
   }
@@ -7261,10 +7319,12 @@
     }
     /* 演示定格：等用户点屏幕任意位置才 next()（禁止定时器自动前进） */
     function gate(me, next) {
+      if (me.waitTap) return;      // 幂等：已在定格中就不要重复挂监听（否则一次点击会连跳两步）
       me.waitTap = true;
       showTap();
       var onTap = function (e) {
         if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;   // 顶栏「重播 / 返回」的点击不算教学里的「轻点继续」
         me.waitTap = false;
         document.removeEventListener('click', onTap, true);
         me._onTap = null;
@@ -13103,6 +13163,7 @@
         me.waitTap = true;
         var onTap = function (e) {
           if (state.tut !== me || !me.waitTap) return;
+          if (isChromeTap(e)) return;   // 顶栏「重播 / 返回」的点击不算教学里的「轻点继续」
           me.waitTap = false;
           document.removeEventListener('click', onTap, true);
           me._onTap = null;
@@ -13535,6 +13596,7 @@
         me.waitTap = true;
         var onTap = function (e) {
           if (state.tut !== me || !me.waitTap) return;
+          if (isChromeTap(e)) return;   // 顶栏「重播 / 返回」的点击不算教学里的「轻点继续」
           me.waitTap = false;
           document.removeEventListener('click', onTap, true);
           me._onTap = null;
@@ -13956,6 +14018,7 @@
         me.waitTap = true;
         var onTap = function (e) {
           if (state.tut !== me || !me.waitTap) return;
+          if (isChromeTap(e)) return;   // 顶栏「重播 / 返回」的点击不算教学里的「轻点继续」
           me.waitTap = false;
           document.removeEventListener('click', onTap, true);
           me._onTap = null;
@@ -14534,6 +14597,7 @@
         me.waitTap = true;
         var onTap = function (e) {
           if (state.tut !== me || !me.waitTap) return;
+          if (isChromeTap(e)) return;   // 顶栏「重播 / 返回」的点击不算教学里的「轻点继续」
           me.waitTap = false;
           document.removeEventListener('click', onTap, true);
           me._onTap = null;
@@ -14699,10 +14763,12 @@
     }
     /* 演示定格：等用户点屏幕任意位置才 next()（禁止定时器自动前进） */
     function gate(me, next) {
+      if (me.waitTap) return;      // 幂等：已在定格中就不要重复挂监听（否则一次点击会连跳两步）
       me.waitTap = true;
       showTap();
       var onTap = function (e) {
         if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;   // 顶栏「重播 / 返回」的点击不算教学里的「轻点继续」
         me.waitTap = false;
         document.removeEventListener('click', onTap, true);
         me._onTap = null;
@@ -17653,15 +17719,20 @@
     else if (state.phase === 'done') playRandomPraise();
     else if (state.phase === 'intro') say(['intro']);
     else if (state.phase === 'tutorial' && state.tut) {
-      // 教学阶段：重播当前这一步的单词 + 整句 + 提问
+      /* 教学阶段：重播当前这一步的语音。
+         注意：自定义教学（F15 / 6-5 等）没有 spec.steps，me.replay 在极少数过渡瞬间也可能为空，
+         所以这里必须有兜底 —— 喇叭点了没反应是最糟的体验（家长唯一的补救手段就是它）。 */
       var me = state.tut;
       if (me.replay) { me.replay(); return; }
-      if (me.stepIndex >= me.spec.steps.length) {
-        if (me.current) say([me.spec.show[me.current]]);
-      } else {
-        var st = me.spec.steps[me.stepIndex];
-        if (st) say([st.word, st.sentence, st.ask]);
+      var spec = me.spec || null;
+      var steps = (spec && spec.steps) || [];
+      var st = (typeof me.stepIndex === 'number') ? steps[me.stepIndex] : null;
+      if (st && st.word) {
+        say([st.word, st.sentence, st.ask].filter(Boolean));
+        return;
       }
+      if (spec && me.current != null && spec.show && spec.show[me.current]) { say([spec.show[me.current]]); return; }
+      if (lastKey) { say([lastKey]); return; }   // 最后兜底：把刚刚播过的那句再说一遍
     }
   });
 

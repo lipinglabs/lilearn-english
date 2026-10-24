@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-24（第 3 岛第 5 关彻底重做：旧「比较与分类」全删 → 全新「游乐场 · 综合比较大考」，第 3 岛 5 关全通；第 6 岛 5 关全通；语音 733 条）
+> 最后更新：2026-10-24（教学音频修复：定格监听不再吞顶栏「重播/返回」点击、重听不再作废本步回调；新增 `tools/probe_audio.js`；第 3 岛第 5 关彻底重做：旧「比较与分类」全删 → 全新「游乐场 · 综合比较大考」，第 3 岛 5 关全通；第 6 岛 5 关全通；语音 733 条）
 
 ---
 
@@ -126,7 +126,7 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_food.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `probe_b4.js` / `probe_b5.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `probe_f11.js` / `probe_f12.js` / `probe_f13.js` / `probe_f14.js` / `probe_f15.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的十四个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**；`probe_f11.js` 起额外断言「演示步不点按则不自动前进」；`probe_f13.js` 额外断言「球的热区比图形大一圈、画得够大」；`probe_f14.js` 用「轻点拾起→点家具」路径跑教学互动，按**期望舞台指纹**匹配（自动跳过物品落位产生的额外指纹），并断言多步 `stepsDone` 落位、第二步口播不计入「答对禁人声」；`probe_f15.js` 为第 6 岛第 5 关综合关，额外断言通关走 grand（岛内收官）、地图第 6 岛 `cleared` 点亮、纵向越界一并检查；`probe_b4.js` 为第 3 岛第 4 关「轻重感知」，断言演示点按推进、互动 4 秒小手、A/B/C 三型语音与重量/跷跷板/分类框一致、拖错框不推进、答对禁人声；`probe_b5.js` 为第 3 岛第 5 关「游乐场综合大考」，教学按 `.b5x-stage[data-sid]` 指纹逐步校验 8 环节（含互动 3 的拖错不推进 + 拖对推进），断言 A/B/C 语音与比较词/答案场景/轻重框一致、通关走 grand、地图第 3 岛 `cleared` 点亮；其 `overflow()` 会跳过已隐藏视图（`#viewAsk/#viewDone/#viewStart`）内的旧节点）。**注意**：多个探针并行跑会因沙箱 PNG 写入串行化而偶发 `EPERM`，回归请**串行**执行。 |
+| `tools/probe_audio.js` / `probe_b3.js` / `probe_b4.js` / `probe_b5.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `probe_f11.js` / `probe_f12.js` / `probe_f13.js` / `probe_f14.js` / `probe_f15.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的十四个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**；`probe_f11.js` 起额外断言「演示步不点按则不自动前进」；`probe_f13.js` 额外断言「球的热区比图形大一圈、画得够大」；`probe_f14.js` 用「轻点拾起→点家具」路径跑教学互动，按**期望舞台指纹**匹配（自动跳过物品落位产生的额外指纹），并断言多步 `stepsDone` 落位、第二步口播不计入「答对禁人声」；`probe_f15.js` 为第 6 岛第 5 关综合关，额外断言通关走 grand（岛内收官）、地图第 6 岛 `cleared` 点亮、纵向越界一并检查；`probe_b4.js` 为第 3 岛第 4 关「轻重感知」，断言演示点按推进、互动 4 秒小手、A/B/C 三型语音与重量/跷跷板/分类框一致、拖错框不推进、答对禁人声；`probe_b5.js` 为第 3 岛第 5 关「游乐场综合大考」，教学按 `.b5x-stage[data-sid]` 指纹逐步校验 8 环节（含互动 3 的拖错不推进 + 拖对推进），断言 A/B/C 语音与比较词/答案场景/轻重框一致、通关走 grand、地图第 3 岛 `cleared` 点亮；其 `overflow()` 会跳过已隐藏视图（`#viewAsk/#viewDone/#viewStart`）内的旧节点；`probe_audio.js` 是**真实音频**的教学音频专项探针（不 stub `Audio`），用法 `node tools/probe_audio.js <island> <level>`，断言「语音播放中点喇叭不卡死、定格中点喇叭要发声且不跳步、喇叭 click 能到达冒泡阶段」）。**注意**：多个探针并行跑会因沙箱 PNG 写入串行化而偶发 `EPERM`，回归请**串行**执行。 |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
