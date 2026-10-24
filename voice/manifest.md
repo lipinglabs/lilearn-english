@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**552** 条（英文 546 + 中文 6）
+总条目：**570** 条（英文 564 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -521,35 +521,53 @@
 | `l5w2_c_spoon` | en | Put the spoon in the bowl. | 已存在 |
 | `l5w2_c_fork` | en | Put the fork in the bowl. | 已存在 |
 | `l5w2_c_cup` | en | Put the cup in the bowl. | 已存在 |
-| `l5w3_t_like1` | en | I like it! The apple is yummy. | 待生成 |
-| `l5w3_t_like2` | en | I like it! I like milk. | 待生成 |
-| `l5w3_t_like3` | en | Who likes it? Find the happy one. | 待生成 |
-| `l5w3_t_like4` | en | Who likes the apple? Find him. | 待生成 |
-| `l5w3_t_nolike1` | en | I don't like it. It's sour. | 待生成 |
-| `l5w3_t_nolike2` | en | The lemon is sour. I don't like it. | 待生成 |
-| `l5w3_t_nolike3` | en | Find the one who doesn't like it. | 待生成 |
-| `l5w3_t_nolike4` | en | Who doesn't like the lemon? Find him. | 待生成 |
-| `l5w3_t_more1` | en | More, please! I want more milk. | 待生成 |
-| `l5w3_t_more2` | en | The cup is empty. More, please! | 待生成 |
-| `l5w3_t_more3` | en | The plate is empty. Find the empty plate. | 待生成 |
-| `l5w3_t_more4` | en | He wants more milk. Who is asking for more? | 待生成 |
-| `l5w3_t_done1` | en | All done! I am full. | 待生成 |
-| `l5w3_t_done2` | en | All done! No more, thank you. | 待生成 |
-| `l5w3_t_done3` | en | Find the boy who is all done. | 待生成 |
-| `l5w3_t_done4` | en | Find the boy who is full. | 待生成 |
-| `l5w3_t_out` | en | You can tell me what you like. Let's play! | 待生成 |
-| `l5w3_a_like` | en | Find: I like it. | 待生成 |
-| `l5w3_a_nolike` | en | Find: I don't like it. | 待生成 |
-| `l5w3_a_more` | en | Find: more, please. | 待生成 |
-| `l5w3_a_done` | en | Find: all done. | 待生成 |
-| `l5w3_b_like` | en | Look at the apple. What does he say? | 待生成 |
-| `l5w3_b_nolike` | en | Look at the sour lemon. What does he say? | 待生成 |
-| `l5w3_b_more` | en | The cup is empty. What does he say? | 待生成 |
-| `l5w3_b_done` | en | He finished his food. What does he say? | 待生成 |
-| `l5w3_c_apple` | en | Put the apple in the happy box. | 待生成 |
-| `l5w3_c_milk` | en | Put the milk in the happy box. | 待生成 |
-| `l5w3_c_lemon` | en | Put the lemon in the sad box. | 待生成 |
-| `l5w3_c_lemon2` | en | He doesn't like the lemon. Put it in the sad box. | 待生成 |
+| `l5w3_t_like1` | en | I like it! The apple is yummy. | 已存在 |
+| `l5w3_t_like2` | en | I like it! I like milk. | 已存在 |
+| `l5w3_t_like3` | en | Who likes it? Find the happy one. | 已存在 |
+| `l5w3_t_like4` | en | Who likes the apple? Find him. | 已存在 |
+| `l5w3_t_nolike1` | en | I don't like it. It's sour. | 已存在 |
+| `l5w3_t_nolike2` | en | The lemon is sour. I don't like it. | 已存在 |
+| `l5w3_t_nolike3` | en | Find the one who doesn't like it. | 已存在 |
+| `l5w3_t_nolike4` | en | Who doesn't like the lemon? Find him. | 已存在 |
+| `l5w3_t_more1` | en | More, please! I want more milk. | 已存在 |
+| `l5w3_t_more2` | en | The cup is empty. More, please! | 已存在 |
+| `l5w3_t_more3` | en | The plate is empty. Find the empty plate. | 已存在 |
+| `l5w3_t_more4` | en | He wants more milk. Who is asking for more? | 已存在 |
+| `l5w3_t_done1` | en | All done! I am full. | 已存在 |
+| `l5w3_t_done2` | en | All done! No more, thank you. | 已存在 |
+| `l5w3_t_done3` | en | Find the boy who is all done. | 已存在 |
+| `l5w3_t_done4` | en | Find the boy who is full. | 已存在 |
+| `l5w3_t_out` | en | You can tell me what you like. Let's play! | 已存在 |
+| `l5w3_a_like` | en | Find: I like it. | 已存在 |
+| `l5w3_a_nolike` | en | Find: I don't like it. | 已存在 |
+| `l5w3_a_more` | en | Find: more, please. | 已存在 |
+| `l5w3_a_done` | en | Find: all done. | 已存在 |
+| `l5w3_b_like` | en | Look at the apple. What does he say? | 已存在 |
+| `l5w3_b_nolike` | en | Look at the sour lemon. What does he say? | 已存在 |
+| `l5w3_b_more` | en | The cup is empty. What does he say? | 已存在 |
+| `l5w3_b_done` | en | He finished his food. What does he say? | 已存在 |
+| `l5w3_c_apple` | en | Put the apple in the happy box. | 已存在 |
+| `l5w3_c_milk` | en | Put the milk in the happy box. | 已存在 |
+| `l5w3_c_lemon` | en | Put the lemon in the sad box. | 已存在 |
+| `l5w3_c_lemon2` | en | He doesn't like the lemon. Put it in the sad box. | 已存在 |
+| `l5w4_t_hungry1` | en | I am hungry! My tummy is rumbling. | 待生成 |
+| `l5w4_t_hungry2` | en | The boy is hungry. He wants to eat. | 待生成 |
+| `l5w4_t_hungry_a1` | en | Who is hungry? Find the hungry boy. | 待生成 |
+| `l5w4_t_hungry_a2` | en | Which boy is hungry? Find him. | 待生成 |
+| `l5w4_t_want1` | en | I want an apple. | 待生成 |
+| `l5w4_t_here1` | en | Here you are! | 待生成 |
+| `l5w4_t_here_a1` | en | The boy wants an apple. Give it to him. | 待生成 |
+| `l5w4_t_here_a2` | en | Give the apple to the boy. | 待生成 |
+| `l5w4_t_thanks1` | en | The boy says: Thank you! | 待生成 |
+| `l5w4_t_thanks2` | en | The waiter gives food. Thank you! | 待生成 |
+| `l5w4_t_thanks_a1` | en | Find the picture: Here you are. | 待生成 |
+| `l5w4_t_thanks_a2` | en | Who is giving food? Find Here you are. | 待生成 |
+| `l5w4_t_out` | en | You are ready! Let's go to the restaurant! | 待生成 |
+| `l5w4_a` | en | Find the hungry boy. | 待生成 |
+| `l5w4_b_bread` | en | I am hungry. I want some bread. Give it to him. | 待生成 |
+| `l5w4_b_milk` | en | I am hungry. I want some milk. Give it to him. | 待生成 |
+| `l5w4_b_apple` | en | I am hungry. I want an apple. Give it to him. | 待生成 |
+| `l5w4_c` | en | 'Here you are' and 'Thank you'. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

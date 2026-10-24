@@ -775,6 +775,33 @@ add("l5w3_c_milk", "Put the milk in the happy box.", "en", -10, EN_ASK)
 add("l5w3_c_lemon", "Put the lemon in the sad box.", "en", -10, EN_ASK)
 add("l5w3_c_lemon2", "He doesn't like the lemon. Put it in the sad box.", "en", -10, EN_ASK)
 
+# ---- 第 5 岛第 4 关：餐厅点餐（I am hungry / I want / Here you are / Thank you） ----
+# 教学 13 环节：I am hungry(2 演示+2 互动) + I want/Here you are(2 演示+2 互动) + Thank you(2 演示+2 互动) + 过渡
+add("l5w4_t_hungry1", "I am hungry! My tummy is rumbling.", "en", -10, EN_ASK)
+add("l5w4_t_hungry2", "The boy is hungry. He wants to eat.", "en", -10, EN_ASK)
+add("l5w4_t_hungry_a1", "Who is hungry? Find the hungry boy.", "en", -10, EN_ASK)
+add("l5w4_t_hungry_a2", "Which boy is hungry? Find him.", "en", -10, EN_ASK)
+add("l5w4_t_want1", "I want an apple.", "en", -10, EN_ASK)
+add("l5w4_t_here1", "Here you are!", "en", -10, EN_ASK)
+add("l5w4_t_here_a1", "The boy wants an apple. Give it to him.", "en", -10, EN_ASK)
+add("l5w4_t_here_a2", "Give the apple to the boy.", "en", -10, EN_ASK)
+add("l5w4_t_thanks1", "The boy says: Thank you!", "en", -10, EN_ASK)
+add("l5w4_t_thanks2", "The waiter gives food. Thank you!", "en", -10, EN_ASK)
+add("l5w4_t_thanks_a1", "Find the picture: Here you are.", "en", -10, EN_ASK)
+add("l5w4_t_thanks_a2", "Who is giving food? Find Here you are.", "en", -10, EN_ASK)
+add("l5w4_t_out", "You are ready! Let's go to the restaurant!", "en", -8, EN_PRAISE)
+
+# 题型 A：听音找客人状态（hungry / full / eating 三选一，题干固定）
+add("l5w4_a", "Find the hungry boy.", "en", -10, EN_ASK)
+
+# 题型 B：听需求配餐（面包 / 牛奶 / 苹果，各一条）
+add("l5w4_b_bread", "I am hungry. I want some bread. Give it to him.", "en", -10, EN_ASK)
+add("l5w4_b_milk", "I am hungry. I want some milk. Give it to him.", "en", -10, EN_ASK)
+add("l5w4_b_apple", "I am hungry. I want an apple. Give it to him.", "en", -10, EN_ASK)
+
+# 题型 C：听对话选场景（递苹果 / 哭 / 睡 三选一）
+add("l5w4_c", "'Here you are' and 'Thank you'.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

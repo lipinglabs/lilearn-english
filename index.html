@@ -3799,7 +3799,8 @@
     '4-5': { numbers: null,       make: 'makeF5', title: '第 5 关', tutorial: true },
     '5-1': { numbers: null,       make: 'makeF6', title: '第 1 关', tutorial: true },
     '5-2': { numbers: null,       make: 'makeF7', title: '第 2 关', tutorial: true },
-    '5-3': { numbers: null,       make: 'makeF8', title: '第 3 关', tutorial: true }
+    '5-3': { numbers: null,       make: 'makeF8', title: '第 3 关', tutorial: true },
+    '5-4': { numbers: null,       make: 'makeF9', title: '第 4 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3945,6 +3946,7 @@
     if (def && def.make === 'makeF6') return makeQuestionF6(typeIdx, prev);
     if (def && def.make === 'makeF7') return makeQuestionF7(typeIdx, prev);
     if (def && def.make === 'makeF8') return makeQuestionF8(typeIdx, prev);
+    if (def && def.make === 'makeF9') return makeQuestionF9(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -11362,6 +11364,575 @@
     return api;
   })();
 
+
+  /* ==================== 第 5 岛第 4 关（L5-W4：餐厅点餐） ==================== */
+  /* 核心句型：I am hungry. / I want... / Here you are. / Thank you.
+     教学 13 环节（RULES §三.10 双倍量）：I am hungry(2 演示+2 互动) + I want/Here you are(2 演示+2 互动)
+       + Thank you(2 演示+2 互动) + 过渡语。
+     答题 12 轮（4/4/4）：A 听音找客人状态（hungry/full/eating） / B 听需求配餐（拖食物给小客人）
+       / C 听对话选场景（giveApple/crying/sleeping）。
+     图片：全部手写内联 SVG，复用第 3 关同一个小男孩的零件（F8_SKIN / f8Body / f8Head / f8Arm /
+       f8Apple / f8Cup / F8_TABLE / f8Spark / f8Drop），零新增 PNG、零生图（图片最高优先 = 免费 SVG，RULES §二.17）。
+       小客人 / 服务员是「同一套轮廓」的不同姿态与不同着装，孩子认的是「同一个人吃东西、另一个人端盘子」。 */
+
+  /* ---- 复用第 3 关的零件常量（F8 已声明，本关直接引用） ---- */
+
+  /** 法式面包（手写 SVG，与苹果 / 牛奶同一套暖色调与落影，避免混用 3D 面包 PNG） */
+  function f9Bread(cx, cy, k) {
+    return '<g transform="translate(' + cx + ' ' + cy + ') scale(' + k + ')">' +
+      '<ellipse cx="0" cy="22" rx="40" ry="9" fill="#d9bda0" opacity=".3"/>' +
+      '<path d="M-40 -4 q40 -34 80 0 q-7 28 -40 28 q-33 0 -40 -28 z" fill="#e8bb7f" ' +
+        'stroke="#cf9a58" stroke-width="3"/>' +
+      '<path d="M-24 -12 q24 -16 48 0" stroke="#cf9a58" stroke-width="3" fill="none" ' +
+        'stroke-linecap="round"/>' +
+      '<path d="M-30 -2 q12 -8 24 0" stroke="#d8a866" stroke-width="2" fill="none" ' +
+        'stroke-linecap="round" opacity=".7"/>' +
+      '<path d="M4 -2 q12 -8 24 0" stroke="#d8a866" stroke-width="2" fill="none" ' +
+        'stroke-linecap="round" opacity=".7"/>' +
+    '</g>';
+  }
+
+  /** 小客人（期待食物：张嘴 + 双手前伸），前方一只空盘子 —— 题型 B 的投放目标，也是教学「给客人」的场景 */
+  var F9_BOY_PLATE =
+    f8Body('#ffd9a8', false) +
+    // 双手向前伸（期待食物）
+    '<path d="M54 112 q-12 4 -16 22" stroke="' + F8_SKIN + '" stroke-width="11" stroke-linecap="round" fill="none"/>' +
+    '<path d="M106 112 q12 4 16 22" stroke="' + F8_SKIN + '" stroke-width="11" stroke-linecap="round" fill="none"/>' +
+    f8Head('open') +
+    F8_TABLE +
+    // 盘子画在身体之前（像是捧在身前），落影压在桌面上
+    '<g transform="translate(0 18)">' + F6_PLATE + '</g>' +
+    // 两只手压在盘沿上，否则盘子像悬空（RULES §二.15 / §二.16）
+    '<circle cx="42" cy="138" r="9" fill="' + F8_SKIN + '"/>' +
+    '<circle cx="118" cy="138" r="9" fill="' + F8_SKIN + '"/>';
+
+  /** ① 饿了：手摸肚子 + 张嘴 + 肚子咕咕（缩到 100px 也读得出「想吃东西」） */
+  var F9_HUNGRY =
+    f8Body('#ffd9a8', false) +
+    f8Arm('M54 116 q-6 14 -4 24') +
+    // 右手摸肚子
+    '<path d="M106 112 q6 18 0 32" stroke="' + F8_SKIN + '" stroke-width="11" stroke-linecap="round" fill="none"/>' +
+    f8Head('open') +
+    '<circle cx="100" cy="142" r="9" fill="' + F8_SKIN + '"/>' +
+    // 肚子咕咕：两道暖色弧（不是文字）
+    '<path d="M90 152 q8 6 16 0" stroke="#f0a85a" stroke-width="3.4" fill="none" ' +
+      'stroke-linecap="round" opacity=".85"/>' +
+    '<path d="M94 160 q8 6 16 0" stroke="#f0a85a" stroke-width="3.4" fill="none" ' +
+      'stroke-linecap="round" opacity=".6"/>';
+
+  /** ② 饿了（演示 2，换视觉不换句子）：小客人 + 空盘子 + 手摸肚子 */
+  var F9_HUNGRY_PLATE =
+    F9_HUNGRY +
+    F8_TABLE +
+    '<g transform="translate(0 20) scale(.92)">' + F6_PLATE + '</g>' +
+    '<circle cx="44" cy="150" r="8" fill="' + F8_SKIN + '"/>' +
+    '<circle cx="116" cy="150" r="8" fill="' + F8_SKIN + '"/>';
+
+  /** 开心的小客人（互动对比用：与「饿了」一眼分得开） */
+  var F9_HAPPY =
+    f8Body('#a8dcb9', false) +
+    // 双手微微抬起（轻松）
+    f8Arm('M54 116 q-12 -6 -14 -18') +
+    f8Arm('M106 116 q12 -6 14 -18') +
+    f8Head('happy') +
+    f8Spark(140, 46, 8);
+
+  /** ③ I want...：小客人指着苹果 */
+  var F9_POINT_APPLE =
+    f8Body('#8fd0f0', false) +
+    f8Arm('M54 116 q-8 12 -6 22') +
+    // 右手向右伸出指着苹果
+    '<path d="M106 112 q28 -2 46 -8" stroke="' + F8_SKIN + '" stroke-width="11" stroke-linecap="round" fill="none"/>' +
+    f8Head('happy') +
+    '<circle cx="152" cy="104" r="8" fill="' + F8_SKIN + '"/>' +
+    f8Apple(150, 88, 26);
+
+  /** ④ Here you are：一只手从左侧把苹果递给小客人 */
+  var F9_GIVE_APPLE =
+    f8Body('#f0c3c3', false) +
+    f8Arm('M54 116 q-8 12 -6 22') +
+    // 小客人张开右手接
+    '<path d="M106 112 q12 -2 14 -14" stroke="' + F8_SKIN + '" stroke-width="11" stroke-linecap="round" fill="none"/>' +
+    f8Head('happy') +
+    // 左侧伸入的「递食物的手」
+    '<path d="M-28 98 q42 -8 72 -2" stroke="' + F8_SKIN + '" stroke-width="12" stroke-linecap="round" fill="none"/>' +
+    '<circle cx="46" cy="96" r="9" fill="' + F8_SKIN + '"/>' +
+    f8Apple(46, 78, 24);
+
+  /** ⑤ Thank you：小客人开心鞠躬（歪头 + 双手抬起道谢） */
+  var F9_THANK =
+    f8Body('#f7cf8f', false) +
+    f8Arm('M54 116 q-12 -12 -14 -26') +
+    f8Arm('M106 116 q12 -12 14 -26') +
+    f8Head('happy', 24) +            // 歪头 = 鞠躬
+    f8Spark(140, 48, 8) + f8Spark(34, 50, 7, '.85');
+
+  /** ⑥ Thank you（演示 2，换视觉）：服务员端着盘子（过渡到「综合」） */
+  var F9_SERVE =
+    f8Body('#e7eef7', false) +
+    // 马甲（深色块，区分于小客人的暖色衣服）
+    '<path d="M52 98 h56 v54 q-28 8 -56 0 z" fill="#5b7fb0"/>' +
+    f8Arm('M54 116 q-12 -8 -14 -20') +
+    f8Arm('M106 116 q14 2 18 16') +
+    f8Head('happy') +
+    // 服务帽（toque）盖住头发，和小客人的锅盖头区分
+    '<path d="M50 30 q4 -30 30 -30 q26 0 30 30 q-30 11 -60 0 z" fill="#ffffff" ' +
+      'stroke="#dfe6ef" stroke-width="2"/>' +
+    '<rect x="50" y="28" width="60" height="9" rx="4" fill="#f2f5fa"/>' +
+    // 托盘 + 苹果
+    '<g transform="translate(150 112) scale(.6)">' + F6_PLATE + '</g>' +
+    f8Apple(150, 96, 18);
+
+  /** 吃饱了（题型 A 的 full 状态、与 hungry 对比） */
+  var F9_FULL =
+    f8Body('#c9b8ea', true) +
+    '<ellipse cx="80" cy="136" rx="24" ry="13" fill="#ffffff" opacity=".2"/>' +
+    f8Arm('M50 116 q10 20 20 22') +
+    f8Arm('M110 116 q-10 20 -20 22') +
+    f8Head('closed') +
+    f8Spark(34, 44, 8);
+
+  /** 正在吃（题型 A 的 eating 状态：手把苹果送到嘴边） */
+  var F9_EATING =
+    f8Body('#a8dcb9', false) +
+    f8Arm('M54 116 q-8 14 -6 24') +
+    // 右手把苹果举到嘴边
+    '<path d="M106 112 q16 -20 20 -32" stroke="' + F8_SKIN + '" stroke-width="11" stroke-linecap="round" fill="none"/>' +
+    f8Head('happy') +
+    '<circle cx="118" cy="74" r="8" fill="' + F8_SKIN + '"/>' +
+    f8Apple(104, 64, 17);
+
+  /** 在哭（题型 C 干扰项 / 综合干扰项：皱眉 + 眼泪） */
+  var F9_CRYING =
+    f8Body('#f0c3c3', false) +
+    f8Arm('M54 116 q-8 14 -6 24') +
+    f8Arm('M106 116 q8 14 6 24') +
+    f8Head('frown') +
+    f8Drop(70, 72, 1.0) + f8Drop(90, 78, 0.9) + f8Drop(82, 90, 0.8);
+
+  /** 在睡（题型 C 干扰项：闭眼 + 歪头 + 月亮，不用字母 Z，RULES §二.1） */
+  var F9_SLEEPING =
+    f8Body('#c9b8ea', false) +
+    f8Arm('M54 116 q-8 14 -6 22') +
+    f8Arm('M106 116 q8 14 6 22') +
+    f8Head('closed', 16) +          // 歪头 = 睡着了
+    // 弯月（path 画，不是字母）
+    '<path d="M138 32 a16 16 0 1 0 0 34 a12 12 0 1 1 0 -34 z" fill="#ffe08a" ' +
+      'stroke="#e8c45a" stroke-width="2"/>';
+
+  /** 题型 B 托盘里的三样食物（苹果 / 面包 / 牛奶，与 F8 共用苹果、牛奶 SVG，面包新画） */
+  var F9_ITEM_APPLE = f8Apple(80, 78, 34) + '<ellipse cx="80" cy="122" rx="30" ry="7" fill="#d3b28a" opacity=".28"/>';
+  var F9_ITEM_BREAD = f9Bread(80, 82, 1.0) + '<ellipse cx="80" cy="122" rx="30" ry="7" fill="#d3b28a" opacity=".28"/>';
+  var F9_ITEM_MILK = f8Cup(74, 82, 1.25, true);
+
+  var F9_SVG_LIB = {
+    hungry: F9_HUNGRY, hungryPlate: F9_HUNGRY_PLATE, happy: F9_HAPPY,
+    pointApple: F9_POINT_APPLE, giveApple: F9_GIVE_APPLE, thank: F9_THANK,
+    serve: F9_SERVE, full: F9_FULL, eating: F9_EATING, crying: F9_CRYING,
+    sleeping: F9_SLEEPING, boyPlate: F9_BOY_PLATE,
+    apple: F9_ITEM_APPLE, bread: F9_ITEM_BREAD, milk: F9_ITEM_MILK
+  };
+
+  function f9Svg(markup, cls) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 160 160');
+    s.setAttribute('class', cls || 'f9-draw');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = markup;
+    return s;
+  }
+
+  function f9SceneNode(key, cls) {
+    var card = document.createElement('div');
+    card.className = 'f9-card' + (cls ? ' ' + cls : '');
+    card.dataset.subj = key;
+    var markup = F9_SVG_LIB[key];
+    if (!markup) return card;
+    card.classList.add('f9-draw-card');
+    card.appendChild(f9Svg(markup));
+    return card;
+  }
+
+  function ensureF9Css() {
+    if (document.getElementById('f9-style')) return;
+    var s = document.createElement('style');
+    s.id = 'f9-style';
+    s.textContent =
+      '.f9-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'gap:1.4vh;width:min(84vw,460px);box-sizing:border-box;min-height:38vh}' +
+      '.f9-grid{display:grid;gap:10px;width:min(88vw,460px);margin:2vh auto;box-sizing:border-box;' +
+      'grid-template-columns:repeat(3,minmax(0,1fr))}' +
+      '.f9-grid[data-n="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}' +
+      '.f9-tile{display:block;min-width:0;padding:6px;box-sizing:border-box;cursor:pointer;' +
+      'background:rgba(255,255,255,.9);border:3px solid #ffe0b8;border-radius:26px;' +
+      'box-shadow:0 8px 16px rgba(214,164,110,.18);transition:transform .15s ease,box-shadow .15s ease}' +
+      '.f9-tile:active{transform:scale(.96)}' +
+      '.f9-tile.right{border-color:#7FD18A;box-shadow:0 0 0 5px rgba(127,209,138,.5)}' +
+      '.f9-tile.wrong{animation:f9shake .5s;border-color:#f0a0a0}' +
+      '.f9-card{position:relative;display:flex;align-items:center;justify-content:center;width:100%;' +
+      'aspect-ratio:1 / 1;border-radius:22px;overflow:hidden;box-sizing:border-box;' +
+      'background:radial-gradient(120% 100% at 50% 6%,#fffdf8 0%,#fbefdc 58%,#f3ddc0 100%)}' +
+      '.f9-draw-card{background:linear-gradient(180deg,#fffdf8 0%,#fdf1dc 100%)}' +
+      '.f9-draw{display:block;width:88%;height:auto;overflow:visible}' +
+      '.f9-big{width:min(62vw,240px);border-radius:30px;box-shadow:0 12px 24px rgba(200,160,110,.2)}' +
+      '.f9-big .f9-draw{width:84%}' +
+      '.f9-glow{animation:f9glow 1.1s ease-in-out infinite}' +
+      // 题型 A/C：上方情境卡 + 下方三张小卡（走公共选项栏时）
+      '.option .f9-card{width:100%;aspect-ratio:1 / 1;border-radius:16px}' +
+      '.option .f9-draw{width:86%}' +
+      // 题型 B：小客人在上方，下方三个食物在选项栏（drag 目标 = 小客人卡）
+      '.f9-serve{display:flex;align-items:center;justify-content:center;' +
+      'width:min(86vw,420px);box-sizing:border-box;margin:1vh auto;cursor:pointer}' +
+      '.f9-serve .f9-card{width:min(70vw,260px);background:linear-gradient(180deg,#fffdf8 0%,#fdf1dc 100%)}' +
+      '.f9-serve.drop-hot{filter:drop-shadow(0 0 16px rgba(255,205,120,.95));transform:scale(1.03)}' +
+      '.f9-serve.right{animation:f9pop .5s ease-out}' +
+      // 放进小客人盘子上的那件食物：落在盘心
+      '.f9-onboy{position:absolute;left:50%;top:64%;width:36%;aspect-ratio:1 / 1;' +
+      'transform:translate(-50%,-50%);z-index:3;pointer-events:none;background:none !important;' +
+      'border-radius:14px;overflow:visible;animation:f9drop .38s cubic-bezier(.34,1.56,.64,1)}' +
+      '.f9-onboy .f9-draw{width:96%}' +
+      // 教学「给客人」：小客人 + 下方三个食物按钮
+      '.f9-give-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;' +
+      'width:min(88vw,420px);margin-top:1.5vh;box-sizing:border-box}' +
+      '.f9-chip{display:block;min-width:0;padding:6px;box-sizing:border-box;cursor:pointer;' +
+      'background:rgba(255,255,255,.92);border:3px solid #ffe0b8;border-radius:22px;' +
+      'box-shadow:0 8px 16px rgba(214,164,110,.18);transition:transform .15s ease}' +
+      '.f9-chip:active{transform:scale(.96)}' +
+      '.f9-chip.picked{border-color:#7FD18A;box-shadow:0 0 0 5px rgba(127,209,138,.45)}' +
+      '@keyframes f9glow{0%,100%{box-shadow:0 0 0 3px rgba(255,210,120,.5)}' +
+      '50%{box-shadow:0 0 24px 9px rgba(255,210,120,.92)}}' +
+      '@keyframes f9pop{0%,100%{transform:scale(1)}45%{transform:scale(1.06)}}' +
+      '@keyframes f9drop{0%{transform:translate(-50%,-130%) scale(.6);opacity:0}' +
+      '100%{transform:translate(-50%,-50%) scale(1);opacity:1}}' +
+      '@keyframes f9shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}';
+    document.head.appendChild(s);
+  }
+
+  /** 题型 A / C：三张场景卡宫格（选项栏隐藏，卡更大更好点） */
+  function renderF9Grid(q) {
+    ensureF9Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'f9-grid';
+    grid.dataset.n = String(q.options.length);
+    grid.setAttribute('aria-label', '图片');
+    q.options.forEach(function (opt, i) {
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'f9-tile';
+      tile.dataset.idx = String(i);
+      tile.dataset.subj = opt.scene;
+      tile.setAttribute('aria-label', '图片');
+      tile.appendChild(f9SceneNode(opt.scene));
+      tile.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(tile.dataset.idx) === state.question.correct, tile);
+      });
+      grid.appendChild(tile);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 B：小客人在上方（投放目标），三个食物在选项栏（drag / 点选等价） */
+  function renderF9Serve(q) {
+    ensureF9Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'f9-serve';
+    wrap.appendChild(f9SceneNode('boyPlate', 'f9-big'));
+    var boy = wrap.querySelector('.f9-card');
+    if (boy) {
+      boy.dataset.drop = 'f9boy';
+      boy.dataset.box = 'boy';
+      boy.setAttribute('aria-label', '小客人');
+      // 点选兜底：先点食物、再点小客人 = 送给他（RULES §二.11）
+      boy.addEventListener('click', function () {
+        if (state.pickedFruit === null) return;
+        resolveF9B(state.pickedFruit, boy);
+      });
+    }
+    askDisplay.appendChild(wrap);
+  }
+
+  /** 答对后把那件食物摆到小客人的盘子上（下一题重绘自动清掉） */
+  function f9PlaceOnBoy(food) {
+    var target = askDisplay.querySelector('.f9-serve .f9-card');
+    if (!target) return;
+    target.appendChild(f9SceneNode(food, 'f9-onboy'));
+  }
+
+  function resolveF9B(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'F9B') return;
+    var drop = target && target.dataset ? target.dataset.drop : null;
+    var ok = (drop === 'f9boy') && itemIdx === q.correct;
+    judge(ok, ok ? target : optionEls[itemIdx]);
+  }
+
+  /** 题型 A：三张客人状态（hungry/full/eating），找 hungry */
+  var F9_A_STATES = ['hungry', 'full', 'eating'];
+  /** 题型 B：听需求配餐（面包 / 牛奶 / 苹果），拖对的食物给小客人 */
+  var F9_B_CASES = [
+    { food: 'bread', key: 'l5w4_b_bread' },
+    { food: 'milk',  key: 'l5w4_b_milk' },
+    { food: 'apple', key: 'l5w4_b_apple' }
+  ];
+  /** 题型 C：三张对话场景（giveApple/crying/sleeping），找「Here you are」+「Thank you」 */
+  var F9_C_SCENES = ['giveApple', 'crying', 'sleeping'];
+
+  /** 出题：0 = A 找客人状态 / 1 = B 配餐 / 2 = C 选对话场景 */
+  function makeQuestionF9(type, prev) {
+    ensureF9Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var states = F9_A_STATES.slice();
+        shuffle(states);
+        q = {
+          type: 'F9A', sig: 'A:' + states.join(','),
+          subj: 'hungry',
+          options: states.map(function (s) { return { kind: 'f9scene', scene: s }; }),
+          correct: states.indexOf('hungry'),
+          audio: ['l5w4_a']
+        };
+      } else if (type === 1) {
+        var b = F9_B_CASES[randInt(0, F9_B_CASES.length - 1)];
+        var foods = ['bread', 'milk', 'apple'];
+        shuffle(foods);
+        q = {
+          type: 'F9B', sig: 'B:' + b.food,
+          subj: b.food, food: b.food,
+          options: foods.map(function (f) { return { kind: 'f9food', food: f }; }),
+          correct: foods.indexOf(b.food),
+          audio: [b.key]
+        };
+      } else {
+        var dlg = F9_C_SCENES.slice();
+        shuffle(dlg);
+        q = {
+          type: 'F9C', sig: 'C:' + dlg.join(','),
+          subj: 'giveApple',
+          options: dlg.map(function (s) { return { kind: 'f9scene', scene: s }; }),
+          correct: dlg.indexOf('giveApple'),
+          audio: ['l5w4_c']
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* 教学（custom 分支）：13 个环节，收尾仍走 tutFinish() */
+  var runF9Tutorial = (function () {
+    function blank(me) {
+      me.ask = null;
+      me.selected = null;
+      me.hintTarget = null;
+      me.hintFrom = null;
+      me.hintTo = null;
+      me.hintToY = 0.5;
+      me.replay = null;
+      clearHint();
+    }
+    function stage(me) {
+      blank(me);
+      askDisplay.innerHTML = '';
+      ensureF9Css();
+      var w = document.createElement('div');
+      w.className = 'f9-stage';
+      askDisplay.appendChild(w);
+      return w;
+    }
+    /** 演示：一张大的人物 / 道具卡 */
+    function demoCard(me, key) {
+      var wrap = stage(me);
+      var card = f9SceneNode(key, 'f9-big');
+      wrap.appendChild(card);
+      return card;
+    }
+    /** 互动：二 / 三选一，点对推进，点错只抖 + again，4 秒不动出小手指（RULES §二.12） */
+    function askCards(me, act, i) {
+      var wrap = stage(me);
+      var grid = document.createElement('div');
+      grid.className = 'f9-grid';
+      grid.dataset.n = String(act.set.length);
+      wrap.appendChild(grid);
+
+      var order = shuffle(act.set.slice());
+      var tiles = {};
+      order.forEach(function (key, idx) {
+        var t = document.createElement('button');
+        t.type = 'button';
+        t.className = 'f9-tile';
+        t.dataset.idx = String(idx);
+        t.dataset.subj = key;
+        t.setAttribute('aria-label', '图片');
+        t.appendChild(f9SceneNode(key));
+        grid.appendChild(t);
+        tiles[key] = t;
+      });
+
+      me.ask = act.ans;
+      me.hintTarget = tiles[act.ans];
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+
+      order.forEach(function (key) {
+        var t = tiles[key];
+        t.addEventListener('click', function () {
+          if (state.tut !== me || !me.ask) return;
+          if (key === me.ask) {
+            clearHint();
+            coin();
+            ting();
+            t.classList.add('right');
+            me.ask = null;
+            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 950);
+          } else {
+            t.classList.add('wrong');
+            setTimeout(function () { t.classList.remove('wrong'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+      });
+    }
+    /** 互动（给客人）：小客人 + 空盘子在上，三个食物在下；先点食物、再点小客人 = 送给他 */
+    function askGive(me, act, i) {
+      var wrap = stage(me);
+      wrap.dataset.give = String(i);   // 探针区分两张相同的「送食物给小客人」场景（仅标记，不影响视觉）
+      var boyWrap = document.createElement('div');
+      boyWrap.className = 'f9-serve';
+      boyWrap.appendChild(f9SceneNode('boyPlate', 'f9-big'));
+      var boy = boyWrap.querySelector('.f9-card');
+      if (boy) {
+        boy.setAttribute('aria-label', '小客人');
+        boy.addEventListener('click', function () { tryDeliver(); });
+      }
+      wrap.appendChild(boyWrap);
+
+      var row = document.createElement('div');
+      row.className = 'f9-give-row';
+      wrap.appendChild(row);
+      var foods = ['apple', 'bread', 'milk'];
+      shuffle(foods);
+      var chips = {};
+      foods.forEach(function (f) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'f9-chip';
+        b.dataset.food = f;
+        b.setAttribute('aria-label', '食物');
+        b.appendChild(f9SceneNode(f));
+        row.appendChild(b);
+        chips[f] = b;
+      });
+
+      me.ask = act.ans;          // 'apple'
+      me.selected = null;
+      me.hintTarget = chips[act.ans];
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+
+      foods.forEach(function (f) {
+        chips[f].addEventListener('click', function () {
+          if (state.tut !== me || me.ask === null) return;
+          me.selected = f;
+          foods.forEach(function (g) { chips[g].classList.toggle('picked', g === f); });
+          // 选中后把小手指指向小客人
+          me.hintTarget = boy;
+          armHint();
+        });
+      });
+
+      function tryDeliver() {
+        if (state.tut !== me || me.ask === null) return;
+        if (me.selected === act.ans) {
+          clearHint();
+          coin();
+          ting();
+          // 教学里「送对」之后播放 Here you are!（教学语音，非答题反馈，RULES §1.6 仅限制答题反馈）
+          say(['l5w4_t_here1']);
+          if (boy) boy.classList.add('f9-glow');
+          me.ask = null;
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1600);
+        } else {
+          // 选错食物（或还没选）就送：温柔提醒，不推进
+          say(['again']);
+          armHint();
+        }
+      }
+    }
+
+    var ACTS = [
+      // ① I am hungry：2 次演示 + 2 次互动
+      { type: 'demo', word: 'l5w4_t_hungry1', key: 'hungry' },
+      { type: 'demo', word: 'l5w4_t_hungry2', key: 'hungryPlate' },
+      { type: 'ask',  word: 'l5w4_t_hungry_a1', set: ['hungry', 'happy'],        ans: 'hungry' },
+      { type: 'ask',  word: 'l5w4_t_hungry_a2', set: ['hungry', 'full', 'eating'], ans: 'hungry' },
+      // ② I want... / Here you are：2 次演示 + 2 次互动（送苹果给小客人）
+      { type: 'demo', word: 'l5w4_t_want1',  key: 'pointApple' },
+      { type: 'demo', word: 'l5w4_t_here1',  key: 'giveApple' },
+      { type: 'give',  word: 'l5w4_t_here_a1', ans: 'apple' },
+      { type: 'give',  word: 'l5w4_t_here_a2', ans: 'apple' },
+      // ③ Thank you：2 次演示 + 2 次互动（综合：找「Here you are」的画面）
+      { type: 'demo', word: 'l5w4_t_thanks1', key: 'thank' },
+      { type: 'demo', word: 'l5w4_t_thanks2', key: 'serve' },
+      { type: 'ask',  word: 'l5w4_t_thanks_a1', set: ['serve', 'eating', 'crying'],     ans: 'serve' },
+      { type: 'ask',  word: 'l5w4_t_thanks_a2', set: ['serve', 'crying', 'sleeping'],  ans: 'serve' },
+      // ④ 过渡语（自带，不再叠 t_ready）
+      { type: 'outro', word: 'l5w4_t_out' }
+    ];
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+
+      if (act.type === 'outro') {
+        var wrap = stage(me);
+        var grid = document.createElement('div');
+        grid.className = 'f9-grid f9-final';
+        grid.dataset.n = '4';
+        wrap.appendChild(grid);
+        var cards = [];
+        ['hungry', 'pointApple', 'giveApple', 'thank'].forEach(function (f) {
+          var c = f9SceneNode(f);
+          grid.appendChild(c);
+          cards.push(c);
+        });
+        me.replay = function () { say([act.word]); };
+        cards.forEach(function (c) { c.classList.add('f9-glow'); });
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          tutFinish(me, false);
+        });
+        return;
+      }
+
+      if (act.type === 'demo') {
+        var card = demoCard(me, act.key);
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          card.classList.add('f9-glow');
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+        });
+        return;
+      }
+
+      if (act.type === 'give') { askGive(me, act, i); return; }
+      askCards(me, act, i);
+    }
+
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
     function stage(me) {
@@ -11565,6 +12136,8 @@
     if (q.type === 'F8A') { optionsBar.classList.add('gone'); return; }
     if (q.type === 'F8B') { renderF8Situation(q); return; }
     if (q.type === 'F8C') { renderF8Boxes(q); return; }
+    if (q.type === 'F9A' || q.type === 'F9C') { optionsBar.classList.add('gone'); return; }
+    if (q.type === 'F9B') { renderF9Serve(q); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -11925,6 +12498,7 @@
     if (q.type === 'F6A' || q.type === 'F6B') { renderF6Grid(q); return; }
     if (q.type === 'F7A' || q.type === 'F7B') { renderF7Grid(q); return; }
     if (q.type === 'F8A') { renderF8Grid(q); return; }
+    if (q.type === 'F9A' || q.type === 'F9C') { renderF9Grid(q); return; }
     optionEls.forEach(function (btn, i) {
       removeDecor(btn);
       btn.className = 'option';
@@ -12119,6 +12693,14 @@
         // 第 5 岛第 3 关题型 C：可拖进「喜欢 / 不喜欢」框的食物
         btn.classList.add('f8-opt');
         slot.appendChild(f8SceneNode(opt.food));
+      } else if (opt.kind === 'f9scene') {
+        // 第 5 岛第 4 关题型 A / C：客人状态 / 对话场景
+        btn.classList.add('f9-opt');
+        slot.appendChild(f9SceneNode(opt.scene));
+      } else if (opt.kind === 'f9food') {
+        // 第 5 岛第 4 关题型 B：可拖给小客人的食物
+        btn.classList.add('f9-opt');
+        slot.appendChild(f9SceneNode(opt.food));
       } else if (opt.kind === 'f6food') {
         // 第 5 岛第 1 关题型 C：可拖到盘子上的食物
         btn.classList.add('f6-opt');
@@ -12216,6 +12798,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'F8C') {
         // 第 5 岛第 3 关题型 C：食物可拖进「喜欢 / 不喜欢」框
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'F9B') {
+        // 第 5 岛第 4 关题型 B：食物可拖给小客人
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -12363,6 +12950,7 @@
       if (q.type === 'F7C') f7PlaceInBowl(q.utensil);
       // 第 5 岛第 3 关题型 C：食物当场被放进框里（视觉反馈，仍然不播语音）
       if (q.type === 'F8C') f8PlaceInBox(q.food, q.box);
+      if (q.type === 'F9B') f9PlaceOnBoy(q.food);
 
       // 必须先捕获索引：430ms 后 state.roundIndex 会自增，
       // 动画回调若晚于推进执行就会点亮错位/丢失（第 12 轮尤其明显）
@@ -12550,6 +13138,8 @@
         resolveF7C(d.idx, target);
       } else if (d.mode === 'F8C') {
         resolveF8C(d.idx, target);
+      } else if (d.mode === 'F9B') {
+        resolveF9B(d.idx, target);
       } else if (d.mode === 'F6C') {
         resolveF6C(d.idx, target);
       } else if (d.mode === 'TUT') {
@@ -13442,6 +14032,13 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '5-4': {
+      // 餐厅点餐（RULES §三.10 双倍量）：I am hungry / I want / Here you are / Thank you，13 环节
+      custom: runF9Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -13666,8 +14263,8 @@
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
         q.type === 'F1C' || q.type === 'F2C' || q.type === 'F3C' ||
-        q.type === 'F4C' || q.type === 'F6C' || q.type === 'F7C' ||
-        q.type === 'F8C') return q.type;
+        q.type === 'F4C' ||         q.type === 'F6C' || q.type === 'F7C' ||
+        q.type === 'F8C' || q.type === 'F9B') return q.type;
     return null;
   }
 
@@ -13984,6 +14581,12 @@
         return;
       }
 
+      // 第 5 岛第 4 关题型 B：点食物选中，再点小客人「送给他」
+      if (q.type === 'F9B') {
+        tapFruit(idx, btn);
+        return;
+      }
+
       // 第 5 关题型 B：先点水果选中，再点篮子投放
       if (q.type === 'W5B') {
         if (state.pickedFruit === null) return;
@@ -14285,6 +14888,8 @@
             if (o.kind === 'f7scene') return 's:' + o.scene;
             if (o.kind === 'f8kid') return 'k:' + o.scene;
             if (o.kind === 'f8food') return 'f:' + o.food;
+            if (o.kind === 'f9scene') return 's:' + o.scene;
+            if (o.kind === 'f9food') return 'f:' + o.food;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
             if (o.color) return o.color.id;

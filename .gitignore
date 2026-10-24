@@ -70,8 +70,15 @@ f8-*.png
 f8d-*.png
 f8live-*.png
 f8lived-*.png
+f9-*.png
+f9d-*.png
+f9live-*.png
+f9lived-*.png
 rf*-*.png
 b3-*.png
+
+# 探针脚本输出（不入库）
+tools/probe_f9.out
 
 # 一次性补丁脚本（改完即弃，不入库）
 tools/_*.js
