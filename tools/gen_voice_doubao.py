@@ -802,6 +802,45 @@ add("l5w4_b_apple", "I am hungry. I want an apple. Give it to him.", "en", -10, 
 # 题型 C：听对话选场景（递苹果 / 哭 / 睡 三选一）
 add("l5w4_c", "'Here you are' and 'Thank you'.", "en", -10, EN_ASK)
 
+# ---- 第 5 岛第 5 关：上菜终极挑战（结业关，全岛语言点综合复习） ----
+# 教学 24 环节（延长版复习，RULES §三.9 / §三.10）：欢迎 + 肚子饿(2演+2互) + 端上菜(2演+2互)
+#   + 礼貌回应(2演+2互) + 吃饱/听懂拒绝(2演+2互) + 还要更多(1演+1互) + 餐具(2演+2互) + 过渡
+add("l5w5_t_welcome", "Welcome to the restaurant! Let's serve the food.", "en", -8, EN_PRAISE)
+add("l5w5_t_hungry1", "Look! The boy is hungry.", "en", -10, EN_ASK)
+add("l5w5_t_hungry2", "He wants an apple.", "en", -10, EN_ASK)
+add("l5w5_t_hungry_a1", "Who is hungry? Point to him.", "en", -10, EN_ASK)
+add("l5w5_t_hungry_a2", "Find the boy who is hungry.", "en", -10, EN_ASK)
+add("l5w5_t_here1", "Here you are. An apple for you.", "en", -10, EN_ASK)
+add("l5w5_t_here2", "Here you are. Your food is ready.", "en", -10, EN_ASK)
+add("l5w5_t_here_a1", "Give the apple to the boy. Put it on the table.", "en", -10, EN_ASK)
+add("l5w5_t_here_a2", "Give the bread to the boy.", "en", -10, EN_ASK)
+add("l5w5_t_thanks1", "Yum! The boy says thank you.", "en", -10, EN_ASK)
+add("l5w5_t_thanks2", "She is so happy. Thank you!", "en", -10, EN_ASK)
+add("l5w5_t_thanks_a1", "Find the happy boy.", "en", -10, EN_ASK)
+add("l5w5_t_thanks_a2", "Who says thank you?", "en", -10, EN_ASK)
+add("l5w5_t_full1", "Look! The boy is all done. He is full.", "en", -10, EN_ASK)
+add("l5w5_t_full2", "He doesn't want more. All done!", "en", -10, EN_ASK)
+add("l5w5_t_full_a1", "Who doesn't want more?", "en", -10, EN_ASK)
+add("l5w5_t_full_a2", "Which boy is all done? Point to him.", "en", -10, EN_ASK)
+add("l5w5_t_more1", "More, please!", "en", -10, EN_ASK)
+add("l5w5_t_more_a1", "Who wants more?", "en", -10, EN_ASK)
+add("l5w5_t_utensil1", "The soup is hot. We need a spoon.", "en", -10, EN_ASK)
+add("l5w5_t_utensil2", "Look! The spoon is in the bowl.", "en", -10, EN_ASK)
+add("l5w5_t_utensil_a1", "Point to the spoon.", "en", -10, EN_ASK)
+add("l5w5_t_utensil_a2", "What do we eat with?", "en", -10, EN_ASK)
+add("l5w5_t_out", "You are a great waiter! Let's play the real game!", "en", -8, EN_PRAISE)
+
+# 题型 A：听需求端菜（面包 / 牛奶 / 苹果，拖给小女孩客人，各一条）
+add("l5w5_a_bread", "The girl is hungry. She wants some bread.", "en", -10, EN_ASK)
+add("l5w5_a_milk", "The girl is hungry. She wants some milk.", "en", -10, EN_ASK)
+add("l5w5_a_apple", "The girl is hungry. She wants an apple.", "en", -10, EN_ASK)
+
+# 题型 B：听对话找场景（在吃 / 不要了 / 还要更多 三选一，题干固定）
+add("l5w5_b", "Find the one who wants more.", "en", -10, EN_ASK)
+
+# 题型 C：听场景选餐具（热汤要勺子：勺子 / 杯子 / 叉子 三选一）
+add("l5w5_c", "The soup is hot. What do we need?", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

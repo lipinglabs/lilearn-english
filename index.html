@@ -3800,7 +3800,8 @@
     '5-1': { numbers: null,       make: 'makeF6', title: '第 1 关', tutorial: true },
     '5-2': { numbers: null,       make: 'makeF7', title: '第 2 关', tutorial: true },
     '5-3': { numbers: null,       make: 'makeF8', title: '第 3 关', tutorial: true },
-    '5-4': { numbers: null,       make: 'makeF9', title: '第 4 关', tutorial: true }
+    '5-4': { numbers: null,       make: 'makeF9', title: '第 4 关', tutorial: true },
+    '5-5': { numbers: null,       make: 'makeF10', title: '第 5 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3947,6 +3948,7 @@
     if (def && def.make === 'makeF7') return makeQuestionF7(typeIdx, prev);
     if (def && def.make === 'makeF8') return makeQuestionF8(typeIdx, prev);
     if (def && def.make === 'makeF9') return makeQuestionF9(typeIdx, prev);
+    if (def && def.make === 'makeF10') return makeQuestionF10(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -11933,6 +11935,437 @@
     return api;
   })();
 
+  /* ==================== 第 5 岛第 5 关（L5-W5：游乐场 · 上菜终极挑战） ==================== */
+  /* 结业关（RULES §三.9）：只考不教新词，把第 5 岛全部语言点（常见食物 / 餐具 / 喜好与需求 /
+     餐厅点餐）串成「你是小服务员，去给客人上菜」的沉浸式角色扮演复习。教学为延长版复习
+     （RULES §三.10 双倍量，充分玩透，不精简）；答题 12 轮（4/4/4）三种组合题型；
+     通关走 finish() 的 grand 模式（大彩带 + 奖杯 + 第 5 岛小旗，state.level===5 自动触发）。
+     图片：全部手写内联 SVG——复用第 2 关餐具（F7_SOUP / F7_SPOON / F7_CUP / F7_FORK）、
+     第 3/4 关同一个小男孩的姿态零件（F8_* / F9_*），只新画「小女孩客人」「餐厅门」两张，
+     零新增 PNG、零生图（图片最高优先 = 免费 SVG，RULES §二.17）。 */
+
+  /* ---- 新画：小女孩客人（与小男孩同一套轮廓 / 描边 / 肤色 F8_SKIN，只换裙子 + 双辫） ---- */
+  function f10GirlBody(dress) {
+    // 脖子 + A 字裙：肩在 x≈55–105（与男孩手臂起点对齐），下摆铺到 y=160，一眼是「裙子」
+    return '<rect x="70" y="66" width="20" height="30" rx="9" fill="#f7cfa8"/>' +
+      '<path d="M55 100 q25 -8 50 0 L112 160 Q80 169 48 160 Z" fill="' + dress + '"/>';
+  }
+  function f10GirlHead(mood) {
+    // 复用男孩的头（同一张脸），只在两侧加双辫 + 粉色发绳，和孩子认的「同一个小男孩」区分为「小女孩」
+    return f8Head(mood) +
+      '<circle cx="50" cy="57" r="10.5" fill="' + F8_HAIR + '"/>' +
+      '<circle cx="110" cy="57" r="10.5" fill="' + F8_HAIR + '"/>' +
+      '<circle cx="50" cy="46" r="4" fill="#f2a6c0"/>' +
+      '<circle cx="110" cy="46" r="4" fill="#f2a6c0"/>';
+  }
+
+  /** 小女孩客人（期待食物：张嘴 + 双手前伸 + 身前一只空盘子）——题型 A 的投放目标 */
+  var F10_GIRL =
+    f10GirlBody('#f2a6c0') +
+    f8Arm('M59 116 q-10 6 -12 20') +
+    f8Arm('M101 116 q10 6 12 20') +
+    f10GirlHead('open') +
+    F8_TABLE +
+    '<g transform="translate(0 18)">' + F6_PLATE + '</g>' +
+    '<circle cx="44" cy="140" r="8" fill="' + F8_SKIN + '"/>' +
+    '<circle cx="116" cy="140" r="8" fill="' + F8_SKIN + '"/>';
+
+  /** 小女孩客人（开心道谢：双手抬起 + 笑脸 + 星星）——教学「礼貌回应」演示 2 */
+  var F10_GIRL_HAPPY =
+    f10GirlBody('#f2a6c0') +
+    f8Arm('M59 116 q-12 -10 -14 -24') +
+    f8Arm('M101 116 q12 -10 14 -24') +
+    f10GirlHead('happy') +
+    f8Spark(40, 48, 8) + f8Spark(122, 52, 7, '.85');
+
+  /** 餐厅门（欢迎客人）：暖色墙面 + 门内暖光 + 遮阳棚（无英文字母，雨棚纯色块） */
+  var F10_DOOR =
+    '<rect x="8" y="18" width="144" height="134" rx="12" fill="#f6e6cf"/>' +
+    '<rect x="44" y="52" width="72" height="100" rx="9" fill="#c98f57"/>' +
+    '<rect x="51" y="59" width="58" height="93" rx="7" fill="#ffe6b8"/>' +
+    '<path d="M51 118 h58 v34 h-58 z" fill="#f3d69a" opacity=".7"/>' +
+    '<circle cx="94" cy="106" r="4.2" fill="#8a6142"/>' +
+    '<path d="M28 46 q52 -24 104 0 q-52 13 -104 0 z" fill="#e8743f"/>' +
+    '<path d="M28 46 q52 -24 104 0" stroke="#c85f30" stroke-width="2.6" fill="none" ' +
+      'stroke-linecap="round"/>' +
+    '<circle cx="80" cy="104" r="66" fill="#ffe9c0" opacity=".22"/>';
+
+  /* ---- 场景库：大量复用第 2/3/4 关既有 SVG 常量，保证「同一套餐具 / 同一个小男孩」风格统一 ---- */
+  var F10_SVG_LIB = {
+    door: F10_DOOR, girl: F10_GIRL, girlHappy: F10_GIRL_HAPPY,
+    // 小男孩（餐厅点餐关的同一套零件）
+    boyPlate: F9_BOY_PLATE, hungry: F9_HUNGRY, hungryPlate: F9_HUNGRY_PLATE,
+    pointApple: F9_POINT_APPLE, giveApple: F9_GIVE_APPLE, thank: F9_THANK,
+    serve: F9_SERVE, full: F9_FULL, eating: F9_EATING, crying: F9_CRYING, sleeping: F9_SLEEPING,
+    // 喜好与需求关的姿态（听懂「还要 / 不要」）
+    fullPush: F8_FULL_PUSH, more: F8_MORE,
+    // 空桌子（把食物放桌上）
+    emptyTable: F8_TABLE,
+    // 三样食物（与餐厅点餐关共用）
+    apple: F9_ITEM_APPLE, bread: F9_ITEM_BREAD, milk: F9_ITEM_MILK,
+    // 餐具关（选餐具题 / 教学餐具复习）
+    soup: F7_SOUP, scSpoon: F7_SC_SPOON, spoon: F7_SPOON, cup: F7_CUP, fork: F7_FORK
+  };
+
+  /** 场景节点：复用 f9Svg 与 .f9-card / .f9-draw / .f9-big / .f9-onboy 等既有样式（ensureF9Css 已定义） */
+  function f10SceneNode(key, cls) {
+    var card = document.createElement('div');
+    card.className = 'f9-card' + (cls ? ' ' + cls : '');
+    card.dataset.subj = key;
+    var markup = F10_SVG_LIB[key];
+    if (!markup) return card;
+    card.classList.add('f9-draw-card');
+    card.appendChild(f9Svg(markup));
+    return card;
+  }
+
+  /** 题型 B：三张客人状态宫格（选项栏隐藏，卡更大更好点）——复用 f9-grid / f9-tile */
+  function renderF10Grid(q) {
+    ensureF9Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'f9-grid';
+    grid.dataset.n = String(q.options.length);
+    grid.setAttribute('aria-label', '图片');
+    q.options.forEach(function (opt, i) {
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'f9-tile';
+      tile.dataset.idx = String(i);
+      tile.dataset.subj = opt.scene;
+      tile.setAttribute('aria-label', '图片');
+      tile.appendChild(f10SceneNode(opt.scene));
+      tile.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(tile.dataset.idx) === state.question.correct, tile);
+      });
+      grid.appendChild(tile);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 A：小女孩客人在上方（投放目标），三个食物在选项栏（drag / 点选等价，RULES §二.11） */
+  function renderF10Serve(q) {
+    ensureF9Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'f9-serve';
+    wrap.appendChild(f10SceneNode('girl', 'f9-big'));
+    var girl = wrap.querySelector('.f9-card');
+    if (girl) {
+      girl.dataset.drop = 'f10girl';
+      girl.dataset.box = 'girl';
+      girl.setAttribute('aria-label', '小客人');
+      // 点选兜底：先点食物、再点小客人 = 送给她
+      girl.addEventListener('click', function () {
+        if (state.pickedFruit === null) return;
+        resolveF10A(state.pickedFruit, girl);
+      });
+    }
+    askDisplay.appendChild(wrap);
+  }
+
+  /** 题型 C：上方一碗热汤（情境提示，非投放目标），三个餐具在选项栏（点选） */
+  function renderF10Soup(q) {
+    ensureF9Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'f9-serve';
+    wrap.appendChild(f10SceneNode('soup', 'f9-big'));
+    askDisplay.appendChild(wrap);
+  }
+
+  /** 答对后把那件食物摆到小女孩客人的盘子上（下一题重绘自动清掉；只视觉反馈，不播语音） */
+  function f10PlaceOnGirl(food) {
+    var target = askDisplay.querySelector('.f9-serve .f9-card');
+    if (!target) return;
+    target.appendChild(f10SceneNode(food, 'f9-onboy'));
+    var g = target.querySelector('.f9-card');
+    if (g) g.classList.add('f9-glow');
+  }
+
+  function resolveF10A(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'F10A') return;
+    var drop = target && target.dataset ? target.dataset.drop : null;
+    var ok = (drop === 'f10girl') && itemIdx === q.correct;
+    judge(ok, ok ? target : optionEls[itemIdx]);
+  }
+
+  /** 题型 A：听需求配餐（面包 / 牛奶 / 苹果），拖对的食物给小客人 */
+  var F10_A_CASES = [
+    { food: 'bread', key: 'l5w5_a_bread' },
+    { food: 'milk',  key: 'l5w5_a_milk' },
+    { food: 'apple', key: 'l5w5_a_apple' }
+  ];
+  /** 题型 B：三张客人状态（在吃 / 不要了 / 还要更多），找「还要更多」 */
+  var F10_B_STATES = ['eating', 'fullPush', 'more'];
+  /** 题型 C：热汤要勺子（勺子 / 杯子 / 叉子） */
+  var F10_C_UTENSILS = ['spoon', 'cup', 'fork'];
+
+  /** 出题：0 = A 端菜（拖）/ 1 = B 找要更多的客人 / 2 = C 选餐具 */
+  function makeQuestionF10(type, prev) {
+    ensureF9Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var a = F10_A_CASES[randInt(0, F10_A_CASES.length - 1)];
+        var afoods = ['bread', 'milk', 'apple'];
+        shuffle(afoods);
+        q = {
+          type: 'F10A', sig: 'A:' + a.food,
+          subj: a.food, food: a.food,
+          options: afoods.map(function (f) { return { kind: 'f10food', food: f }; }),
+          correct: afoods.indexOf(a.food),
+          audio: [a.key]
+        };
+      } else if (type === 1) {
+        var bs = F10_B_STATES.slice();
+        shuffle(bs);
+        q = {
+          type: 'F10B', sig: 'B:' + bs.join(','),
+          subj: 'more',
+          options: bs.map(function (s) { return { kind: 'f10scene', scene: s }; }),
+          correct: bs.indexOf('more'),
+          audio: ['l5w5_b']
+        };
+      } else {
+        var us = F10_C_UTENSILS.slice();
+        shuffle(us);
+        q = {
+          type: 'F10C', sig: 'C:' + us.join(','),
+          subj: 'spoon', utensil: 'spoon',
+          options: us.map(function (u) { return { kind: 'f10utensil', utensil: u }; }),
+          correct: us.indexOf('spoon'),
+          audio: ['l5w5_c']
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* 教学（custom 分支）：延长版综合复习，24 环节，收尾仍走 tutFinish() */
+  var runF10Tutorial = (function () {
+    function blank(me) {
+      me.ask = null;
+      me.selected = null;
+      me.hintTarget = null;
+      me.hintFrom = null;
+      me.hintTo = null;
+      me.hintToY = 0.5;
+      me.replay = null;
+      clearHint();
+    }
+    function stage(me) {
+      blank(me);
+      askDisplay.innerHTML = '';
+      ensureF9Css();
+      var w = document.createElement('div');
+      w.className = 'f9-stage';
+      askDisplay.appendChild(w);
+      return w;
+    }
+    /** 演示：一张大卡 */
+    function demoCard(me, key) {
+      var wrap = stage(me);
+      var card = f10SceneNode(key, 'f9-big');
+      wrap.appendChild(card);
+      return card;
+    }
+    /** 互动：二 / 三选一，点对推进，点错只抖 + again，4 秒不动出小手指（RULES §二.12） */
+    function askCards(me, act, i) {
+      var wrap = stage(me);
+      var grid = document.createElement('div');
+      grid.className = 'f9-grid';
+      grid.dataset.n = String(act.set.length);
+      wrap.appendChild(grid);
+
+      var order = shuffle(act.set.slice());
+      var tiles = {};
+      order.forEach(function (key, idx) {
+        var t = document.createElement('button');
+        t.type = 'button';
+        t.className = 'f9-tile';
+        t.dataset.idx = String(idx);
+        t.dataset.subj = key;
+        t.setAttribute('aria-label', '图片');
+        t.appendChild(f10SceneNode(key));
+        grid.appendChild(t);
+        tiles[key] = t;
+      });
+
+      me.ask = act.ans;
+      me.hintTarget = tiles[act.ans];
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+
+      order.forEach(function (key) {
+        var t = tiles[key];
+        t.addEventListener('click', function () {
+          if (state.tut !== me || !me.ask) return;
+          if (key === me.ask) {
+            clearHint();
+            coin();
+            ting();
+            t.classList.add('right');
+            me.ask = null;
+            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 950);
+          } else {
+            t.classList.add('wrong');
+            setTimeout(function () { t.classList.remove('wrong'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+      });
+    }
+    /** 互动（给客人上菜）：小男孩 + 空盘子在上，三个食物在下；先点食物、再点小客人 = 端给他 */
+    function askGive(me, act, i) {
+      var wrap = stage(me);
+      wrap.dataset.give = String(i);   // 探针区分两张相同的「上菜」场景（仅标记，不影响视觉）
+      var boyWrap = document.createElement('div');
+      boyWrap.className = 'f9-serve';
+      boyWrap.appendChild(f10SceneNode('boyPlate', 'f9-big'));
+      var boy = boyWrap.querySelector('.f9-card');
+      if (boy) {
+        boy.setAttribute('aria-label', '小客人');
+        boy.addEventListener('click', function () { tryDeliver(); });
+      }
+      wrap.appendChild(boyWrap);
+
+      var row = document.createElement('div');
+      row.className = 'f9-give-row';
+      wrap.appendChild(row);
+      var foods = ['apple', 'bread', 'milk'];
+      shuffle(foods);
+      var chips = {};
+      foods.forEach(function (f) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'f9-chip';
+        b.dataset.food = f;
+        b.setAttribute('aria-label', '食物');
+        b.appendChild(f10SceneNode(f));
+        row.appendChild(b);
+        chips[f] = b;
+      });
+
+      me.ask = act.ans;
+      me.selected = null;
+      me.hintTarget = chips[act.ans];
+      me.replay = function () { say([act.word]); };
+      say([act.word]);
+      armHint();
+
+      foods.forEach(function (f) {
+        chips[f].addEventListener('click', function () {
+          if (state.tut !== me || me.ask === null) return;
+          me.selected = f;
+          foods.forEach(function (g) { chips[g].classList.toggle('picked', g === f); });
+          me.hintTarget = boy;   // 选中后把小手指指向小客人
+          armHint();
+        });
+      });
+
+      function tryDeliver() {
+        if (state.tut !== me || me.ask === null) return;
+        if (me.selected === act.ans) {
+          clearHint();
+          coin();
+          ting();
+          say(['l5w5_t_here1']);   // 教学「端对」后播 Here you are（教学语音，非答题反馈，RULES §1.6）
+          if (boy) boy.classList.add('f9-glow');
+          me.ask = null;
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1600);
+        } else {
+          say(['again']);   // 选错食物（或还没选）就端：温柔提醒，不推进
+          armHint();
+        }
+      }
+    }
+
+    var ACTS = [
+      // ① 欢迎客人（开场，只演示）
+      { type: 'demo', word: 'l5w5_t_welcome', key: 'door' },
+      // ② 肚子饿 + 想要（hungry / I want）2 演示 + 2 互动
+      { type: 'demo', word: 'l5w5_t_hungry1', key: 'hungry' },
+      { type: 'demo', word: 'l5w5_t_hungry2', key: 'pointApple' },
+      { type: 'ask',  word: 'l5w5_t_hungry_a1', set: ['hungry', 'full'], ans: 'hungry' },
+      { type: 'ask',  word: 'l5w5_t_hungry_a2', set: ['hungry', 'full', 'eating'], ans: 'hungry' },
+      // ③ 端上食物（Here you are）2 演示 + 2 互动（上菜给小男孩）
+      { type: 'demo', word: 'l5w5_t_here1', key: 'giveApple' },
+      { type: 'demo', word: 'l5w5_t_here2', key: 'serve' },
+      { type: 'give', word: 'l5w5_t_here_a1', ans: 'apple' },
+      { type: 'give', word: 'l5w5_t_here_a2', ans: 'bread' },
+      // ④ 礼貌回应（Thank you）2 演示 + 2 互动
+      { type: 'demo', word: 'l5w5_t_thanks1', key: 'thank' },
+      { type: 'demo', word: 'l5w5_t_thanks2', key: 'girlHappy' },
+      { type: 'ask',  word: 'l5w5_t_thanks_a1', set: ['thank', 'crying'], ans: 'thank' },
+      { type: 'ask',  word: 'l5w5_t_thanks_a2', set: ['thank', 'eating', 'sleeping'], ans: 'thank' },
+      // ⑤ 吃饱 & 听懂拒绝（All done / doesn't want more）2 演示 + 2 互动
+      { type: 'demo', word: 'l5w5_t_full1', key: 'full' },
+      { type: 'demo', word: 'l5w5_t_full2', key: 'fullPush' },
+      { type: 'ask',  word: 'l5w5_t_full_a1', set: ['fullPush', 'more'], ans: 'fullPush' },
+      { type: 'ask',  word: 'l5w5_t_full_a2', set: ['more', 'fullPush', 'hungry'], ans: 'fullPush' },
+      // ⑥ 听懂「还要更多」（More, please）——给题型 B 铺垫：1 演示 + 1 互动
+      { type: 'demo', word: 'l5w5_t_more1', key: 'more' },
+      { type: 'ask',  word: 'l5w5_t_more_a1', set: ['more', 'fullPush'], ans: 'more' },
+      // ⑦ 餐具（spoon / cup / fork）——给题型 C 铺垫：2 演示 + 2 互动
+      { type: 'demo', word: 'l5w5_t_utensil1', key: 'soup' },
+      { type: 'demo', word: 'l5w5_t_utensil2', key: 'scSpoon' },
+      { type: 'ask',  word: 'l5w5_t_utensil_a1', set: ['spoon', 'fork'], ans: 'spoon' },
+      { type: 'ask',  word: 'l5w5_t_utensil_a2', set: ['spoon', 'cup', 'fork'], ans: 'spoon' },
+      // ⑧ 组合收尾（过渡语自带，不再叠 t_ready）
+      { type: 'outro', word: 'l5w5_t_out' }
+    ];
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+
+      if (act.type === 'outro') {
+        var wrap = stage(me);
+        var grid = document.createElement('div');
+        grid.className = 'f9-grid f9-final';
+        grid.dataset.n = '4';
+        wrap.appendChild(grid);
+        var cards = [];
+        ['serve', 'girlHappy', 'more', 'full'].forEach(function (f) {
+          var c = f10SceneNode(f);
+          grid.appendChild(c);
+          cards.push(c);
+        });
+        cards.forEach(function (c) { c.classList.add('f9-glow'); });
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          tutFinish(me, false);
+        });
+        return;
+      }
+
+      if (act.type === 'demo') {
+        var card = demoCard(me, act.key);
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          card.classList.add('f9-glow');
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
+        });
+        return;
+      }
+
+      if (act.type === 'give') { askGive(me, act, i); return; }
+      askCards(me, act, i);
+    }
+
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
     function stage(me) {
@@ -12138,6 +12571,11 @@
     if (q.type === 'F8C') { renderF8Boxes(q); return; }
     if (q.type === 'F9A' || q.type === 'F9C') { optionsBar.classList.add('gone'); return; }
     if (q.type === 'F9B') { renderF9Serve(q); return; }
+
+    /* ---- 第 5 岛第 5 关：上菜终极挑战（A 拖菜给小客人，B 客人状态宫格，C 热汤 + 餐具） ---- */
+    if (q.type === 'F10B') { optionsBar.classList.add('gone'); return; }
+    if (q.type === 'F10A') { renderF10Serve(q); return; }
+    if (q.type === 'F10C') { renderF10Soup(q); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -12499,6 +12937,7 @@
     if (q.type === 'F7A' || q.type === 'F7B') { renderF7Grid(q); return; }
     if (q.type === 'F8A') { renderF8Grid(q); return; }
     if (q.type === 'F9A' || q.type === 'F9C') { renderF9Grid(q); return; }
+    if (q.type === 'F10B') { renderF10Grid(q); return; }
     optionEls.forEach(function (btn, i) {
       removeDecor(btn);
       btn.className = 'option';
@@ -12701,6 +13140,18 @@
         // 第 5 岛第 4 关题型 B：可拖给小客人的食物
         btn.classList.add('f9-opt');
         slot.appendChild(f9SceneNode(opt.food));
+      } else if (opt.kind === 'f10food') {
+        // 第 5 岛第 5 关题型 A：可端给小女孩客人的食物
+        btn.classList.add('f10-opt');
+        slot.appendChild(f10SceneNode(opt.food));
+      } else if (opt.kind === 'f10scene') {
+        // 第 5 岛第 5 关题型 B：客人状态（在吃 / 不要了 / 还要更多）
+        btn.classList.add('f10-opt');
+        slot.appendChild(f10SceneNode(opt.scene));
+      } else if (opt.kind === 'f10utensil') {
+        // 第 5 岛第 5 关题型 C：餐具（勺子 / 杯子 / 叉子）
+        btn.classList.add('f10-opt');
+        slot.appendChild(f10SceneNode(opt.utensil));
       } else if (opt.kind === 'f6food') {
         // 第 5 岛第 1 关题型 C：可拖到盘子上的食物
         btn.classList.add('f6-opt');
@@ -12803,6 +13254,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'F9B') {
         // 第 5 岛第 4 关题型 B：食物可拖给小客人
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'F10A') {
+        // 第 5 岛第 5 关题型 A：食物可端给小女孩客人
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -12951,6 +13407,7 @@
       // 第 5 岛第 3 关题型 C：食物当场被放进框里（视觉反馈，仍然不播语音）
       if (q.type === 'F8C') f8PlaceInBox(q.food, q.box);
       if (q.type === 'F9B') f9PlaceOnBoy(q.food);
+      if (q.type === 'F10A') f10PlaceOnGirl(q.food);
 
       // 必须先捕获索引：430ms 后 state.roundIndex 会自增，
       // 动画回调若晚于推进执行就会点亮错位/丢失（第 12 轮尤其明显）
@@ -13140,6 +13597,8 @@
         resolveF8C(d.idx, target);
       } else if (d.mode === 'F9B') {
         resolveF9B(d.idx, target);
+      } else if (d.mode === 'F10A') {
+        resolveF10A(d.idx, target);
       } else if (d.mode === 'F6C') {
         resolveF6C(d.idx, target);
       } else if (d.mode === 'TUT') {
@@ -14039,6 +14498,13 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '5-5': {
+      // 上菜终极挑战（结业关，RULES §三.9）：全岛语言点综合复习，24 环节延长版
+      custom: runF10Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -14264,7 +14730,7 @@
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
         q.type === 'F1C' || q.type === 'F2C' || q.type === 'F3C' ||
         q.type === 'F4C' ||         q.type === 'F6C' || q.type === 'F7C' ||
-        q.type === 'F8C' || q.type === 'F9B') return q.type;
+        q.type === 'F8C' || q.type === 'F9B' || q.type === 'F10A') return q.type;
     return null;
   }
 
@@ -14587,6 +15053,12 @@
         return;
       }
 
+      // 第 5 岛第 5 关题型 A：点食物选中，再点小女孩客人「端给她」
+      if (q.type === 'F10A') {
+        tapFruit(idx, btn);
+        return;
+      }
+
       // 第 5 关题型 B：先点水果选中，再点篮子投放
       if (q.type === 'W5B') {
         if (state.pickedFruit === null) return;
@@ -14890,6 +15362,9 @@
             if (o.kind === 'f8food') return 'f:' + o.food;
             if (o.kind === 'f9scene') return 's:' + o.scene;
             if (o.kind === 'f9food') return 'f:' + o.food;
+            if (o.kind === 'f10scene') return 's:' + o.scene;
+            if (o.kind === 'f10food') return 'f:' + o.food;
+            if (o.kind === 'f10utensil') return 'u:' + o.utensil;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
             if (o.color) return o.color.id;

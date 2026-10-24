@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**570** 条（英文 564 + 中文 6）
+总条目：**599** 条（英文 593 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -550,24 +550,53 @@
 | `l5w3_c_milk` | en | Put the milk in the happy box. | 已存在 |
 | `l5w3_c_lemon` | en | Put the lemon in the sad box. | 已存在 |
 | `l5w3_c_lemon2` | en | He doesn't like the lemon. Put it in the sad box. | 已存在 |
-| `l5w4_t_hungry1` | en | I am hungry! My tummy is rumbling. | 待生成 |
-| `l5w4_t_hungry2` | en | The boy is hungry. He wants to eat. | 待生成 |
-| `l5w4_t_hungry_a1` | en | Who is hungry? Find the hungry boy. | 待生成 |
-| `l5w4_t_hungry_a2` | en | Which boy is hungry? Find him. | 待生成 |
-| `l5w4_t_want1` | en | I want an apple. | 待生成 |
-| `l5w4_t_here1` | en | Here you are! | 待生成 |
-| `l5w4_t_here_a1` | en | The boy wants an apple. Give it to him. | 待生成 |
-| `l5w4_t_here_a2` | en | Give the apple to the boy. | 待生成 |
-| `l5w4_t_thanks1` | en | The boy says: Thank you! | 待生成 |
-| `l5w4_t_thanks2` | en | The waiter gives food. Thank you! | 待生成 |
-| `l5w4_t_thanks_a1` | en | Find the picture: Here you are. | 待生成 |
-| `l5w4_t_thanks_a2` | en | Who is giving food? Find Here you are. | 待生成 |
-| `l5w4_t_out` | en | You are ready! Let's go to the restaurant! | 待生成 |
-| `l5w4_a` | en | Find the hungry boy. | 待生成 |
-| `l5w4_b_bread` | en | I am hungry. I want some bread. Give it to him. | 待生成 |
-| `l5w4_b_milk` | en | I am hungry. I want some milk. Give it to him. | 待生成 |
-| `l5w4_b_apple` | en | I am hungry. I want an apple. Give it to him. | 待生成 |
-| `l5w4_c` | en | 'Here you are' and 'Thank you'. | 待生成 |
+| `l5w4_t_hungry1` | en | I am hungry! My tummy is rumbling. | 已存在 |
+| `l5w4_t_hungry2` | en | The boy is hungry. He wants to eat. | 已存在 |
+| `l5w4_t_hungry_a1` | en | Who is hungry? Find the hungry boy. | 已存在 |
+| `l5w4_t_hungry_a2` | en | Which boy is hungry? Find him. | 已存在 |
+| `l5w4_t_want1` | en | I want an apple. | 已存在 |
+| `l5w4_t_here1` | en | Here you are! | 已存在 |
+| `l5w4_t_here_a1` | en | The boy wants an apple. Give it to him. | 已存在 |
+| `l5w4_t_here_a2` | en | Give the apple to the boy. | 已存在 |
+| `l5w4_t_thanks1` | en | The boy says: Thank you! | 已存在 |
+| `l5w4_t_thanks2` | en | The waiter gives food. Thank you! | 已存在 |
+| `l5w4_t_thanks_a1` | en | Find the picture: Here you are. | 已存在 |
+| `l5w4_t_thanks_a2` | en | Who is giving food? Find Here you are. | 已存在 |
+| `l5w4_t_out` | en | You are ready! Let's go to the restaurant! | 已存在 |
+| `l5w4_a` | en | Find the hungry boy. | 已存在 |
+| `l5w4_b_bread` | en | I am hungry. I want some bread. Give it to him. | 已存在 |
+| `l5w4_b_milk` | en | I am hungry. I want some milk. Give it to him. | 已存在 |
+| `l5w4_b_apple` | en | I am hungry. I want an apple. Give it to him. | 已存在 |
+| `l5w4_c` | en | 'Here you are' and 'Thank you'. | 已存在 |
+| `l5w5_t_welcome` | en | Welcome to the restaurant! Let's serve the food. | 已存在 |
+| `l5w5_t_hungry1` | en | Look! The boy is hungry. | 已存在 |
+| `l5w5_t_hungry2` | en | He wants an apple. | 已存在 |
+| `l5w5_t_hungry_a1` | en | Who is hungry? Point to him. | 已存在 |
+| `l5w5_t_hungry_a2` | en | Find the boy who is hungry. | 已存在 |
+| `l5w5_t_here1` | en | Here you are. An apple for you. | 已存在 |
+| `l5w5_t_here2` | en | Here you are. Your food is ready. | 已存在 |
+| `l5w5_t_here_a1` | en | Give the apple to the boy. Put it on the table. | 已存在 |
+| `l5w5_t_here_a2` | en | Give the bread to the boy. | 已存在 |
+| `l5w5_t_thanks1` | en | Yum! The boy says thank you. | 已存在 |
+| `l5w5_t_thanks2` | en | She is so happy. Thank you! | 已存在 |
+| `l5w5_t_thanks_a1` | en | Find the happy boy. | 已存在 |
+| `l5w5_t_thanks_a2` | en | Who says thank you? | 已存在 |
+| `l5w5_t_full1` | en | Look! The boy is all done. He is full. | 已存在 |
+| `l5w5_t_full2` | en | He doesn't want more. All done! | 已存在 |
+| `l5w5_t_full_a1` | en | Who doesn't want more? | 已存在 |
+| `l5w5_t_full_a2` | en | Which boy is all done? Point to him. | 已存在 |
+| `l5w5_t_more1` | en | More, please! | 已存在 |
+| `l5w5_t_more_a1` | en | Who wants more? | 已存在 |
+| `l5w5_t_utensil1` | en | The soup is hot. We need a spoon. | 已存在 |
+| `l5w5_t_utensil2` | en | Look! The spoon is in the bowl. | 已存在 |
+| `l5w5_t_utensil_a1` | en | Point to the spoon. | 已存在 |
+| `l5w5_t_utensil_a2` | en | What do we eat with? | 已存在 |
+| `l5w5_t_out` | en | You are a great waiter! Let's play the real game! | 已存在 |
+| `l5w5_a_bread` | en | The girl is hungry. She wants some bread. | 已存在 |
+| `l5w5_a_milk` | en | The girl is hungry. She wants some milk. | 已存在 |
+| `l5w5_a_apple` | en | The girl is hungry. She wants an apple. | 已存在 |
+| `l5w5_b` | en | Find the one who wants more. | 已存在 |
+| `l5w5_c` | en | The soup is hot. What do we need? | 已存在 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

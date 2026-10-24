@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-24（第 5 岛第 4 关「餐厅点餐」上线；四个句型各 2 演示 + 2 互动、语音 570 条）
+> 最后更新：2026-10-24（第 5 岛第 5 关「上菜终极挑战」上线，第 5 岛收官；语音 599 条）
 
 ---
 
@@ -14,7 +14,7 @@
 | 线上地址 | https://lipinglabs.github.io/lilearn-english/ |
 | 仓库 | `lipinglabs/lilearn-english`（**public**） |
 | 技术形态 | 纯静态：单页 HTML + 两个数据脚本 + Service Worker。**无构建、无框架、无后端、无 npm 依赖** |
-| 内容规模 | 12 岛 × 5 关框架；已做第 1–4 岛全部 + 第 5 岛第 1–4 关 |
+| 内容规模 | 12 岛 × 5 关框架；已做第 1–4 岛全部 + 第 5 岛全部（第 5 岛收官） |
 | 部署 | GitHub Pages（源 `main` 分支根目录 `/`，legacy 构建），推送即自动重建 |
 
 ---
@@ -63,8 +63,8 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   600,424 B / 14,312 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  17,142,714 B /  5,146 行   ← window.VOICE_BANK，570 条 base64 mp3
+index.html   633,184 B / 15,392 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  18,020,122 B /  5,410 行   ← window.VOICE_BANK，599 条 base64 mp3
 assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
 ```
 
@@ -122,11 +122,11 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `sw.js` | PWA Service Worker（Android 全屏必需 + 离线可玩） |
 | `manifest.json`、`icons/` | PWA 清单与图标（192/512/maskable/apple-touch-180） |
 | `assets/{fruit,color,animal,food}/*.png` | 3D 图标源图（Fluent Emoji 3D，MIT），构建期内联；`food/` 只有 bread / egg / rice（牛奶是手写 SVG）。**第 5 岛第 2 关一件 PNG 都没加**——餐具的 Fluent 素材全是复合图，整组改手写 SVG |
-| `voice/*.mp3` | 语音源文件 552 个（`manifest.md` 为目标清单） |
+| `voice/*.mp3` | 语音源文件 599 个（`manifest.md` 为目标清单） |
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_food.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的八个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**） |
+| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的九个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**） |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
@@ -268,6 +268,14 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   **第 5 岛 W4「餐厅点餐」**（I am hungry / I want... / Here you are / Thank you：
   4 个句型各 2 演示 + 2 互动、答题 A 听音找客人状态（饿了 / 饱了 / 在吃）/ B 听需求把食物拖给小客人 /
   C 听对话选场景（递苹果 / 哭 / 睡），全部人物与食物为手写 SVG，零新增 PNG、零生图）。
+  **第 5 岛 W5「上菜终极挑战」**（结业关，RULES §三.9：全岛语言点综合复习，只考不教新词）：
+  沉浸式角色扮演「你是小服务员，去给客人上菜」，教学 24 环节延长版复习（欢迎客人 + 肚子饿/想要 2演2互 +
+  端上菜 2演2互 + 礼貌回应 2演2互 + 吃饱/听懂拒绝 2演2互 + 还要更多 1演1互 + 餐具 2演2互 + 过渡语，充分玩透）；
+  答题 12 轮（4/4/4）三种组合题型：A 听需求把食物端给小女孩客人（真拖拽 + 点选等价）/
+  B 听对话找「还要更多」的客人（三态：在吃 / 不要了 / 还要更多）/ C 听场景选餐具（热汤要勺子，勺子/杯子/叉子三选一）；
+  通关走 finish() 的 grand 模式（大彩带 + 奖杯 + 第 5 岛小旗），地图上第 5 岛全亮、解锁第 6 岛。
+  全部手写 SVG：复用第 2 关餐具（F7_SOUP / F7_SPOON / F7_CUP / F7_FORK）、第 3/4 关小男孩姿态（F8_* / F9_*），
+  仅新画「小女孩客人」（A 字裙 + 双辫，与小男孩同一套轮廓 / 描边 / 肤色）与「餐厅门」两张，零新增 PNG、零生图。
   `ANIMAL_IMG` 现为 14 张、`FOOD_IMG` 3 张，全部由 `tools/make_animals.py` / `make_food.py`
   从 Fluent 3D Emoji 下载缩放，**没有调用过任何生图接口**；
   手写内联 SVG 的部分：W3 的小男孩 / W5 的跳跃小人（跑 / 走 / 跳 / 睡四姿态）、W4 的 7 张场景背景
@@ -277,8 +285,8 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   推开盘子，同一套肤色 / 发型 / 描边 / 腮红，只换姿态与道具）（肢体用 CSS `transform-box:view-box` 摆动，睡姿的「Z」与相机 / 放大镜也都是 path，
   页面里没有任何 emoji 字符充当图形）；第 5 岛第 4 关**餐厅点餐的小男孩 / 服务员姿态与法式面包**也全部手写 SVG——
   小男孩沿用第 3 关的同一套零件（`f8Body` / `f8Head` / `f8Apple` / `f8Cup`），服务员只换马甲 + 服务帽，
-  F9_BREAD 新画一条法式面包，饥饿 / 吃饱 / 在吃 / 在哭 / 在睡五态齐全，同样无任何 emoji 字符充当图形）。
-- **未完成**：第 5 岛 W5；第 6–12 岛（第 5 岛 W4 已上线，W5 内容未做）。
+  F9_BREAD 新画一条法式面包，饥饿 / 吃饱 / 在吃 / 在哭 / 在睡五态齐全；第 5 岛第 5 关只新画「小女孩客人 / 餐厅门」两张、其余全复用，同样无任何 emoji 字符充当图形）。
+- **未完成**：第 6–12 岛（第 5 岛「食物与饮料」5 关已全部收官）。
 - **第 5 岛主题**：`ISLANDS[4]` 为**「食物与饮料」**，地图图标用 3D 面包 PNG；
   **原「交通工具」后移到第 6 岛**（`ISLANDS[5]`，仍是 emoji 字符兜底，做那一岛时要换成 3D 素材）。
 - **第 4 岛主题**：`ISLANDS[3]` 为**「动物与动作」**，地图图标为 3D 狮子 PNG
