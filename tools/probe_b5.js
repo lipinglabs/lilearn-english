@@ -113,7 +113,7 @@ const finish = code => {
 
   await send('Page.navigate', { url: URL_ }, sessionId);
   const boot = async () => {
-    for (let i = 0; i < 600; i++) {
+    for (let i = 0; i < 1400; i++) {   // 线上 22.8MB voice.js 冷加载可能很慢，给足 210s
       const r = await send('Runtime.evaluate', { expression: 'typeof window.Game !== "undefined"', returnByValue: true }, sessionId);
       if (r.result.value) break;
       await sleep(150);
