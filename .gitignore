@@ -90,11 +90,13 @@ f13-*.png
 f13d-*.png
 f13live-*.png
 f13lived-*.png
+f14*.png
 rf*-*.png
 b3-*.png
 
 # 探针脚本输出（不入库）
 tools/probe_f9.out
+tools/probe_f14_out*.txt
 
 # 一次性补丁脚本（改完即弃，不入库）
 tools/_*.js

@@ -947,6 +947,47 @@ add("l6w3_b_in_box", "The ball is in the box. Find the picture.", "en", -10, EN_
 add("l6w3_c_on_sofa", "Put the ball on the sofa.", "en", -10, EN_ASK)
 add("l6w3_c_under_table", "Put the ball under the table.", "en", -10, EN_ASK)
 
+# ---- 第 6 岛第 4 关：听指令做家务（Put the [物品] on/in/under the [家具]） ----
+# 本关是长句复合方位指令，语速统一收到 -15（speech_rate=-15 ≈ 0.85x，让孩子听清每个词）。
+# 清单自检（RULES §1.8）：与既有条目去重——同一句话复用同一 key（RULES §1.12）：
+#   · "Put the ball under the table." 已存在于 l6w3_c_under_table（F13 题型 C，rate -10），本关多处复用它；
+#   · "Put the book on the table." 已存在于 pt_book（旧关），本关复用；
+#   · 教学互动的短指令 "Put the book on the bed." / "Put the toy in the box." 直接复用本关答题键 l6w4_a_book_bed / l6w4_a_toy_box；
+#   · 题型 C 第 4 组（先放书到床、再放玩具进箱）复用 l6w4_c1_s1 + l6w4_c3_s2，不再新建。
+# 构成（共 17 条新生成 + 若干复用）：
+#   教学 10 环节：书放床上（2 演示 + 1 互动）、玩具进箱子（2 演示 + 1 互动）、球滚桌下（2 演示 + 1 综合互动）、过渡。
+#   题型 A 4 条：单指令拖拽（Put the <item> <prep> the <furn>.）。
+#   题型 B 3 条：听句找图（The <item> is <prep> the <furn>. Find the picture.）。
+#   题型 C 多步指令（First,... Then,...）；实际生成 6 条新句（c1~c3 的两步），第 4 组复用 c1/c3。
+# 注：物品 = book / toy / ball；家具 = bed / table / box；方位 = on / in / under。
+add("l6w4_t_book1", "Look! A book. We need to put the book on the bed.", "en", -15, EN_ASK)
+add("l6w4_t_book2", "Put the book on the bed. Great!", "en", -15, EN_ASK)
+add("l6w4_t_toy1", "Look! A box and a toy. Put the toy in the box.", "en", -15, EN_ASK)
+add("l6w4_t_toy2", "Put the toy in the box. Perfect!", "en", -15, EN_ASK)
+add("l6w4_t_ball1", "Look! A table and a ball. Put the ball under the table.", "en", -15, EN_ASK)
+add("l6w4_t_ball2", "Watch! The ball rolls under the table.", "en", -15, EN_ASK)
+add("l6w4_t_out", "You are a great helper! Let's play!", "en", -12, EN_PRAISE)
+
+# 题型 A：单指令拖拽（拖正确物品到正确家具）
+add("l6w4_a_book_bed", "Put the book on the bed.", "en", -15, EN_ASK)
+add("l6w4_a_toy_box", "Put the toy in the box.", "en", -15, EN_ASK)
+#   · "Put the book on the table." 复用 pt_book；"Put the ball under the table." 复用 l6w3_c_under_table（见下）
+
+# 题型 B：听句找图（三张复合场景：书在床上 / 球在桌下 / 玩具在箱子里）
+add("l6w4_b_bookbed", "The book is on the bed. Find the picture.", "en", -15, EN_ASK)
+add("l6w4_b_balltable", "The ball is under the table. Find the picture.", "en", -15, EN_ASK)
+add("l6w4_b_toybox", "The toy is in the box. Find the picture.", "en", -15, EN_ASK)
+
+# 题型 C：多步指令（先放 X 到 Y，再放 X 到 Y）
+add("l6w4_c1_s1", "First, put the book on the bed.", "en", -15, EN_ASK)
+add("l6w4_c1_s2", "Then, put the ball under the table.", "en", -15, EN_ASK)
+add("l6w4_c2_s1", "First, put the toy in the box.", "en", -15, EN_ASK)
+add("l6w4_c2_s2", "Then, put the book on the table.", "en", -15, EN_ASK)
+add("l6w4_c3_s1", "First, put the ball under the table.", "en", -15, EN_ASK)
+add("l6w4_c3_s2", "Then, put the toy in the box.", "en", -15, EN_ASK)
+#   · 题型 C 第 4 组（书到床→玩具进箱）复用 l6w4_c1_s1 + l6w4_c3_s2
+#   · "Put the ball under the table."（C 的 Then / 演示 / 答题 A）统一复用 l6w3_c_under_table
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

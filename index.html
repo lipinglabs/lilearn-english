@@ -3693,7 +3693,7 @@
     btnBack.hidden = name === 'map';
     starsBox.hidden = name !== 'level';
     optionsBar.classList.toggle('gone', name !== 'level');
-    if (name !== 'level') { optionsBar.classList.add('off'); stop(); tutCancelTap(); clearHint(); }
+    if (name !== 'level') { optionsBar.classList.add('off'); stop(); clearHint(); }
   }
 
   /* ---------------- 地图 ---------------- */
@@ -3804,7 +3804,8 @@
     '5-5': { numbers: null,       make: 'makeF10', title: '第 5 关', tutorial: true },
     '6-1': { numbers: null,       make: 'makeF11', title: '第 1 关', tutorial: true },
     '6-2': { numbers: null,       make: 'makeF12', title: '第 2 关', tutorial: true },
-    '6-3': { numbers: null,       make: 'makeF13', title: '第 3 关', tutorial: true }
+    '6-3': { numbers: null,       make: 'makeF13', title: '第 3 关', tutorial: true },
+    '6-4': { numbers: null,       make: 'makeF14', title: '第 4 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3968,6 +3969,7 @@
     if (def && def.make === 'makeF11') return makeQuestionF11(typeIdx, prev);
     if (def && def.make === 'makeF12') return makeQuestionF12(typeIdx, prev);
     if (def && def.make === 'makeF13') return makeQuestionF13(typeIdx, prev);
+    if (def && def.make === 'makeF14') return makeQuestionF14(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -5506,15 +5508,17 @@
       say(['cb_listen'], function () {
         if (state.tut !== me) return;
         stage.classList.add('ring-on');
-        tutAwaitTap(me, function () {
+        setTimeout(function () {
+          if (state.tut !== me) return;
           stage.dataset.pos = 'on';
-          tutAwaitTap(me, function () {
+          setTimeout(function () {
+            if (state.tut !== me) return;
             say(['cb_star_on_circle'], function () {
               if (state.tut !== me) return;
               askStep(me);
             });
-          });
-        });
+          }, 1000);
+        }, 760);
       });
     };
   })();
@@ -6990,7 +6994,7 @@
           var hiEl = null;
           built.entries.forEach(function (e) { if (e.key === act.hi) hiEl = e; });
           if (hiEl) hiEl.el.classList.add('b5-glow');
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
         });
         return;
       }
@@ -7295,7 +7299,7 @@
           var hiEl = null;
           built.entries.forEach(function (e) { if (e.key === act.hi) hiEl = e; });
           if (hiEl) hiEl.el.classList.add('f1-glow');
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
         });
         return;
       }
@@ -7797,7 +7801,7 @@
           var hiEl = null;
           built.entries.forEach(function (e) { if (e.key === act.hi) hiEl = e; });
           if (hiEl) hiEl.el.classList.add('f2-glow');
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
         });
         return;
       }
@@ -8426,7 +8430,7 @@
           var hiEl = null;
           built.entries.forEach(function (e) { if (e.key === act.hi) hiEl = e; });
           if (hiEl) hiEl.el.classList.add('f3-glow');
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
         });
         return;
       }
@@ -9030,7 +9034,7 @@
           built.entries.forEach(function (e) {
             if (!act.hi || e.key === act.hi) e.el.classList.add('f4-glow');
           });
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
         });
         return;
       }
@@ -9046,7 +9050,7 @@
           say([act.word], function () {
             if (state.tut !== me) return;
             if (rightBtn) rightBtn.classList.add('f4-yn-right', 'f4-glow');
-            tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+            setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1800);
           });
           return;
         }
@@ -9559,7 +9563,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           built.cam.classList.add('f5-cam-hot');
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1800);
         });
         return;
       }
@@ -9572,7 +9576,7 @@
           built.entries.forEach(function (e) {
             if (!act.hi || e.key === act.hi) e.el.classList.add('f4-glow');
           });
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
         });
         return;
       }
@@ -10122,7 +10126,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           card.classList.add('f6-glow');
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
         });
         return;
       }
@@ -10695,7 +10699,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           card.classList.add('f7-glow');
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
         });
         return;
       }
@@ -11370,7 +11374,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           card.classList.add('f8-glow');
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
         });
         return;
       }
@@ -11938,7 +11942,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           card.classList.add('f9-glow');
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
         });
         return;
       }
@@ -12369,7 +12373,7 @@
         say([act.word], function () {
           if (state.tut !== me) return;
           card.classList.add('f9-glow');
-          tutAwaitTap(me, function () { if (state.tut === me) playAct(me, i + 1); });
+          setTimeout(function () { if (state.tut === me) playAct(me, i + 1); }, 1500);
         });
         return;
       }
@@ -13622,6 +13626,505 @@
     return api;
   })();
 
+  /* ==================== 第 6 岛第 4 关（L6-W4：听指令做家务 Put the [物品] on/in/under the [家具]） ==================== */
+  /* 核心句型：Put the [物品] on/in/under the [家具]（复合方位短句，长句，语速 -15 ≈ 0.85x）。
+     教学：演示点按推进（RULES §三.14）+ 双倍量（每个核心句 2 演示 + 1 互动，§三.10）+ 4 秒小手（§二.12），共 10 环节。
+     答题 12 轮（4/4/4）：A 单指令拖拽（床/桌子 + 书/玩具，拖正确物品到正确家具）/
+       B 听句找图（书在床上 / 球在桌下 / 玩具在箱子里，点选）/
+       C 多步指令（先放书到床、再放球到桌下，按顺序拖拽）。
+     拖拽热区：目标家具容器（.f14-furn）比视觉 SVG 大一圈（padding 9%），elementFromPoint 命中范围更宽松，
+       拖到床的大致范围即判成功（RULES §三.8 / 用户防坑铁律）。
+     图片：全部手写内联 SVG，复用 F11 沙发/床/桌 与 F13 箱子；新画书 / 玩具熊 / 球（球复用 F13 红球造型）。零新增 PNG、零生图（RULES §二.17）。 */
+
+  // 物品 SVG（viewBox 0 0 100 100，柔和暖色、圆角、浅描边）
+  var F14_BOOK =
+    '<rect x="16" y="30" width="68" height="46" rx="7" fill="#e8453c" stroke="#b62a2a" stroke-width="3.5"/>' +
+    '<rect x="22" y="36" width="56" height="34" rx="4" fill="#fff7ec" stroke="#e7cfa8" stroke-width="2.5"/>' +
+    '<rect x="48" y="36" width="3" height="34" fill="#e7cfa8"/>' +
+    '<path d="M22 30 L22 76 L13 72 L13 26 Z" fill="#b62a2a" stroke="#8f2020" stroke-width="3"/>' +
+    '<circle cx="40" cy="53" r="3.4" fill="#e8453c"/>';
+  var F14_TOY =
+    '<circle cx="33" cy="25" r="9" fill="#9c6534"/>' +
+    '<circle cx="67" cy="25" r="9" fill="#9c6534"/>' +
+    '<circle cx="50" cy="43" r="23" fill="#bd8049"/>' +
+    '<circle cx="50" cy="52" r="13" fill="#eccfa2"/>' +
+    '<circle cx="42" cy="40" r="3" fill="#3a2410"/>' +
+    '<circle cx="58" cy="40" r="3" fill="#3a2410"/>' +
+    '<ellipse cx="50" cy="51" rx="3.2" ry="2.6" fill="#3a2410"/>' +
+    '<path d="M44 57 q6 5 12 0" stroke="#3a2410" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+    '<ellipse cx="50" cy="80" rx="24" ry="20" fill="#bd8049"/>' +
+    '<circle cx="29" cy="78" r="9" fill="#bd8049"/>' +
+    '<circle cx="71" cy="78" r="9" fill="#bd8049"/>' +
+    '<circle cx="40" cy="94" r="8" fill="#bd8049"/>' +
+    '<circle cx="60" cy="94" r="8" fill="#bd8049">';
+  // 球：复用 F13 红球造型，统一 100x100
+  var F14_BALL =
+    '<circle cx="50" cy="50" r="44" fill="#ff4d3d" stroke="#d63a2b" stroke-width="4"/>' +
+    '<path d="M6 38 q44 -22 88 0 q-44 18 -88 0 z" fill="#ffffff" opacity=".9"/>' +
+    '<circle cx="34" cy="30" r="8" fill="#ffffff" opacity=".6"/>';
+  var F14_ITEM_SVG = { book: F14_BOOK, toy: F14_TOY, ball: F14_BALL };
+  // 家具复用 F11 / F13（viewBox 0 0 160 160）
+  var F14_FURN_SVG = { sofa: F11_SOFA, bed: F11_BED, table: F11_TABLE, box: F13_BOX };
+  // 物品在（家具:方位）上的位置（占家具容器百分比）
+  var F14_ITEM_POS = {
+    'bed:on': ['50%', '30%'], 'bed:under': ['50%', '94%'],
+    'table:on': ['50%', '42%'], 'table:under': ['50%', '94%'],
+    'box:in': ['50%', '56%'], 'sofa:on': ['50%', '32%'], 'sofa:under': ['50%', '94%']
+  };
+
+  function f14ItemSvg(item) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 100 100');
+    s.setAttribute('class', 'f14-item-draw');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = F14_ITEM_SVG[item] || '';
+    return s;
+  }
+  function f14FurnSvgNode(furn) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 160 160');
+    s.setAttribute('class', 'f14-furn-draw');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = F14_FURN_SVG[furn] || '';
+    return s;
+  }
+  /** 家具 + 可选物品（放在 on/in/under 指定位置；roll=球滚入桌底的动画；fill=填满父卡） */
+  function f14SceneNode(furn, item, place, roll, fill) {
+    var box = document.createElement('div');
+    box.className = 'f14-furn' + (roll ? ' roll' : '') + (fill ? ' fill' : '');
+    box.dataset.furn = furn;
+    box.setAttribute('aria-label', '家具');
+    box.appendChild(f14FurnSvgNode(furn));
+    if (item) {
+      var it = document.createElement('div');
+      it.className = 'f14-on';
+      var pos = F14_ITEM_POS[furn + ':' + (place || 'on')] || ['50%', '50%'];
+      it.style.left = pos[0]; it.style.top = pos[1];
+      it.appendChild(f14ItemSvg(item));
+      box.appendChild(it);
+    }
+    return box;
+  }
+  /** 静态物品（演示「下方」摆放用） */
+  function f14ItemWrap(item) {
+    var d = document.createElement('div');
+    d.className = 'f14-item-static';
+    d.setAttribute('aria-hidden', 'true');
+    d.appendChild(f14ItemSvg(item));
+    return d;
+  }
+  /** 可拖拽 / 可点选的物品（教学托盘与答题选项栏通用） */
+  function f14ItemBtn(item, idx, draggable) {
+    var b = document.createElement('div');
+    b.className = 'f14-item' + (draggable ? ' draggable' : '');
+    b.dataset.item = item;
+    b.dataset.idx = String(idx);
+    b.setAttribute('aria-label', '物品');
+    b.appendChild(f14ItemSvg(item));
+    if (draggable) b.dataset.drag = 'item';
+    return b;
+  }
+  function f14ItemPos(furn, place) {
+    return F14_ITEM_POS[(furn || '') + ':' + (place || 'on')] || ['50%', '50%'];
+  }
+  /** 答对后把物品摆到对应家具上（视觉反馈 + 吸附感，不播语音） */
+  function f14PlaceOnFurn(furnEl, item, place) {
+    if (!furnEl) return;
+    var it = document.createElement('div');
+    it.className = 'f14-on';
+    var pos = f14ItemPos(furnEl.dataset.drop, place);
+    it.style.left = pos[0]; it.style.top = pos[1];
+    it.appendChild(f14ItemSvg(item));
+    furnEl.appendChild(it);
+    furnEl.classList.add('f9-glow');
+  }
+
+  function ensureF14Css() {
+    ensureF11Css();
+    if (document.getElementById('f14-style')) return;
+    var s = document.createElement('style');
+    s.id = 'f14-style';
+    s.textContent =
+      // 房间：宽度跟随父容器，避免比父级溢出（RULES §三.11）
+      '.f14-room{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;' +
+      'width:100%;max-width:min(94vw,520px);min-height:42vh;margin:1vh auto;box-sizing:border-box;padding:18px 12px 16px;' +
+      'border-radius:28px;background:linear-gradient(180deg,#fff8ec 0%,#fdf0dc 55%,#f4e2c6 100%);' +
+      'border:3px solid #ffe0b8;box-shadow:0 8px 18px rgba(214,164,110,.18)}' +
+      '.f14-furn-row{display:flex;align-items:flex-end;justify-content:center;flex-wrap:wrap;gap:min(3vw,16px)}' +
+      // 家具容器即投放热区：padding 让可命中范围比视觉 SVG 大一圈（防坑铁律）
+      '.f14-furn{position:relative;width:min(31%,150px);aspect-ratio:1/1;box-sizing:border-box;padding:9% 9% 5%;' +
+      'display:flex;align-items:flex-end;justify-content:center}' +
+      '.f14-furn svg{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 4px 6px rgba(150,90,40,.22))}' +
+      '.f14-furn.fill{width:min(82%,182px);padding:6% 6% 3%}' +
+      '.f14-furn.drop-hot{outline:4px dashed #ffb74d;outline-offset:4px;border-radius:18px}' +
+      '.f14-furn.right{filter:drop-shadow(0 0 12px rgba(127,209,138,.95))}' +
+      '.f14-furn.wrong{animation:f9shake .5s}' +
+      '.f14-on{position:absolute;width:44%;transform:translate(-50%,-50%);z-index:5;pointer-events:none;' +
+      'animation:f9drop .38s cubic-bezier(.34,1.56,.64,1)}' +
+      '.f14-on svg{width:100%;height:auto;filter:drop-shadow(0 3px 4px rgba(150,90,40,.4))}' +
+      '.f14-furn.roll .f14-on{animation:f14roll .9s ease-in-out}' +
+      '.f14-beside{display:flex;justify-content:center;align-items:center;gap:min(4vw,18px);margin-top:6px;min-height:64px}' +
+      '.f14-item-static{width:min(24%,88px);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center}' +
+      '.f14-item-static svg{width:90%;height:90%;display:block;filter:drop-shadow(0 4px 6px rgba(150,90,40,.4))}' +
+      // 教学托盘物品（可拖 / 可点选）
+      '.f14-item{position:relative;width:min(26%,96px);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;' +
+      'cursor:pointer;-webkit-tap-highlight-color:transparent}' +
+      '.f14-item svg{width:88%;height:88%;display:block;filter:drop-shadow(0 4px 6px rgba(150,90,40,.4));pointer-events:none}' +
+      '.f14-item.draggable{background:rgba(255,255,255,.55);border-radius:20px;border:2px solid #ffe0b8}' +
+      '.f14-item.dragging{opacity:.3}' +
+      '.f14-item.picked{background:#ffe9c2;border-color:#ffb74d;box-shadow:0 0 0 3px rgba(255,183,77,.4)}' +
+      '.f14-tray{display:flex;justify-content:center;align-items:center;gap:min(5vw,22px);margin-top:10px;' +
+      'width:100%;max-width:min(94vw,520px)}' +
+      // 选项栏里的物品（答题 A/C）
+      '.option.f14-opt .slot{padding:6%}' +
+      '.option.f14-opt .slot svg{width:84%;max-width:104px;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(150,90,40,.42))}' +
+      '.f14-item-draw{display:block}' +
+      '@keyframes f14roll{0%{transform:translate(-50%,-50%) translateX(-34px) rotate(0)}' +
+      '60%{transform:translate(-50%,-50%) translateX(6px) rotate(300deg)}' +
+      '100%{transform:translate(-50%,-50%) translateX(0) rotate(360deg)}}' +
+      // 横屏矮屏：3 件家具必须挤在一行、房间与托盘整体压缩，否则家具换行把托盘顶到视口外（竖屏不受影响）
+      '@media (max-height:560px){' +
+        '.f14-room{min-height:0;padding:8px 10px 6px;gap:4px;margin:4px auto;border-radius:18px}' +
+        '.f14-furn-row{gap:min(2vw,10px);flex-wrap:nowrap}' +
+        '.f14-furn{width:min(29%,140px);padding:6% 6% 3%}' +
+        '.f14-tray{gap:min(3vw,12px);margin-top:4px}' +
+        '.f14-item{width:min(20%,72px)}' +
+        '.f14-beside{min-height:44px;margin-top:2px}' +
+        '.f14-item-static{width:min(16%,60px)}' +
+      '}';
+    document.head.appendChild(s);
+  }
+
+  /** 题型 A：单指令拖拽（家具在房间，物品在选项栏） */
+  function renderF14Room(q) {
+    ensureF14Css();
+    askDisplay.innerHTML = '';
+    var room = document.createElement('div');
+    room.className = 'f14-room';
+    room.setAttribute('aria-label', '房间');
+    var row = document.createElement('div');
+    row.className = 'f14-furn-row';
+    room.appendChild(row);
+    q.furns.forEach(function (furn) {
+      var f = document.createElement('div');
+      f.className = 'f14-furn';
+      f.dataset.drop = furn;
+      f.dataset.subj = furn;
+      f.setAttribute('aria-label', '家具');
+      f.appendChild(f14FurnSvgNode(furn));
+      f.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        if (state.pickedFruit === null) return;
+        resolveF14(state.pickedFruit, f);
+      });
+      row.appendChild(f);
+    });
+    askDisplay.appendChild(room);
+  }
+
+  /** 题型 B：三张复合场景图，点选匹配的那张 */
+  function renderF14Grid(q) {
+    ensureF14Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'f9-grid';
+    grid.dataset.n = String(q.options.length);
+    grid.setAttribute('aria-label', '图片');
+    q.options.forEach(function (opt, i) {
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'f9-tile';
+      tile.dataset.idx = String(i);
+      tile.dataset.subj = opt.target;
+      tile.setAttribute('aria-label', '图片');
+      var card = document.createElement('div');
+      card.className = 'f9-card f9-draw-card';
+      card.dataset.subj = opt.target;
+      card.appendChild(f14SceneNode(opt.furn, opt.item, opt.place, false, true));
+      tile.appendChild(card);
+      tile.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(tile.dataset.idx) === state.question.correct, tile);
+      });
+      grid.appendChild(tile);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 统一判定（答题 / 教学共用）：物品 + 目标家具都要对；多步按顺序 */
+  function resolveF14(itemIdx, target, tutMe) {
+    var q, furn, itemName;
+    if (tutMe) {
+      q = tutMe._q;
+      // 教学交互里 target 可能是 DOM 元素（拖拽落点 / 家具点击），也可能是字符串（tutPickF14 家具分支）。
+      // 统一取 data-drop 字符串，避免元素与 step.target 字符串恒不相等导致答对判不过。
+      furn = (typeof target === 'string') ? target : (target && target.dataset ? target.dataset.drop : null);
+      itemName = q.options[itemIdx] ? q.options[itemIdx].item : null;
+    } else {
+      q = state.question;
+      furn = (typeof target === 'string') ? target : (target && target.dataset ? target.dataset.drop : null);
+      itemName = q.options[itemIdx] ? q.options[itemIdx].item : null;
+    }
+    if (!q || !itemName || !furn) return;
+    var step = q.steps[q.stepsDone];
+    if (!step) return;
+    var ok = (itemName === step.item) && (furn === step.target);
+    if (ok) {
+      var furnEl = (typeof target === 'string')
+        ? askDisplay.querySelector('.f14-furn[data-drop="' + target + '"]')
+        : target;
+      if (furnEl) f14PlaceOnFurn(furnEl, itemName, step.place);
+      q.stepsDone += 1;
+      coin(); ting(); clearHint();
+      state.pickedFruit = null; clearPicked();
+      if (tutMe) {
+        tutMe.canDrag = false;
+        if (q.stepsDone < q.steps.length) {
+          if (q.stepAudio) say([q.stepAudio(q.stepsDone)], function () { armHint(); });
+        } else {
+          setTimeout(function () { if (state.tut === tutMe) tutMe._advance(); }, 950);
+        }
+      } else {
+        if (q.stepsDone < q.steps.length) {
+          if (q.stepAudio) say([q.stepAudio(q.stepsDone)]);
+        } else {
+          judge(true, furnEl);
+        }
+      }
+    } else {
+      if (tutMe) {
+        var wEl = (typeof target !== 'string' && target) ? target : null;
+        if (wEl) { wEl.classList.add('wrong'); setTimeout(function () { wEl.classList.remove('wrong'); }, 520); }
+        say(['again']); armHint();
+      } else {
+        var wBtn = (typeof target !== 'string' && target) ? target : optionEls[itemIdx];
+        judge(false, wBtn);
+      }
+    }
+  }
+
+  /** 题型 A：床/桌子 + 书/玩具，拖正确物品到正确家具 */
+  var F14_A_CASES = [
+    { items: ['book', 'toy'],  furns: ['bed', 'table'], item: 'book', target: 'bed',   place: 'on',   key: 'l6w4_a_book_bed' },
+    { items: ['book', 'ball'], furns: ['bed', 'table'], item: 'book', target: 'table', place: 'on',   key: 'pt_book' },
+    { items: ['toy', 'book'],  furns: ['box', 'bed'],   item: 'toy',  target: 'box',   place: 'in',   key: 'l6w4_a_toy_box' },
+    { items: ['ball', 'book'], furns: ['table', 'bed'], item: 'ball', target: 'table', place: 'under', key: 'l6w3_c_under_table' }
+  ];
+  /** 题型 B：三张复合场景（书在床上 / 球在桌下 / 玩具在箱子里） */
+  var F14_B_CASES = [
+    { target: 'bookBed',   item: 'book', furn: 'bed',   place: 'on',    key: 'l6w4_b_bookbed' },
+    { target: 'ballTable', item: 'ball', furn: 'table', place: 'under', key: 'l6w4_b_balltable' },
+    { target: 'toyBox',    item: 'toy',  furn: 'box',   place: 'in',    key: 'l6w4_b_toybox' }
+  ];
+  /** 题型 C：多步指令（先放 X 到 Y，再放 X 到 Y） */
+  var F14_C_CASES = [
+    { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['book', 'bed', 'on'], ['ball', 'table', 'under']], s: ['l6w4_c1_s1', 'l6w4_c1_s2'] },
+    { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['toy', 'box', 'in'], ['book', 'table', 'on']],    s: ['l6w4_c2_s1', 'l6w4_c2_s2'] },
+    { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['ball', 'table', 'under'], ['toy', 'box', 'in']], s: ['l6w4_c3_s1', 'l6w4_c3_s2'] },
+    { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['book', 'bed', 'on'], ['toy', 'box', 'in']],      s: ['l6w4_c1_s1', 'l6w4_c3_s2'] }
+  ];
+
+  function makeQuestionF14(type, prev) {
+    ensureF14Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var a = F14_A_CASES[randInt(0, F14_A_CASES.length - 1)];
+        q = {
+          type: 'F14A', sig: 'A:' + a.item + ':' + a.target + ':' + a.items.join(',') + ':' + a.furns.join(','),
+          subj: a.item, item: a.item, target: a.target, furns: a.furns,
+          options: a.items.map(function (it) { return { kind: 'f14item', item: it }; }),
+          steps: [{ item: a.item, target: a.target, place: a.place }], stepsDone: 0,
+          correct: a.items.indexOf(a.item), audio: [a.key]
+        };
+      } else if (type === 1) {
+        var b = F14_B_CASES[randInt(0, F14_B_CASES.length - 1)];
+        var scenes = F14_B_CASES.slice();
+        shuffle(scenes);
+        q = {
+          type: 'F14B', sig: 'B:' + b.target + ':' + scenes.map(function (s) { return s.target; }).join(','),
+          subj: b.target,
+          options: scenes.map(function (s) { return { kind: 'f14scene', item: s.item, furn: s.furn, place: s.place, target: s.target }; }),
+          correct: scenes.findIndex(function (s) { return s.target === b.target; }),
+          audio: [b.key]
+        };
+      } else {
+        var c = F14_C_CASES[randInt(0, F14_C_CASES.length - 1)];
+        q = {
+          type: 'F14C', sig: 'C:' + c.steps.map(function (s) { return s[0] + '_' + s[1]; }).join('+'),
+          subj: 'tasks', furns: c.furns, items: c.items,
+          options: c.items.map(function (it) { return { kind: 'f14item', item: it }; }),
+          steps: c.steps.map(function (s) { return { item: s[0], target: s[1], place: s[2] }; }),
+          stepsDone: 0, stepAudio: (function (ss) { return function (i) { return ss[i]; }; })(c.s),
+          stepAudios: c.s,
+          correct: 0, audio: [c.s[0]]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* 教学（custom 分支）：演示点按推进 + 双倍量 + 4 秒小手，收尾走 tutFinish() */
+  var runF14Tutorial = (function () {
+    function blank(me) {
+      me.ask = null; me.selected = null; me.waitTap = false; me.canDrag = false; me.customMode = null;
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5; me.replay = null; me._q = null;
+      if (me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      clearHint();
+      var t = askDisplay.querySelector('.f11-tap'); if (t) t.parentNode.removeChild(t);
+    }
+    function stage(me) {
+      blank(me);
+      askDisplay.innerHTML = '';
+      ensureF14Css();
+      var w = document.createElement('div');
+      w.className = 'f9-stage';
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function demoRoom(me, act) {
+      var w = stage(me);
+      var r = document.createElement('div');
+      r.className = 'f14-room';
+      r.dataset.subj = act.sid;
+      w.appendChild(r);
+      var row = document.createElement('div');
+      row.className = 'f14-furn-row';
+      r.appendChild(row);
+      act.scenes.forEach(function (sc) {
+        row.appendChild(f14SceneNode(sc.furn, sc.item || null, sc.place || null, !!sc.roll));
+      });
+      if (act.beside) {
+        var bd = document.createElement('div');
+        bd.className = 'f14-beside';
+        bd.appendChild(f14ItemWrap(act.beside));
+        r.appendChild(bd);
+      }
+      return r;
+    }
+    /** 演示：一句话 + 一个画面，播完定格，点屏幕任意位置才推进 */
+    function demo(me, act, i) {
+      demoRoom(me, act);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        if (me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+        showTap();
+        me.waitTap = true;
+        var onTap = function (e) {
+          if (state.tut !== me || !me.waitTap) return;
+          me.waitTap = false;
+          document.removeEventListener('click', onTap, true);
+          me._onTap = null;
+          if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+          playAct(me, i + 1);
+        };
+        me._onTap = onTap;
+        document.addEventListener('click', onTap, true);
+      });
+    }
+    /** 互动：拖 / 点 正确物品到正确家具，点对推进，点错抖 + again，4 秒不出小手 */
+    function askPutItem(me, act, i) {
+      var w = stage(me);
+      var r = document.createElement('div');
+      r.className = 'f14-room';
+      r.dataset.subj = act.sid;
+      w.appendChild(r);
+      var row = document.createElement('div');
+      row.className = 'f14-furn-row';
+      r.appendChild(row);
+      act.furns.forEach(function (furn) {
+        var f = document.createElement('div');
+        f.className = 'f14-furn';
+        f.dataset.drop = furn;
+        f.dataset.subj = furn;
+        f.setAttribute('aria-label', '家具');
+        f.appendChild(f14FurnSvgNode(furn));
+        f.addEventListener('click', function () {
+          if (state.tut !== me || !me.canDrag || state.busy) return;
+          if (!me.pickedItem) return;
+          resolveF14(me.pickedIdx, furn, me);
+        });
+        row.appendChild(f);
+      });
+      var tray = document.createElement('div');
+      tray.className = 'f14-tray';
+      w.appendChild(tray);
+      act.items.forEach(function (item, idx) {
+        tray.appendChild(f14ItemBtn(item, idx, true));
+      });
+      me.canDrag = true;
+      me.customMode = 'F14T';
+      me._q = {
+        options: act.items.map(function (it) { return { kind: 'f14item', item: it }; }),
+        steps: [{ item: act.ansItem, target: act.ansTarget, place: act.ansPlace }],
+        stepsDone: 0
+      };
+      me._advance = function () { playAct(me, i + 1); };
+      var itemEl = tray.querySelector('.f14-item[data-item="' + act.ansItem + '"]');
+      var furnEl = r.querySelector('.f14-furn[data-drop="' + act.ansTarget + '"]');
+      me.hintFrom = itemEl; me.hintTo = furnEl; me.hintToY = 0.6; me.hintTarget = furnEl;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { armHint(); });
+    }
+
+    var ACTS = [
+      // 书放床上：2 演示 + 1 互动
+      { type: 'demo', word: 'l6w4_t_book1', scenes: [{ furn: 'bed' }, { furn: 'table' }], beside: 'book', sid: 'book1' },
+      { type: 'demo', word: 'l6w4_t_book2', scenes: [{ furn: 'bed', item: 'book', place: 'on' }, { furn: 'table' }], bounce: true, sid: 'book2' },
+      { type: 'ask',  word: 'l6w4_a_book_bed', furns: ['bed', 'table'], items: ['book', 'toy'], ansItem: 'book', ansTarget: 'bed', ansPlace: 'on', sid: 'bookA1' },
+      // 玩具放进箱子：2 演示 + 1 互动
+      { type: 'demo', word: 'l6w4_t_toy1', scenes: [{ furn: 'box' }], beside: 'toy', sid: 'toy1' },
+      { type: 'demo', word: 'l6w4_t_toy2', scenes: [{ furn: 'box', item: 'toy', place: 'in' }], sid: 'toy2' },
+      { type: 'ask',  word: 'l6w4_a_toy_box', furns: ['box', 'bed'], items: ['toy'], ansItem: 'toy', ansTarget: 'box', ansPlace: 'in', sid: 'toyA2' },
+      // 球滚到桌下：2 演示（宽镜 + 特写滚入）
+      { type: 'demo', word: 'l6w4_t_ball1', scenes: [{ furn: 'table' }], beside: 'ball', sid: 'ball1' },
+      { type: 'demo', word: 'l6w4_t_ball2', scenes: [{ furn: 'table', item: 'ball', place: 'under', roll: true }], sid: 'ball2' },
+      { type: 'ask',  word: 'l6w3_c_under_table', furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], ansItem: 'ball', ansTarget: 'table', ansPlace: 'under', sid: 'ballA3' },
+      // 过渡语
+      { type: 'outro', word: 'l6w4_t_out', sid: 'out' }
+    ];
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+
+      if (act.type === 'outro') {
+        var w = stage(me);
+        var grid = document.createElement('div');
+        grid.className = 'f9-grid f9-final';
+        grid.dataset.n = '3';
+        w.appendChild(grid);
+        [['book', 'bed', 'on', 'bookBed'], ['toy', 'box', 'in', 'toyBox'], ['ball', 'table', 'under', 'ballTable']].forEach(function (t) {
+          var card = document.createElement('div');
+          card.className = 'f9-card f9-draw-card';
+          card.dataset.subj = t[3];
+          card.appendChild(f14SceneNode(t[0], t[1], t[2], false, true));
+          grid.appendChild(card);
+          card.classList.add('f9-glow');
+        });
+        say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+        return;
+      }
+
+      if (act.type === 'demo') { demo(me, act, i); return; }
+      askPutItem(me, act, i);
+    }
+
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
     function stage(me) {
@@ -13653,7 +14156,7 @@
       say(['l3w4_tut_demo'], function () {
         if (state.tut !== me) return;
         banana.classList.add('glow');
-        tutAwaitTap(me, function () { if (state.tut === me) interactive(me); });
+        setTimeout(function () { if (state.tut === me) interactive(me); }, 1500);
       });
     }
     function interactive(me) {
@@ -13740,10 +14243,10 @@
       say([c.word], function () {
         if (state.tut !== me) return;
         target.classList.add(c.anim);   // 拉长发光 / 弹跳 / 缩小闪烁 / 摇摆
-        tutAwaitTap(me, function () {
+        setTimeout(function () {
           if (state.tut !== me) return;
           teachCase(me, i + 1);
-        });
+        }, 1500);
       });
     }
 
@@ -13844,6 +14347,10 @@
     /* ---- 第 6 岛第 3 关：找东西（A/B 用场景，C 用房间当投放目标） ---- */
     if (q.type === 'F13A' || q.type === 'F13B') { optionsBar.classList.add('gone'); return; }
     if (q.type === 'F13C') { renderF13Room(q); return; }
+
+    /* ---- 第 6 岛第 4 关：听指令做家务（A/C 物品在选项栏 + 房间当投放目标，B 用宫格） ---- */
+    if (q.type === 'F14A' || q.type === 'F14C') { renderF14Room(q); return; }
+    if (q.type === 'F14B') { optionsBar.classList.add('gone'); renderF14Grid(q); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -14436,6 +14943,13 @@
         // 第 6 岛第 3 关题型 C：可拖到家具上的球
         btn.classList.add('f13-opt');
         slot.appendChild(f13BallSvg());
+      } else if (opt.kind === 'f14item') {
+        // 第 6 岛第 4 关：可拖到家具上的物品（书 / 玩具 / 球）
+        btn.classList.add('f14-opt');
+        slot.appendChild(f14ItemSvg(opt.item));
+      } else if (opt.kind === 'f14scene') {
+        // 第 6 岛第 4 关题型 B：复合场景（物品在家具上/里/下），选项栏不使用，仅占位
+        btn.classList.add('f14-opt');
       } else if (opt.kind === 'f6food') {
         // 第 5 岛第 1 关题型 C：可拖到盘子上的食物
         btn.classList.add('f6-opt');
@@ -14558,6 +15072,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'F13C') {
         // 第 6 岛第 3 关题型 C：球可拖到房间的沙发 / 桌子上
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'F14A' || q.type === 'F14C') {
+        // 第 6 岛第 4 关：物品可拖到房间的家具上（A 单指令 / C 多步指令）
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -14851,6 +15370,7 @@
       state.lastPointerAt = Date.now();
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
+      else if (d.mode === 'F14T') tutPickF14(d.el);
       else pickFruit(d.idx, d.el);
       return;
     }
@@ -14907,6 +15427,10 @@
         resolveF12C(d.idx, target);
       } else if (d.mode === 'F13C') {
         resolveF13C(d.idx, target);
+      } else if (d.mode === 'F14A' || d.mode === 'F14C') {
+        resolveF14(d.idx, target, null);
+      } else if (d.mode === 'F14T') {
+        resolveF14(d.idx, target, state.tut);
       } else if (d.mode === 'F6C') {
         resolveF6C(d.idx, target);
       } else if (d.mode === 'TUT') {
@@ -15051,10 +15575,10 @@
         if (st.say) {
           say([st.say], function () {
             if (state.tut !== me) return;
-            tutAwaitTap(me, function () { if (state.tut === me) next(); });
+            setTimeout(function () { if (state.tut === me) next(); }, wait);
           });
         } else {
-          tutAwaitTap(me, function () { if (state.tut === me) next(); });
+          setTimeout(function () { if (state.tut === me) next(); }, wait || 90);
         }
       }
       next();
@@ -15089,10 +15613,7 @@
         if (i > 0) cards[i - 1].classList.remove('off');
         var key = keys[i];
         i += 1;
-        say([key], function () {
-          if (state.tut !== me) return;
-          tutAwaitTap(me, step);
-        });
+        say([key], step);
       })();
     }
 
@@ -15440,10 +15961,10 @@
       say(['l3_tut_big'], function () {
         if (state.tut !== me) return;
         el.classList.add('grow');          // 大象发光并且再长大一点
-        tutAwaitTap(me, function () {
+        setTimeout(function () {
           if (state.tut !== me) return;
           askBig(me);
-        });
+        }, 900);
       });
     }
 
@@ -15466,10 +15987,10 @@
       say(['l3_tut_small'], function () {
         if (state.tut !== me) return;
         me.nodes.mouse.classList.add('squeeze');   // 老鼠缩成一团
-        tutAwaitTap(me, function () {
+        setTimeout(function () {
           if (state.tut !== me) return;
           askSmall(me);
-        });
+        }, 900);
       });
     }
 
@@ -15617,15 +16138,16 @@
       say(['l3w2_tut_more'], function () {
         if (state.tut !== me) return;
         left.classList.add('bounce');          // 左筐（更多）发光并轻轻弹跳
-        tutAwaitTap(me, function () {
+        setTimeout(function () {
+          if (state.tut !== me) return;
           say(['l3w2_tut_less'], function () {
             if (state.tut !== me) return;
             right.classList.add('shrink');     // 右筐（更少）缩小一下
-            tutAwaitTap(me, function () {
+            setTimeout(function () {
               if (state.tut === me) askMore(me);
-            });
+            }, 900);
           });
-        });
+        }, 900);
       });
     }
 
@@ -15645,70 +16167,6 @@
     api.check = function () { return false; };
     return api;
   })();
-
-  /* ---------------- 教学演示阶段：点按推进（RULES §三.13） ----------------
-   * 第 6 岛第 1 关定下的全局教学规则，现统一应用到第 1-5 岛全部教学关：
-   * 每段演示语音播放完毕后画面必须定格停留，孩子点击屏幕任意位置
-   * （重播 / 返回按钮除外）才进入下一个演示步骤 —— 禁止定时器自动推进。
-   * 所有关卡（通用框架 + 各岛 custom 教学）共用这几个原语。 */
-  var tutTapListener = null;
-
-  /** 演示定格期间底部轻提示（与第 6 岛同款；pointer-events:none，绝不拦截点击） */
-  function tutTapHint(on) {
-    var old = document.querySelector('.tut-tap-hint');
-    if (old && old.parentNode) old.parentNode.removeChild(old);
-    if (!on) return;
-    if (!document.getElementById('tut-tap-hint-style')) {
-      var s = document.createElement('style');
-      s.id = 'tut-tap-hint-style';
-      s.textContent =
-        '.tut-tap-hint{position:fixed;left:50%;bottom:5vh;transform:translateX(-50%);z-index:20;' +
-        'padding:9px 20px;border-radius:24px;background:rgba(255,255,255,.92);border:2px solid #ffe0b8;' +
-        'color:#b57a3a;font-size:clamp(15px,3.8vw,19px);font-weight:600;letter-spacing:2px;' +
-        'box-shadow:0 8px 18px rgba(214,164,110,.24);pointer-events:none;' +
-        'animation:tutTapBreathe 1.7s ease-in-out infinite}' +
-        '@keyframes tutTapBreathe{0%,100%{opacity:.68;transform:translateX(-50%) scale(1)}' +
-        '50%{opacity:1;transform:translateX(-50%) scale(1.06)}}';
-      document.head.appendChild(s);
-    }
-    var t = document.createElement('div');
-    t.className = 'tut-tap-hint';
-    t.textContent = '轻点继续';
-    t.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(t);
-  }
-
-  /** 摘掉当前「点按推进」监听（进入下一步 / 教学结束 / 离开关卡时都要调用） */
-  function tutCancelTap() {
-    if (tutTapListener) {
-      document.removeEventListener('click', tutTapListener.onTap, true);
-      tutTapListener = null;
-    }
-    tutTapHint(false);
-  }
-
-  /** 教学演示阶段专用：等孩子点一下屏幕（任意位置），再执行 next。
-   *  重播 / 返回按钮不触发推进；推进用的这一击会止损，绝不穿透到关卡元素，
-   *  否则同一击会被关卡自己的点击逻辑重复消费（如把演示点击判成答对）。 */
-  function tutAwaitTap(me, next) {
-    tutCancelTap();
-    if (state.tut !== me || typeof next !== 'function') return;
-    var done = false;
-    function onTap(e) {
-      if (done) return;
-      var t = e.target;
-      if (t && t.closest && t.closest('#btnReplay, #btnBack, [data-no-advance]')) return;
-      done = true;
-      if (e.cancelable) e.preventDefault();
-      e.stopPropagation();
-      tutCancelTap();
-      if (state.tut !== me) return;
-      next();
-    }
-    tutTapListener = { me: me, onTap: onTap };
-    document.addEventListener('click', onTap, true);
-    tutTapHint(true);   // 定格停留：底部轻提示引导孩子点屏幕
-  }
 
   /* ---------------- 先教后练（Tutorial，按关卡配置） ---------------- */
 
@@ -15900,6 +16358,13 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '6-4': {
+      // 听指令做家务（Put the [物品] on/in/under the [家具]）：演示点按推进 + 双倍量 + 多步，10 环节
+      custom: runF14Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -15942,20 +16407,22 @@
     say([st.word], function () {
       if (state.tut !== me) return;
       scene.dataset.pos = st.pos;       // CSS 过渡：演示动画
-      tutAwaitTap(me, function () {
+      setTimeout(function () {
+        if (state.tut !== me) return;
         say([st.sentence], function () {
           if (state.tut !== me) return;
           // 演示完先回到原位，孩子才有「自己放一次」的动作可做
           scene.dataset.pos = st.from || st.pos;
-          tutAwaitTap(me, function () {
+          setTimeout(function () {
+            if (state.tut !== me) return;
             say([st.ask], function () {
               if (state.tut !== me) return;
               me.canDrag = true;
               scene.classList.add('ready');
             });
-          });
+          }, 820);
         });
-      });
+      }, 880);
     });
   }
 
@@ -16037,6 +16504,29 @@
     if (el) el.classList.add('picked');
   }
 
+  /** 教学拖拽（F14）：轻点点选等价路径——先点物品，再点家具 */
+  function tutPickF14(el) {
+    var me = state.tut;
+    if (!me || !me.canDrag || !el || !el.dataset) return;
+    if (el.dataset.item) {
+      me.pickedItem = el.dataset.item;
+      me.pickedIdx = parseInt(el.dataset.idx, 10);
+      if (me._q) me._q._picked = me.pickedIdx;
+      Array.prototype.forEach.call(askDisplay.querySelectorAll('.f14-item'), function (n) {
+        n.classList.remove('picked');
+      });
+      el.classList.add('picked');
+    } else if (el.dataset.drop && me.pickedItem) {
+      var idx = me.pickedIdx;
+      if (typeof idx !== 'number') {
+        var items = me._q ? me._q.options : [];
+        idx = -1;
+        for (var k = 0; k < items.length; k++) { if (items[k].item === me.pickedItem) { idx = k; break; } }
+      }
+      resolveF14(idx, el.dataset.drop, me);
+    }
+  }
+
   /** 落点在场景里的纵向比例（0=顶部，1=底部） */
   function dropRatioY(scene, clientY) {
     var r = scene.getBoundingClientRect();
@@ -16083,7 +16573,6 @@
    *  readyKey 可指定过渡语；传 false 表示过渡语已由关卡自己播完，直接进答题 */
   function tutFinish(me, readyKey) {
     if (state.tut !== me) return;
-    tutCancelTap();
     me.canDrag = false;
     clearHint();
     function go() {
@@ -16114,7 +16603,8 @@
   /** 当前是否处于可拖拽状态（普通拖拽题 / 教学拖拽） */
   function dragMode() {
     if (state.phase === 'tutorial') {
-      return (state.tut && state.tut.canDrag) ? 'TUT' : null;
+      if (state.tut && state.tut.canDrag) return state.tut.customMode || 'TUT';
+      return null;
     }
     if (state.phase !== 'asking' || state.busy) return null;
     var q = state.question;
@@ -16124,7 +16614,8 @@
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
         q.type === 'F1C' || q.type === 'F2C' || q.type === 'F3C' ||
         q.type === 'F4C' ||         q.type === 'F6C' || q.type === 'F7C' ||
-        q.type === 'F8C' || q.type === 'F9B' || q.type === 'F10A' || q.type === 'F11C' || q.type === 'F12C' || q.type === 'F13C') return q.type;
+        q.type === 'F8C' || q.type === 'F9B' || q.type === 'F10A' || q.type === 'F11C' || q.type === 'F12C' || q.type === 'F13C' ||
+        q.type === 'F14A' || q.type === 'F14C') return q.type;
     return null;
   }
 
@@ -16214,7 +16705,6 @@
     state.pickedFruit = null;
     state.drag = null;
     state.tut = null;                       // 离开/重进关卡时清掉教学状态
-    tutCancelTap();                          // 同时摘掉演示阶段的「点按推进」监听，防止串关
     clearHint();
     if (askDisplay) askDisplay.innerHTML = '';
     optionsBar.classList.remove('gone');
@@ -16472,6 +16962,12 @@
         return;
       }
 
+      // 第 6 岛第 4 关题型 A/C：点物品选中，再点房间里的家具「放上去」
+      if (q.type === 'F14A' || q.type === 'F14C') {
+        tapFruit(idx, btn);
+        return;
+      }
+
       // 第 5 关题型 B：先点水果选中，再点篮子投放
       if (q.type === 'W5B') {
         if (state.pickedFruit === null) return;
@@ -16692,14 +17188,6 @@
       } : null;
     },
     get progress() { return JSON.parse(JSON.stringify(progress)); },
-    /* 教学互动阶段「正确答案」元素的中心坐标（供自动化测试 / 调试使用） */
-    hintTargetRect: function () {
-      var t = state.tut && state.tut.hintTarget;
-      if (!t || !t.getBoundingClientRect) return null;
-      var r = t.getBoundingClientRect();
-      if (!r.width || !r.height) return null;
-      return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
-    },
     get sandbox() { return dev.active; },
     openIsland: enterIsland,
     enterLevel: enterLevel,
@@ -16797,11 +17285,16 @@
             if (o.kind === 'f13ball') return 'b:' + o.furn + ':' + o.place;
             if (o.kind === 'f13scene') return 's:' + o.scene;
             if (o.kind === 'f13item') return 'i:' + o.item;
+            if (o.kind === 'f14item') return 'i:' + o.item;
+            if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
             if (o.color) return o.color.id;
             return o.count;
-          })
+          }),
+          steps: q.steps ? q.steps.map(function (s) { return { item: s.item, target: s.target, place: s.place }; }) : null,
+          stepsDone: (typeof q.stepsDone === 'number') ? q.stepsDone : null,
+          stepAudios: q.stepAudios || null
         } : null
       };
     },

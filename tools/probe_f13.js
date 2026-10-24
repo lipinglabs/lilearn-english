@@ -545,7 +545,7 @@ let id = 0; const pend = new Map();
     rep.checks.done.unlockedLevel === 4 &&
     rep.checks.islandAfter.node3Done === true &&
     rep.checks.islandAfter.node4Locked === false &&
-    rep.checks.islandAfter.node4Playable === false &&
+    rep.checks.islandAfter.node4Playable === true &&   // 6-4 已上线，清 6-3 后第 4 关应可玩
     rep.checks.islandAfter.node4Text === '4' &&
     rep.checks.mapAfter.island6Unlocked === true && rep.checks.mapAfter.island6Cleared === false &&
     rep.checks.mapAfter.iconIsSvg === true &&

@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-24（第 6 岛第 3 关「找东西」上线；第 6 岛「温馨家居」开 W3；语音 675 条）
+> 最后更新：2026-10-24（第 6 岛第 4 关「听指令做家务」上线；第 6 岛「温馨家居」开 W4；语音 693 条）
 
 ---
 
@@ -14,7 +14,7 @@
 | 线上地址 | https://lipinglabs.github.io/lilearn-english/ |
 | 仓库 | `lipinglabs/lilearn-english`（**public**） |
 | 技术形态 | 纯静态：单页 HTML + 两个数据脚本 + Service Worker。**无构建、无框架、无后端、无 npm 依赖** |
-| 内容规模 | 12 岛 × 5 关框架；已做第 1–5 岛全部 + 第 6 岛第 1–3 关 |
+| 内容规模 | 12 岛 × 5 关框架；已做第 1–5 岛全部 + 第 6 岛第 1–4 关 |
 | 部署 | GitHub Pages（源 `main` 分支根目录 `/`，legacy 构建），推送即自动重建 |
 
 ---
@@ -63,8 +63,8 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   700,304 B / 16,752 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  20,542,979 B /  6,155 行   ← window.VOICE_BANK，675 条 base64 mp3
+index.html   728,622 B / 17,317 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  21,215,261 B /  6,347 行   ← window.VOICE_BANK，693 条 base64 mp3
 assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
 ```
 
@@ -126,7 +126,7 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_food.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `probe_f11.js` / `probe_f12.js` / `probe_f13.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的十二个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**；`probe_f11.js` 起额外断言「演示步不点按则不自动前进」；`probe_f13.js` 额外断言「球的热区比图形大一圈、画得够大」） |
+| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `probe_f11.js` / `probe_f12.js` / `probe_f13.js` / `probe_f14.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的十三个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**；`probe_f11.js` 起额外断言「演示步不点按则不自动前进」；`probe_f13.js` 额外断言「球的热区比图形大一圈、画得够大」；`probe_f14.js` 用「轻点拾起→点家具」路径跑教学互动，按**期望舞台指纹**匹配（自动跳过物品落位产生的额外指纹），并断言 F14C 两步 `stepsDone` 落位、多步指令第二步口播不计入「答对禁人声」） |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
@@ -307,7 +307,14 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   小男孩沿用第 3 关的同一套零件（`f8Body` / `f8Head` / `f8Apple` / `f8Cup`），服务员只换马甲 + 服务帽，
   F9_BREAD 新画一条法式面包，饥饿 / 吃饱 / 在吃 / 在哭 / 在睡五态齐全；第 5 岛第 5 关只新画「小女孩客人 / 餐厅门」两张、其余全复用；
   第 6 岛第 1 关**整套家具与场景**（床 / 桌子 / 椅子 / 沙发 / 枕头 / 小猫 + 男孩睡着 / 苹果在桌上 / 猫在椅上 / 猫在沙发上）也全部手写 SVG，地图小房子图标同为手写 SVG；第 6 岛第 2 关**整套日常场景**（客厅 + 亮屏电视 / 电视动画特写 / 书房书架 / 摊开的书 / 浴缸泡泡 / 宝宝洗澡 + 小黄鸭 / 卧室月亮 / 宝宝睡觉 / 睡觉与洗澡两个宝宝）也全部手写 SVG，同样无任何 emoji 字符充当图形）；第 6 岛第 3 关只新画**纸箱 / 玩具箱 / 大球**三件，家具复用 F11，同样零 PNG、零生图。
-- **未完成**：第 6 岛 W4–W5；第 7–12 岛（第 5 岛「食物与饮料」5 关已全部收官，第 6 岛「温馨家居」已开 W1–W3）。
+  **第 6 岛 W4「听指令做家务」**（Put the [物品] on/in/under the [家具]，复合方位短句）：
+  教学 10 环节（书放床上 / 玩具放进箱子 / 球滚到桌下，各 2 演示 + 1 互动，末加过渡语），演示沿用「点按推进」（RULES §三.14）；
+  答题 12 轮（4/4/4）：A 单指令拖拽（书/玩具拖到床/桌/箱）/ B 听句选场景图（书在床上 / 球在桌下 / 玩具在箱子里）/
+  C 多步指令（先放 X 到 Y，再放 Z 到 W，按顺序两步拖拽，第一步落位后口播第二步指令）。
+  家具容器 `.f14-furn` 用 `padding:9%` 让投放热区比 SVG 视觉大一圈（防坑铁律）；新画**书 / 玩具熊 / 球**三件物品（球复用 F13 红球造型），家具复用 F11 床/桌 + F13 箱子，零 PNG、零生图。
+  横屏矮屏（`@media (max-height:560px)`）为 3 件家具强制单行 `flex-wrap:nowrap` 并压缩房间/托盘，避免家具换行把托盘顶到视口外（竖屏不受影响）。
+  另修两处交互缺陷：`resolveF14` 教学分支把 DOM 元素当 `furn` 与字符串 `step.target` 比较会恒判错（改为统一取 `data-drop`）；`askPutItem` 未设 `me.hintTarget` 导致 4 秒小手指不出现（已补）。
+- **未完成**：第 6 岛 W5；第 7–12 岛（第 5 岛「食物与饮料」5 关已全部收官，第 6 岛「温馨家居」已开 W1–W4）。
 - **第 5 岛主题**：`ISLANDS[4]` 为**「食物与饮料」**，地图图标用 3D 面包 PNG；
   **第 6 岛改为「温馨家居」**（`ISLANDS[5]`，原「交通工具」主题让位；地图图标已用手写小房子 SVG，不再用 emoji 字符）。
 - **第 4 岛主题**：`ISLANDS[3]` 为**「动物与动作」**，地图图标为 3D 狮子 PNG
