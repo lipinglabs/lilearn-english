@@ -14,6 +14,7 @@ const EDGE = 'C://Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
 const ISL = parseInt(process.argv[2] || '6', 10);
 const LV = parseInt(process.argv[3] || '5', 10);
 const PORT = 9765, W = 390, H = 844;
+const URL_ = process.env.LILEARN_URL || ('file:///' + path.resolve('index.html').replace(/\\/g, '/'));
 
 const proc = spawn(EDGE, ['--headless=new', '--disable-gpu', '--no-first-run',
   '--autoplay-policy=no-user-gesture-required', '--mute-audio',
@@ -72,7 +73,7 @@ const fin = c => { try { proc.kill(); } catch (e) {} setTimeout(() => process.ex
     }, false);
   ` }, sessionId);
 
-  await send('Page.navigate', { url: 'file:///' + path.resolve('index.html').replace(/\\/g, '/') }, sessionId);
+  await send('Page.navigate', { url: URL_ }, sessionId);
   const ev = async e => {
     const r = await send('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }, sessionId);
     if (r.exceptionDetails) throw new Error('EVAL ' + e.slice(0, 60));
@@ -96,7 +97,7 @@ const fin = c => { try { proc.kill(); } catch (e) {} setTimeout(() => process.ex
     return f.getAttribute('data-probe-mark') !== '1';
   })()`);
 
-  await wait('typeof window.Game !== "undefined"', 90000);
+  await wait('typeof window.Game !== "undefined"', 210000);   // 线上 22.8MB voice.js 冷加载可能很慢
   await sleep(400);
 
   // 解锁到目标关
