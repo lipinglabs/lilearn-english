@@ -3805,7 +3805,8 @@
     '6-1': { numbers: null,       make: 'makeF11', title: '第 1 关', tutorial: true },
     '6-2': { numbers: null,       make: 'makeF12', title: '第 2 关', tutorial: true },
     '6-3': { numbers: null,       make: 'makeF13', title: '第 3 关', tutorial: true },
-    '6-4': { numbers: null,       make: 'makeF14', title: '第 4 关', tutorial: true }
+    '6-4': { numbers: null,       make: 'makeF14', title: '第 4 关', tutorial: true },
+    '6-5': { numbers: null,       make: 'makeF15', title: '第 5 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3970,6 +3971,7 @@
     if (def && def.make === 'makeF12') return makeQuestionF12(typeIdx, prev);
     if (def && def.make === 'makeF13') return makeQuestionF13(typeIdx, prev);
     if (def && def.make === 'makeF14') return makeQuestionF14(typeIdx, prev);
+    if (def && def.make === 'makeF15') return makeQuestionF15(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -13662,14 +13664,30 @@
     '<circle cx="50" cy="50" r="44" fill="#ff4d3d" stroke="#d63a2b" stroke-width="4"/>' +
     '<path d="M6 38 q44 -22 88 0 q-44 18 -88 0 z" fill="#ffffff" opacity=".9"/>' +
     '<circle cx="34" cy="30" r="8" fill="#ffffff" opacity=".6"/>';
-  var F14_ITEM_SVG = { book: F14_BOOK, toy: F14_TOY, ball: F14_BALL };
+  // 第 6 岛第 5 关新增：衣服（小 T 恤）与书架（画成带两层隔板的大柜子）
+  var F15_CLOTHES =
+    '<path d="M30 24 L42 18 Q50 28 58 18 L70 24 L86 38 L74 50 L66 44 L66 86 Q50 92 34 86 L34 44 L26 50 L14 38 Z" ' +
+      'fill="#f6a8c4" stroke="#d97ba0" stroke-width="3.2" stroke-linejoin="round"/>' +
+    '<path d="M42 18 Q50 28 58 18" fill="none" stroke="#d97ba0" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="50" cy="48" r="2.2" fill="#d97ba0"/>' +
+    '<circle cx="50" cy="62" r="2.2" fill="#d97ba0"/>' +
+    '<circle cx="50" cy="76" r="2.2" fill="#d97ba0"/>';
+  var F15_SHELF =
+    '<rect x="26" y="20" width="108" height="122" rx="10" fill="#e6b57e" stroke="#b3834a" stroke-width="4"/>' +
+    '<rect x="36" y="30" width="88" height="44" rx="5" fill="#fdf3e0" stroke="#c9a56f" stroke-width="2.2"/>' +
+    '<rect x="36" y="84" width="88" height="50" rx="5" fill="#fdf3e0" stroke="#c9a56f" stroke-width="2.2"/>' +
+    '<rect x="32" y="76" width="96" height="8" rx="3" fill="#c08848"/>' +
+    '<rect x="32" y="132" width="96" height="6" rx="3" fill="#c08848"/>';
+  var F14_ITEM_SVG = { book: F14_BOOK, toy: F14_TOY, ball: F14_BALL, clothes: F15_CLOTHES };
   // 家具复用 F11 / F13（viewBox 0 0 160 160）
-  var F14_FURN_SVG = { sofa: F11_SOFA, bed: F11_BED, table: F11_TABLE, box: F13_BOX };
+  var F14_FURN_SVG = { sofa: F11_SOFA, bed: F11_BED, table: F11_TABLE, box: F13_BOX, chair: F11_CHAIR, bookshelf: F15_SHELF };
   // 物品在（家具:方位）上的位置（占家具容器百分比）
   var F14_ITEM_POS = {
     'bed:on': ['50%', '30%'], 'bed:under': ['50%', '94%'],
     'table:on': ['50%', '42%'], 'table:under': ['50%', '94%'],
-    'box:in': ['50%', '56%'], 'sofa:on': ['50%', '32%'], 'sofa:under': ['50%', '94%']
+    'box:in': ['50%', '56%'], 'sofa:on': ['50%', '32%'], 'sofa:under': ['50%', '94%'],
+    'bookshelf:on': ['50%', '30%'], 'chair:on': ['50%', '42%'], 'chair:under': ['50%', '94%'],
+    'box:on': ['50%', '32%'], 'table:in': ['50%', '50%']
   };
 
   function f14ItemSvg(item) {
@@ -13965,8 +13983,82 @@
     return q;
   }
 
-  /* 教学（custom 分支）：演示点按推进 + 双倍量 + 4 秒小手，收尾走 tutFinish() */
-  var runF14Tutorial = (function () {
+  /* ==================== 第 6 岛第 5 关（L6-W5：游乐场 · 帮小人整理房间综合大考） ==================== */
+  /* 综合复习关：把第 6 岛 W1–W4 的「家具 / 物品 / 方位」语言点汇总。句型仍是 Put the [物品] on/in/under the [家具]，
+     但物品扩到书 / 玩具 / 球 / 衣服，家具扩到床 / 桌 / 箱 / 椅 / 书架（书架画成带两层隔板的大柜子）。
+     教学：乱糟糟房间 → 书上书架 → 玩具进箱 → 衣服上床（4 演示）+ 2 互动 + 过渡，共 7 环节；
+     答题 12 轮（4/4/4）：A 单步整理（3 物品拖到正确家具）/ B 听长句找场景（书在床、玩具在箱、衣服在椅）/
+       C 多步指令（First… Then…，两步按顺序拖拽）。复用 F14 的那套渲染 / 判定 / 拖拽引擎（本题型 kind 仍用 f14item / f14scene）。 */
+
+  /** 题型 A：单步整理（3 物品 + 3 家具，拖正确物品到正确家具） */
+  var F15_A_CASES = [
+    { items: ['book', 'toy', 'ball'],     furns: ['bed', 'table', 'chair'],   item: 'book',    target: 'bed',       place: 'on',    key: 'l6w4_a_book_bed' },
+    { items: ['toy', 'book', 'clothes'],  furns: ['box', 'bed', 'table'],     item: 'toy',     target: 'box',       place: 'in',    key: 'l6w4_a_toy_box' },
+    { items: ['clothes', 'toy', 'ball'],  furns: ['bed', 'chair', 'table'],   item: 'clothes', target: 'bed',       place: 'on',    key: 'f15_a_clothes_bed' },
+    { items: ['book', 'toy', 'clothes'],  furns: ['bookshelf', 'bed', 'box'], item: 'book',    target: 'bookshelf', place: 'on',    key: 'f15_a_book_shelf' },
+    { items: ['ball', 'book', 'toy'],     furns: ['table', 'bed', 'chair'],   item: 'ball',    target: 'table',     place: 'under', key: 'l6w3_c_under_table' },
+    { items: ['clothes', 'ball', 'book'], furns: ['chair', 'table', 'box'],   item: 'clothes', target: 'chair',     place: 'on',    key: 'f15_a_clothes_chair' }
+  ];
+  /** 题型 B：三张复合场景（书在床上 / 玩具在箱子里 / 衣服在椅子上）。
+      前两句与第 4 关 l6w4_b_bookbed / l6w4_b_toybox 完全相同，直接复用（RULES §1.12：同句同 key）。 */
+  var F15_B_CASES = [
+    { target: 'bookBed',      item: 'book',    furn: 'bed',   place: 'on',    key: 'l6w4_b_bookbed' },
+    { target: 'toyBox',       item: 'toy',     furn: 'box',   place: 'in',    key: 'l6w4_b_toybox' },
+    { target: 'clothesChair', item: 'clothes', furn: 'chair', place: 'on',    key: 'f15_b_clothes_chair' }
+  ];
+  /** 题型 C：多步指令（First… Then…，先放 X 到 Y，再放 Z 到 W）。
+      与第 4 关 C 组重复的句子一律复用既有 key（RULES §1.12 同句同 key），只新增 3 条真正的新句。 */
+  var F15_C_CASES = [
+    { furns: ['bed', 'table', 'box'],       items: ['book', 'ball', 'toy'],    steps: [['book', 'bed', 'on'], ['ball', 'table', 'under']],       s: ['l6w4_c1_s1', 'l6w4_c1_s2'] },
+    { furns: ['bed', 'table', 'box'],       items: ['toy', 'clothes', 'book'], steps: [['toy', 'box', 'in'], ['clothes', 'bed', 'on']],          s: ['l6w4_c2_s1', 'f15_c2_s2'] },
+    { furns: ['bed', 'table', 'bookshelf'], items: ['ball', 'book', 'toy'],    steps: [['ball', 'table', 'under'], ['book', 'bookshelf', 'on']],  s: ['l6w4_c3_s1', 'f15_c3_s2'] },
+    { furns: ['chair', 'table', 'box'],     items: ['clothes', 'toy', 'ball'], steps: [['clothes', 'chair', 'on'], ['toy', 'box', 'in']],         s: ['f15_c4_s1', 'l6w4_c3_s2'] }
+  ];
+
+  function makeQuestionF15(type, prev) {
+    ensureF14Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var a = F15_A_CASES[randInt(0, F15_A_CASES.length - 1)];
+        q = {
+          type: 'F15A', sig: 'A:' + a.item + ':' + a.target + ':' + a.items.join(',') + ':' + a.furns.join(','),
+          subj: a.item, item: a.item, target: a.target, furns: a.furns,
+          options: a.items.map(function (it) { return { kind: 'f14item', item: it }; }),
+          steps: [{ item: a.item, target: a.target, place: a.place }], stepsDone: 0,
+          correct: a.items.indexOf(a.item), audio: [a.key]
+        };
+      } else if (type === 1) {
+        var b = F15_B_CASES[randInt(0, F15_B_CASES.length - 1)];
+        var scenes = F15_B_CASES.slice();
+        shuffle(scenes);
+        q = {
+          type: 'F15B', sig: 'B:' + b.target + ':' + scenes.map(function (s) { return s.target; }).join(','),
+          subj: b.target,
+          options: scenes.map(function (s) { return { kind: 'f14scene', item: s.item, furn: s.furn, place: s.place, target: s.target }; }),
+          correct: scenes.findIndex(function (s) { return s.target === b.target; }),
+          audio: [b.key]
+        };
+      } else {
+        var c = F15_C_CASES[randInt(0, F15_C_CASES.length - 1)];
+        q = {
+          type: 'F15C', sig: 'C:' + c.steps.map(function (s) { return s[0] + '_' + s[1]; }).join('+'),
+          subj: 'tasks', furns: c.furns, items: c.items,
+          options: c.items.map(function (it) { return { kind: 'f14item', item: it }; }),
+          steps: c.steps.map(function (s) { return { item: s[0], target: s[1], place: s[2] }; }),
+          stepsDone: 0, stepAudio: (function (ss) { return function (i) { return ss[i]; }; })(c.s),
+          stepAudios: c.s,
+          correct: 0, audio: [c.s[0]]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* 教学（custom 分支）：演示点按推进 + 双倍量 + 4 秒小手，收尾走 tutFinish()。
+     做成工厂，第 6 岛第 4 / 5 关共用同一套「房间整理」教学引擎（差异只在 ACTS 与收尾三图）。 */
+  function makeRoomTutorial(ACTS, OUTRO_SCENES) {
     function blank(me) {
       me.ask = null; me.selected = null; me.waitTap = false; me.canDrag = false; me.customMode = null;
       me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5; me.replay = null; me._q = null;
@@ -14076,22 +14168,7 @@
       say([act.word], function () { armHint(); });
     }
 
-    var ACTS = [
-      // 书放床上：2 演示 + 1 互动
-      { type: 'demo', word: 'l6w4_t_book1', scenes: [{ furn: 'bed' }, { furn: 'table' }], beside: 'book', sid: 'book1' },
-      { type: 'demo', word: 'l6w4_t_book2', scenes: [{ furn: 'bed', item: 'book', place: 'on' }, { furn: 'table' }], bounce: true, sid: 'book2' },
-      { type: 'ask',  word: 'l6w4_a_book_bed', furns: ['bed', 'table'], items: ['book', 'toy'], ansItem: 'book', ansTarget: 'bed', ansPlace: 'on', sid: 'bookA1' },
-      // 玩具放进箱子：2 演示 + 1 互动
-      { type: 'demo', word: 'l6w4_t_toy1', scenes: [{ furn: 'box' }], beside: 'toy', sid: 'toy1' },
-      { type: 'demo', word: 'l6w4_t_toy2', scenes: [{ furn: 'box', item: 'toy', place: 'in' }], sid: 'toy2' },
-      { type: 'ask',  word: 'l6w4_a_toy_box', furns: ['box', 'bed'], items: ['toy'], ansItem: 'toy', ansTarget: 'box', ansPlace: 'in', sid: 'toyA2' },
-      // 球滚到桌下：2 演示（宽镜 + 特写滚入）
-      { type: 'demo', word: 'l6w4_t_ball1', scenes: [{ furn: 'table' }], beside: 'ball', sid: 'ball1' },
-      { type: 'demo', word: 'l6w4_t_ball2', scenes: [{ furn: 'table', item: 'ball', place: 'under', roll: true }], sid: 'ball2' },
-      { type: 'ask',  word: 'l6w3_c_under_table', furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], ansItem: 'ball', ansTarget: 'table', ansPlace: 'under', sid: 'ballA3' },
-      // 过渡语
-      { type: 'outro', word: 'l6w4_t_out', sid: 'out' }
-    ];
+    // ACTS 由工厂参数传入（第 4 关 / 第 5 关各自的演示与互动清单）。
 
     function playAct(me, i) {
       if (state.tut !== me) return;
@@ -14104,7 +14181,7 @@
         grid.className = 'f9-grid f9-final';
         grid.dataset.n = '3';
         w.appendChild(grid);
-        [['book', 'bed', 'on', 'bookBed'], ['toy', 'box', 'in', 'toyBox'], ['ball', 'table', 'under', 'ballTable']].forEach(function (t) {
+        OUTRO_SCENES.forEach(function (t) {
           var card = document.createElement('div');
           card.className = 'f9-card f9-draw-card';
           card.dataset.subj = t[3];
@@ -14123,7 +14200,43 @@
     var api = function (me) { playAct(me, 0); };
     api.check = function () { return false; };
     return api;
-  })();
+  }
+
+  /* ---- 第 6 岛第 4 关「听指令做家务」教学清单（书→床 / 玩具→箱 / 球→桌下） ---- */
+  var F14_ACTS = [
+    { type: 'demo', word: 'l6w4_t_book1', scenes: [{ furn: 'bed' }, { furn: 'table' }], beside: 'book', sid: 'book1' },
+    { type: 'demo', word: 'l6w4_t_book2', scenes: [{ furn: 'bed', item: 'book', place: 'on' }, { furn: 'table' }], bounce: true, sid: 'book2' },
+    { type: 'ask',  word: 'l6w4_a_book_bed', furns: ['bed', 'table'], items: ['book', 'toy'], ansItem: 'book', ansTarget: 'bed', ansPlace: 'on', sid: 'bookA1' },
+    { type: 'demo', word: 'l6w4_t_toy1', scenes: [{ furn: 'box' }], beside: 'toy', sid: 'toy1' },
+    { type: 'demo', word: 'l6w4_t_toy2', scenes: [{ furn: 'box', item: 'toy', place: 'in' }], sid: 'toy2' },
+    { type: 'ask',  word: 'l6w4_a_toy_box', furns: ['box', 'bed'], items: ['toy'], ansItem: 'toy', ansTarget: 'box', ansPlace: 'in', sid: 'toyA2' },
+    { type: 'demo', word: 'l6w4_t_ball1', scenes: [{ furn: 'table' }], beside: 'ball', sid: 'ball1' },
+    { type: 'demo', word: 'l6w4_t_ball2', scenes: [{ furn: 'table', item: 'ball', place: 'under', roll: true }], sid: 'ball2' },
+    { type: 'ask',  word: 'l6w3_c_under_table', furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], ansItem: 'ball', ansTarget: 'table', ansPlace: 'under', sid: 'ballA3' },
+    { type: 'outro', word: 'l6w4_t_out', sid: 'out' }
+  ];
+  var F14_OUTRO = [['book', 'bed', 'on', 'bookBed'], ['toy', 'box', 'in', 'toyBox'], ['ball', 'table', 'under', 'ballTable']];
+  var runF14Tutorial = makeRoomTutorial(F14_ACTS, F14_OUTRO);
+
+  /* ---- 第 6 岛第 5 关「游乐场 · 帮小人整理房间」教学清单（书→书架 / 玩具→箱 / 衣服→床） ---- */
+  var F15_ACTS = [
+    // 演示 1：乱糟糟的房间（衣服在床上、书在地上）
+    { type: 'demo', word: 'f15_t_messy', scenes: [{ furn: 'bed', item: 'clothes', place: 'on' }, { furn: 'bookshelf' }], beside: 'book', sid: 'messy' },
+    // 演示 2：把书放到书架上
+    { type: 'demo', word: 'f15_a_book_shelf', scenes: [{ furn: 'bookshelf', item: 'book', place: 'on' }], sid: 'bookShelf' },
+    // 演示 3：把玩具收进箱子
+    { type: 'demo', word: 'l6w4_a_toy_box', scenes: [{ furn: 'box', item: 'toy', place: 'in' }], sid: 'toyBox' },
+    // 演示 4：把衣服放在床上
+    { type: 'demo', word: 'f15_a_clothes_bed', scenes: [{ furn: 'bed', item: 'clothes', place: 'on' }], sid: 'clothesBed' },
+    // 互动 1：书 → 书架
+    { type: 'ask',  word: 'f15_t_ask1', furns: ['bookshelf', 'bed'], items: ['book', 'toy'], ansItem: 'book', ansTarget: 'bookshelf', ansPlace: 'on', sid: 'askBook' },
+    // 互动 2：玩具 → 箱子
+    { type: 'ask',  word: 'l6w4_a_toy_box', furns: ['box', 'table'], items: ['toy'], ansItem: 'toy', ansTarget: 'box', ansPlace: 'in', sid: 'askToy' },
+    // 过渡语
+    { type: 'outro', word: 'f15_t_out', sid: 'out' }
+  ];
+  var F15_OUTRO = [['book', 'bookshelf', 'on', 'bookShelf'], ['toy', 'box', 'in', 'toyBox'], ['clothes', 'bed', 'on', 'clothesBed']];
+  var runF15Tutorial = makeRoomTutorial(F15_ACTS, F15_OUTRO);
 
   var runB4Tutorial = (function () {
     function blank(me) { me.hintTarget = null; me.ask = null; clearHint(); }
@@ -14351,6 +14464,10 @@
     /* ---- 第 6 岛第 4 关：听指令做家务（A/C 物品在选项栏 + 房间当投放目标，B 用宫格） ---- */
     if (q.type === 'F14A' || q.type === 'F14C') { renderF14Room(q); return; }
     if (q.type === 'F14B') { optionsBar.classList.add('gone'); renderF14Grid(q); return; }
+
+    /* ---- 第 6 岛第 5 关：帮小人整理房间综合大考（复用第 4 关的房间渲染 / 场景宫格） ---- */
+    if (q.type === 'F15A' || q.type === 'F15C') { renderF14Room(q); return; }
+    if (q.type === 'F15B') { optionsBar.classList.add('gone'); renderF14Grid(q); return; }
 
     /* ---- 第 3 岛第 1 关：大与小 ---- */
     if (q.type === 'B1A' || q.type === 'B1B') {
@@ -15075,8 +15192,8 @@
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
-      } else if (q.type === 'F14A' || q.type === 'F14C') {
-        // 第 6 岛第 4 关：物品可拖到房间的家具上（A 单指令 / C 多步指令）
+      } else if (q.type === 'F14A' || q.type === 'F14C' || q.type === 'F15A' || q.type === 'F15C') {
+        // 第 6 岛第 4/5 关：物品可拖到房间的家具上（A 单指令 / C 多步指令）
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -15427,7 +15544,7 @@
         resolveF12C(d.idx, target);
       } else if (d.mode === 'F13C') {
         resolveF13C(d.idx, target);
-      } else if (d.mode === 'F14A' || d.mode === 'F14C') {
+      } else if (d.mode === 'F14A' || d.mode === 'F14C' || d.mode === 'F15A' || d.mode === 'F15C') {
         resolveF14(d.idx, target, null);
       } else if (d.mode === 'F14T') {
         resolveF14(d.idx, target, state.tut);
@@ -16365,6 +16482,13 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '6-5': {
+      // 帮小人整理房间综合大考（书/玩具/球/衣服 → 床/桌/箱/椅/书架）：演示点按推进 + 2 互动 + 过渡，7 环节
+      custom: runF15Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -16615,7 +16739,7 @@
         q.type === 'F1C' || q.type === 'F2C' || q.type === 'F3C' ||
         q.type === 'F4C' ||         q.type === 'F6C' || q.type === 'F7C' ||
         q.type === 'F8C' || q.type === 'F9B' || q.type === 'F10A' || q.type === 'F11C' || q.type === 'F12C' || q.type === 'F13C' ||
-        q.type === 'F14A' || q.type === 'F14C') return q.type;
+        q.type === 'F14A' || q.type === 'F14C' || q.type === 'F15A' || q.type === 'F15C') return q.type;
     return null;
   }
 
@@ -16962,8 +17086,8 @@
         return;
       }
 
-      // 第 6 岛第 4 关题型 A/C：点物品选中，再点房间里的家具「放上去」
-      if (q.type === 'F14A' || q.type === 'F14C') {
+      // 第 6 岛第 4/5 关题型 A/C：点物品选中，再点房间里的家具「放上去」
+      if (q.type === 'F14A' || q.type === 'F14C' || q.type === 'F15A' || q.type === 'F15C') {
         tapFruit(idx, btn);
         return;
       }
@@ -17294,7 +17418,8 @@
           }),
           steps: q.steps ? q.steps.map(function (s) { return { item: s.item, target: s.target, place: s.place }; }) : null,
           stepsDone: (typeof q.stepsDone === 'number') ? q.stepsDone : null,
-          stepAudios: q.stepAudios || null
+          stepAudios: q.stepAudios || null,
+          furns: q.furns ? q.furns.slice() : null
         } : null
       };
     },

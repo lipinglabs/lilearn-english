@@ -2,7 +2,7 @@
 
 > **任何新窗口 / 新开发者接手本项目，第一步必须完整读完本文件，然后读 `RULES.md` 全文。**
 > 本文件回答「环境长什么样、代码怎么组织、密钥在哪、有哪些不可违反的约束」；`RULES.md` 是最高约束，冲突时以 `RULES.md` 为准。
-> 最后更新：2026-10-24（第 6 岛第 4 关「听指令做家务」上线；第 6 岛「温馨家居」开 W4；语音 693 条）
+> 最后更新：2026-10-24（第 6 岛第 5 关「游乐场 · 帮小人整理房间综合大考」上线，第 6 岛 5 关全通；语音 703 条）
 
 ---
 
@@ -14,7 +14,7 @@
 | 线上地址 | https://lipinglabs.github.io/lilearn-english/ |
 | 仓库 | `lipinglabs/lilearn-english`（**public**） |
 | 技术形态 | 纯静态：单页 HTML + 两个数据脚本 + Service Worker。**无构建、无框架、无后端、无 npm 依赖** |
-| 内容规模 | 12 岛 × 5 关框架；已做第 1–5 岛全部 + 第 6 岛第 1–4 关 |
+| 内容规模 | 12 岛 × 5 关框架；已做第 1–5 岛全部 + 第 6 岛第 1–5 关（第 6 岛已全通） |
 | 部署 | GitHub Pages（源 `main` 分支根目录 `/`，legacy 构建），推送即自动重建 |
 
 ---
@@ -63,8 +63,8 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html   728,622 B / 17,317 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  21,215,261 B /  6,347 行   ← window.VOICE_BANK，693 条 base64 mp3
+index.html   738,131 B / 17,442 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  21,586,087 B /  6,456 行   ← window.VOICE_BANK，703 条 base64 mp3
 assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
 ```
 
@@ -126,7 +126,7 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
 | `tools/gen_voice_doubao.py` | 豆包 2.0 批量 TTS 生成器 |
 | `tools/inline_assets.py` | PNG → base64 图库内联 |
 | `tools/make_animals.py` / `make_food.py` / `make_colors.py` / `make_icon.py` | 素材下载缩放（**禁止生图接口**） |
-| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `probe_f11.js` / `probe_f12.js` / `probe_f13.js` / `probe_f14.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的十三个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**；`probe_f11.js` 起额外断言「演示步不点按则不自动前进」；`probe_f13.js` 额外断言「球的热区比图形大一圈、画得够大」；`probe_f14.js` 用「轻点拾起→点家具」路径跑教学互动，按**期望舞台指纹**匹配（自动跳过物品落位产生的额外指纹），并断言 F14C 两步 `stepsDone` 落位、多步指令第二步口播不计入「答对禁人声」） |
+| `tools/probe_b3.js` / `probe_f1.js` / `probe_f2.js` / `probe_f3.js` / `probe_f4.js` / `probe_f5.js` / `probe_f6.js` / `probe_f7.js` / `probe_f8.js` / `probe_f9.js` / `probe_f10.js` / `probe_f11.js` / `probe_f12.js` / `probe_f13.js` / `probe_f14.js` / `probe_f15.js` / `test_cloud_merge.js` / `test_dev_sandbox.js` | 既有回归脚本（`probe_*.js` 用 Edge headless + CDP 真机模拟；`probe_f2.js` 起的十四个关卡探针都用 MutationObserver 记录教学环节时间线，逐步校验语音、4 秒手指、点错不推进、逐元素越界与**零尺寸**；`probe_f11.js` 起额外断言「演示步不点按则不自动前进」；`probe_f13.js` 额外断言「球的热区比图形大一圈、画得够大」；`probe_f14.js` 用「轻点拾起→点家具」路径跑教学互动，按**期望舞台指纹**匹配（自动跳过物品落位产生的额外指纹），并断言多步 `stepsDone` 落位、第二步口播不计入「答对禁人声」；`probe_f15.js` 为第 6 岛第 5 关综合关，额外断言通关走 grand（岛内收官）、地图第 6 岛 `cleared` 点亮、纵向越界一并检查）。**注意**：多个探针并行跑会因沙箱 PNG 写入串行化而偶发 `EPERM`，回归请**串行**执行。 |
 | `review.html` | 素材审查台（独立页面，只读解析 `assets.js`） |
 
 **✅ 生成脚本已适配切割后的结构，不要再改回 `index.html`**：
@@ -314,7 +314,15 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   家具容器 `.f14-furn` 用 `padding:9%` 让投放热区比 SVG 视觉大一圈（防坑铁律）；新画**书 / 玩具熊 / 球**三件物品（球复用 F13 红球造型），家具复用 F11 床/桌 + F13 箱子，零 PNG、零生图。
   横屏矮屏（`@media (max-height:560px)`）为 3 件家具强制单行 `flex-wrap:nowrap` 并压缩房间/托盘，避免家具换行把托盘顶到视口外（竖屏不受影响）。
   另修两处交互缺陷：`resolveF14` 教学分支把 DOM 元素当 `furn` 与字符串 `step.target` 比较会恒判错（改为统一取 `data-drop`）；`askPutItem` 未设 `me.hintTarget` 导致 4 秒小手指不出现（已补）。
-- **未完成**：第 6 岛 W5；第 7–12 岛（第 5 岛「食物与饮料」5 关已全部收官，第 6 岛「温馨家居」已开 W1–W4）。
+  **第 6 岛 W5「游乐场 · 帮小人整理房间综合大考」**（结业关，把 W1–W4 的家具/物品/方位综合复习；仍是 `Put the [物品] on/in/under the [家具]`）：
+  物品扩到 **书 / 玩具 / 球 / 衣服**（衣服为新手写 T 恤 SVG），家具扩到 **床 / 桌 / 箱 / 椅 / 书架**（书架画成带两层隔板的大柜子，新写 `F15_SHELF`）。
+  教学 7 环节：乱糟糟房间（衣服在床上、书在地上）→ 书上书架 → 玩具进箱 → 衣服上床（4 演示）+ 2 互动 + 过渡，演示沿用「点按推进」；
+  答题 12 轮（4/4/4）：A 单步整理（3 物品拖到正确家具）/ B 听长句找场景（书在床 / 玩具在箱 / 衣服在椅）/
+  C 多步指令（First… Then…，两步按顺序拖拽）。通关走 `grand`（岛内收官：大彩带 + 奖杯 + 通关旗），地图第 6 岛点亮 `cleared`。
+  复用第 4 关的整套房间渲染 / 判定 / 拖拽引擎（题型 kind 仍用 `f14item` / `f14scene`）；把 `runF14Tutorial` 重构成工厂 `makeRoomTutorial(ACTS, OUTRO_SCENES)`，第 4/5 关共用同一套教学引擎（差异只在 ACTS 与收尾三图）。
+  `snapshot()` 增补 `steps / stepsDone / stepAudios / furns`，供探针校验多步落位与家具集合。
+  语音去重复用：`Put the book on the bed.` / `Put the toy in the box.` / `Put the ball under the table.` / `The book is on the bed. Find the picture.` / `The toy is in the box. Find the picture.` / 5 条 C 组句均复用既有 key，本关只新生成 10 条。
+- **未完成**：第 7–12 岛（第 5 岛「食物与饮料」、第 6 岛「温馨家居」5 关均已全部收官）。
 - **第 5 岛主题**：`ISLANDS[4]` 为**「食物与饮料」**，地图图标用 3D 面包 PNG；
   **第 6 岛改为「温馨家居」**（`ISLANDS[5]`，原「交通工具」主题让位；地图图标已用手写小房子 SVG，不再用 emoji 字符）。
 - **第 4 岛主题**：`ISLANDS[3]` 为**「动物与动作」**，地图图标为 3D 狮子 PNG

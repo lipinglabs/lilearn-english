@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**693** 条（英文 687 + 中文 6）
+总条目：**703** 条（英文 697 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -673,24 +673,34 @@
 | `l6w3_b_in_box` | en | The ball is in the box. Find the picture. | 已存在 |
 | `l6w3_c_on_sofa` | en | Put the ball on the sofa. | 已存在 |
 | `l6w3_c_under_table` | en | Put the ball under the table. | 已存在 |
-| `l6w4_t_book1` | en | Look! A book. We need to put the book on the bed. | 待生成 |
-| `l6w4_t_book2` | en | Put the book on the bed. Great! | 待生成 |
-| `l6w4_t_toy1` | en | Look! A box and a toy. Put the toy in the box. | 待生成 |
-| `l6w4_t_toy2` | en | Put the toy in the box. Perfect! | 待生成 |
-| `l6w4_t_ball1` | en | Look! A table and a ball. Put the ball under the table. | 待生成 |
-| `l6w4_t_ball2` | en | Watch! The ball rolls under the table. | 待生成 |
-| `l6w4_t_out` | en | You are a great helper! Let's play! | 待生成 |
-| `l6w4_a_book_bed` | en | Put the book on the bed. | 待生成 |
-| `l6w4_a_toy_box` | en | Put the toy in the box. | 待生成 |
-| `l6w4_b_bookbed` | en | The book is on the bed. Find the picture. | 待生成 |
-| `l6w4_b_balltable` | en | The ball is under the table. Find the picture. | 待生成 |
-| `l6w4_b_toybox` | en | The toy is in the box. Find the picture. | 待生成 |
-| `l6w4_c1_s1` | en | First, put the book on the bed. | 待生成 |
-| `l6w4_c1_s2` | en | Then, put the ball under the table. | 待生成 |
-| `l6w4_c2_s1` | en | First, put the toy in the box. | 待生成 |
-| `l6w4_c2_s2` | en | Then, put the book on the table. | 待生成 |
-| `l6w4_c3_s1` | en | First, put the ball under the table. | 待生成 |
-| `l6w4_c3_s2` | en | Then, put the toy in the box. | 待生成 |
+| `l6w4_t_book1` | en | Look! A book. We need to put the book on the bed. | 已存在 |
+| `l6w4_t_book2` | en | Put the book on the bed. Great! | 已存在 |
+| `l6w4_t_toy1` | en | Look! A box and a toy. Put the toy in the box. | 已存在 |
+| `l6w4_t_toy2` | en | Put the toy in the box. Perfect! | 已存在 |
+| `l6w4_t_ball1` | en | Look! A table and a ball. Put the ball under the table. | 已存在 |
+| `l6w4_t_ball2` | en | Watch! The ball rolls under the table. | 已存在 |
+| `l6w4_t_out` | en | You are a great helper! Let's play! | 已存在 |
+| `l6w4_a_book_bed` | en | Put the book on the bed. | 已存在 |
+| `l6w4_a_toy_box` | en | Put the toy in the box. | 已存在 |
+| `l6w4_b_bookbed` | en | The book is on the bed. Find the picture. | 已存在 |
+| `l6w4_b_balltable` | en | The ball is under the table. Find the picture. | 已存在 |
+| `l6w4_b_toybox` | en | The toy is in the box. Find the picture. | 已存在 |
+| `l6w4_c1_s1` | en | First, put the book on the bed. | 已存在 |
+| `l6w4_c1_s2` | en | Then, put the ball under the table. | 已存在 |
+| `l6w4_c2_s1` | en | First, put the toy in the box. | 已存在 |
+| `l6w4_c2_s2` | en | Then, put the book on the table. | 已存在 |
+| `l6w4_c3_s1` | en | First, put the ball under the table. | 已存在 |
+| `l6w4_c3_s2` | en | Then, put the toy in the box. | 已存在 |
+| `f15_t_messy` | en | Look! The room is messy. Let's clean it up. | 待生成 |
+| `f15_t_ask1` | en | Can you help me? Put the book on the bookshelf. | 待生成 |
+| `f15_t_out` | en | Wow! The room is so clean! You are a great helper! Let's play! | 待生成 |
+| `f15_a_clothes_bed` | en | Put the clothes on the bed. | 待生成 |
+| `f15_a_book_shelf` | en | Put the book on the bookshelf. | 待生成 |
+| `f15_a_clothes_chair` | en | Put the clothes on the chair. | 待生成 |
+| `f15_b_clothes_chair` | en | The clothes are on the chair. Find the picture. | 待生成 |
+| `f15_c2_s2` | en | Then, put the clothes on the bed. | 待生成 |
+| `f15_c3_s2` | en | Then, put the book on the bookshelf. | 待生成 |
+| `f15_c4_s1` | en | First, put the clothes on the chair. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

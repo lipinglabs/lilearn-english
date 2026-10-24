@@ -988,6 +988,35 @@ add("l6w4_c3_s2", "Then, put the toy in the box.", "en", -15, EN_ASK)
 #   · 题型 C 第 4 组（书到床→玩具进箱）复用 l6w4_c1_s1 + l6w4_c3_s2
 #   · "Put the ball under the table."（C 的 Then / 演示 / 答题 A）统一复用 l6w3_c_under_table
 
+# ---- 第 6 岛第 5 关：游乐场 · 帮小人整理房间综合大考（L6-W5） ----
+# 综合复习关，句型仍是 Put the [物品] on/in/under the [家具]，但物品扩到 书/玩具/球/衣服，家具扩到 床/桌/箱/椅/书架。
+# 长句统一 rate -15（≈0.85x）。去重复用（RULES §1.12 同句同 key）：
+#   · "Put the book on the bed."            → l6w4_a_book_bed（教学互动 1 复用）
+#   · "Put the toy in the box."             → l6w4_a_toy_box（演示 3 / 互动 2 复用）
+#   · "Put the ball under the table."        → l6w3_c_under_table（题型 A 复用）
+#   · "The book is on the bed. Find the picture." → l6w4_b_bookbed（题型 B 复用）
+#   · "The toy is in the box. Find the picture."  → l6w4_b_toybox（题型 B 复用）
+# 本批共新生成 15 条：教学 3 + 题型 A 3 + 题型 B 1 + 题型 C 8。
+add("f15_t_messy", "Look! The room is messy. Let's clean it up.", "en", -15, EN_ASK)
+add("f15_t_ask1",  "Can you help me? Put the book on the bookshelf.", "en", -15, EN_ASK)
+add("f15_t_out",   "Wow! The room is so clean! You are a great helper! Let's play!", "en", -12, EN_PRAISE)
+
+# 题型 A：单步整理（3 物品 + 3 家具）
+add("f15_a_clothes_bed",   "Put the clothes on the bed.", "en", -15, EN_ASK)
+add("f15_a_book_shelf",    "Put the book on the bookshelf.", "en", -15, EN_ASK)
+add("f15_a_clothes_chair", "Put the clothes on the chair.", "en", -15, EN_ASK)
+
+# 题型 B：听长句找场景（书在床上 / 玩具在箱子里 / 衣服在椅子上；前两句复用第 4 关）
+add("f15_b_clothes_chair", "The clothes are on the chair. Find the picture.", "en", -15, EN_ASK)
+
+# 题型 C：多步指令（First… Then…）。与第 4 关重复的 5 句直接复用
+#   l6w4_c1_s1（First, put the book on the bed.）/ l6w4_c1_s2（Then, put the ball under the table.）/
+#   l6w4_c2_s1（First, put the toy in the box.）/ l6w4_c3_s1（First, put the ball under the table.）/
+#   l6w4_c3_s2（Then, put the toy in the box.），只新生成 3 条真正的新句：
+add("f15_c2_s2", "Then, put the clothes on the bed.", "en", -15, EN_ASK)
+add("f15_c3_s2", "Then, put the book on the bookshelf.", "en", -15, EN_ASK)
+add("f15_c4_s1", "First, put the clothes on the chair.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
