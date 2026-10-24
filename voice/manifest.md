@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**719** 条（英文 713 + 中文 6）
+总条目：**733** 条（英文 727 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -701,22 +701,36 @@
 | `f15_c2_s2` | en | Then, put the clothes on the bed. | 已存在 |
 | `f15_c3_s2` | en | Then, put the book on the bookshelf. | 已存在 |
 | `f15_c4_s1` | en | First, put the clothes on the chair. | 已存在 |
-| `b4_t_rock_feather` | en | Look! A rock and a feather. The rock is heavy. | 待生成 |
-| `b4_t_rock_falls` | en | The rock is heavy. It falls down fast. | 待生成 |
-| `b4_t_elephant_ask` | en | The elephant is heavy. Find the heavy one. | 待生成 |
-| `b4_t_feather` | en | Look at the feather. It is light. It flies in the sky. | 待生成 |
-| `b4_t_seesaw` | en | The balloon is light. The rock is heavy. | 待生成 |
-| `b4_t_out` | en | You know heavy and light! Let's play! | 待生成 |
-| `b4_a_heavy` | en | Find the heavy one. | 待生成 |
-| `b4_a_light` | en | Find the light one. | 待生成 |
-| `b4_b_elephant_monkey_heavy` | en | The elephant is heavy. The monkey is light. Who is heavy? | 待生成 |
-| `b4_b_rock_balloon_light` | en | The rock is heavy. The balloon is light. Who is light? | 待生成 |
-| `b4_b_elephant_feather_heavy` | en | The elephant is heavy. The feather is light. Who is heavy? | 待生成 |
-| `b4_b_rock_apple_light` | en | The rock is heavy. The apple is light. Who is light? | 待生成 |
-| `b4_c_rock` | en | Put the heavy rock in the heavy box. | 待生成 |
-| `b4_c_balloon` | en | Put the light balloon in the light box. | 待生成 |
-| `b4_c_elephant` | en | Put the heavy elephant in the heavy box. | 待生成 |
-| `b4_c_apple` | en | Put the light apple in the light box. | 待生成 |
+| `b4_t_rock_feather` | en | Look! A rock and a feather. The rock is heavy. | 已存在 |
+| `b4_t_rock_falls` | en | The rock is heavy. It falls down fast. | 已存在 |
+| `b4_t_elephant_ask` | en | The elephant is heavy. Find the heavy one. | 已存在 |
+| `b4_t_feather` | en | Look at the feather. It is light. It flies in the sky. | 已存在 |
+| `b4_t_seesaw` | en | The balloon is light. The rock is heavy. | 已存在 |
+| `b4_t_out` | en | You know heavy and light! Let's play! | 已存在 |
+| `b4_a_heavy` | en | Find the heavy one. | 已存在 |
+| `b4_a_light` | en | Find the light one. | 已存在 |
+| `b4_b_elephant_monkey_heavy` | en | The elephant is heavy. The monkey is light. Who is heavy? | 已存在 |
+| `b4_b_rock_balloon_light` | en | The rock is heavy. The balloon is light. Who is light? | 已存在 |
+| `b4_b_elephant_feather_heavy` | en | The elephant is heavy. The feather is light. Who is heavy? | 已存在 |
+| `b4_b_rock_apple_light` | en | The rock is heavy. The apple is light. Who is light? | 已存在 |
+| `b4_c_rock` | en | Put the heavy rock in the heavy box. | 已存在 |
+| `b4_c_balloon` | en | Put the light balloon in the light box. | 已存在 |
+| `b4_c_elephant` | en | Put the heavy elephant in the heavy box. | 已存在 |
+| `b4_c_apple` | en | Put the light apple in the light box. | 已存在 |
+| `b5x_t_gate` | en | Look! The big key and the small key. We need the big key. | 待生成 |
+| `b5x_t_ask1` | en | Find the big animal to help us. | 待生成 |
+| `b5x_t_bridge` | en | The short board is too short. We need the long board. | 待生成 |
+| `b5x_t_ask2` | en | Find the long one. | 待生成 |
+| `b5x_t_coins` | en | We have few coins. We need more coins! | 待生成 |
+| `b5x_t_seesaw` | en | The elephant is heavy. The feather is light. | 待生成 |
+| `b5x_t_ask3` | en | Put the heavy rock on the seesaw. | 待生成 |
+| `b5x_t_out` | en | Wow! You know big, long, more and heavy! Let's play! | 待生成 |
+| `b5x_a_heavy` | en | Which one is heavy? | 待生成 |
+| `b5x_a_light` | en | Which one is light? | 待生成 |
+| `b5x_b_bridge` | en | We need the long board. Find the picture. | 待生成 |
+| `b5x_b_gate` | en | We need the big key. Find the picture. | 待生成 |
+| `b5x_b_seesaw` | en | The elephant is heavy. The feather is light. Find the picture. | 待生成 |
+| `b5x_c_feather` | en | Put the light feather in the light box. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

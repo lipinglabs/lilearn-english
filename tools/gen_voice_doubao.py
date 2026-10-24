@@ -1044,6 +1044,33 @@ add("b4_c_balloon",  "Put the light balloon in the light box.", "en", -15, EN_AS
 add("b4_c_elephant", "Put the heavy elephant in the heavy box.", "en", -15, EN_ASK)
 add("b4_c_apple",    "Put the light apple in the light box.", "en", -15, EN_ASK)
 
+# ---- 第 3 岛第 5 关彻底重做：游乐场 · 综合比较大考（旧的「比较与分类」全删）----
+# 长句统一 rate -15（≈0.85x）。去重说明（RULES §一.12）：
+#   · 题型 A 的 bigger / smaller / longer / shorter 复用旧批 b5_a_bigger / b5_a_smaller / b5_a_longer / b5_a_shorter
+#   · 题型 C 的 rock / balloon / elephant 与第 4 关同句，复用 b4_c_rock / b4_c_balloon / b4_c_elephant
+#   · 只有下面 14 条是真正的新句
+# 教学 8 环节：大门钥匙 / 大象vs老鼠(互动) / 断桥木板 / 长火车vs短汽车(互动) / 硬币 / 跷跷板 / 石头放跷跷板(互动) / 过渡
+add("b5x_t_gate",   "Look! The big key and the small key. We need the big key.", "en", -15, EN_ASK)
+add("b5x_t_ask1",   "Find the big animal to help us.", "en", -15, EN_ASK)
+add("b5x_t_bridge", "The short board is too short. We need the long board.", "en", -15, EN_ASK)
+add("b5x_t_ask2",   "Find the long one.", "en", -15, EN_ASK)
+add("b5x_t_coins",  "We have few coins. We need more coins!", "en", -15, EN_ASK)
+add("b5x_t_seesaw", "The elephant is heavy. The feather is light.", "en", -15, EN_ASK)
+add("b5x_t_ask3",   "Put the heavy rock on the seesaw.", "en", -15, EN_ASK)
+add("b5x_t_out",    "Wow! You know big, long, more and heavy! Let's play!", "en", -12, EN_PRAISE)
+
+# 题型 A：两件物品听比较词（只需新生成 heavy / light 两问）
+add("b5x_a_heavy", "Which one is heavy?", "en", -15, EN_ASK)
+add("b5x_a_light", "Which one is light?", "en", -15, EN_ASK)
+
+# 题型 B：三个场景选画面（断桥 / 大门 / 跷跷板）
+add("b5x_b_bridge", "We need the long board. Find the picture.", "en", -15, EN_ASK)
+add("b5x_b_gate",   "We need the big key. Find the picture.", "en", -15, EN_ASK)
+add("b5x_b_seesaw", "The elephant is heavy. The feather is light. Find the picture.", "en", -15, EN_ASK)
+
+# 题型 C：终极大拖拽（其余三句复用第 4 关）
+add("b5x_c_feather", "Put the light feather in the light box.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

@@ -93,6 +93,7 @@ f13lived-*.png
 f14*.png
 f15*.png
 b4*.png
+b5*.png
 rf*-*.png
 b3-*.png
 
@@ -101,6 +102,7 @@ tools/probe_f9.out
 tools/probe_f14_out*.txt
 tools/probe_f15_out*.txt
 tools/probe_b4_out*.txt
+tools/probe_b5_out*.txt
 
 # 一次性补丁脚本（改完即弃，不入库）
 tools/_*.js
