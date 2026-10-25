@@ -2898,7 +2898,7 @@
     { icon: '🍰', name: '食物与饮料' },
     { icon: '🏠', name: '温馨家居' },
     { icon: '👶', name: '身体与五官' },
-    { icon: '👨‍👩‍👧', name: '家庭成员' },
+    { icon: '🙂', name: '情绪与感受' },
     { icon: '👕', name: '衣物穿戴' },
     { icon: '🏠', name: '家居房间' },
     { icon: '⚽', name: '动作运动' },
@@ -3868,7 +3868,8 @@
     '7-2': { numbers: null, make: 'makeG2', title: '第 2 关', tutorial: true },
     '7-3': { numbers: null, make: 'makeG3', title: '第 3 关', tutorial: true },
     '7-4': { numbers: null, make: 'makeG4', title: '第 4 关', tutorial: true },
-    '7-5': { numbers: null, make: 'makeG5', title: '第 5 关', tutorial: true }
+    '7-5': { numbers: null, make: 'makeG5', title: '第 5 关', tutorial: true },
+    '8-1': { numbers: null, make: 'makeH1', title: '第 1 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3926,6 +3927,27 @@
         '<ellipse cx="24" cy="62" rx="5" ry="3.4" fill="#ffb2a2" opacity=".6"/>' +
         '<ellipse cx="76" cy="62" rx="5" ry="3.4" fill="#ffb2a2" opacity=".6"/>';
       return faceIcon;
+    }
+    // 第 8 岛是「情绪与感受」，地图图标用手写三连情绪小脸（开心/难过/生气，免费 SVG）
+    if (index === 8) {
+      var emo = document.createElementNS(SVG_NS, 'svg');
+      emo.setAttribute('viewBox', '0 0 100 100');
+      emo.setAttribute('class', 'mini-shapes');
+      emo.innerHTML =
+        '<circle cx="22" cy="50" r="16" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.4"/>' +
+        '<path d="M14 45 q4 -5 8 0" fill="none" stroke="#5a4a42" stroke-width="2.6" stroke-linecap="round"/>' +
+        '<path d="M22 45 q4 -5 8 0" fill="none" stroke="#5a4a42" stroke-width="2.6" stroke-linecap="round"/>' +
+        '<path d="M15 55 q7 7 14 0" fill="none" stroke="#e8605c" stroke-width="2.8" stroke-linecap="round"/>' +
+        '<circle cx="50" cy="50" r="16" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.4"/>' +
+        '<circle cx="44" cy="46" r="2.6" fill="#5a4a42"/>' +
+        '<circle cx="56" cy="46" r="2.6" fill="#5a4a42"/>' +
+        '<path d="M43 57 q7 -6 14 0" fill="none" stroke="#5a4a42" stroke-width="2.8" stroke-linecap="round"/>' +
+        '<path d="M56 51 c-1.8 2.8 -1.6 5.4 0 6.4 c1.6 -1 1.8 -3.6 0 -6.4 z" fill="#8ecae6"/>' +
+        '<circle cx="78" cy="50" r="16" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.4"/>' +
+        '<path d="M70 42 l8 4" fill="none" stroke="#5a4a42" stroke-width="2.8" stroke-linecap="round"/>' +
+        '<path d="M86 42 l-8 4" fill="none" stroke="#5a4a42" stroke-width="2.8" stroke-linecap="round"/>' +
+        '<path d="M71 58 q7 -5 14 0" fill="none" stroke="#5a4a42" stroke-width="2.8" stroke-linecap="round"/>';
+      return emo;
     }
     if (index === 2) {
       var box = document.createElementNS(SVG_NS, 'svg');
@@ -4057,6 +4079,7 @@
     if (def && def.make === 'makeG3') return makeQuestionG3(typeIdx, prev);
     if (def && def.make === 'makeG4') return makeQuestionG4(typeIdx, prev);
     if (def && def.make === 'makeG5') return makeQuestionG5(typeIdx, prev);
+    if (def && def.make === 'makeH1') return makeQuestionH1(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -17550,6 +17573,794 @@
     return api;
   })();
 
+  /* ============================================================
+     第 8 岛第 1 关（L8-W1：基础情绪 Happy / Sad / Angry）
+     第 8 岛主题改为「情绪与感受」，本关是开篇：空白脸谱 + 情绪零件。
+     教学 13 环节（RULES §三.10 双倍量：3 个情绪 × 2 演示 + 2 互动 + 过渡）：
+       · 演示 1：空白脸 → 语音描述零件 → 动画拼上（播完定格等点按，§三.14）；
+       · 演示 2：完整脸 + 情绪氛围（笑脸闪光 / 流泪动画 / 生气蒸汽），句式与画面都不同；
+       · 互动 1：孩子模仿做表情 + 巨大👍按钮确认（§三.12 永远判对、≥44vw、4 秒小手 §二.12）；
+       · 互动 2：三张脸谱点出目标情绪（点错抖 + again + 重新出小手）。
+     答题 12 轮（4/4/4，选项每局洗牌 §二.9）：
+       A 听音找脸谱（3 张情绪脸点目标）/
+       B 听情景找情绪（3 张情景卡：开心/难过/生气，听情景点对应脸谱）/
+       C 拼脸谱（缺嘴巴的脸 + 选项栏 3 个嘴巴，拖/点拼上去，§二.11 双路径）。
+     规则：无英文字母外显、答对只音效+星星（禁人声 §1.6）、答错 again+四秒小手、
+           热区比视觉大一圈（§三.15）、零生图零 emoji（§二.17 全部手写 SVG）、
+           定格不吞顶栏点击（§三.18）、跨关组件不依赖别关样式（§三.17）。
+     ============================================================ */
+
+  /* ---- 手写 SVG：空白圆脸 + 情绪零件（眼睛/眉毛/鼻子/嘴巴） ---- */
+  var H1_INK = '#5a4a42';
+
+  /* 空白圆脸：圆脸 + 腮红 + 小耳朵（没有任何表情） */
+  var H1_FACE_SVG =
+    '<ellipse cx="22" cy="55" rx="6.5" ry="9.5" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3"/>' +
+    '<ellipse cx="78" cy="55" rx="6.5" ry="9.5" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3"/>' +
+    '<ellipse cx="50" cy="51" rx="40" ry="42" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.4"/>' +
+    '<ellipse cx="26" cy="66" rx="7" ry="4.6" fill="#ffb2a2" opacity=".55"/>' +
+    '<ellipse cx="74" cy="66" rx="7" ry="4.6" fill="#ffb2a2" opacity=".55"/>';
+
+  /* 眼睛（一对，扁取景框 100×56） */
+  var H1_EYES_SVG = {
+    /* 开心：两条弯弯的笑眼（∩ 弧） */
+    happy:
+      '<path d="M13 35 Q26 14 39 35" fill="none" stroke="' + H1_INK + '" stroke-width="5.6" stroke-linecap="round"/>' +
+      '<path d="M61 35 Q74 14 87 35" fill="none" stroke="' + H1_INK + '" stroke-width="5.6" stroke-linecap="round"/>',
+    /* 难过：下垂眼皮 + 圆眼 + 掉眼泪（眼泪带掉落动画） */
+    sad:
+      '<path d="M13 20 Q26 31 39 20" fill="none" stroke="' + H1_INK + '" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M61 20 Q74 31 87 20" fill="none" stroke="' + H1_INK + '" stroke-width="4" stroke-linecap="round"/>' +
+      '<circle cx="26" cy="30" r="9" fill="#ffffff" stroke="' + H1_INK + '" stroke-width="3"/>' +
+      '<circle cx="26" cy="31" r="4.4" fill="#433a36"/>' +
+      '<circle cx="74" cy="30" r="9" fill="#ffffff" stroke="' + H1_INK + '" stroke-width="3"/>' +
+      '<circle cx="74" cy="31" r="4.4" fill="#433a36"/>' +
+      '<path class="h1-tear" d="M26 40 c-4.6 6.6 -4 12.6 0 15 c4 -2.4 4.6 -8.4 0 -15 z" ' +
+      'fill="#8ecae6" stroke="#5a9ec9" stroke-width="2.2"/>' +
+      '<path class="h1-tear t2" d="M74 40 c-4.6 6.6 -4 12.6 0 15 c4 -2.4 4.6 -8.4 0 -15 z" ' +
+      'fill="#8ecae6" stroke="#5a9ec9" stroke-width="2.2"/>',
+    /* 生气：眯成一条缝的眼 */
+    angry:
+      '<path d="M13 33 Q26 22 39 33 Q26 43 13 33 Z" fill="#ffffff" stroke="' + H1_INK + '" stroke-width="3.2"/>' +
+      '<circle cx="26" cy="32" r="4.2" fill="#433a36"/>' +
+      '<path d="M61 33 Q74 22 87 33 Q74 43 61 33 Z" fill="#ffffff" stroke="' + H1_INK + '" stroke-width="3.2"/>' +
+      '<circle cx="74" cy="32" r="4.2" fill="#433a36"/>',
+    /* 中立（答题 C 的脸用）：两个小圆点眼 */
+    neutral:
+      '<circle cx="27" cy="28" r="5.6" fill="' + H1_INK + '"/>' +
+      '<circle cx="73" cy="28" r="5.6" fill="' + H1_INK + '"/>'
+  };
+
+  /* 倒竖的眉毛（生气专用，扁取景框 100×34）：外高内低 */
+  var H1_BROWS_SVG = {
+    angry:
+      '<path d="M10 7 L42 22" fill="none" stroke="' + H1_INK + '" stroke-width="6.8" stroke-linecap="round"/>' +
+      '<path d="M90 7 L58 22" fill="none" stroke="' + H1_INK + '" stroke-width="6.8" stroke-linecap="round"/>'
+  };
+
+  /* 嘴巴（扁取景框 100×36） */
+  var H1_MOUTH_SVG = {
+    /* 开心：张开的笑嘴 + 白牙 */
+    happy:
+      '<path d="M20 5 Q50 33 80 5 Q50 19 20 5 Z" fill="#e8605c" stroke="#c94a48" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M28 8 Q50 23 72 8" fill="none" stroke="#ffffff" stroke-width="2.8" opacity=".8" stroke-linecap="round"/>',
+    /* 难过：下垂的嘴（⌒ 倒弧） */
+    sad:
+      '<path d="M28 21 Q50 5 72 21" fill="none" stroke="' + H1_INK + '" stroke-width="6" stroke-linecap="round"/>',
+    /* 生气：张大的喊嘴 + 牙 + 舌头 */
+    angry:
+      '<rect x="26" y="7" width="48" height="24" rx="11" fill="#c94a48" stroke="#a83a3e" stroke-width="3"/>' +
+      '<rect x="30" y="9.5" width="40" height="6.5" rx="3" fill="#ffffff"/>' +
+      '<ellipse cx="50" cy="26" rx="10" ry="4.4" fill="#ff8fa3"/>'
+  };
+
+  /* 小鼻子（答题 C 的脸用，取景框 100×60） */
+  var H1_NOSE_SVG =
+    '<ellipse cx="50" cy="30" rx="15" ry="10.5" fill="#f2c9a0" stroke="#e0a06d" stroke-width="3.4"/>';
+
+  var H1_MOODS = ['happy', 'sad', 'angry'];
+  /* 每种情绪由哪些零件组成（ angry 多一对倒竖眉 ） */
+  var H1_PARTS = {
+    happy: ['eyes', 'mouth'],
+    sad: ['eyes', 'mouth'],
+    angry: ['brows', 'eyes', 'mouth']
+  };
+  var H1_PART_BOX = { eyes: '0 0 100 56', brows: '0 0 100 34', mouth: '0 0 100 36', nose: '0 0 100 60' };
+
+  function h1PartSvg(part, mood) {
+    var inner = part === 'eyes' ? H1_EYES_SVG[mood || 'neutral']
+      : part === 'brows' ? H1_BROWS_SVG[mood]
+      : part === 'mouth' ? H1_MOUTH_SVG[mood]
+      : part === 'nose' ? H1_NOSE_SVG : '';
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', H1_PART_BOX[part] || '0 0 100 100');
+    s.setAttribute('class', 'h1-part-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = inner || '';
+    return s;
+  }
+
+  function h1FaceSvg() {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 100 100');
+    s.setAttribute('class', 'h1-face-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = H1_FACE_SVG;
+    return s;
+  }
+
+  function h1OnNode(part, mood) {
+    var d = document.createElement('div');
+    d.className = 'h1-on';
+    d.dataset.part = part;
+    d.setAttribute('aria-hidden', 'true');
+    d.appendChild(h1PartSvg(part, mood));
+    return d;
+  }
+
+  /** 一张脸：mood = 情绪（完整脸）；null = 空白脸；{neutral:true} = 中立眼 + 鼻（答题 C） */
+  function h1FaceNode(mood, opts) {
+    opts = opts || {};
+    var wrap = document.createElement('div');
+    wrap.className = 'h1-face-in';
+    wrap.appendChild(h1FaceSvg());
+    if (opts.neutral) {
+      wrap.appendChild(h1OnNode('eyes', 'neutral'));
+      wrap.appendChild(h1OnNode('nose', null));
+    } else if (mood) {
+      H1_PARTS[mood].forEach(function (p) { wrap.appendChild(h1OnNode(p, mood)); });
+    }
+    return wrap;
+  }
+
+  /** 把零件「贴」到脸上（带弹出动画） */
+  function h1PlaceOnFace(faceIn, part, mood) {
+    if (!faceIn) return;
+    var n = h1OnNode(part, mood);
+    n.classList.add('h1-pop');
+    faceIn.appendChild(n);
+  }
+
+  /** 演示 1：语音播完后按顺序把零件逐件拼上（「动画拼上」） */
+  function h1BuildFace(faceIn, mood) {
+    H1_PARTS[mood].forEach(function (p, i) {
+      setTimeout(function () {
+        if (faceIn && faceIn.parentNode) h1PlaceOnFace(faceIn, p, mood);
+      }, i * 240);
+    });
+  }
+
+  /** 嘴巴空位虚线（答题 C：脸上缺了嘴巴） */
+  function h1SlotNode() {
+    var slot = document.createElement('div');
+    slot.className = 'h1-slot';
+    slot.setAttribute('aria-hidden', 'true');
+    return slot;
+  }
+
+  /* ---- 手写 SVG：巨大👍按钮（§三.12：唯一、≥44vw、正下方） ---- */
+  function h1ThumbSvg() {
+    return '<svg viewBox="0 0 100 100" class="h1-thumb-svg" aria-hidden="true">' +
+      '<rect x="39" y="12" width="17" height="40" rx="8.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="17" y="45" width="48" height="35" rx="13.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="22" y="75" width="39" height="13" rx="6.5" fill="#7fb3d5" stroke="#4f9fd6" stroke-width="3"/>' +
+      '</svg>';
+  }
+
+  /* ---- 演示 2 的氛围装饰：笑脸闪光 / 生气蒸汽（难过=眼睛里的流泪动画） ---- */
+  function h1Sparkle(x, y, size, cls) {
+    var d = document.createElement('div');
+    d.className = 'h1-deco h1-spark ' + (cls || '');
+    d.style.left = x;
+    d.style.top = y;
+    d.style.width = size;
+    d.style.height = size;
+    d.setAttribute('aria-hidden', 'true');
+    d.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path d="M12 1 L14.6 9.4 L23 12 L14.6 14.6 L12 23 L9.4 14.6 L1 12 L9.4 9.4 Z" ' +
+      'fill="#ffd66b" stroke="#e8b54a" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+    return d;
+  }
+
+  function h1Steam(x, y, cls) {
+    var d = document.createElement('div');
+    d.className = 'h1-deco h1-steam ' + (cls || '');
+    d.style.left = x;
+    d.style.top = y;
+    d.setAttribute('aria-hidden', 'true');
+    d.innerHTML = '<svg viewBox="0 0 44 32" aria-hidden="true">' +
+      '<path d="M9 24 q-7 -9 2 -13 q-1 -9 9 -7 q4 -6 10 -2 q9 -1 8 7 q8 2 4 11 q-2 5 -9 5 h-15 q-7 0 -9 -1 z" ' +
+      'fill="#f6e3d3" stroke="#d8b08c" stroke-width="2.6" stroke-linejoin="round"/></svg>';
+    return d;
+  }
+
+  /* ---- 手写 SVG：答题 B 的情景卡（小孩 + 道具 + 情绪表情） ---- */
+  function h1SceneInner(scene) {
+    var shadow = '<ellipse cx="85" cy="151" rx="46" ry="6.5" fill="#d8b08c" opacity=".22"/>';
+    var boyBody = '<path d="M56 150 v-30 q0 -20 29 -20 q29 0 29 20 v30 z" fill="#7fb8d8" stroke="#5f9cc0" stroke-width="3"/>';
+    var girlBody = '<path d="M56 150 v-30 q0 -20 29 -20 q29 0 29 20 v30 z" fill="#ffb3c1" stroke="#e89aa8" stroke-width="3"/>';
+    var boyHead =
+      '<rect x="71" y="96" width="28" height="14" rx="7" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.6"/>' +
+      '<circle cx="21" cy="108" r="5.4" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.4"/>' +
+      '<circle cx="149" cy="108" r="5.4" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.4"/>' +
+      '<circle cx="85" cy="66" r="34" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.2"/>' +
+      '<path d="M51 66 A34 34 0 0 1 119 66 Q103 52 85 52 Q67 52 51 66 Z" fill="#6b4a34"/>';
+    var happyFace =
+      '<path d="M68 61 Q75 53 82 61" fill="none" stroke="' + H1_INK + '" stroke-width="3.4" stroke-linecap="round"/>' +
+      '<path d="M88 61 Q95 53 102 61" fill="none" stroke="' + H1_INK + '" stroke-width="3.4" stroke-linecap="round"/>' +
+      '<path d="M75 76 Q85 87 95 76" fill="none" stroke="' + H1_INK + '" stroke-width="3.4" stroke-linecap="round"/>' +
+      '<circle cx="63" cy="73" r="4.6" fill="#ffb9b9" opacity=".6"/>' +
+      '<circle cx="107" cy="73" r="4.6" fill="#ffb9b9" opacity=".6"/>';
+    var sadFace =
+      '<path d="M66 55 Q75 64 84 55" fill="none" stroke="' + H1_INK + '" stroke-width="2.8" stroke-linecap="round"/>' +
+      '<path d="M86 55 Q95 64 104 55" fill="none" stroke="' + H1_INK + '" stroke-width="2.8" stroke-linecap="round"/>' +
+      '<circle cx="75" cy="64" r="6.2" fill="#ffffff" stroke="' + H1_INK + '" stroke-width="2.4"/>' +
+      '<circle cx="75" cy="65" r="3" fill="#433a36"/>' +
+      '<circle cx="95" cy="64" r="6.2" fill="#ffffff" stroke="' + H1_INK + '" stroke-width="2.4"/>' +
+      '<circle cx="95" cy="65" r="3" fill="#433a36"/>' +
+      '<path class="h1-tear" d="M75 70 c-3.2 4.6 -2.8 8.8 0 10.4 c2.8 -1.6 3.2 -6 0 -10.4 z" ' +
+      'fill="#8ecae6" stroke="#5a9ec9" stroke-width="1.8"/>' +
+      '<path class="h1-tear t2" d="M95 70 c-3.2 4.6 -2.8 8.8 0 10.4 c2.8 -1.6 3.2 -6 0 -10.4 z" ' +
+      'fill="#8ecae6" stroke="#5a9ec9" stroke-width="1.8"/>' +
+      '<path d="M76 86 Q85 76 94 86" fill="none" stroke="' + H1_INK + '" stroke-width="3.4" stroke-linecap="round"/>';
+    var angryFace =
+      '<path d="M64 51 L84 61" fill="none" stroke="' + H1_INK + '" stroke-width="4.6" stroke-linecap="round"/>' +
+      '<path d="M106 51 L86 61" fill="none" stroke="' + H1_INK + '" stroke-width="4.6" stroke-linecap="round"/>' +
+      '<path d="M66 68 Q75 62 84 68 Q75 74 66 68 Z" fill="#ffffff" stroke="' + H1_INK + '" stroke-width="2.6"/>' +
+      '<circle cx="75" cy="68" r="3" fill="#433a36"/>' +
+      '<path d="M86 68 Q95 62 104 68 Q95 74 86 68 Z" fill="#ffffff" stroke="' + H1_INK + '" stroke-width="2.6"/>' +
+      '<circle cx="95" cy="68" r="3" fill="#433a36"/>' +
+      '<path d="M73 82 q12 -5 24 0 q0 13 -12 13 q-12 0 -12 -13 z" fill="#c94a48" stroke="#a83a3e" stroke-width="2.4"/>' +
+      '<rect x="76" y="83" width="18" height="4" rx="2" fill="#ffffff"/>';
+
+    if (scene === 'ice_eat') {
+      /* 开心：小男孩拿着冰淇淋舔 */
+      return shadow + boyBody + boyHead + happyFace +
+        '<path d="M126 96 l9.5 24 l9.5 -24 z" fill="#e0a96d" stroke="#c08d5b" stroke-width="2.6" stroke-linejoin="round"/>' +
+        '<circle cx="134" cy="89" r="9.5" fill="#ffd9e0" stroke="#e8a0b0" stroke-width="2.6"/>' +
+        '<circle cx="143" cy="83" r="7.6" fill="#fff3d6" stroke="#e0c9a0" stroke-width="2.4"/>';
+    }
+    if (scene === 'gift') {
+      /* 开心：生日派对 + 礼物盒 */
+      return shadow + boyBody +
+        '<path d="M85 14 l17 33 h-34 z" fill="#ff8fa3" stroke="#e5788f" stroke-width="3" stroke-linejoin="round"/>' +
+        '<circle cx="85" cy="13" r="5" fill="#ffd66b" stroke="#e0a93b" stroke-width="2.4"/>' +
+        '<rect x="71" y="96" width="28" height="14" rx="7" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.6"/>' +
+        '<circle cx="21" cy="108" r="5.4" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.4"/>' +
+        '<circle cx="149" cy="108" r="5.4" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.4"/>' +
+        '<circle cx="85" cy="66" r="34" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.2"/>' +
+        happyFace +
+        '<rect x="18" y="112" width="42" height="36" rx="6" fill="#9fd0f5" stroke="#6fa8d8" stroke-width="3"/>' +
+        '<rect x="36" y="112" width="8" height="36" fill="#ff8fa3"/>' +
+        '<rect x="18" y="125" width="42" height="8" fill="#ff8fa3"/>' +
+        '<circle cx="37" cy="110" r="4.6" fill="#ff8fa3"/>' +
+        '<circle cx="45" cy="110" r="4.6" fill="#ff8fa3"/>';
+    }
+    if (scene === 'ice_fall') {
+      /* 难过：冰淇淋掉地上了 */
+      return shadow + boyBody + boyHead + sadFace +
+        '<ellipse cx="44" cy="143" rx="17" ry="5" fill="#ffd9e0" opacity=".85"/>' +
+        '<g transform="rotate(156 44 134)">' +
+        '<path d="M35 120 l9 22 l9 -22 z" fill="#e0a96d" stroke="#c08d5b" stroke-width="2.4" stroke-linejoin="round"/></g>' +
+        '<circle cx="60" cy="140" r="6" fill="#fff3d6" stroke="#e0c9a0" stroke-width="2.2"/>';
+    }
+    if (scene === 'balloon') {
+      /* 难过：小女孩的气球飞走了 */
+      return shadow + girlBody +
+        '<rect x="71" y="96" width="28" height="14" rx="7" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.6"/>' +
+        '<circle cx="21" cy="108" r="5.4" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.4"/>' +
+        '<circle cx="85" cy="66" r="34" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.2"/>' +
+        '<ellipse cx="117" cy="58" rx="9" ry="15" fill="#a0522d" transform="rotate(20 117 58)"/>' +
+        '<path d="M51 66 A34 34 0 0 1 119 66 Q103 52 85 52 Q67 52 51 66 Z" fill="#a0522d"/>' +
+        '<circle cx="111" cy="52" r="4.2" fill="#ff8fa3"/>' +
+        '<circle cx="119" cy="50" r="4.2" fill="#ff8fa3"/>' +
+        sadFace +
+        '<ellipse cx="142" cy="28" rx="15" ry="18" fill="#ff8fa3" stroke="#e5788f" stroke-width="2.6"/>' +
+        '<path d="M139.5 45.5 l5 0 l-2.5 5 z" fill="#e5788f"/>' +
+        '<path d="M142 50 q7 12 -1 22" fill="none" stroke="#b08968" stroke-width="2"/>';
+    }
+    if (scene === 'toy') {
+      /* 生气：玩具被大手抢走了 */
+      return shadow + boyBody + boyHead + angryFace +
+        '<circle cx="122" cy="119" r="13" fill="#c9a06a" stroke="#a87f4f" stroke-width="2.6"/>' +
+        '<circle cx="112" cy="108" r="5" fill="#c9a06a" stroke="#a87f4f" stroke-width="2.2"/>' +
+        '<circle cx="132" cy="108" r="5" fill="#c9a06a" stroke="#a87f4f" stroke-width="2.2"/>' +
+        '<circle cx="118" cy="117" r="1.8" fill="' + H1_INK + '"/>' +
+        '<circle cx="126" cy="117" r="1.8" fill="' + H1_INK + '"/>' +
+        '<ellipse cx="122" cy="124" rx="3.6" ry="2.6" fill="#a87f4f"/>' +
+        '<rect x="140" y="100" width="30" height="36" rx="13" fill="#f6cfa5" stroke="#d8a97f" stroke-width="2.6"/>' +
+        '<rect x="134" y="108" width="13" height="17" rx="6.5" fill="#f6cfa5" stroke="#d8a97f" stroke-width="2.4"/>' +
+        '<path d="M150 92 l0 -9 M158 95 l5 -7" stroke="#e8a0a0" stroke-width="2.6" stroke-linecap="round"/>';
+    }
+    /* 生气：积木被推倒了 */
+    return shadow + boyBody + boyHead + angryFace +
+      '<rect x="28" y="118" width="24" height="24" rx="5" fill="#ffd66b" stroke="#e0a93b" stroke-width="2.6"/>' +
+      '<rect x="56" y="126" width="24" height="24" rx="5" fill="#9fd0f5" stroke="#6fa8d8" stroke-width="2.6" ' +
+      'transform="rotate(26 68 138)"/>' +
+      '<rect x="92" y="133" width="26" height="12" rx="5" fill="#b9e2b0" stroke="#8fc79a" stroke-width="2.4"/>';
+  }
+
+  function h1SceneSvg(scene) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 170 160');
+    s.setAttribute('class', 'h1-scene-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = h1SceneInner(scene);
+    return s;
+  }
+
+  function ensureH1Css() {
+    if (document.getElementById('h1-style')) return;
+    var s = document.createElement('style');
+    s.id = 'h1-style';
+    s.textContent =
+      /* 教学舞台 */
+      '.h1-stage{position:relative;display:flex;flex-direction:column;align-items:center;' +
+      'justify-content:center;width:100%;gap:1.8vh;padding-bottom:6vh;box-sizing:border-box}' +
+      /* 脸：外层只负责「投放热区」，内层负责视觉 —— 热区比图形大一圈（§三.15） */
+      '.h1-face{position:relative;width:min(70vw,280px);aspect-ratio:1/1;padding:7%;box-sizing:border-box;' +
+      'border-radius:30px;display:flex;align-items:center;justify-content:center}' +
+      '.h1-face.h1-drop{cursor:pointer}' +
+      '.h1-face.drop-hot,.h1-face.h1-hot{outline:4px dashed #ffb74d;outline-offset:2px}' +
+      '.h1-face.right{box-shadow:0 0 0 4px rgba(127,209,138,.45);border-radius:30px}' +
+      '.h1-face-in{position:relative;width:100%;height:100%}' +
+      '.h1-face-svg{position:absolute;inset:0;width:100%;height:100%;display:block}' +
+      /* 贴在脸上的零件 */
+      '.h1-on{position:absolute;display:flex;align-items:center;justify-content:center}' +
+      '.h1-on svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.h1-on[data-part="eyes"]{left:24%;top:30%;width:52%;aspect-ratio:100/56}' +
+      '.h1-on[data-part="brows"]{left:21%;top:16%;width:58%;aspect-ratio:100/34}' +
+      '.h1-on[data-part="mouth"]{left:28%;top:60%;width:44%;aspect-ratio:100/36}' +
+      '.h1-on[data-part="nose"]{left:43%;top:44%;width:14%;aspect-ratio:100/60}' +
+      '.h1-on.h1-pop{animation:h1pop .45s cubic-bezier(.2,1.5,.5,1)}' +
+      '.h1-on.wrong{animation:h1shake .5s;opacity:.5}' +
+      /* 嘴巴空位虚线（答题 C） */
+      '.h1-slot{position:absolute;left:28%;top:61%;width:44%;height:14%;border:3px dashed #e8b98d;' +
+      'border-radius:45%;opacity:.85;animation:h1pulse 1.5s ease-in-out infinite}' +
+      /* 三张脸宫格（教学互动 2 / 答题 A / 过渡） */
+      '.h1-grid{display:flex;gap:min(3.4vw,14px);justify-content:center;align-items:center;' +
+      'width:100%;margin:1vh auto}' +
+      '.h1-mini{position:relative;width:min(29vw,140px);aspect-ratio:1/1;background:rgba(255,255,255,.72);' +
+      'border:3px solid #ffd9a0;border-radius:24px;padding:6%;cursor:pointer;display:block;' +
+      'box-sizing:border-box;box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease}' +
+      '.h1-mini:active{transform:scale(.96)}' +
+      '.h1-mini .h1-face-in{pointer-events:none}' +
+      '.h1-mini.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.h1-mini.wrong{animation:h1shake .5s;border-color:#f0a0a0}' +
+      '.h1-mini.h1-glow{animation:h1glow 1.1s ease-in-out infinite}' +
+      /* 巨大👍按钮（§三.12：唯一、≥44vw、正下方、演示期半透明不可点） */
+      '.h1-thumb{display:flex;align-items:center;justify-content:center;width:min(52vw,240px);' +
+      'aspect-ratio:1/1;background:rgba(255,255,255,.82);border:4px solid #ffd66b;border-radius:34px;' +
+      'box-shadow:0 10px 22px rgba(224,169,59,.3);cursor:pointer;transition:transform .15s ease;' +
+      'animation:h1thump 1.5s ease-in-out infinite}' +
+      '.h1-thumb:active{transform:scale(.95)}' +
+      '.h1-thumb.off{opacity:.42;filter:grayscale(.4);pointer-events:none;animation:none}' +
+      '.h1-thumb.right{box-shadow:0 0 0 5px rgba(127,209,138,.55)}' +
+      '.h1-thumb-svg{width:60%;height:60%;display:block}' +
+      '@keyframes h1thump{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}' +
+      /* 演示 2 氛围装饰（闪光 / 蒸汽） */
+      '.h1-deco{position:absolute;pointer-events:none;width:min(13vw,56px)}' +
+      '.h1-deco svg{width:100%;height:auto;display:block}' +
+      '.h1-spark{animation:h1twinkle 1.2s ease-in-out infinite}' +
+      '.h1-spark.s2{animation-delay:.35s}.h1-spark.s3{animation-delay:.7s}' +
+      '@keyframes h1twinkle{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}' +
+      '.h1-steam{animation:h1steam 1.1s ease-out infinite}' +
+      '.h1-steam.p2{animation-delay:.55s}' +
+      '@keyframes h1steam{0%{opacity:0;transform:translateY(6px) scale(.7)}40%{opacity:.95}' +
+      '100%{opacity:0;transform:translateY(-14px) scale(1.15)}}' +
+      '.h1-quake{animation:h1quake .5s ease-in-out infinite}' +
+      '@keyframes h1quake{0%,100%{transform:translateX(0)}25%{transform:translateX(-2.6px)}' +
+      '75%{transform:translateX(2.6px)}}' +
+      /* 难过：眼泪掉落（SVG 内部元素，transform-box 默认 view-box） */
+      '.h1-tear{animation:h1tear 1.3s ease-in infinite}' +
+      '.h1-tear.t2{animation-delay:.65s}' +
+      '@keyframes h1tear{0%{transform:translateY(0);opacity:0}15%{opacity:1}' +
+      '80%{transform:translateY(14px);opacity:.9}100%{transform:translateY(20px);opacity:0}}' +
+      /* 答题 B：情景卡 */
+      '.h1-scene-grid{display:flex;gap:min(3.4vw,14px);justify-content:center;align-items:center;' +
+      'width:100%;margin:.6vh auto}' +
+      '.h1-scene-card{position:relative;width:min(29vw,140px);aspect-ratio:170/160;' +
+      'background:rgba(255,255,255,.75);border:3px solid #ffd9a0;border-radius:22px;padding:5%;' +
+      'cursor:pointer;display:block;box-sizing:border-box;' +
+      'box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease}' +
+      '.h1-scene-card:active{transform:scale(.96)}' +
+      '.h1-scene-card svg{width:100%;height:100%;display:block}' +
+      '.h1-scene-card.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.h1-scene-card.wrong{animation:h1shake .5s;border-color:#f0a0a0}' +
+      /* 答题容器 */
+      '.h1-ask{display:flex;flex-direction:column;align-items:center;width:100%;gap:1.2vh}' +
+      /* 选项栏里的嘴巴（扁宽，居中放大） */
+      '.option.h1-opt .slot{padding:8%}' +
+      '.option.h1-opt .slot svg{width:88%;max-width:130px;height:auto;display:block;' +
+      'filter:drop-shadow(0 4px 6px rgba(150,90,40,.28))}' +
+      /* 通用动画 */
+      '@keyframes h1pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}' +
+      '@keyframes h1pulse{0%,100%{opacity:.45}50%{opacity:.95}}' +
+      '@keyframes h1shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      '@keyframes h1glow{0%,100%{filter:drop-shadow(0 0 3px rgba(255,205,110,.5))}' +
+      '50%{filter:drop-shadow(0 0 14px rgba(255,190,80,.95))}}' +
+      /* 横屏矮屏：所有可点目标必须留在视口内（§三.15） */
+      '@media (max-height:560px){' +
+      '.h1-stage{gap:.7vh;padding-bottom:1.5vh}' +
+      '.h1-face{width:min(30vw,132px)}' +
+      '.h1-grid{margin:.4vh auto}' +
+      '.h1-mini{width:min(17vw,96px);border-radius:18px}' +
+      '.h1-scene-grid{margin:.3vh auto}' +
+      '.h1-scene-card{width:min(17vw,96px)}' +
+      '.h1-thumb{width:min(26vw,116px);border-radius:26px}' +
+      '.h1-slot{border-width:2.4px}' +
+      '.h1-deco{width:min(9vw,38px)}}';
+    document.head.appendChild(s);
+  }
+
+  /* ---------------- 出题：A 听音找脸谱 / B 听情景找情绪 / C 拼脸谱 ---------------- */
+  /* 答题 B 题库：目标情景（语音描述它）→ 每种情绪再补一个同情绪干扰情景。
+     约束：3 张卡必须是 3 种不同情绪（语音说 "Find the sad face." 时不能有两张难过脸）。 */
+  var H1_B_TARGETS = [
+    { scene: 'ice_eat',  mood: 'happy', key: 'h1_b_ice_eat' },
+    { scene: 'ice_fall', mood: 'sad',   key: 'h1_b_ice_fall' },
+    { scene: 'toy',      mood: 'angry', key: 'h1_b_toy' },
+    { scene: 'balloon',  mood: 'sad',   key: 'h1_b_balloon' }
+  ];
+  var H1_B_POOL = {
+    happy: ['ice_eat', 'gift'],
+    sad: ['ice_fall', 'balloon'],
+    angry: ['toy', 'block']
+  };
+
+  function makeQuestionH1(type, prev) {
+    ensureH1Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：3 张情绪脸（开心/难过/生气），听 "Find the X face." 点目标 */
+        var want = pick(H1_MOODS);
+        var faces = shuffle(H1_MOODS.slice());
+        q = {
+          type: 'H1A', sig: 'A:' + want + ':' + faces.join(','), mood: want, faces: faces,
+          answer: faces.indexOf(want), correct: faces.indexOf(want),
+          options: [], audio: ['h1_a_' + want]
+        };
+      } else if (type === 1) {
+        /* B：3 张情景卡（3 种情绪各一张），听情景描述点对应脸谱 */
+        var tgt = pick(H1_B_TARGETS);
+        var others = [];
+        H1_MOODS.forEach(function (m) {
+          if (m !== tgt.mood) others.push(pick(H1_B_POOL[m]));
+        });
+        var scenes = shuffle([tgt.scene].concat(others));
+        q = {
+          type: 'H1B', sig: 'B:' + tgt.scene + ':' + scenes.join(','), mood: tgt.mood,
+          scene: tgt.scene, scenes: scenes, answer: scenes.indexOf(tgt.scene),
+          correct: scenes.indexOf(tgt.scene), options: [], audio: [tgt.key]
+        };
+      } else {
+        /* C：缺嘴巴的脸 + 3 个嘴巴选项（拖/点拼上去） */
+        var wantM = pick(H1_MOODS);
+        var opts = shuffle(H1_MOODS.slice());
+        q = {
+          type: 'H1C', sig: 'C:' + wantM + ':' + opts.join(','), mouth: wantM,
+          options: opts.map(function (m) { return { kind: 'h1mouth', mood: m }; }),
+          correct: opts.indexOf(wantM), audio: ['h1_c_' + wantM]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：3 张情绪脸，点目标（画在中央，选项栏收起） */
+  function renderH1A(q) {
+    ensureH1Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'h1-grid';
+    grid.dataset.n = '3';
+    grid.setAttribute('aria-label', '表情');
+    q.faces.forEach(function (m, i) {
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'h1-mini';
+      card.dataset.idx = String(i);
+      card.dataset.mood = m;
+      card.setAttribute('aria-label', '表情');
+      card.appendChild(h1FaceNode(m));
+      card.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, card);
+      });
+      grid.appendChild(card);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 B：3 张情景卡（开心/难过/生气），听情景点对应脸谱 */
+  function renderH1B(q) {
+    ensureH1Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'h1-scene-grid';
+    grid.dataset.n = '3';
+    grid.setAttribute('aria-label', '情景');
+    q.scenes.forEach(function (sc, i) {
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'h1-scene-card';
+      card.dataset.idx = String(i);
+      card.dataset.scene = sc;
+      card.setAttribute('aria-label', '情景');
+      card.appendChild(h1SceneSvg(sc));
+      card.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, card);
+      });
+      grid.appendChild(card);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 C：缺嘴巴的脸（中立眼 + 鼻 + 虚线嘴位）+ 选项栏 3 个嘴巴（拖/点） */
+  function renderH1C(q) {
+    ensureH1Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'h1-ask';
+    var face = document.createElement('div');
+    face.className = 'h1-face h1-drop';
+    face.dataset.drop = 'face';
+    face.setAttribute('aria-label', '脸');
+    var inner = h1FaceNode(null, { neutral: true });
+    inner.appendChild(h1SlotNode());
+    face.appendChild(inner);
+    face.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      if (state.pickedFruit === null) return;
+      resolveH1C(state.pickedFruit, face);
+    });
+    box.appendChild(face);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 C 判定：嘴巴拖/点到脸上（§二.11 两条路径都走这里） */
+  function resolveH1C(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'H1C') return;
+    var drop = (typeof target === 'string') ? target
+      : (target && target.dataset ? target.dataset.drop : null);
+    var opt = q.options[itemIdx];
+    var ok = (drop === 'face') && !!opt && opt.mood === q.mouth;
+    if (ok) {
+      var faceEl = (typeof target === 'string')
+        ? askDisplay.querySelector('.h1-face[data-drop="face"]') : target;
+      var inner = faceEl && faceEl.querySelector('.h1-face-in');
+      if (inner) {
+        h1PlaceOnFace(inner, 'mouth', opt.mood);
+        var slot = inner.querySelector('.h1-slot');
+        if (slot && slot.parentNode) slot.parentNode.removeChild(slot);
+      }
+      if (faceEl) faceEl.classList.add('right');
+      judge(true, faceEl);
+    } else {
+      judge(false, optionEls[itemIdx] || target);
+    }
+  }
+
+  /* 教学：13 环节（3 情绪 × 2 演示 + 2 互动 + 过渡）。
+     §三.10 双倍量 + §三.14 点按推进 + §二.12 四秒小手 + §三.12 模仿型交互。 */
+  var runH1Tutorial = (function () {
+    var ACTS = [
+      /* 开心 */
+      { t: 'demo',   sid: 'happy1',    word: 'h1_t_happy1',    mood: 'happy', build: true },
+      { t: 'demo',   sid: 'happy2',    word: 'h1_t_happy2',    mood: 'happy' },
+      { t: 'mimic',  sid: 'happyAsk1', word: 'h1_t_happy_ask', mood: 'happy' },
+      { t: 'choose', sid: 'happyAsk2', word: 'h1_t_happy_find', mood: 'happy' },
+      /* 难过 */
+      { t: 'demo',   sid: 'sad1',      word: 'h1_t_sad1',      mood: 'sad',   build: true },
+      { t: 'demo',   sid: 'sad2',      word: 'h1_t_sad2',      mood: 'sad' },
+      { t: 'mimic',  sid: 'sadAsk1',   word: 'h1_t_sad_ask',   mood: 'sad' },
+      { t: 'choose', sid: 'sadAsk2',   word: 'h1_t_sad_find',  mood: 'sad' },
+      /* 生气 */
+      { t: 'demo',   sid: 'angry1',    word: 'h1_t_angry1',    mood: 'angry', build: true },
+      { t: 'demo',   sid: 'angry2',    word: 'h1_t_angry2',    mood: 'angry' },
+      { t: 'mimic',  sid: 'angryAsk1', word: 'h1_t_angry_ask', mood: 'angry' },
+      { t: 'choose', sid: 'angryAsk2', word: 'h1_t_angry_find', mood: 'angry' },
+      /* 过渡 */
+      { t: 'out',    sid: 'out',       word: 'h1_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null; me._advance = null;
+      me.canDrag = false; me.customMode = null;
+      me.chooseOn = false; me.askLock = false;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid) {
+      blank(me);
+      ensureH1Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'h1-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', '表情脸谱');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /* 演示定格：等用户点屏幕任意位置才 next()（禁止定时器自动前进；不吞顶栏点击 §三.18） */
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    function faceBox(mood) {
+      var face = document.createElement('div');
+      face.className = 'h1-face';
+      face.setAttribute('aria-label', '脸');
+      face.appendChild(h1FaceNode(mood));
+      return face;
+    }
+    /* 演示 2 的氛围装饰（与演示 1 不同的视觉） */
+    function decoFor(w, mood, face) {
+      if (mood === 'happy') {
+        w.appendChild(h1Sparkle('4%', '12%', 'min(9vw,40px)', ''));
+        w.appendChild(h1Sparkle('82%', '8%', 'min(8vw,34px)', 's2'));
+        w.appendChild(h1Sparkle('86%', '62%', 'min(9vw,38px)', 's3'));
+      } else if (mood === 'angry') {
+        w.appendChild(h1Steam('2%', '4%', ''));
+        w.appendChild(h1Steam('78%', '2%', 'p2'));
+        if (face) face.classList.add('h1-quake');
+      }
+      /* 难过：眼泪动画在 sad 眼睛里（h1-tear），无需额外装饰 */
+    }
+    /* 演示 1：空白脸 → 语音 → 逐件拼上零件 → 定格等点按 */
+    function playDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var face = faceBox(act.build ? null : act.mood);
+      w.appendChild(face);
+      var inner = face.querySelector('.h1-face-in');
+      if (!act.build) decoFor(w, act.mood, face);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        if (act.build) h1BuildFace(inner, act.mood);
+        gate(me, next);
+      });
+    }
+    /* 互动 1：孩子模仿做表情 → 点巨大👍确认（§三.12 永远判对；演示期按钮不可点） */
+    function playMimic(me, act, next) {
+      var w = stage(me, act.sid);
+      var face = faceBox(null);          // 空白脸：等孩子自己做这个表情
+      w.appendChild(face);
+      var thumb = document.createElement('button');
+      thumb.type = 'button';
+      thumb.className = 'h1-thumb off';
+      thumb.setAttribute('aria-label', '我做到啦');
+      thumb.innerHTML = h1ThumbSvg();
+      w.appendChild(thumb);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        thumb.classList.remove('off');
+        me.hintTarget = thumb;
+        armHint();
+        thumb.addEventListener('click', function () {
+          if (state.tut !== me || me.askLock) return;
+          me.askLock = true;             // 防连点跳过步骤
+          clearHint(); coin(); ting();
+          thumb.classList.add('right');
+          me.replay = function () { say(['g2_t_great']); };
+          say(['g2_t_great'], function () {
+            if (state.tut !== me) return;
+            me.askLock = false;
+            next();
+          });
+        });
+      });
+    }
+    /* 互动 2：3 张脸谱点出目标情绪（点错抖 + again + 重新出小手） */
+    function playChoose(me, act, next) {
+      var w = stage(me, act.sid);
+      var grid = document.createElement('div');
+      grid.className = 'h1-grid';
+      grid.dataset.n = '3';
+      grid.setAttribute('aria-label', '表情');
+      var moods = shuffle(H1_MOODS.slice());
+      moods.forEach(function (m, i) {
+        var card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'h1-mini';
+        card.dataset.idx = String(i);
+        card.dataset.mood = m;
+        card.setAttribute('aria-label', '表情');
+        card.appendChild(h1FaceNode(m));
+        card.addEventListener('click', function () {
+          if (state.tut !== me || !me.chooseOn) return;
+          if (m === act.mood) {
+            clearHint(); coin(); ting();
+            me.chooseOn = false;
+            card.classList.add('right');
+            setTimeout(function () { if (state.tut === me) next(); }, 900);
+          } else {
+            card.classList.add('wrong');
+            setTimeout(function () { card.classList.remove('wrong'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+        grid.appendChild(card);
+      });
+      w.appendChild(grid);
+      me.chooseOn = false;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.chooseOn = true;
+        var ansCard = grid.querySelector('[data-mood="' + act.mood + '"]');
+        me.hintTarget = ansCard;
+        armHint();
+      });
+    }
+    /* 过渡：三张脸一起发光 → "You know all the feelings! Let's play!" → 答题 */
+    function playOut(me, act) {
+      var w = stage(me, act.sid);
+      var grid = document.createElement('div');
+      grid.className = 'h1-grid';
+      grid.setAttribute('aria-label', '表情');
+      H1_MOODS.forEach(function (m) {
+        var card = document.createElement('div');
+        card.className = 'h1-mini h1-glow';
+        card.setAttribute('aria-hidden', 'true');
+        card.appendChild(h1FaceNode(m));
+        grid.appendChild(card);
+      });
+      w.appendChild(grid);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        tutFinish(me, false);   // 过渡语自带，不叠加 t_ready（§三.10）
+      });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'out') { playOut(me, act); return; }
+      if (act.t === 'mimic') { playMimic(me, act, next); return; }
+      playChoose(me, act, next);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
   var runB4Tutorial = (function () {
@@ -17834,6 +18645,10 @@
       renderG5Find(q);
       return;
     }
+    /* ---- 第 8 岛第 1 关：基础情绪（A/B 画在中央；C 缺嘴的脸 + 选项栏嘴巴） ---- */
+    if (q.type === 'H1A') { optionsBar.classList.add('gone'); renderH1A(q); return; }
+    if (q.type === 'H1B') { optionsBar.classList.add('gone'); renderH1B(q); return; }
+    if (q.type === 'H1C') { renderH1C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -18259,7 +19074,8 @@
     // 第 7 岛第 1 关 B/C：题目画在中央宫格，选项栏收起
     if (q.type === 'G1B' || q.type === 'G1C' || q.type === 'G2B' || q.type === 'G2C' ||
         q.type === 'G3A' || q.type === 'G4A' || q.type === 'G4B' || q.type === 'G4C' ||
-        q.type === 'G5A' || q.type === 'G5B' || q.type === 'G5C') {
+        q.type === 'G5A' || q.type === 'G5B' || q.type === 'G5C' ||
+        q.type === 'H1A' || q.type === 'H1B') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -18534,6 +19350,10 @@
         // 第 4 岛第 3 关题型 C：可拖进「在跑 / 在睡」筐的动作画面
         btn.classList.add('f3-opt');
         slot.appendChild(f3TileNode(opt.subj));
+      } else if (opt.kind === 'h1mouth') {
+        // 第 8 岛第 1 关题型 C：可拖/点到脸上的嘴巴零件
+        btn.classList.add('h1-opt');
+        slot.appendChild(h1PartSvg('mouth', opt.mood));
       } else {
         btn.classList.add('pile-opt');
         slot.appendChild(pileNode(opt.fruit, opt.count, 'opt'));
@@ -18608,6 +19428,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'G3B') {
         // 第 7 岛第 3 关题型 B：动作图标可拖进「先 / 再」框
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'H1C') {
+        // 第 8 岛第 1 关题型 C：嘴巴可拖到脸上
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -18847,7 +19672,8 @@
         if (qt !== 'B4A' && qt !== 'B4B' && qt !== 'B5A' && qt !== 'B5B' &&
             qt !== 'G1B' && qt !== 'G1C' && qt !== 'G2B' && qt !== 'G2C' && qt !== 'G3A' &&
             qt !== 'G4A' && qt !== 'G4B' && qt !== 'G4C' &&
-            qt !== 'G5A' && qt !== 'G5B' && qt !== 'G5C') {
+            qt !== 'G5A' && qt !== 'G5B' && qt !== 'G5C' &&
+            qt !== 'H1A' && qt !== 'H1B') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -19020,6 +19846,8 @@
         resolveG2T(d.idx, target);
       } else if (d.mode === 'G3B') {
         resolveG3B(d.idx, target);
+      } else if (d.mode === 'H1C') {
+        resolveH1C(d.idx, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -20032,6 +20860,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '8-1': {
+      // 基础情绪（Happy / Sad / Angry）：空白脸谱 + 情绪零件；13 环节
+      // （3 个情绪 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）；
+      // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、模仿互动👍永远判对（§三.12）
+      custom: runH1Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -20285,7 +21122,7 @@
         q.type === 'F14A' || q.type === 'F14C' || q.type === 'F15A' || q.type === 'F15C' ||
         q.type === 'G1A' ||
         q.type === 'G2A' ||
-        q.type === 'G3B' ||
+        q.type === 'G3B' || q.type === 'H1C' ||
         q.type === 'B4C') return q.type;
     return null;
   }
@@ -20563,6 +21400,12 @@
 
       // 第 7 岛第 1 关题型 A：点器官选中，再点脸投放（拖拽的等价路径）
       if (q.type === 'G1A') {
+        tapFruit(idx, btn);
+        return;
+      }
+
+      // 第 8 岛第 1 关题型 C：点嘴巴选中，再点脸拼上去（拖拽的等价路径）
+      if (q.type === 'H1C') {
         tapFruit(idx, btn);
         return;
       }
@@ -20987,6 +21830,7 @@
             if (o.kind === 'g1face') return 's:' + o.hl;
             if (o.kind === 'g2part') return 'i:' + o.part;
             if (o.kind === 'g2body') return 's:' + o.hl;
+            if (o.kind === 'h1mouth') return 'm:' + o.mood;
             if (o.kind === 'g3act') return 'i:' + o.act;
             if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
@@ -21019,7 +21863,13 @@
           g4act: q.act || null,
           g4steps: (q.type === 'G4B' && q.steps) ? q.steps.map(function (s) { return { gender: s.gender, act: s.act }; }) : null,
           part: q.part || null,
-          hl: q.hl || null
+          hl: q.hl || null,
+          h1mood: q.mood || null,
+          h1scene: q.scene || null,
+          h1mouth: q.mouth || null,
+          h1faces: q.faces ? q.faces.slice() : null,
+          h1scenes: q.scenes ? q.scenes.slice() : null,
+          h1answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },

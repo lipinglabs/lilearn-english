@@ -109,3 +109,22 @@ tools/probe_g1_out*.txt
 # 一次性补丁脚本（改完即弃，不入库）
 tools/_*.js
 tools/_*.py
+apply_*.py
+*_block.txt
+
+# 探针截图与输出（不入库）
+h1-*.png
+h1l-*.png
+g2-*.png
+g2l-*.png
+g3-*.png
+g3l-*.png
+g4-*.png
+g4l-*.png
+g5-*.png
+g5l-*.png
+tools/probe_*_out*.txt
+tools/probe_*_land.txt
+tools/probe_*_port.txt
+tools/probe_audio_*.txt
+sedqcbQS0

@@ -1224,6 +1224,43 @@ add("g5_b_ears_jump", "First, touch your ears. Then, jump!", "en", -15, EN_ASK)
 # 答题 C：听指令找对应小人（boy+eyes 为用户示例句；其余复用 g4 的 Find... 句）
 add("g5_c_boy_eyes", "Find the boy touching his eyes.", "en", -15, EN_ASK)
 
+# ---- 第 8 岛第 1 关：基础情绪（Happy / Sad / Angry）----
+# 第 8 岛主题改为「情绪与感受」，本关是开篇：空白脸谱 + 情绪零件（弯眼睛/笑眯眯嘴、流泪眼/下垂嘴、倒竖眉/生气嘴）。
+# 全部 rate -15（≈0.85x，用户要求的慢速）；过渡语用 EN_PRAISE。
+# 教学 13 环节（RULES §三.10 双倍量：3 个情绪 × 2 演示 + 2 互动）+ 过渡：
+#   · 演示 1：空白脸 → 语音描述零件 → 动画拼上（播完定格等点按，§三.14）；
+#   · 演示 2：完整脸 + 情绪氛围（笑脸闪光 / 流泪动画 / 生气蒸汽），句式与画面都不同；
+#   · 互动 1：模仿做表情 + 巨大👍按钮确认（§三.12 永远判对，4 秒小手 §二.12）；
+#   · 互动 2：三张脸谱点出目标情绪（点错抖 + again）。
+# 语音复用：互动 1 成功句复用 g2_t_great（"Great! You did it!"，RULES §1.12 同句同 key）。
+# 本批 23 条新生成，已通过 audit 去重自检。
+add("h1_t_happy1",    "Let's make a happy face! Look at the smiling mouth and happy eyes.", "en", -15, EN_ASK)
+add("h1_t_happy2",    "He is happy! Look at his big smile!", "en", -15, EN_ASK)
+add("h1_t_happy_ask", "Can you make a happy face? Smile!", "en", -15, EN_ASK)
+add("h1_t_happy_find","Which face is happy? Touch the happy face.", "en", -15, EN_ASK)
+add("h1_t_sad1",      "Oh no. Let's make a sad face. Look at the crying eyes and sad mouth.", "en", -15, EN_ASK)
+add("h1_t_sad2",      "The little boy is sad. He is crying.", "en", -15, EN_ASK)
+add("h1_t_sad_ask",   "Show me a sad face.", "en", -15, EN_ASK)
+add("h1_t_sad_find",  "Which face is sad? Touch the sad face.", "en", -15, EN_ASK)
+add("h1_t_angry1",    "Grrr! Let's make an angry face. Look at the angry eyebrows.", "en", -15, EN_ASK)
+add("h1_t_angry2",    "He is angry! His eyebrows go down.", "en", -15, EN_ASK)
+add("h1_t_angry_ask", "Show me an angry face!", "en", -15, EN_ASK)
+add("h1_t_angry_find","Which face is angry? Touch the angry face.", "en", -15, EN_ASK)
+add("h1_t_out",       "You know all the feelings! Let's play!", "en", -12, EN_PRAISE)
+# 答题 A：听音找脸谱（3 张情绪脸里点目标）
+add("h1_a_happy", "Find the happy face.", "en", -15, EN_ASK)
+add("h1_a_sad",   "Find the sad face.", "en", -15, EN_ASK)
+add("h1_a_angry", "Find the angry face.", "en", -15, EN_ASK)
+# 答题 B：听情景找情绪（3 张情景卡：开心/难过/生气各一，语音描述目标情景）
+add("h1_b_ice_eat",  "The boy is eating ice cream! Yum yum! How does he feel? Find the happy face.", "en", -15, EN_ASK)
+add("h1_b_ice_fall", "The boy's ice cream fell down. How does he feel? Find the sad face.", "en", -15, EN_ASK)
+add("h1_b_toy",      "A big boy took his toy! How does he feel? Find the angry face.", "en", -15, EN_ASK)
+add("h1_b_balloon",  "The girl's balloon flew away! How does she feel? Find the sad face.", "en", -15, EN_ASK)
+# 答题 C：拼脸谱（缺嘴巴的脸 + 3 个嘴巴选项，拖/点拼上去）
+add("h1_c_happy", "The girl is happy. Put the happy mouth on the face.", "en", -15, EN_ASK)
+add("h1_c_sad",   "The boy is sad. Put the sad mouth on the face.", "en", -15, EN_ASK)
+add("h1_c_angry", "The girl is angry. Put the angry mouth on the face.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

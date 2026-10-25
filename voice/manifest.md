@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**828** 条（英文 822 + 中文 6）
+总条目：**851** 条（英文 845 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -826,6 +826,29 @@
 | `g5_a_eyes` | en | Close your eyes! | 已存在 |
 | `g5_b_ears_jump` | en | First, touch your ears. Then, jump! | 已存在 |
 | `g5_c_boy_eyes` | en | Find the boy touching his eyes. | 已存在 |
+| `h1_t_happy1` | en | Let's make a happy face! Look at the smiling mouth and happy eyes. | 待生成 |
+| `h1_t_happy2` | en | He is happy! Look at his big smile! | 待生成 |
+| `h1_t_happy_ask` | en | Can you make a happy face? Smile! | 待生成 |
+| `h1_t_happy_find` | en | Which face is happy? Touch the happy face. | 待生成 |
+| `h1_t_sad1` | en | Oh no. Let's make a sad face. Look at the crying eyes and sad mouth. | 待生成 |
+| `h1_t_sad2` | en | The little boy is sad. He is crying. | 待生成 |
+| `h1_t_sad_ask` | en | Show me a sad face. | 待生成 |
+| `h1_t_sad_find` | en | Which face is sad? Touch the sad face. | 待生成 |
+| `h1_t_angry1` | en | Grrr! Let's make an angry face. Look at the angry eyebrows. | 待生成 |
+| `h1_t_angry2` | en | He is angry! His eyebrows go down. | 待生成 |
+| `h1_t_angry_ask` | en | Show me an angry face! | 待生成 |
+| `h1_t_angry_find` | en | Which face is angry? Touch the angry face. | 待生成 |
+| `h1_t_out` | en | You know all the feelings! Let's play! | 待生成 |
+| `h1_a_happy` | en | Find the happy face. | 待生成 |
+| `h1_a_sad` | en | Find the sad face. | 待生成 |
+| `h1_a_angry` | en | Find the angry face. | 待生成 |
+| `h1_b_ice_eat` | en | The boy is eating ice cream! Yum yum! How does he feel? Find the happy face. | 待生成 |
+| `h1_b_ice_fall` | en | The boy's ice cream fell down. How does he feel? Find the sad face. | 待生成 |
+| `h1_b_toy` | en | A big boy took his toy! How does he feel? Find the angry face. | 待生成 |
+| `h1_b_balloon` | en | The girl's balloon flew away! How does she feel? Find the sad face. | 待生成 |
+| `h1_c_happy` | en | The girl is happy. Put the happy mouth on the face. | 待生成 |
+| `h1_c_sad` | en | The boy is sad. Put the sad mouth on the face. | 待生成 |
+| `h1_c_angry` | en | The girl is angry. Put the angry mouth on the face. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
