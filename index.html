@@ -3874,7 +3874,8 @@
     '8-3': { numbers: null, make: 'makeH3', title: '第 3 关', tutorial: true },
     '8-4': { numbers: null, make: 'makeH4', title: '第 4 关', tutorial: true },
     '8-5': { numbers: null, make: 'makeH5', title: '第 5 关', tutorial: true },
-    '9-1': { numbers: null, make: 'makeL9', title: '第 1 关', tutorial: true }
+    '9-1': { numbers: null, make: 'makeL9', title: '第 1 关', tutorial: true },
+    '9-2': { numbers: null, make: 'makeL92', title: '第 2 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4104,6 +4105,7 @@
     if (def && def.make === 'makeH4') return makeQuestionH4(typeIdx, prev);
     if (def && def.make === 'makeH5') return makeQuestionH5(typeIdx, prev);
     if (def && def.make === 'makeL9') return makeQuestionL9(typeIdx, prev);
+    if (def && def.make === 'makeL92') return makeQuestionL92(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -21137,6 +21139,16 @@
     if (item === 'shoes') {
       return l9ShoeOne(2, L9_SHOE_C) + l9ShoeOne(38, L9_SHOE_C2);
     }
+    if (item === 'coat') {
+      /* 外套：长袖 + 更长的衣身 + 前襟扣子（9-2 的「穿上/脱下」主角之一） */
+      return '<path d="M34 22 L10 44 L8 56 L22 62 V96 Q22 100 28 100 H72 Q78 100 78 96 V62 L92 56 L90 44 L66 22 ' +
+        'Q60 32 50 32 Q40 32 34 22 Z" fill="#d9755c" stroke="#b85a44" stroke-width="3.4" stroke-linejoin="round"/>' +
+        '<path d="M50 32 V98" stroke="#b85a44" stroke-width="2.6" opacity=".85"/>' +
+        '<path d="M50 32 L38 47 M50 32 L62 47" fill="none" stroke="#b85a44" stroke-width="2.8" stroke-linejoin="round"/>' +
+        '<circle cx="55" cy="56" r="2.8" fill="#fff2e8"/>' +
+        '<circle cx="55" cy="72" r="2.8" fill="#fff2e8"/>' +
+        '<path d="M24 92 H76" stroke="#b85a44" stroke-width="2.2" opacity=".45"/>';
+    }
     /* hat：帽子（帽身与头同宽 + 略宽的帽檐 + 顶扣 + 帽缝），避免画成「飞碟」 */
     return '<path d="M28 46 Q28 24 50 24 Q72 24 72 46 Z" fill="' + L9_HAT_C + '" stroke="' + L9_HAT_S + '" ' +
       'stroke-width="3.4" stroke-linejoin="round"/>' +
@@ -21153,7 +21165,8 @@
     shirt: 'translate(26,57.5) scale(0.66)',      /* 本地 6..94 × 22..92 → 30..92 × 72..118 */
     pants: 'translate(33.4,107.6) scale(0.528)',  /* 本地 23..77 × 16..88 → 45.5..74 × 116..154 */
     shoes: 'translate(35.1,133) scale(0.48)',     /* 本地 6..98 × 48..77 → 38..82 × 156..170 */
-    hat: 'translate(15,-13) scale(0.9)'           /* 本地 21..79 × 20..58 → 34..86 × 5..39（帽檐压在眼睛上方） */
+    hat: 'translate(15,-13) scale(0.9)',          /* 本地 21..79 × 20..58 → 34..86 × 5..39（帽檐压在眼睛上方） */
+    coat: 'translate(26.7,55.3) scale(0.667)'     /* 本地 8..92 × 22..100 → 32..88 × 70..122 */
   };
 
   /* ---- 小人：打底衫 + 短裤 + 光脚；worn 里的衣物叠在对应部位 ---- */
@@ -21202,9 +21215,18 @@
     return s;
   }
 
+  /* 图标版裁切：让每件衣物都撑满自己的方格（穿在身上的版本仍用 120×175 坐标） */
+  var L9_ICON_VB = {
+    shirt: '15 16 70 80',
+    pants: '20 12 60 80',
+    shoes: '4 43 96 38',
+    hat:   '17 15 66 46',
+    coat:  '6 17 88 86'
+  };
+
   function l9ItemSvg(item) {
     var s = svgEl('svg');
-    s.setAttribute('viewBox', '0 0 100 100');
+    s.setAttribute('viewBox', L9_ICON_VB[item] || '0 0 100 100');
     s.setAttribute('class', 'l9-item-svg');
     s.setAttribute('aria-hidden', 'true');
     s.innerHTML = l9ItemInner(item);
@@ -21662,6 +21684,593 @@
     return api;
   })();
 
+  /* ======================================================================
+     第 9 岛第 2 关（L9-W2）：穿脱动作 Put on / Take off（魔法穿衣镜）
+     —— 沿用 9-1 的卡通小人 / 衣物，新增「外套 coat」，并加入**双向拖拽**：
+        穿：衣物在底部物品栏 → 往上拖到小人身上；
+        脱：衣物在小人身上（可拖的叠加层）→ 往下拖回底部物品栏。
+     宽容判定：方向不对 / 没落到接收区 → 平滑弹回原位，不判错、不消失（§二.11）。
+     演示严格「语音播完定格 + 点屏幕才推进」（§三.14）；互动 4 秒小手（§二.12）；
+     TPR 用巨大 👍 且永远判对（§三.12）。
+     ====================================================================== */
+  var L92_ITEMS = ['hat', 'coat', 'pants', 'shoes'];
+  var L92_A_KEY = { hat: 'l92_a_hat', shoes: 'l92_a_shoes', coat: 'l92_a_coat', pants: 'l92_a_pants' };
+  var L92_B_KEY = { hat: 'l92_b_hat', shoes: 'l92_b_shoes', coat: 'l92_b_coat', pants: 'l92_b_pants' };
+  var L92_C_KEYS = [
+    { act: 'on',  item: 'hat',  key: 'l92_c_on_hat' },
+    { act: 'off', item: 'hat',  key: 'l92_c_off_hat' },
+    { act: 'on',  item: 'coat', key: 'l92_c_on_coat' },
+    { act: 'off', item: 'coat', key: 'l92_c_off_coat' }
+  ];
+
+  /* ---- 小人卡：底图不带衣物，衣物是「可拖的叠加层」（脱下时才拿得动） ---- */
+  function l92WearNode(item) {
+    var d = document.createElement('div');
+    d.className = 'l92-on';
+    d.dataset.item = item;
+    d.dataset.from = 'body';
+    d.dataset.drag = 'item';
+    d.setAttribute('aria-label', '衣物');
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 120 175');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = '<g transform="' + L9_FIT[item] + '">' + l9ItemInner(item) + '</g>';
+    d.appendChild(s);
+    return d;
+  }
+
+  function l92WornOf(card) {
+    var s = (card && card.dataset.worn) || '';
+    return s ? s.split(',') : [];
+  }
+
+  function l92SetWorn(card, list) {
+    if (!card) return;
+    card.dataset.worn = list.filter(function (x, i) { return list.indexOf(x) === i; }).join(',');
+    var wrap = card.querySelector('.l92-kid-wrap');
+    if (!wrap) return;
+    Array.prototype.forEach.call(wrap.querySelectorAll('.l92-on'), function (n) { n.parentNode.removeChild(n); });
+    l92WornOf(card).forEach(function (it) { wrap.appendChild(l92WearNode(it)); });
+  }
+
+  function l92KidCard(worn) {
+    var card = document.createElement('div');
+    card.className = 'l92-kidcard';
+    card.id = 'l92-kid';
+    card.dataset.drop = 'kid';
+    card.setAttribute('aria-label', '小朋友');
+    var wrap = document.createElement('div');
+    wrap.className = 'l92-kid-wrap';
+    wrap.appendChild(l9KidSvg([]));
+    card.appendChild(wrap);
+    l92SetWorn(card, (worn || []).slice());
+    return card;
+  }
+
+  /* ---- 底部物品栏（放衣物 = 脱下后的去处；也是「脱」的接收区） ---- */
+  function l92Tray(items, pick) {
+    var tray = document.createElement('div');
+    tray.className = 'l92-tray';
+    tray.id = 'l92-tray';
+    tray.dataset.drop = 'tray';
+    tray.setAttribute('aria-label', '衣物栏');
+    (items || []).forEach(function (it) {
+      var b = document.createElement(pick ? 'button' : 'div');
+      if (pick) b.type = 'button';
+      b.className = 'l92-card' + (pick ? ' l92-pick' : '');
+      b.dataset.item = it;
+      b.dataset.from = 'tray';
+      if (pick) {
+        b.dataset.drag = 'item';
+        b.setAttribute('aria-label', '衣物');
+      } else {
+        b.setAttribute('aria-hidden', 'true');
+      }
+      b.appendChild(l9ItemSvg(it));
+      tray.appendChild(b);
+    });
+    if (!(items || []).length) tray.classList.add('l92-tray-empty');
+    return tray;
+  }
+
+  /* ---- 飞入 / 飞出动画（教学用） ---- */
+  function l92FlyNode(wrap, item, dir) {
+    var d = document.createElement('div');
+    d.className = 'l92-fly ' + (dir === 'in' ? 'l92-fly-in' : 'l92-fly-out');
+    d.setAttribute('aria-hidden', 'true');
+    d.innerHTML = '<svg viewBox="0 0 120 175" aria-hidden="true">' +
+      '<g transform="' + L9_FIT[item] + '">' + l9ItemInner(item) + '</g></svg>';
+    wrap.appendChild(d);
+    return d;
+  }
+
+  /* ---- 巨大👍（§三.12） ---- */
+  function l92ThumbSvg() {
+    return '<svg viewBox="0 0 100 100" class="l92-thumb-svg" aria-hidden="true">' +
+      '<rect x="39" y="12" width="17" height="40" rx="8.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="17" y="45" width="48" height="35" rx="13.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="22" y="75" width="39" height="13" rx="6.5" fill="#7fb3d5" stroke="#4f9fd6" stroke-width="3"/>' +
+      '</svg>';
+  }
+
+  function ensureL92Css() {
+    ensureL9Css();
+    if (document.getElementById('l92-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l92-style';
+    s.textContent =
+      '.l92-stage,.l92-ask,.l92-bstage{position:relative;display:flex;flex-direction:column;align-items:center;' +
+      'justify-content:center;width:100%;max-width:100%;min-width:0;gap:1.2vh;padding-bottom:3vh;' +
+      'box-sizing:border-box}' +
+      /* 小人卡（含可拖衣物层） */
+      '.l92-kidcard{position:relative;width:min(38vw,172px);aspect-ratio:120/175;background:rgba(255,255,255,.78);' +
+      'border:3px solid #ffd9a0;border-radius:20px;padding:4%;box-sizing:border-box;display:flex;' +
+      'align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease}' +
+      '.l92-kidcard.l92-right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.l92-kidcard.l92-nudge{animation:h4shake .45s}' +
+      '.l92-kidcard.l92-drop-hot{border-color:#ffb861;box-shadow:0 0 0 5px rgba(255,190,90,.5)}' +
+      /* 注意：扩大热区的 ::after 必须在最底层，否则会「盖住」里面的可拖衣物与卡片（z-index 0 vs 1） */
+      '.l92-kidcard::after{content:"";position:absolute;inset:-12%;border-radius:28px;z-index:0}' +
+      '.l92-kid-wrap{position:relative;z-index:1;width:100%;height:100%;display:flex;align-items:center;justify-content:center}' +
+      '.l92-kid-wrap > svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      /* 穿在身上的衣物（可拖） */
+      '.l92-on{position:absolute;inset:0;z-index:2;cursor:grab;touch-action:none}' +
+      '.l92-on svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.l92-on.picked{filter:drop-shadow(0 0 6px rgba(255,190,90,.95))}' +
+      '.l92-on.dragging{opacity:.35}' +
+      /* 底部物品栏 */
+      '.l92-tray{position:relative;display:flex;gap:min(3.4vw,14px);justify-content:center;align-items:center;' +
+      'width:min(92vw,420px);min-height:15vh;padding:1.6vh 2vw;box-sizing:border-box;' +
+      'background:rgba(255,255,255,.6);border:3px dashed #ffd9a0;border-radius:22px}' +
+      '.l92-tray::after{content:"";position:absolute;inset:-6%;border-radius:26px;z-index:0}' +
+      '.l92-tray.l92-hot{border-color:#ffb861;background:rgba(255,240,210,.9);' +
+      'box-shadow:0 0 0 4px rgba(255,190,90,.35)}' +
+      '.l92-tray-empty::before{content:"";display:block;width:min(30vw,120px);height:2px;' +
+      'background:#ffd9a0;border-radius:2px}' +
+      '.l92-card{position:relative;z-index:1;width:min(24vw,104px);aspect-ratio:1/1;background:rgba(255,255,255,.95);' +
+      'border:3px solid #ffd9a0;border-radius:18px;padding:6%;box-sizing:border-box;' +
+      'display:flex;align-items:center;justify-content:center;' +
+      'box-shadow:0 4px 10px rgba(214,164,110,.16);transition:transform .15s ease}' +
+      /* 用 width% + height:auto（跨关验证过的写法），height:100% 在 button 里会缩成小图 */
+      '.l92-card svg{width:92%;height:auto;display:block;pointer-events:none}' +
+      '.l92-card.l92-pick{cursor:grab;touch-action:none}' +
+      '.l92-card.picked{border-color:#ffb861;box-shadow:0 0 0 4px rgba(255,190,90,.45)}' +
+      '.l92-card.dragging{opacity:.35}' +
+      '.l92-card.l92-right{border-color:#7FD18A;background:#eafaf0}' +
+      '.l92-card.l92-glow{animation:h4glow 1.1s ease-in-out infinite}' +
+      /* 飞入 / 飞出 */
+      '.l92-fly{position:absolute;inset:0;pointer-events:none;z-index:6}' +
+      '.l92-fly svg{width:100%;height:100%;display:block}' +
+      '.l92-fly-in{animation:l92flyIn .6s cubic-bezier(.3,1.3,.5,1) both}' +
+      '.l92-fly-out{animation:l92flyOut .6s ease-in both}' +
+      /* 巨大👍 */
+      '.l92-thumb{display:flex;align-items:center;justify-content:center;width:min(46vw,210px);aspect-ratio:1/1;' +
+      'background:rgba(255,255,255,.85);border:4px solid #ffd66b;border-radius:32px;' +
+      'box-shadow:0 10px 22px rgba(224,169,59,.3);cursor:pointer;transition:transform .15s ease;' +
+      'animation:h4thump 1.5s ease-in-out infinite}' +
+      '.l92-thumb:active{transform:scale(.95)}' +
+      '.l92-thumb.right{box-shadow:0 0 0 5px rgba(127,209,138,.55)}' +
+      '.l92-thumb-svg{width:60%;height:60%;display:block}' +
+      '@keyframes h4thump{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}' +
+      '@keyframes l92flyIn{0%{opacity:0;transform:translateY(95%) scale(.82)}100%{opacity:1;transform:none}}' +
+      '@keyframes l92flyOut{0%{opacity:1;transform:none}100%{opacity:0;transform:translateY(105%) scale(.86)}}' +
+      /* 选项栏不参与（本关全部画在中央 / 底部栏） */
+      /* 横屏矮屏（§三.15） */
+      '@media (max-height:560px){' +
+      '.l92-stage,.l92-ask,.l92-bstage{gap:.4vh;padding-bottom:.8vh}' +
+      '.l92-kidcard{width:min(21vw,116px)}' +
+      '.l92-tray{min-height:12vh;width:min(88vw,420px);padding:.8vh 1.6vw;border-radius:18px}' +
+      '.l92-card{width:min(12vw,70px);border-radius:14px;padding:5%}' +
+      '.l92-thumb{width:min(24vw,116px);border-radius:26px}}';
+    document.head.appendChild(s);
+  }
+
+  /* ---------------- 出题：A 听指令脱 / B 听指令穿 / C TPR ---------------- */
+  function makeQuestionL92(type, prev) {
+    ensureL92Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：小人身上已穿着某件，听指令把它拖回底部物品栏 */
+        var off = pick(L92_ITEMS);
+        q = {
+          type: 'L92A', sig: 'A:' + off, item: off, act: 'off', from: 'body', to: 'tray',
+          options: [], correct: 0, audio: [L92_A_KEY[off]]
+        };
+      } else if (type === 1) {
+        /* B：小人光着，底部 3 件衣物，听指令把对的那件拖到身上 */
+        var on = pick(L92_ITEMS);
+        var rest = L92_ITEMS.filter(function (x) { return x !== on; });
+        shuffle(rest);
+        var items = shuffle([on, rest[0], rest[1]]);
+        q = {
+          type: 'L92B', sig: 'B:' + on + ':' + items.join(','), item: on, act: 'on', from: 'tray', to: 'kid',
+          items: items,
+          options: items.map(function (it) { return { kind: 'l92item', item: it }; }),
+          answer: items.indexOf(on), correct: items.indexOf(on),
+          audio: [L92_B_KEY[on]]
+        };
+      } else {
+        /* C：TPR 模仿穿脱（巨大👍，永远判对 §三.12） */
+        state.l92cIdx = ((state.l92cIdx || 0) + 1) % L92_C_KEYS.length;
+        var c = L92_C_KEYS[state.l92cIdx];
+        q = {
+          type: 'L92C', sig: 'C:' + c.key, item: c.item, act: c.act,
+          options: [], correct: 0, audio: [c.key]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 双向拖拽的判定与容错 ---------------- */
+
+  /** 方向是否正确：身上的衣物只能脱到物品栏，物品栏的衣物只能穿到身上 */
+  function l92DirOk(from, target) {
+    var drop = target && target.dataset ? target.dataset.drop : null;
+    return (from === 'body' && drop === 'tray') || (from === 'tray' && drop === 'kid');
+  }
+
+  /** 当前该拿哪一件（答题 = 题目；教学 = 本步目标） */
+  function l92NeedItem() {
+    if (state.phase === 'tutorial') return state.tut ? state.tut.l92Item : null;
+    return state.question ? state.question.item : null;
+  }
+
+  function l92ClearPick() {
+    state.l92Pick = null;
+    if (!askDisplay) return;
+    Array.prototype.forEach.call(askDisplay.querySelectorAll('.l92-card, .l92-on'), function (n) {
+      n.classList.remove('picked');
+    });
+  }
+
+  function l92Pick(el) {
+    var item = el.dataset.item, from = el.dataset.from;
+    var same = state.l92Pick && state.l92Pick.item === item && state.l92Pick.from === from;
+    l92ClearPick();
+    if (!same) {
+      state.l92Pick = { item: item, from: from };
+      el.classList.add('picked');
+    }
+  }
+
+  /** 方向 / 位置不对：只做「弹回 + 抖一下」，不判对错、不消失 */
+  function l92Bounce(el) {
+    if (!el) return;
+    el.classList.add('l92-nudge');
+    setTimeout(function () { el.classList.remove('l92-nudge'); }, 470);
+    if (state.phase === 'tutorial') armHint();
+  }
+
+  /** 真正生效：把衣物穿到身上 / 脱回物品栏，并给出视觉反馈 */
+  function l92Apply(item, act, cb) {
+    var kid = askDisplay.querySelector('#l92-kid');
+    if (!kid) { if (cb) cb(); return; }
+    var wrap = kid.querySelector('.l92-kid-wrap');
+    if (act === 'on') {
+      var fly = l92FlyNode(wrap, item, 'in');
+      setTimeout(function () {
+        if (fly.parentNode) fly.parentNode.removeChild(fly);
+        var list = l92WornOf(kid); list.push(item);
+        l92SetWorn(kid, list);
+        kid.classList.add('l92-right');
+        if (cb) cb();
+      }, 560);
+    } else {
+      var fly2 = l92FlyNode(wrap, item, 'out');
+      setTimeout(function () {
+        if (fly2.parentNode) fly2.parentNode.removeChild(fly2);
+        l92SetWorn(kid, l92WornOf(kid).filter(function (x) { return x !== item; }));
+        /* 衣物回到物品栏 */
+        var tray = askDisplay.querySelector('#l92-tray');
+        if (tray) {
+          tray.classList.remove('l92-tray-empty');
+          var card = document.createElement('div');
+          card.className = 'l92-card l92-right';
+          card.dataset.item = item;
+          card.setAttribute('aria-hidden', 'true');
+          card.appendChild(l9ItemSvg(item));
+          tray.appendChild(card);
+        }
+        if (cb) cb();
+      }, 560);
+    }
+  }
+
+  /** 答题用：立刻生效（judge 后 430ms 就切下一题，不能等飞行动画） */
+  function l92ApplyNow(item, act) {
+    var kid = askDisplay.querySelector('#l92-kid');
+    if (!kid) return;
+    if (act === 'on') {
+      var list = l92WornOf(kid); list.push(item);
+      l92SetWorn(kid, list);
+      kid.classList.add('l92-right');
+      return;
+    }
+    l92SetWorn(kid, l92WornOf(kid).filter(function (x) { return x !== item; }));
+    var tray = askDisplay.querySelector('#l92-tray');
+    if (!tray) return;
+    tray.classList.remove('l92-tray-empty');
+    var card = document.createElement('div');
+    card.className = 'l92-card l92-right';
+    card.dataset.item = item;
+    card.setAttribute('aria-hidden', 'true');
+    card.appendChild(l9ItemSvg(item));
+    tray.appendChild(card);
+  }
+
+  /** 拖拽 / 点选的统一入口（quiz 与 tutorial 共用） */
+  function resolveL92(el, target) {
+    if (!el) return false;
+    var item = el.dataset.item, from = el.dataset.from;
+    var need = l92NeedItem();
+    if (!l92DirOk(from, target)) { l92Bounce(el); return false; }
+    if (item !== need) {
+      /* 方向对但拿错了：温柔提醒 + 不推进 */
+      say(['again']);
+      l92Bounce(el);
+      if (state.phase === 'tutorial') armHint();
+      return false;
+    }
+    var act = (from === 'body') ? 'off' : 'on';
+    l92ClearPick();
+    if (state.phase === 'tutorial') {
+      l92Apply(item, act, function () {
+        var me = state.tut;
+        if (!me) return;
+        me.l92On = false;
+        me.canDrag = false;
+        setTimeout(function () { if (state.tut === me && me._l92Next) me._l92Next(); }, 420);
+      });
+      return true;
+    }
+    l92ApplyNow(item, act);
+    judge(true, el);
+    return true;
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：小人穿着某件衣物 → 拖回底部物品栏 */
+  function renderL92A(q) {
+    ensureL92Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l92-ask';
+    var kid = l92KidCard([q.item]);
+    kid.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      if (!state.l92Pick || state.l92Pick.from !== 'tray') return;
+      var src = askDisplay.querySelector('.l92-card[data-item="' + state.l92Pick.item + '"]');
+      resolveL92(src, kid);
+    });
+    box.appendChild(kid);
+    var tray = l92Tray([], false);
+    tray.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      if (!state.l92Pick || state.l92Pick.from !== 'body') return;
+      var src = askDisplay.querySelector('.l92-on[data-item="' + state.l92Pick.item + '"]');
+      resolveL92(src, tray);
+    });
+    box.appendChild(tray);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 B：小人光着 → 从底部 3 件里把对的拖到身上 */
+  function renderL92B(q) {
+    ensureL92Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l92-ask';
+    var kid = l92KidCard([]);
+    kid.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      if (!state.l92Pick || state.l92Pick.from !== 'tray') return;
+      var src = askDisplay.querySelector('.l92-card[data-item="' + state.l92Pick.item + '"]');
+      resolveL92(src, kid);
+    });
+    box.appendChild(kid);
+    var tray = l92Tray(q.items, true);
+    box.appendChild(tray);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 C：中央示范小人（已穿该衣物）+ 巨大👍 */
+  function renderL92C(q) {
+    ensureL92Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l92-bstage';
+    w.setAttribute('aria-label', '小朋友');
+    var kid = l92KidCard([q.item]);
+    kid.removeAttribute('data-drop');
+    kid.setAttribute('aria-hidden', 'true');
+    w.appendChild(kid);
+    var thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'l92-thumb';
+    thumb.setAttribute('aria-label', '我做到啦');
+    thumb.innerHTML = l92ThumbSvg();
+    thumb.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      judge(true, thumb);
+    });
+    w.appendChild(thumb);
+    askDisplay.appendChild(w);
+  }
+
+  /* 教学：10 环节（Put on 2 演示 + 1 互动 / Take off 2 演示 + 1 互动 / 再 2 演示 + 1 互动 / 过渡） */
+  var runL92Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'shoesOn1', word: 'l92_t_shoes_on', act: 'on',  item: 'shoes', before: [],        tray: ['shoes'], glow: true },
+      { t: 'demo', sid: 'shoesOn2', word: 'l92_t_shoes_on', act: 'on',  item: 'shoes', before: [],        tray: ['shoes', 'hat'] },
+      { t: 'drag', sid: 'shoesPut', word: 'l9_t_shoes',     act: 'on',  item: 'shoes', before: [],        tray: ['shoes'] },
+      { t: 'demo', sid: 'hatOff1',  word: 'l92_t_hat_off',  act: 'off', item: 'hat',   before: ['hat'],   tray: [], glow: true },
+      { t: 'demo', sid: 'hatOff2',  word: 'l92_t_hat_off',  act: 'off', item: 'hat',   before: ['hat'],   tray: ['shoes'] },
+      { t: 'drag', sid: 'coatTake', word: 'l92_t_coat_off', act: 'off', item: 'coat',  before: ['coat'],  tray: [] },
+      { t: 'demo', sid: 'pantsOff1', word: 'l92_t_pants_off', act: 'off', item: 'pants', before: ['pants'], tray: [], glow: true },
+      { t: 'demo', sid: 'pantsOff2', word: 'l92_t_pants_off', act: 'off', item: 'pants', before: ['pants'], tray: ['hat'] },
+      { t: 'drag', sid: 'pantsTake', word: 'l92_t_pants_take', act: 'off', item: 'pants', before: ['pants'], tray: [] },
+      { t: 'out',  sid: 'out',      word: 'l92_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null; me._advance = null;
+      me.canDrag = false; me.l92On = false; me.askLock = false; me.l92Item = null; me._l92Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid) {
+      blank(me);
+      ensureL92Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l92-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', '情景');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示：语音 → 衣物飞入 / 飞出 → 定格等点按 */
+    function playDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var kid = l92KidCard(act.before || []);
+      kid.removeAttribute('data-drop');
+      w.appendChild(kid);
+      var tray = l92Tray(act.tray || [], false);
+      if (act.glow) {
+        var g = tray.querySelector('.l92-card[data-item="' + act.item + '"]');
+        if (g) g.classList.add('l92-glow');
+      }
+      w.appendChild(tray);
+      var wrap = kid.querySelector('.l92-kid-wrap');
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        var fly = l92FlyNode(wrap, act.item, act.act === 'on' ? 'in' : 'out');
+        setTimeout(function () {
+          if (state.tut !== me) return;
+          if (fly.parentNode) fly.parentNode.removeChild(fly);
+          if (act.act === 'on') {
+            var list = l92WornOf(kid); list.push(act.item);
+            l92SetWorn(kid, list);
+            kid.classList.add('l92-right');
+            /* 物品栏里的那张卡「被穿上」了，从栏里消失 */
+            var used = tray.querySelector('.l92-card[data-item="' + act.item + '"]');
+            if (used && used.parentNode) used.parentNode.removeChild(used);
+            if (!tray.querySelector('.l92-card')) tray.classList.add('l92-tray-empty');
+          } else {
+            l92SetWorn(kid, l92WornOf(kid).filter(function (x) { return x !== act.item; }));
+            /* 落进物品栏 */
+            tray.classList.remove('l92-tray-empty');
+            var card = document.createElement('div');
+            card.className = 'l92-card l92-right';
+            card.dataset.item = act.item;
+            card.setAttribute('aria-hidden', 'true');
+            card.appendChild(l9ItemSvg(act.item));
+            tray.appendChild(card);
+          }
+          gate(me, next);
+        }, 600);
+      });
+    }
+    /* 互动：拖 / 点双向（4 秒小手 + 方向不对弹回） */
+    function playDrag(me, act, next) {
+      var w = stage(me, act.sid);
+      var kid = l92KidCard(act.before || []);
+      me.l92Item = act.item;
+      me._l92Next = next;
+      kid.addEventListener('click', function () {
+        if (state.tut !== me || !me.l92On) return;
+        if (!state.l92Pick || state.l92Pick.from !== 'tray') return;
+        var src = askDisplay.querySelector('.l92-card[data-item="' + state.l92Pick.item + '"]');
+        resolveL92(src, kid);
+      });
+      w.appendChild(kid);
+      var tray = l92Tray(act.tray || [], true);
+      tray.addEventListener('click', function () {
+        if (state.tut !== me || !me.l92On) return;
+        if (!state.l92Pick || state.l92Pick.from !== 'body') return;
+        var src = askDisplay.querySelector('.l92-on[data-item="' + state.l92Pick.item + '"]');
+        resolveL92(src, tray);
+      });
+      w.appendChild(tray);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l92On = true;
+        me.canDrag = true;
+        me.customMode = 'L92';
+        /* 4 秒小手：穿上 = 从物品栏滑到小人；脱下 = 从小人滑到物品栏 */
+        if (act.act === 'on') {
+          me.hintFrom = tray.querySelector('.l92-card[data-item="' + act.item + '"]');
+          me.hintTo = kid;
+        } else {
+          me.hintFrom = kid.querySelector('.l92-on[data-item="' + act.item + '"]');
+          me.hintTo = tray;
+        }
+        me.hintTarget = me.hintFrom;
+        armHint();
+      });
+    }
+    /* 过渡：全套穿好 → 语音 → 答题 */
+    function playOut(me, act) {
+      var w = stage(me, act.sid);
+      var kid = l92KidCard(L92_ITEMS.slice());
+      kid.removeAttribute('data-drop');
+      w.appendChild(kid);
+      var tray = l92Tray([], false);
+      w.appendChild(tray);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        tutFinish(me, false);
+      });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'drag') { playDrag(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
   var runB4Tutorial = (function () {
@@ -21970,6 +22579,10 @@
     if (q.type === 'L9A') { renderL9A(q); return; }
     if (q.type === 'L9B') { optionsBar.classList.add('gone'); renderL9B(q); return; }
     if (q.type === 'L9C') { optionsBar.classList.add('gone'); renderL9C(q); return; }
+    /* ---- 第 9 岛第 2 关：穿脱动作（A 身上穿着 → 拖回物品栏；B 物品栏 → 拖到身上；C 示范小人 + 👍） ---- */
+    if (q.type === 'L92A') { optionsBar.classList.add('gone'); renderL92A(q); return; }
+    if (q.type === 'L92B') { optionsBar.classList.add('gone'); renderL92B(q); return; }
+    if (q.type === 'L92C') { optionsBar.classList.add('gone'); renderL92C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -22696,6 +23309,10 @@
         // 第 9 岛第 1 关题型 A：可拖/点到小人身上的衣物（上衣 / 裤子 / 鞋 / 帽子）
         btn.classList.add('l9-opt');
         slot.appendChild(l9ItemSvg(opt.item));
+      } else if (opt.kind === 'l92item') {
+        // 第 9 岛第 2 关：衣物（画在底部物品栏，选项栏只在重洗时兜底渲染）
+        btn.classList.add('l9-opt');
+        slot.appendChild(l9ItemSvg(opt.item));
       } else {
         btn.classList.add('pile-opt');
         slot.appendChild(pileNode(opt.fruit, opt.count, 'opt'));
@@ -23038,7 +23655,8 @@
             qt !== 'H1A' && qt !== 'H1B' && qt !== 'H2A' && qt !== 'H3B' &&
             qt !== 'H4A' && qt !== 'H4C' &&
             qt !== 'H5B' && qt !== 'H5C' &&
-            qt !== 'L9B' && qt !== 'L9C') {
+            qt !== 'L9B' && qt !== 'L9C' &&
+            qt !== 'L92A' && qt !== 'L92C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -23158,10 +23776,25 @@
     var q = state.question;
     var target = d.moved ? dropAt(e.clientX, e.clientY) : null;
 
+    /* 第 9 岛第 2 关（双向拖拽）：方向不对（身上的衣服拖到小人身上 / 栏里的衣服拖回栏里）
+       → 只把幽灵平滑送回原位 + 元素抖一下，绝不判错、绝不消失（§二.11 宽容判定）。 */
+    if (d.mode === 'L92' && target && !l92DirOk(d.el.dataset.from, target)) {
+      var sr0 = d.el.getBoundingClientRect();
+      d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
+      d.ghost.style.left = sr0.left + 'px';
+      d.ghost.style.top = sr0.top + 'px';
+      d.ghost.style.transform = 'scale(1)';
+      setTimeout(function () { if (d.ghost.parentNode) d.ghost.remove(); }, 240);
+      l92Bounce(d.el);
+      return;
+    }
+
     if (!d.moved) {
       // 轻点：A 直接作答；B 选中/取消选中水果
       d.ghost.remove();
       state.lastPointerAt = Date.now();
+      /* 第 9 岛第 2 关：轻点由元素自己的 click（l92Pick / resolveL92）处理 */
+      if (d.mode === 'L92') return;
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
       else if (d.mode === 'F14T') tutPickF14(d.el);
@@ -23221,6 +23854,8 @@
         resolveH5A(d.idx, target);
       } else if (d.mode === 'L9A') {
         resolveL9A(d.idx, target, { x: e.clientX, y: e.clientY });
+      } else if (d.mode === 'L92') {
+        resolveL92(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -23254,6 +23889,15 @@
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
+    } else if (d.mode === 'L92') {
+      /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
+      var sr1 = d.el.getBoundingClientRect();
+      d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
+      d.ghost.style.left = sr1.left + 'px';
+      d.ghost.style.top = sr1.top + 'px';
+      d.ghost.style.transform = 'scale(1)';
+      setTimeout(function () { if (d.ghost.parentNode) d.ghost.remove(); }, 240);
+      l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
       d.ghost.style.transition = 'transform .18s, opacity .18s';
@@ -24288,6 +24932,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '9-2': {
+      // 穿脱动作（Put on / Take off）：沿用 9-1 小人 + 衣物，新增外套；底部物品栏 = 「脱」的接收区；
+      // 10 环节（Put on 2 演示 + 1 互动 / Take off 2 演示 + 1 互动 / 再 2 演示 + 1 互动 / 过渡）；
+      // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、双向拖拽未命中平滑弹回（§二.11）
+      custom: runL92Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -24532,6 +25185,8 @@
     if (state.phase !== 'asking' || state.busy) return null;
     var q = state.question;
     if (!q) return null;
+    /* 第 9 岛第 2 关：穿 / 脱共用一套引擎，方向由「拖的是身上还是栏里」决定 */
+    if (q.type === 'L92A' || q.type === 'L92B') return 'L92';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -25279,6 +25934,7 @@
             if (o.kind === 'h4face') return 'e:' + o.emo;
             if (o.kind === 'h5mask') return 'k:' + o.emo;
             if (o.kind === 'l9item') return 'i:' + o.item;
+            if (o.kind === 'l92item') return 'i:' + o.item;
             if (o.kind === 'g3act') return 'i:' + o.act;
             if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
@@ -25346,7 +26002,11 @@
           l9kids: q.wearKids ? q.wearKids.slice() : null,
           l9target: q.target || null,
           l9part: q.part || null,
-          l9answer: (typeof q.answer === 'number') ? q.answer : null
+          l9answer: (typeof q.answer === 'number') ? q.answer : null,
+          l92item: q.item || null,
+          l92act: q.act || null,
+          l92items: q.items ? q.items.slice() : null,
+          l92answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },

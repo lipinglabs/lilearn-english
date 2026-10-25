@@ -1409,6 +1409,33 @@ add("l9_c_pants", "Put on your pants!", "en", -15, EN_ASK)
 add("l9_c_shoes", "Put on your shoes!", "en", -15, EN_ASK)
 add("l9_c_hat",   "Put on your hat!", "en", -15, EN_ASK)
 
+# ------------------------------------------------------------
+# 第 9 岛第 2 关（L9-W2：穿脱动作 Put on / Take off）
+# 教学：Put on 2 演示 + 1 互动（"Put on the shoes." 复用 l9_t_shoes）/ Take off 2 演示 + 1 互动 / 再 2 演示 + 1 互动
+# 答题 A 听指令脱 / B 听指令穿 / C TPR「Show me. Put on/Take off your ...」
+# ------------------------------------------------------------
+add("l92_t_shoes_on",   "Look! He has no shoes. Put on the shoes.", "en", -15, EN_ASK)
+add("l92_t_hat_off",    "It's hot. Take off the hat.", "en", -15, EN_ASK)
+add("l92_t_coat_off",   "Take off the coat.", "en", -15, EN_ASK)
+add("l92_t_pants_off",  "Now, take off the pants.", "en", -15, EN_ASK)
+add("l92_t_pants_take", "Take off the pants.", "en", -15, EN_ASK)
+add("l92_t_out",        "You can dress up and take off! Let's play!", "en", -12, EN_PRAISE)
+# 答题 A：听指令脱（身上穿着某件 → 拖回物品栏）
+add("l92_a_hat",   "It's time to sleep. Take off the hat.", "en", -15, EN_ASK)
+add("l92_a_shoes", "It's time to sleep. Take off the shoes.", "en", -15, EN_ASK)
+add("l92_a_coat",  "It's hot. Take off the coat.", "en", -15, EN_ASK)
+add("l92_a_pants", "It's time to sleep. Take off the pants.", "en", -15, EN_ASK)
+# 答题 B：听指令穿（物品栏 3 件 → 拖到身上）
+add("l92_b_hat",   "It's cold. Put on the hat.", "en", -15, EN_ASK)
+add("l92_b_coat",  "It's cold. Put on the coat.", "en", -15, EN_ASK)
+add("l92_b_pants", "It's cold. Put on the pants.", "en", -15, EN_ASK)
+add("l92_b_shoes", "It's cold. Put on the shoes.", "en", -15, EN_ASK)
+# 答题 C：TPR 模仿穿脱（👍 永远判对）
+add("l92_c_on_hat",   "Show me. Put on your hat!", "en", -15, EN_ASK)
+add("l92_c_off_hat",  "Show me. Take off your hat!", "en", -15, EN_ASK)
+add("l92_c_on_coat",  "Show me. Put on your coat!", "en", -15, EN_ASK)
+add("l92_c_off_coat", "Show me. Take off your coat!", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
