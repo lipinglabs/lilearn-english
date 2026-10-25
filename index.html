@@ -3873,7 +3873,8 @@
     '8-2': { numbers: null, make: 'makeH2', title: '第 2 关', tutorial: true },
     '8-3': { numbers: null, make: 'makeH3', title: '第 3 关', tutorial: true },
     '8-4': { numbers: null, make: 'makeH4', title: '第 4 关', tutorial: true },
-    '8-5': { numbers: null, make: 'makeH5', title: '第 5 关', tutorial: true }
+    '8-5': { numbers: null, make: 'makeH5', title: '第 5 关', tutorial: true },
+    '9-1': { numbers: null, make: 'makeL9', title: '第 1 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3952,6 +3953,20 @@
         '<path d="M86 42 l-8 4" fill="none" stroke="#5a4a42" stroke-width="2.8" stroke-linecap="round"/>' +
         '<path d="M71 58 q7 -5 14 0" fill="none" stroke="#5a4a42" stroke-width="2.8" stroke-linecap="round"/>';
       return emo;
+    }
+    // 第 9 岛是「衣物穿戴」，地图图标用手写小上衣 SVG（免费 SVG，RULES §二.17 不用 emoji 字符）
+    if (index === 9) {
+      var tee = document.createElementNS(SVG_NS, 'svg');
+      tee.setAttribute('viewBox', '0 0 100 100');
+      tee.setAttribute('class', 'mini-shapes');
+      tee.innerHTML =
+        '<path d="M50 6 q0 8 0 8" fill="none" stroke="#9aa7b8" stroke-width="3.4" stroke-linecap="round"/>' +
+        '<path d="M50 14 L18 30 Q10 34 13 42 L20 62 Q23 69 30 66 L36 63 V84 Q36 89 41 89 H59 Q64 89 64 84 V63 ' +
+        'L70 66 Q77 69 80 62 L87 42 Q90 34 82 30 Z" fill="#8fc7e8" stroke="#4f9fd6" stroke-width="3.6" ' +
+        'stroke-linejoin="round"/>' +
+        '<path d="M38 28 Q50 40 62 28" fill="none" stroke="#4f9fd6" stroke-width="3.2"/>' +
+        '<path d="M36 70 H64" stroke="#5aa7d6" stroke-width="2.4" opacity=".55"/>';
+      return tee;
     }
     if (index === 2) {
       var box = document.createElementNS(SVG_NS, 'svg');
@@ -4088,6 +4103,7 @@
     if (def && def.make === 'makeH3') return makeQuestionH3(typeIdx, prev);
     if (def && def.make === 'makeH4') return makeQuestionH4(typeIdx, prev);
     if (def && def.make === 'makeH5') return makeQuestionH5(typeIdx, prev);
+    if (def && def.make === 'makeL9') return makeQuestionL9(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -21071,6 +21087,581 @@
     return api;
   })();
 
+  /* ======================================================================
+     第 9 岛第 1 关（L9-W1）：衣物穿戴 Shirt / Pants / Shoes / Hat
+     —— 第 9 岛「衣物穿戴」开篇：把小人的 4 个部位（头 / 身 / 腿 / 脚）与 4 件衣物对应起来。
+     全部手写 SVG（同一个圆润卡通小人：打底衫 + 短裤 + 光脚；上衣 / 裤子 / 鞋 / 帽子为可穿脱图层），零 PNG、零生图。
+     演示严格「语音播完定格 + 点屏幕才推进」（§三.14）；互动 4 秒小手（§二.12）；
+     TPR 用巨大 👍 且永远判对（§三.12）；拖拽热区 = 整个小人 + 14% 外扩（§二.11，绝不让孩子瞄准）。
+     ====================================================================== */
+  var L9_ITEMS = ['shirt', 'pants', 'shoes', 'hat'];
+  var L9_PART = { shirt: 'body', pants: 'legs', shoes: 'feet', hat: 'head' };
+  var L9_A_KEY = { shirt: 'l9_t_shirt_put', pants: 'l9_t_pants_put', shoes: 'l9_t_shoes', hat: 'l9_t_hat' };
+  var L9_B_KEY = { shirt: 'l9_b_shirt', pants: 'l9_b_pants', shoes: 'l9_b_shoes', hat: 'l9_b_hat' };
+  var L9_C_KEY = { shirt: 'l9_c_shirt', pants: 'l9_c_pants', shoes: 'l9_c_shoes', hat: 'l9_c_hat' };
+
+  var L9_SKIN = '#ffddc4', L9_SKIN_S = '#e8b895', L9_INK = '#5a4a42', L9_HAIR = '#6b4a34';
+  var L9_UNDER = '#f7f9fc', L9_UNDER_S = '#d3dde8';
+  var L9_SHORTS = '#cfd8e6', L9_SHORTS_S = '#b3c0d4';
+  var L9_SHIRT_C = '#7fb3d5', L9_SHIRT_S = '#4f9fd6';
+  var L9_PANTS_C = '#6b7ea8', L9_PANTS_S = '#4c5f85';
+  var L9_SHOE_C = '#e8743f', L9_SHOE_S = '#c25a2c', L9_SHOE_C2 = '#f08a4b';
+  var L9_HAT_C = '#ffd66b', L9_HAT_S = '#e0a93b', L9_HAT_C2 = '#f2b93e';
+
+  /* ---- 衣物（100×100 本地坐标，单独成图给选项栏 / 教学卡片；穿到身上时按 L9_FIT 变换） ---- */
+  function l9ShoeOne(tx, fill) {
+    return '<g transform="translate(' + tx + ',0)">' +
+      '<path d="M4 60 Q4 48 14 48 H26 Q33 48 36 55 L41 63 H52 Q58 63 59 68 L60 71 Q61 77 54 77 H10 Q4 77 4 71 Z" ' +
+      'fill="' + fill + '" stroke="' + L9_SHOE_S + '" stroke-width="3.2" stroke-linejoin="round"/>' +
+      '<path d="M6 70 H58" stroke="#ffffff" stroke-width="4.2" opacity=".8"/>' +
+      '<path d="M30 54 Q36 56 40 60" fill="none" stroke="' + L9_SHOE_S + '" stroke-width="2.2"/>' +
+      '</g>';
+  }
+
+  function l9ItemInner(item) {
+    if (item === 'shirt') {
+      /* 衣身 22..78（与躯干同宽），袖子只外扩到 6/94：穿到身上才盖得住身体 */
+      return '<path d="M34 22 L8 40 L6 52 L22 62 V90 Q22 92 26 92 H74 Q78 92 78 90 V62 L94 52 L92 40 L66 22 ' +
+        'Q60 34 50 34 Q40 34 34 22 Z" fill="' + L9_SHIRT_C + '" stroke="' + L9_SHIRT_S + '" stroke-width="3.4" ' +
+        'stroke-linejoin="round"/>' +
+        '<path d="M34 22 Q50 36 66 22" fill="none" stroke="' + L9_SHIRT_S + '" stroke-width="3"/>' +
+        '<path d="M25 84 H75" stroke="' + L9_SHIRT_S + '" stroke-width="2.4" opacity=".45"/>';
+    }
+    if (item === 'pants') {
+      return '<path d="M28 16 H72 Q77 16 77 21 L73 84 Q73 88 68 88 H60 Q55 88 54 83 L50 52 L46 83 Q45 88 40 88 H32 ' +
+        'Q27 88 27 84 L23 21 Q23 16 28 16 Z" fill="' + L9_PANTS_C + '" stroke="' + L9_PANTS_S + '" stroke-width="3.4" ' +
+        'stroke-linejoin="round"/>' +
+        '<path d="M29 27 H71" stroke="' + L9_PANTS_S + '" stroke-width="2.8" opacity=".85"/>' +
+        '<path d="M50 30 V50" stroke="' + L9_PANTS_S + '" stroke-width="2.2" opacity=".5"/>';
+    }
+    if (item === 'shoes') {
+      return l9ShoeOne(2, L9_SHOE_C) + l9ShoeOne(38, L9_SHOE_C2);
+    }
+    /* hat：帽子（帽身与头同宽 + 略宽的帽檐 + 顶扣 + 帽缝），避免画成「飞碟」 */
+    return '<path d="M28 46 Q28 24 50 24 Q72 24 72 46 Z" fill="' + L9_HAT_C + '" stroke="' + L9_HAT_S + '" ' +
+      'stroke-width="3.4" stroke-linejoin="round"/>' +
+      '<path d="M50 27 V45" stroke="' + L9_HAT_S + '" stroke-width="2" opacity=".4"/>' +
+      /* 帽檐：只比帽身宽一点，两端略向下弯（画太宽会变成「飞碟」） */
+      '<path d="M25 45 H75 Q79 45 79 50 Q79 56 71 56 Q60 58 50 58 Q40 58 29 56 Q21 56 21 50 Q21 45 25 45 Z" ' +
+      'fill="' + L9_HAT_C2 + '" stroke="' + L9_HAT_S + '" stroke-width="3" stroke-linejoin="round"/>' +
+      '<circle cx="50" cy="22" r="3.4" fill="' + L9_HAT_C2 + '" stroke="' + L9_HAT_S + '" stroke-width="2.2"/>';
+  }
+
+  /** 衣物穿到小人身上的位置（120×175 空间） */
+  var L9_FIT = {
+    /* 按「衣物本地区间 → 小人对应部位」逐一换算：衣身盖住躯干 43..77 / 71..122 */
+    shirt: 'translate(26,57.5) scale(0.66)',      /* 本地 6..94 × 22..92 → 30..92 × 72..118 */
+    pants: 'translate(33.4,107.6) scale(0.528)',  /* 本地 23..77 × 16..88 → 45.5..74 × 116..154 */
+    shoes: 'translate(35.1,133) scale(0.48)',     /* 本地 6..98 × 48..77 → 38..82 × 156..170 */
+    hat: 'translate(15,-13) scale(0.9)'           /* 本地 21..79 × 20..58 → 34..86 × 5..39（帽檐压在眼睛上方） */
+  };
+
+  /* ---- 小人：打底衫 + 短裤 + 光脚；worn 里的衣物叠在对应部位 ---- */
+  function l9KidInner(worn) {
+    var has = {};
+    (worn || []).forEach(function (k) { has[k] = true; });
+    var shadow = '<ellipse cx="60" cy="171" rx="30" ry="4.6" fill="#d8b08c" opacity=".22"/>';
+    var neck = '<rect x="53" y="62" width="14" height="14" rx="7" fill="' + L9_SKIN + '" stroke="' + L9_SKIN_S + '" stroke-width="2.4"/>';
+    var ears = '<circle cx="30" cy="44" r="5" fill="' + L9_SKIN + '" stroke="' + L9_SKIN_S + '" stroke-width="2.4"/>' +
+      '<circle cx="90" cy="44" r="5" fill="' + L9_SKIN + '" stroke="' + L9_SKIN_S + '" stroke-width="2.4"/>';
+    var head = '<circle cx="60" cy="44" r="27" fill="' + L9_SKIN + '" stroke="' + L9_SKIN_S + '" stroke-width="3.2"/>' +
+      '<path d="M33 42 A27 27 0 0 1 87 42 Q74 30 60 30 Q46 30 33 42 Z" fill="' + L9_HAIR + '"/>' +
+      '<circle cx="50" cy="45" r="3.2" fill="' + L9_INK + '"/>' +
+      '<circle cx="70" cy="45" r="3.2" fill="' + L9_INK + '"/>' +
+      '<path d="M52 56 q8 7 16 0" fill="none" stroke="' + L9_INK + '" stroke-width="3" stroke-linecap="round"/>' +
+      '<circle cx="40" cy="53" r="4.4" fill="#ffb9b9" opacity=".55"/>' +
+      '<circle cx="80" cy="53" r="4.4" fill="#ffb9b9" opacity=".55"/>';
+    var legs = '<rect x="48" y="118" width="11" height="44" rx="5.5" fill="' + L9_SKIN + '" stroke="' + L9_SKIN_S + '" stroke-width="2.6"/>' +
+      '<rect x="61" y="118" width="11" height="44" rx="5.5" fill="' + L9_SKIN + '" stroke="' + L9_SKIN_S + '" stroke-width="2.6"/>';
+    var feet = '<ellipse cx="53" cy="165" rx="9.6" ry="5.2" fill="' + L9_SKIN + '" stroke="' + L9_SKIN_S + '" stroke-width="2.4"/>' +
+      '<ellipse cx="67" cy="165" rx="9.6" ry="5.2" fill="' + L9_SKIN + '" stroke="' + L9_SKIN_S + '" stroke-width="2.4"/>';
+    var arms = '<path d="M44 86 Q33 102 32 116" fill="none" stroke="' + L9_SKIN + '" stroke-width="9" stroke-linecap="round"/>' +
+      '<circle cx="32" cy="118" r="6" fill="' + L9_SKIN + '" stroke="' + L9_SKIN_S + '" stroke-width="2.4"/>' +
+      '<path d="M76 86 Q87 102 88 116" fill="none" stroke="' + L9_SKIN + '" stroke-width="9" stroke-linecap="round"/>' +
+      '<circle cx="88" cy="118" r="6" fill="' + L9_SKIN + '" stroke="' + L9_SKIN_S + '" stroke-width="2.4"/>';
+    /* 打底衫（白色背心）+ 短裤：即使没穿衣服也不裸露 */
+    var torso = '<path d="M44 122 V82 Q44 72 52 71 H68 Q76 72 76 82 V122 Z" fill="' + L9_UNDER + '" ' +
+      'stroke="' + L9_UNDER_S + '" stroke-width="2.8"/>' +
+      '<path d="M50 71 Q60 80 70 71" fill="none" stroke="' + L9_UNDER_S + '" stroke-width="2.4"/>';
+    /* 打底短裤：穿上长裤后要收起来（否则会盖在裤子外面） */
+    var shorts = has.pants ? '' : '<path d="M42 116 H78 V127 Q78 133 71 133 H64 L60 125 L56 133 H49 Q42 133 42 127 Z" ' +
+      'fill="' + L9_SHORTS + '" stroke="' + L9_SHORTS_S + '" stroke-width="2.8" stroke-linejoin="round"/>';
+    var pants = has.pants ? '<g transform="' + L9_FIT.pants + '">' + l9ItemInner('pants') + '</g>' : '';
+    var shoes = has.shoes ? '<g transform="' + L9_FIT.shoes + '">' + l9ItemInner('shoes') + '</g>' : '';
+    var shirt = has.shirt ? '<g transform="' + L9_FIT.shirt + '">' + l9ItemInner('shirt') + '</g>' : '';
+    var hat = has.hat ? '<g transform="' + L9_FIT.hat + '">' + l9ItemInner('hat') + '</g>' : '';
+    return shadow + legs + pants + feet + shoes + arms + torso + shorts + shirt + neck + ears + head + hat;
+  }
+
+  function l9KidSvg(worn) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 120 175');
+    s.setAttribute('class', 'l9-kid-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = l9KidInner(worn);
+    return s;
+  }
+
+  function l9ItemSvg(item) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 100 100');
+    s.setAttribute('class', 'l9-item-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = l9ItemInner(item);
+    return s;
+  }
+
+  /* ---- 小人卡：dataset.worn 记录已穿衣物（探针与重绘都靠它） ---- */
+  function l9KidCard(worn, cls) {
+    var card = document.createElement('div');
+    card.className = 'l9-kidcard' + (cls ? ' ' + cls : '');
+    card.setAttribute('aria-label', '小朋友');
+    var wrap = document.createElement('div');
+    wrap.className = 'l9-kid-wrap';
+    wrap.appendChild(l9KidSvg(worn));
+    card.appendChild(wrap);
+    card.dataset.worn = (worn || []).join(',');
+    return card;
+  }
+
+  function l9KidBtn(worn, cls) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'l9-kidcard l9-kidbtn' + (cls ? ' ' + cls : '');
+    b.setAttribute('aria-label', '小朋友');
+    var wrap = document.createElement('div');
+    wrap.className = 'l9-kid-wrap';
+    wrap.appendChild(l9KidSvg(worn));
+    b.appendChild(wrap);
+    b.dataset.worn = (worn || []).join(',');
+    return b;
+  }
+
+  function l9WornOf(card) {
+    var s = (card && card.dataset.worn) || '';
+    return s ? s.split(',') : [];
+  }
+
+  function l9SetWorn(card, list) {
+    if (!card) return;
+    card.dataset.worn = list.join(',');
+    var wrap = card.querySelector('.l9-kid-wrap');
+    if (!wrap) { wrap = document.createElement('div'); wrap.className = 'l9-kid-wrap'; card.appendChild(wrap); }
+    wrap.innerHTML = '';
+    wrap.appendChild(l9KidSvg(list));
+  }
+
+  /** 立刻穿上（答题用：judge 后 430ms 就切题，必须是同步生效的视觉结果） */
+  function l9DressNow(card, item) {
+    if (!card) return;
+    var list = l9WornOf(card);
+    if (list.indexOf(item) < 0) list.push(item);
+    l9SetWorn(card, list);
+    card.classList.add('l9-pop');
+    setTimeout(function () { card.classList.remove('l9-pop'); }, 460);
+  }
+
+  /** 穿上一件衣服：先飞入一件小衣物，再重绘小人（教学用，视觉 = 「衣服落在他身上」） */
+  function l9PutOn(card, item, cb) {
+    if (!card) { if (cb) cb(); return; }
+    var fly = document.createElement('div');
+    fly.className = 'l9-fly';
+    fly.setAttribute('aria-hidden', 'true');
+    fly.appendChild(l9ItemSvg(item));
+    card.appendChild(fly);
+    setTimeout(function () {
+      if (fly.parentNode) fly.parentNode.removeChild(fly);
+      var list = l9WornOf(card);
+      if (list.indexOf(item) < 0) list.push(item);
+      l9SetWorn(card, list);
+      card.classList.add('l9-pop');
+      setTimeout(function () { card.classList.remove('l9-pop'); }, 460);
+      if (cb) cb();
+    }, 460);
+  }
+
+  /* ---- 巨大👍（§三.12） ---- */
+  function l9ThumbSvg() {
+    return '<svg viewBox="0 0 100 100" class="l9-thumb-svg" aria-hidden="true">' +
+      '<rect x="39" y="12" width="17" height="40" rx="8.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="17" y="45" width="48" height="35" rx="13.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="22" y="75" width="39" height="13" rx="6.5" fill="#7fb3d5" stroke="#4f9fd6" stroke-width="3"/>' +
+      '</svg>';
+  }
+
+  function ensureL9Css() {
+    ensureH4Css();   /* 复用 .h4-tear 等基础动画与 shake/glow 关键帧（§三.17 成对注入） */
+    if (document.getElementById('l9-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l9-style';
+    s.textContent =
+      '.l9-stage,.l9-ask,.l9-bstage{position:relative;display:flex;flex-direction:column;align-items:center;' +
+      'justify-content:center;width:100%;max-width:100%;min-width:0;gap:1.4vh;padding-bottom:5vh;' +
+      'box-sizing:border-box}' +
+      /* 小人卡（120:175 竖长卡） */
+      '.l9-kidcard{position:relative;width:min(40vw,182px);aspect-ratio:120/175;background:rgba(255,255,255,.78);' +
+      'border:3px solid #ffd9a0;border-radius:22px;padding:4%;box-sizing:border-box;display:flex;' +
+      'align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(214,164,110,.18)}' +
+      '.l9-kidcard svg.l9-kid-svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.l9-kidcard.l9-right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.l9-kidcard.l9-pop{animation:l9pop .45s cubic-bezier(.2,1.4,.5,1)}' +
+      /* 拖放热区：整个小人 + 14% 外扩（§二.11，四部位共用，绝不让孩子瞄准） */
+      '.l9-kidcard.l9-drop{cursor:pointer}' +
+      '.l9-kidcard.l9-drop::after{content:"";position:absolute;inset:-14%;border-radius:30px}' +
+      /* 衣服飞入 */
+      '.l9-fly{position:absolute;left:50%;top:46%;width:46%;transform:translate(-50%,-50%);z-index:4;' +
+      'pointer-events:none;animation:l9fly .46s cubic-bezier(.3,1.3,.5,1) both}' +
+      '.l9-fly svg{width:100%;height:auto;display:block;filter:drop-shadow(0 4px 8px rgba(150,90,40,.3))}' +
+      /* 一排小人（题型 B） */
+      '.l9-kidrow{display:flex;gap:min(2.6vw,12px);justify-content:center;align-items:center;width:100%;margin:.6vh auto}' +
+      '.l9-kidrow .l9-kidcard{width:min(28vw,132px);padding:3%;border-radius:18px}' +
+      '.l9-kidrow .l9-kidcard:active{transform:scale(.96)}' +
+      '.l9-kidcard.l9-wrongpick{animation:h4shake .5s;border-color:#f0a0a0}' +
+      /* 教学里的衣物选项卡 */
+      '.l9-items{display:flex;gap:min(4vw,16px);justify-content:center;align-items:center;width:100%;' +
+      'max-width:100%;flex-wrap:nowrap;margin:.8vh auto}' +
+      '.l9-items-4{gap:min(2.2vw,10px)}' +
+      '.l9-items-4 .l9-itemcard{width:min(19.5vw,88px);padding:7%}' +
+      '.l9-itemcard{position:relative;width:min(24vw,110px);aspect-ratio:1/1;background:rgba(255,255,255,.85);' +
+      'border:3px solid #ffd9a0;border-radius:20px;padding:8%;box-sizing:border-box;display:block;' +
+      'box-shadow:0 6px 14px rgba(214,164,110,.18)}' +
+      '.l9-itemcard svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.l9-itemcard.l9-pick{cursor:pointer;transition:transform .15s ease}' +
+      '.l9-itemcard.l9-pick:active{transform:scale(.95)}' +
+      '.l9-itemcard.l9-right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.l9-itemcard.l9-wrongcls{animation:h4shake .5s;border-color:#f0a0a0}' +
+      /* 选项栏里的衣物 */
+      '.option.l9-opt .slot{padding:7%}' +
+      '.option.l9-opt .slot svg{width:92%;max-width:118px;height:auto;display:block;' +
+      'filter:drop-shadow(0 4px 6px rgba(150,90,40,.22))}' +
+      /* 巨大👍 */
+      '.l9-thumb{display:flex;align-items:center;justify-content:center;width:min(46vw,210px);aspect-ratio:1/1;' +
+      'background:rgba(255,255,255,.85);border:4px solid #ffd66b;border-radius:32px;' +
+      'box-shadow:0 10px 22px rgba(224,169,59,.3);cursor:pointer;transition:transform .15s ease;' +
+      'animation:h4thump 1.5s ease-in-out infinite}' +
+      '.l9-thumb:active{transform:scale(.95)}' +
+      '.l9-thumb.right{box-shadow:0 0 0 5px rgba(127,209,138,.55)}' +
+      '.l9-thumb-svg{width:60%;height:60%;display:block}' +
+      '@keyframes h4thump{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}' +
+      '@keyframes l9pop{0%{transform:scale(1)}45%{transform:scale(1.07)}100%{transform:scale(1)}}' +
+      '@keyframes l9fly{0%{opacity:0;transform:translate(-50%,-190%) scale(.55) rotate(-12deg)}' +
+      '70%{opacity:1;transform:translate(-50%,-58%) scale(1.06) rotate(2deg)}' +
+      '100%{opacity:1;transform:translate(-50%,-50%) scale(.7) rotate(0);opacity:.15}}' +
+      /* 横屏矮屏：所有可点目标必须留在视口内（§三.15） */
+      '@media (max-height:560px){' +
+      '.l9-stage,.l9-ask,.l9-bstage{gap:.5vh;padding-bottom:1.2vh}' +
+      '.l9-kidcard{width:min(21vw,112px)}' +
+      '.l9-kidrow .l9-kidcard{width:min(16vw,100px)}' +
+      '.l9-itemcard{width:min(13vw,76px)}' +
+      '.l9-thumb{width:min(25vw,120px);border-radius:24px}' +
+      '.l9-fly{width:40%}}';
+    document.head.appendChild(s);
+  }
+
+  /* ---------------- 出题：A 听音穿衣服 / B 听音找衣物 / C TPR 模仿穿衣 ---------------- */
+  function makeQuestionL9(type, prev) {
+    ensureL9Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：中央小人（打底衫）+ 3 件衣物，听指令把孩子拖到小人身上 */
+        var item = pick(L9_ITEMS);
+        var rest = L9_ITEMS.filter(function (x) { return x !== item; });
+        shuffle(rest);
+        var items = shuffle([item, rest[0], rest[1]]);
+        q = {
+          type: 'L9A', sig: 'A:' + item + ':' + items.join(','), item: item, items: items,
+          part: L9_PART[item],
+          options: items.map(function (it) { return { kind: 'l9item', item: it }; }),
+          answer: items.indexOf(item), correct: items.indexOf(item),
+          audio: [L9_A_KEY[item]]
+        };
+      } else if (type === 1) {
+        /* B：3 个各穿一件衣物的小人，听句子点目标 */
+        var target = pick(L9_ITEMS);
+        var pool = L9_ITEMS.filter(function (x) { return x !== target; });
+        shuffle(pool);
+        var kids = shuffle([target, pool[0], pool[1]]);
+        q = {
+          type: 'L9B', sig: 'B:' + target + ':' + kids.join(','), target: target, wearKids: kids,
+          options: [], answer: kids.indexOf(target), correct: kids.indexOf(target),
+          audio: [L9_B_KEY[target]]
+        };
+      } else {
+        /* C：TPR 模仿穿衣服（巨大👍，永远判对 §三.12） */
+        state.l9cIdx = ((state.l9cIdx || 0) + 1) % L9_ITEMS.length;
+        var it = L9_ITEMS[state.l9cIdx];
+        q = {
+          type: 'L9C', sig: 'C:' + it, item: it,
+          options: [], correct: 0, audio: [L9_C_KEY[it]]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：中央小人（拖放目标，热区外扩 14%）+ 选项栏 3 件衣物 */
+  function renderL9A(q) {
+    ensureL9Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l9-ask';
+    var card = l9KidCard([], 'l9-drop');
+    card.id = 'l9-kid';
+    card.dataset.drop = 'kid';
+    card.addEventListener('click', function (e) {
+      if (state.phase !== 'asking' || state.busy) return;
+      if (state.pickedFruit === null || state.pickedFruit === undefined) return;
+      resolveL9A(state.pickedFruit, card, { x: e.clientX, y: e.clientY });
+    });
+    box.appendChild(card);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 A 判定：把衣物拖 / 点到小人身上（§二.11 两条路径都走这里；落到小人身上就算命中，不要求瞄准部位） */
+  function resolveL9A(itemIdx, target, pt) {
+    var q = state.question;
+    if (!q || q.type !== 'L9A') return;
+    var drop = (typeof target === 'string') ? target
+      : (target && target.dataset ? target.dataset.drop : null);
+    if (drop !== 'kid') {
+      if (typeof target === 'object' && target) judge(false, optionEls[itemIdx] || target);
+      return;
+    }
+    var card = (typeof target === 'string') ? askDisplay.querySelector('#l9-kid') : target;
+    var opt = q.options[itemIdx];
+    var ok = !!opt && opt.item === q.item;
+    if (ok) {
+      if (card) { l9DressNow(card, q.item); card.classList.add('l9-right'); }
+      judge(true, card);
+    } else {
+      judge(false, optionEls[itemIdx] || target);
+    }
+  }
+
+  /** 题型 B：3 个各穿一件衣物的小人，点目标 */
+  function renderL9B(q) {
+    ensureL9Css();
+    askDisplay.innerHTML = '';
+    var row = document.createElement('div');
+    row.className = 'l9-kidrow';
+    row.dataset.n = '3';
+    row.setAttribute('aria-label', '小朋友');
+    q.wearKids.forEach(function (it, i) {
+      var card = l9KidBtn([it]);
+      card.dataset.item = it;
+      card.dataset.idx = String(i);
+      card.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        if (i === q.answer) card.classList.add('l9-right');
+        judge(i === q.answer, card);
+      });
+      row.appendChild(card);
+    });
+    askDisplay.appendChild(row);
+  }
+
+  /** 题型 C：中央「示范小人」（已穿上该衣物）+ 巨大👍（TPR，永远判对） */
+  function renderL9C(q) {
+    ensureL9Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l9-bstage';
+    w.setAttribute('aria-label', '小朋友');
+    var card = l9KidCard([q.item]);
+    card.classList.add('l9-model');
+    card.setAttribute('aria-hidden', 'true');
+    w.appendChild(card);
+    var thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'l9-thumb';
+    thumb.setAttribute('aria-label', '我做到啦');
+    thumb.innerHTML = l9ThumbSvg();
+    thumb.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      judge(true, thumb);
+    });
+    w.appendChild(thumb);
+    askDisplay.appendChild(w);
+  }
+
+  /* 教学：10 环节（Shirt 2 演示 + 1 互动 / Pants 2 演示 + 1 互动 / Shoes 1 演示 /
+     Hat 1 演示 + 1 互动 / 过渡）。§三.14 播完定格点按推进 + §二.12 四秒小手 + §三.12 👍 永远判对。 */
+  var runL9Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'shirt1',   word: 'l9_t_shirt',     add: 'shirt', before: [] },
+      { t: 'demo', sid: 'shirt2',   word: 'l9_t_shirt',     add: 'shirt', before: [], cards: true },
+      { t: 'put',  sid: 'shirtPut', word: 'l9_t_shirt_put', add: 'shirt', before: [], items: ['shirt', 'pants'] },
+      { t: 'demo', sid: 'pants1',   word: 'l9_t_pants',     add: 'pants', before: ['shirt'] },
+      { t: 'demo', sid: 'pants2',   word: 'l9_t_pants',     add: 'pants', before: ['shirt'], cards: true },
+      { t: 'put',  sid: 'pantsPut', word: 'l9_t_pants_put', add: 'pants', before: ['shirt'], items: ['pants', 'hat'] },
+      { t: 'demo', sid: 'shoes1',   word: 'l9_t_shoes',     add: 'shoes', before: ['shirt', 'pants'] },
+      { t: 'demo', sid: 'hat1',     word: 'l9_t_hat',       add: 'hat',   before: ['shirt', 'pants', 'shoes'] },
+      { t: 'put',  sid: 'hatPut',   word: 'l9_t_hat',       add: 'hat',   before: ['shirt', 'pants', 'shoes'], items: ['hat', 'shoes'] },
+      { t: 'out',  sid: 'out',      word: 'l9_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null; me._advance = null;
+      me.canDrag = false; me.customMode = null;
+      me.dressOn = false; me.askLock = false;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid) {
+      blank(me);
+      ensureL9Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l9-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', '情景');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /* 演示定格：等用户点屏幕任意位置才 next()（禁止定时器自动前进；不吞顶栏点击 §三.18） */
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示：小人（按 before 穿好）→ 衣物飞上身 → 定格；cards=true 时先摆出 4 件衣物再飞过去 */
+    function playDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var card = l9KidCard(act.before || []);
+      w.appendChild(card);
+      if (act.cards) {
+        var row = document.createElement('div');
+        row.className = 'l9-items l9-items-4';
+        row.setAttribute('aria-label', '衣物');
+        L9_ITEMS.forEach(function (it) {
+          var d = document.createElement('div');
+          d.className = 'l9-itemcard';
+          d.dataset.item = it;
+          d.setAttribute('aria-hidden', 'true');
+          if (it === act.add) d.classList.add('l9-glow');
+          d.appendChild(l9ItemSvg(it));
+          row.appendChild(d);
+        });
+        w.appendChild(row);
+      }
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        l9PutOn(card, act.add, function () {
+          if (state.tut !== me) return;
+          card.classList.add('l9-right');
+          gate(me, next);
+        });
+      });
+    }
+    /* 互动：听指令把衣物穿到小人身上（点对了飞上去） */
+    function playPut(me, act, next) {
+      var w = stage(me, act.sid);
+      var card = l9KidCard(act.before || []);
+      w.appendChild(card);
+      var row = document.createElement('div');
+      row.className = 'l9-items';
+      row.setAttribute('aria-label', '衣物');
+      act.items.forEach(function (it) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'l9-itemcard l9-pick';
+        b.dataset.item = it;
+        b.setAttribute('aria-label', '衣物');
+        b.appendChild(l9ItemSvg(it));
+        b.addEventListener('click', function () {
+          if (state.tut !== me || !me.dressOn) return;
+          if (it === act.add) {
+            me.dressOn = false;
+            clearHint(); coin(); ting();
+            b.classList.add('l9-right');
+            l9PutOn(card, act.add, function () {
+              if (state.tut !== me) return;
+              card.classList.add('l9-right');
+              setTimeout(function () { if (state.tut === me) next(); }, 620);
+            });
+          } else {
+            b.classList.add('l9-wrongcls');
+            setTimeout(function () { b.classList.remove('l9-wrongcls'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+        if (it === act.add) me.hintTarget = b;
+        row.appendChild(b);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.dressOn = true;
+        armHint();
+      });
+    }
+    /* 过渡：穿好全套的小人在四件衣物前发光 → "Wow! He is fully dressed! Let's play!" */
+    function playOut(me, act) {
+      var w = stage(me, act.sid);
+      var card = l9KidCard(L9_ITEMS.slice());
+      w.appendChild(card);
+      var row = document.createElement('div');
+      row.className = 'l9-items l9-items-4';
+      row.setAttribute('aria-label', '衣物');
+      L9_ITEMS.forEach(function (it) {
+        var d = document.createElement('div');
+        d.className = 'l9-itemcard';
+        d.style.animation = 'h4glow 1.1s ease-in-out infinite';
+        d.setAttribute('aria-hidden', 'true');
+        d.appendChild(l9ItemSvg(it));
+        row.appendChild(d);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        tutFinish(me, false);
+      });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'put') { playPut(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
   var runB4Tutorial = (function () {
@@ -21375,6 +21966,10 @@
     if (q.type === 'H5A') { renderH5A(q); return; }
     if (q.type === 'H5B') { optionsBar.classList.add('gone'); renderH5B(q); return; }
     if (q.type === 'H5C') { optionsBar.classList.add('gone'); renderH5C(q); return; }
+    /* ---- 第 9 岛第 1 关：衣物穿戴（A 中央小人 + 选项栏衣物；B 3 个穿不同衣物的小人；C 中央示范小人 + 👍） ---- */
+    if (q.type === 'L9A') { renderL9A(q); return; }
+    if (q.type === 'L9B') { optionsBar.classList.add('gone'); renderL9B(q); return; }
+    if (q.type === 'L9C') { optionsBar.classList.add('gone'); renderL9C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -22097,6 +22692,10 @@
         // 第 8 岛第 5 关题型 A：可拖/点到小人脸上的面具（开心 / 难过 / 生气 / 困）
         btn.classList.add('h5-opt');
         slot.appendChild(h5MaskSvg(opt.emo));
+      } else if (opt.kind === 'l9item') {
+        // 第 9 岛第 1 关题型 A：可拖/点到小人身上的衣物（上衣 / 裤子 / 鞋 / 帽子）
+        btn.classList.add('l9-opt');
+        slot.appendChild(l9ItemSvg(opt.item));
       } else {
         btn.classList.add('pile-opt');
         slot.appendChild(pileNode(opt.fruit, opt.count, 'opt'));
@@ -22191,6 +22790,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'H5A') {
         // 第 8 岛第 5 关题型 A：面具可拖到小人脸上
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'L9A') {
+        // 第 9 岛第 1 关题型 A：衣物可拖到小人身上
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -22433,7 +23037,8 @@
             qt !== 'G5A' && qt !== 'G5B' && qt !== 'G5C' &&
             qt !== 'H1A' && qt !== 'H1B' && qt !== 'H2A' && qt !== 'H3B' &&
             qt !== 'H4A' && qt !== 'H4C' &&
-            qt !== 'H5B' && qt !== 'H5C') {
+            qt !== 'H5B' && qt !== 'H5C' &&
+            qt !== 'L9B' && qt !== 'L9C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -22614,6 +23219,8 @@
         resolveH3A(d.idx, target);
       } else if (d.mode === 'H5A') {
         resolveH5A(d.idx, target);
+      } else if (d.mode === 'L9A') {
+        resolveL9A(d.idx, target, { x: e.clientX, y: e.clientY });
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -23672,6 +24279,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '9-1': {
+      // 衣物穿戴（Shirt / Pants / Shoes / Hat）：打底衫小人 + 4 件可穿脱衣物图层；10 环节
+      // （Shirt 2 演示 + 1 互动 / Pants 2 演示 + 1 互动 / Shoes 1 演示 / Hat 1 演示 + 1 互动 / 过渡）；
+      // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、拖拽热区 = 整个小人 +14%（§二.11）
+      custom: runL9Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -23927,6 +24543,7 @@
         q.type === 'G2A' ||
         q.type === 'G3B' || q.type === 'H1C' || q.type === 'H2B' || q.type === 'H3A' ||
         q.type === 'H5A' ||
+        q.type === 'L9A' ||
         q.type === 'B4C') return q.type;
     return null;
   }
@@ -24227,6 +24844,11 @@
       }
       // 第 8 岛第 5 关题型 A：点面具选中，再点小人戴上去（拖拽的等价路径）
       if (q.type === 'H5A') {
+        tapFruit(idx, btn);
+        return;
+      }
+      // 第 9 岛第 1 关题型 A：点衣物选中，再点小人穿上去（拖拽的等价路径）
+      if (q.type === 'L9A') {
         tapFruit(idx, btn);
         return;
       }
@@ -24656,6 +25278,7 @@
             if (o.kind === 'h3item') return 'i:' + o.item;
             if (o.kind === 'h4face') return 'e:' + o.emo;
             if (o.kind === 'h5mask') return 'k:' + o.emo;
+            if (o.kind === 'l9item') return 'i:' + o.item;
             if (o.kind === 'g3act') return 'i:' + o.act;
             if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
@@ -24717,7 +25340,13 @@
           h5masks: q.masks ? q.masks.slice() : null,
           h5states: q.states ? q.states.slice() : null,
           h5target: q.target || null,
-          h5answer: (typeof q.answer === 'number') ? q.answer : null
+          h5answer: (typeof q.answer === 'number') ? q.answer : null,
+          l9item: q.item || null,
+          l9items: q.items ? q.items.slice() : null,
+          l9kids: q.wearKids ? q.wearKids.slice() : null,
+          l9target: q.target || null,
+          l9part: q.part || null,
+          l9answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },

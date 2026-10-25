@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**928** 条（英文 922 + 中文 6）
+总条目：**943** 条（英文 937 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -903,29 +903,44 @@
 | `h4_b_happy` | en | He is eating an apple. How does he feel? | 已存在 |
 | `h4_c_hug` | en | The baby is crying. Give him a hug! | 已存在 |
 | `h4_c_hug2` | en | He is sad. Give him a big hug! | 已存在 |
-| `h5_t_mask1` | en | Look! A magic face. Let's put on the happy mask! | 待生成 |
-| `h5_t_mask2` | en | Now the sad mask. Put on the sad mask! | 待生成 |
-| `h5_t_angry_put` | en | The boy is angry. Put on the angry mask. | 待生成 |
-| `h5_t_feel1` | en | Look at the boy. His tummy is rumbling. He is hungry. | 待生成 |
-| `h5_t_feel2` | en | Look! This boy is yawning. He is sleepy. | 待生成 |
-| `h5_t_find_sleepy` | en | Find the sleepy boy. Touch the sleepy boy. | 待生成 |
-| `h5_t_cry1` | en | The baby is crying. He is sad. What should we do? | 待生成 |
-| `h5_t_hug` | en | Give him a hug! | 待生成 |
-| `h5_t_hug2` | en | Look! A hug makes him happy! | 待生成 |
-| `h5_t_tpr` | en | Show me a happy face! Then give a hug. | 待生成 |
-| `h5_t_out` | en | You are the best emotion master! Let's play! | 待生成 |
-| `h5_a_ice` | en | His ice cream fell down. How does he feel? Put on the correct mask. | 待生成 |
-| `h5_a_toy` | en | His toy is gone. How does he feel? Put on the correct mask. | 待生成 |
-| `h5_a_gift` | en | He got a new toy. How does he feel? Put on the correct mask. | 待生成 |
-| `h5_a_bed` | en | He is going to bed. How does he feel? Put on the correct mask. | 待生成 |
-| `h5_b_happy` | en | Find the boy who is happy. He has an ice cream. | 待生成 |
-| `h5_b_hungry` | en | Find the boy who is hungry and crying. | 待生成 |
-| `h5_b_angry` | en | Find the boy who is angry. His toy is gone. | 待生成 |
-| `h5_b_sleepy` | en | Find the boy who is sleepy. He is yawning. | 待生成 |
-| `h5_c_thirsty` | en | Show me thirsty! Pretend to drink water. | 待生成 |
-| `h5_c_hungry` | en | Show me hungry! Pretend to eat. | 待生成 |
-| `h5_c_sleepy` | en | Show me sleepy! Pretend to yawn. | 待生成 |
-| `h5_c_happy` | en | Show me happy! Smile for me. | 待生成 |
+| `h5_t_mask1` | en | Look! A magic face. Let's put on the happy mask! | 已存在 |
+| `h5_t_mask2` | en | Now the sad mask. Put on the sad mask! | 已存在 |
+| `h5_t_angry_put` | en | The boy is angry. Put on the angry mask. | 已存在 |
+| `h5_t_feel1` | en | Look at the boy. His tummy is rumbling. He is hungry. | 已存在 |
+| `h5_t_feel2` | en | Look! This boy is yawning. He is sleepy. | 已存在 |
+| `h5_t_find_sleepy` | en | Find the sleepy boy. Touch the sleepy boy. | 已存在 |
+| `h5_t_cry1` | en | The baby is crying. He is sad. What should we do? | 已存在 |
+| `h5_t_hug` | en | Give him a hug! | 已存在 |
+| `h5_t_hug2` | en | Look! A hug makes him happy! | 已存在 |
+| `h5_t_tpr` | en | Show me a happy face! Then give a hug. | 已存在 |
+| `h5_t_out` | en | You are the best emotion master! Let's play! | 已存在 |
+| `h5_a_ice` | en | His ice cream fell down. How does he feel? Put on the correct mask. | 已存在 |
+| `h5_a_toy` | en | His toy is gone. How does he feel? Put on the correct mask. | 已存在 |
+| `h5_a_gift` | en | He got a new toy. How does he feel? Put on the correct mask. | 已存在 |
+| `h5_a_bed` | en | He is going to bed. How does he feel? Put on the correct mask. | 已存在 |
+| `h5_b_happy` | en | Find the boy who is happy. He has an ice cream. | 已存在 |
+| `h5_b_hungry` | en | Find the boy who is hungry and crying. | 已存在 |
+| `h5_b_angry` | en | Find the boy who is angry. His toy is gone. | 已存在 |
+| `h5_b_sleepy` | en | Find the boy who is sleepy. He is yawning. | 已存在 |
+| `h5_c_thirsty` | en | Show me thirsty! Pretend to drink water. | 已存在 |
+| `h5_c_hungry` | en | Show me hungry! Pretend to eat. | 已存在 |
+| `h5_c_sleepy` | en | Show me sleepy! Pretend to yawn. | 已存在 |
+| `h5_c_happy` | en | Show me happy! Smile for me. | 已存在 |
+| `l9_t_shirt` | en | Look! He needs clothes. Put on the shirt. | 待生成 |
+| `l9_t_shirt_put` | en | Put on the shirt. | 待生成 |
+| `l9_t_pants` | en | Now, put on the pants. | 待生成 |
+| `l9_t_pants_put` | en | Put on the pants. | 待生成 |
+| `l9_t_shoes` | en | Put on the shoes. | 待生成 |
+| `l9_t_hat` | en | Put on the hat. | 待生成 |
+| `l9_t_out` | en | Wow! He is fully dressed! Let's play! | 待生成 |
+| `l9_b_shirt` | en | Find the boy wearing a shirt. | 待生成 |
+| `l9_b_pants` | en | Find the boy wearing pants. | 待生成 |
+| `l9_b_shoes` | en | Find the boy wearing shoes. | 待生成 |
+| `l9_b_hat` | en | Find the boy wearing a hat. | 待生成 |
+| `l9_c_shirt` | en | Put on your shirt! | 待生成 |
+| `l9_c_pants` | en | Put on your pants! | 待生成 |
+| `l9_c_shoes` | en | Put on your shoes! | 待生成 |
+| `l9_c_hat` | en | Put on your hat! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

@@ -1386,6 +1386,29 @@ add("h5_c_hungry",  "Show me hungry! Pretend to eat.", "en", -15, EN_ASK)
 add("h5_c_sleepy",  "Show me sleepy! Pretend to yawn.", "en", -15, EN_ASK)
 add("h5_c_happy",   "Show me happy! Smile for me.", "en", -15, EN_ASK)
 
+# ------------------------------------------------------------
+# 第 9 岛第 1 关（L9-W1：衣物穿戴 Shirt / Pants / Shoes / Hat）
+# 教学：Shirt 2 演示 + 1 互动 / Pants 2 演示 + 1 互动 / Shoes 1 演示 / Hat 1 演示 + 1 互动
+# 答题 A 听音穿衣服 / B 听音找衣物 / C TPR 模仿穿衣
+# ------------------------------------------------------------
+add("l9_t_shirt",     "Look! He needs clothes. Put on the shirt.", "en", -15, EN_ASK)
+add("l9_t_shirt_put", "Put on the shirt.", "en", -15, EN_ASK)
+add("l9_t_pants",     "Now, put on the pants.", "en", -15, EN_ASK)
+add("l9_t_pants_put", "Put on the pants.", "en", -15, EN_ASK)
+add("l9_t_shoes",     "Put on the shoes.", "en", -15, EN_ASK)
+add("l9_t_hat",       "Put on the hat.", "en", -15, EN_ASK)
+add("l9_t_out",       "Wow! He is fully dressed! Let's play!", "en", -12, EN_PRAISE)
+# 答题 B：听音找衣物（3 个各穿一件衣物的小人）
+add("l9_b_shirt", "Find the boy wearing a shirt.", "en", -15, EN_ASK)
+add("l9_b_pants", "Find the boy wearing pants.", "en", -15, EN_ASK)
+add("l9_b_shoes", "Find the boy wearing shoes.", "en", -15, EN_ASK)
+add("l9_b_hat",   "Find the boy wearing a hat.", "en", -15, EN_ASK)
+# 答题 C：TPR 模仿穿衣（👍 永远判对）
+add("l9_c_shirt", "Put on your shirt!", "en", -15, EN_ASK)
+add("l9_c_pants", "Put on your pants!", "en", -15, EN_ASK)
+add("l9_c_shoes", "Put on your shoes!", "en", -15, EN_ASK)
+add("l9_c_hat",   "Put on your hat!", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
