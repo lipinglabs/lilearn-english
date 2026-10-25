@@ -1106,6 +1106,35 @@ add("g1_c_nose",  "Touch your nose!", "en", -15, EN_ASK)
 add("g1_c_mouth", "Touch your mouth!", "en", -15, EN_ASK)
 add("g1_c_ear",   "Touch your ear!", "en", -15, EN_ASK)
 
+# ---- 第 7 岛第 2 关：身体部位与 TPR 动作（Head / Hand / Foot）----
+# 全部长句/短语混排，统一 rate -15（≈0.85x，满足用户「语速调慢 0.85 倍」）。
+# 教学 11 环节：身体登场 → 头(2 演示+1 互动) → 手(2 演示+1 互动) → 脚(2 演示+1 综合互动) → TPR 模仿(拍手+👍)；
+# 其中演示 4 的 "Clap your hands!" 与答题 B(hand) 同一句，复用同一 key g2_t_hand2；
+# 演示 6 的 "Stomp your feet!" 与答题 B(foot) 同一句，复用 g2_t_foot2（RULES §1.12 同句同 key）。
+# 本批 20 条新生成（g2_t_hand2 / g2_t_foot2 被 B 型复用，不另建重复文本），已通过 audit 去重自检。
+add("g2_t_body",      "Look! A silly body. Where is the head?", "en", -15, EN_ASK)
+add("g2_t_head",      "A head. We nod our head.", "en", -15, EN_ASK)
+add("g2_t_head_ask",  "Put the head on the body.", "en", -15, EN_ASK)
+add("g2_t_hand1",     "Now, the hands.", "en", -15, EN_ASK)
+add("g2_t_hand2",     "Clap your hands!", "en", -15, EN_ASK)
+add("g2_t_hand_ask",  "Put the hands on the body.", "en", -15, EN_ASK)
+add("g2_t_foot1",     "Look at the feet.", "en", -15, EN_ASK)
+add("g2_t_foot2",     "Stomp your feet!", "en", -15, EN_ASK)
+add("g2_t_happy",     "Look at the happy boy! Let's move!", "en", -15, EN_ASK)
+add("g2_t_tpr",       "Listen and do! Clap your hands!", "en", -15, EN_ASK)
+add("g2_t_youdo",     "Now you! Clap your hands, then touch the button!", "en", -15, EN_ASK)
+add("g2_t_great",     "Great! You did it!", "en", -12, EN_PRAISE)
+# 答题 A：听音拼身体（缺一个部位）
+add("g2_a_head",  "Where is the head? Put the head here.", "en", -15, EN_ASK)
+add("g2_a_hand",  "Where are the hands? Put the hands here.", "en", -15, EN_ASK)
+add("g2_a_foot",  "Where are the feet? Put the feet here.", "en", -15, EN_ASK)
+# 答题 B：听指令做动作（hand/foot 复用 g2_t_hand2 / g2_t_foot2；head 新生成）
+add("g2_b_head",  "Touch your head!", "en", -15, EN_ASK)
+# 答题 C：听指令找部位（三个小人各高亮头/手/脚并演示该动作）
+add("g2_c_head",  "Find the head. Who is nodding?", "en", -15, EN_ASK)
+add("g2_c_hand",  "Find the hands. Who is clapping?", "en", -15, EN_ASK)
+add("g2_c_foot",  "Find the feet. Who is stomping?", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

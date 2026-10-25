@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**758** 条（英文 752 + 中文 6）
+总条目：**777** 条（英文 771 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -731,31 +731,50 @@
 | `b5x_b_gate` | en | We need the big key. Find the picture. | 已存在 |
 | `b5x_b_seesaw` | en | The elephant is heavy. The feather is light. Find the picture. | 已存在 |
 | `b5x_c_feather` | en | Put the light feather in the light box. | 已存在 |
-| `g1_t_face` | en | Look! A face. But it has no eyes. Where are the eyes? | 待生成 |
-| `g1_t_eyes` | en | Eyes. We see with our eyes. | 待生成 |
-| `g1_t_eyes_ask` | en | Find the eyes. Put the eyes on the face. | 待生成 |
-| `g1_t_nose1` | en | A nose. | 待生成 |
-| `g1_t_nose2` | en | We smell with our nose. | 待生成 |
-| `g1_t_nose_ask` | en | Put the nose on the face. | 待生成 |
-| `g1_t_mouth1` | en | A mouth. | 待生成 |
-| `g1_t_mouth2` | en | We eat with our mouth. | 待生成 |
-| `g1_t_mouth_ask` | en | Put the mouth on the face. | 待生成 |
-| `g1_t_ear1` | en | Ears. | 待生成 |
-| `g1_t_ear2` | en | We hear with our ears. | 待生成 |
-| `g1_t_ear_ask` | en | Where is the ear? Touch the ear. | 待生成 |
-| `g1_t_out` | en | Wow! A happy face! Let's play! | 待生成 |
-| `g1_a_eye` | en | Where are the eyes? Put the eyes on the face. | 待生成 |
-| `g1_a_nose` | en | Where is the nose? Put the nose on the face. | 待生成 |
-| `g1_a_mouth` | en | Where is the mouth? Put the mouth on the face. | 待生成 |
-| `g1_a_ear` | en | Where is the ear? Put the ear on the face. | 待生成 |
-| `g1_b_eye` | en | Find the eyes. | 待生成 |
-| `g1_b_nose` | en | Find the nose. | 待生成 |
-| `g1_b_mouth` | en | Find the mouth. | 待生成 |
-| `g1_b_ear` | en | Find the ear. | 待生成 |
-| `g1_c_eye` | en | Touch your eyes! | 待生成 |
-| `g1_c_nose` | en | Touch your nose! | 待生成 |
-| `g1_c_mouth` | en | Touch your mouth! | 待生成 |
-| `g1_c_ear` | en | Touch your ear! | 待生成 |
+| `g1_t_face` | en | Look! A face. But it has no eyes. Where are the eyes? | 已存在 |
+| `g1_t_eyes` | en | Eyes. We see with our eyes. | 已存在 |
+| `g1_t_eyes_ask` | en | Find the eyes. Put the eyes on the face. | 已存在 |
+| `g1_t_nose1` | en | A nose. | 已存在 |
+| `g1_t_nose2` | en | We smell with our nose. | 已存在 |
+| `g1_t_nose_ask` | en | Put the nose on the face. | 已存在 |
+| `g1_t_mouth1` | en | A mouth. | 已存在 |
+| `g1_t_mouth2` | en | We eat with our mouth. | 已存在 |
+| `g1_t_mouth_ask` | en | Put the mouth on the face. | 已存在 |
+| `g1_t_ear1` | en | Ears. | 已存在 |
+| `g1_t_ear2` | en | We hear with our ears. | 已存在 |
+| `g1_t_ear_ask` | en | Where is the ear? Touch the ear. | 已存在 |
+| `g1_t_out` | en | Wow! A happy face! Let's play! | 已存在 |
+| `g1_a_eye` | en | Where are the eyes? Put the eyes on the face. | 已存在 |
+| `g1_a_nose` | en | Where is the nose? Put the nose on the face. | 已存在 |
+| `g1_a_mouth` | en | Where is the mouth? Put the mouth on the face. | 已存在 |
+| `g1_a_ear` | en | Where is the ear? Put the ear on the face. | 已存在 |
+| `g1_b_eye` | en | Find the eyes. | 已存在 |
+| `g1_b_nose` | en | Find the nose. | 已存在 |
+| `g1_b_mouth` | en | Find the mouth. | 已存在 |
+| `g1_b_ear` | en | Find the ear. | 已存在 |
+| `g1_c_eye` | en | Touch your eyes! | 已存在 |
+| `g1_c_nose` | en | Touch your nose! | 已存在 |
+| `g1_c_mouth` | en | Touch your mouth! | 已存在 |
+| `g1_c_ear` | en | Touch your ear! | 已存在 |
+| `g2_t_body` | en | Look! A silly body. Where is the head? | 已存在 |
+| `g2_t_head` | en | A head. We nod our head. | 已存在 |
+| `g2_t_head_ask` | en | Put the head on the body. | 已存在 |
+| `g2_t_hand1` | en | Now, the hands. | 已存在 |
+| `g2_t_hand2` | en | Clap your hands! | 已存在 |
+| `g2_t_hand_ask` | en | Put the hands on the body. | 已存在 |
+| `g2_t_foot1` | en | Look at the feet. | 已存在 |
+| `g2_t_foot2` | en | Stomp your feet! | 已存在 |
+| `g2_t_happy` | en | Look at the happy boy! Let's move! | 已存在 |
+| `g2_t_tpr` | en | Listen and do! Clap your hands! | 已存在 |
+| `g2_t_youdo` | en | Now you! Clap your hands, then touch the button! | 已存在 |
+| `g2_t_great` | en | Great! You did it! | 已存在 |
+| `g2_a_head` | en | Where is the head? Put the head here. | 已存在 |
+| `g2_a_hand` | en | Where are the hands? Put the hands here. | 已存在 |
+| `g2_a_foot` | en | Where are the feet? Put the feet here. | 已存在 |
+| `g2_b_head` | en | Touch your head! | 已存在 |
+| `g2_c_head` | en | Find the head. Who is nodding? | 已存在 |
+| `g2_c_hand` | en | Find the hands. Who is clapping? | 已存在 |
+| `g2_c_foot` | en | Find the feet. Who is stomping? | 已存在 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

@@ -3864,7 +3864,8 @@
     '6-3': { numbers: null,       make: 'makeF13', title: '第 3 关', tutorial: true },
     '6-4': { numbers: null,       make: 'makeF14', title: '第 4 关', tutorial: true },
     '6-5': { numbers: null,       make: 'makeF15', title: '第 5 关', tutorial: true },
-    '7-1': { numbers: null,       make: 'makeG1',  title: '第 1 关', tutorial: true }
+    '7-1': { numbers: null,       make: 'makeG1',  title: '第 1 关', tutorial: true },
+    '7-2': { numbers: null, make: 'makeG2', title: '第 2 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4049,6 +4050,7 @@
     if (def && def.make === 'makeF14') return makeQuestionF14(typeIdx, prev);
     if (def && def.make === 'makeF15') return makeQuestionF15(typeIdx, prev);
     if (def && def.make === 'makeG1') return makeQuestionG1(typeIdx, prev);
+    if (def && def.make === 'makeG2') return makeQuestionG2(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -15354,6 +15356,562 @@
     return api;
   })();
 
+  /* ============================================================
+     第 7 岛第 2 关（L7-W2：身体部位与 TPR 动作 head / hand / foot）
+     概念：先「拼图认部位」（把头 / 手 / 脚零件拖到果冻小人身上），
+           后「听指令做动作」（点头 / 拍手 / 跺脚）。
+     教学 11 环节（RULES §三.10 双倍量 + §三.14 点按推进 + §二.12 四秒小手）：
+       头 2 演示 + 1 互动 → 手 2 演示 + 1 互动 → 脚 2 演示 + 1 综合互动（完整小人）
+       → TPR 模仿（演示拍手 + 👍 确认，§三.12 永远判对）；
+     答题 12 轮（4/4/4）：A 听音拼身体（缺一个部位 + 3 个零件，拖/点到身上）/
+           B 听指令做动作（中央 👍 按钮，永远判对，§三.12）/
+           C 听指令找部位（3 个完整小人，各高亮头/手/脚并演示该动作）。
+     规则：无英文字母外显、答对只音效+星星（禁人声）、答错 again+四秒小手、
+           热区比视觉大一圈（§三.15）、零生图零 emoji（§二.17）、定格不吞顶栏点击（§三.18）。
+     ============================================================ */
+
+  /* ---- 手写 SVG：果冻小人（无头/手/脚）+ 头/手/脚零件 ---- */
+  var G2_HEAD_SVG =
+    '<circle cx="50" cy="30" r="25" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/>' +
+    '<circle cx="41" cy="28" r="6.5" fill="#fff" stroke="#3a3a4a" stroke-width="2"/>' +
+    '<circle cx="59" cy="28" r="6.5" fill="#fff" stroke="#3a3a4a" stroke-width="2"/>' +
+    '<circle cx="42" cy="29" r="3.2" fill="#3a3a4a"/>' +
+    '<circle cx="60" cy="29" r="3.2" fill="#3a3a4a"/>' +
+    '<circle cx="40.4" cy="27.4" r="1.1" fill="#fff"/>' +
+    '<circle cx="58.4" cy="27.4" r="1.1" fill="#fff"/>' +
+    '<ellipse cx="34" cy="36" rx="3.4" ry="2.4" fill="#ffb3c1" opacity=".7"/>' +
+    '<ellipse cx="66" cy="36" rx="3.4" ry="2.4" fill="#ffb3c1" opacity=".7"/>' +
+    '<path d="M40 40 Q50 50 60 40" fill="none" stroke="#3a3a4a" stroke-width="2.6" stroke-linecap="round"/>';
+
+  var G2_HANDS_SVG =
+    '<circle cx="18" cy="101" r="12" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/>' +
+    '<circle cx="82" cy="101" r="12" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/>';
+
+  var G2_FEET_SVG =
+    '<ellipse cx="37" cy="139" rx="15" ry="10" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/>' +
+    '<ellipse cx="63" cy="139" rx="15" ry="10" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/>';
+
+  var G2_PARTS = ['head', 'hand', 'foot'];
+  var G2_PART_CN = { head: '头', hand: '手', foot: '脚' };
+
+  function g2HeadMarkup(act, hl) {
+    return '<g class="g2-head' + (act ? ' g2-nod' : '') + (hl ? ' g2-hl' : '') + '">' + G2_HEAD_SVG + '</g>';
+  }
+  function g2HandsMarkup(act, hl) {
+    var c = hl ? ' g2-hl' : '';
+    if (act) {
+      return '<g class="g2-hand-l g2-clap' + c + '"><circle cx="18" cy="101" r="12" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/></g>' +
+             '<g class="g2-hand-r g2-clap' + c + '"><circle cx="82" cy="101" r="12" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/></g>';
+    }
+    return '<g' + (hl ? ' class="g2-hl"' : '') + '>' + G2_HANDS_SVG + '</g>';
+  }
+  function g2FeetMarkup(act, hl) {
+    return '<g class="' + (act ? 'g2-stomp' : '') + (hl ? ' g2-hl' : '') + '">' + G2_FEET_SVG + '</g>';
+  }
+
+  function g2BodyInner(parts, hl, slotPart) {
+    var has = {}; parts.forEach(function (p) { has[p] = 1; });
+    var act = hl === 'head' ? 'nod' : hl === 'hand' ? 'clap' : hl === 'foot' ? 'stomp' : null;
+    var s = '';
+    s += '<ellipse cx="37" cy="124" rx="10" ry="15" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/>';
+    s += '<ellipse cx="63" cy="124" rx="10" ry="15" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/>';
+    s += '<ellipse cx="18" cy="86" rx="9" ry="15" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/>';
+    s += '<ellipse cx="82" cy="86" rx="9" ry="15" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/>';
+    s += '<ellipse cx="50" cy="92" rx="28" ry="35" fill="#8ecae6" stroke="#3a9ac9" stroke-width="3"/>';
+    s += '<ellipse cx="42" cy="80" rx="8" ry="13" fill="#ffffff" opacity=".35"/>';
+    if (has.head) s += g2HeadMarkup(act === 'nod', hl === 'head');
+    if (has.hand) s += g2HandsMarkup(act === 'clap', hl === 'hand');
+    if (has.foot) s += g2FeetMarkup(act === 'stomp', hl === 'foot');
+    if (slotPart) s += g2SlotMarkup(slotPart);
+    return s;
+  }
+
+  function g2SlotMarkup(part) {
+    if (part === 'head') {
+      return '<circle cx="50" cy="30" r="27" fill="none" stroke="#3a9ac9" stroke-width="3" stroke-dasharray="6 5" opacity=".7" class="g2-slot"/>';
+    }
+    if (part === 'hand') {
+      return '<circle cx="18" cy="101" r="14" fill="none" stroke="#3a9ac9" stroke-width="3" stroke-dasharray="6 5" opacity=".7" class="g2-slot"/>' +
+             '<circle cx="82" cy="101" r="14" fill="none" stroke="#3a9ac9" stroke-width="3" stroke-dasharray="6 5" opacity=".7" class="g2-slot"/>';
+    }
+    return '<ellipse cx="37" cy="139" rx="17" ry="12" fill="none" stroke="#3a9ac9" stroke-width="3" stroke-dasharray="6 5" opacity=".7" class="g2-slot"/>' +
+           '<ellipse cx="63" cy="139" rx="17" ry="12" fill="none" stroke="#3a9ac9" stroke-width="3" stroke-dasharray="6 5" opacity=".7" class="g2-slot"/>';
+  }
+
+  function g2PartSvg(part) {
+    var vb, inner;
+    if (part === 'head') { vb = '22 2 56 58'; inner = g2HeadMarkup(false, false); }
+    else if (part === 'hand') { vb = '0 85 100 32'; inner = '<g>' + G2_HANDS_SVG + '</g>'; }
+    else { vb = '18 124 64 30'; inner = '<g>' + G2_FEET_SVG + '</g>'; }
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', vb);
+    s.setAttribute('class', 'g2-part-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = inner;
+    return s;
+  }
+
+  function g2BodySvgEl(parts, hl, slotPart) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 100 152');
+    s.setAttribute('class', 'g2-body-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = g2BodyInner(parts, hl, slotPart);
+    return s;
+  }
+
+  function g2ThumbSvg() {
+    return '<svg viewBox="0 0 100 100" class="g2-thumb-svg" aria-hidden="true">' +
+      '<rect x="40" y="14" width="16" height="38" rx="8" fill="#ffd66b" stroke="#e0a93b" stroke-width="3"/>' +
+      '<rect x="18" y="46" width="46" height="34" rx="13" fill="#ffd66b" stroke="#e0a93b" stroke-width="3"/>' +
+      '<rect x="22" y="76" width="40" height="14" rx="7" fill="#7fb3d5" stroke="#4f9fd6" stroke-width="3"/>' +
+      '</svg>';
+  }
+
+  function ensureG2Css() {
+    if (document.getElementById('g2-style')) return;
+    var s = document.createElement('style');
+    s.id = 'g2-style';
+    s.textContent =
+      '.g2-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'width:100%;gap:1.6vh;padding-bottom:6vh;box-sizing:border-box}' +
+      /* 身体：外层只负责投放热区，内层负责视觉（热区比图形大一圈，§三.15） */
+      '.g2-body{position:relative;width:min(64vw,290px);aspect-ratio:100/152;padding:7%;box-sizing:border-box;' +
+      'border-radius:28px;display:flex;align-items:center;justify-content:center}' +
+      '.g2-body.g2-drop{cursor:pointer}' +
+      '.g2-body.drop-hot,.g2-body.g2-hot{outline:4px dashed #ffb74d;outline-offset:2px}' +
+      '.g2-body.right{box-shadow:0 0 0 4px rgba(127,209,138,.45);border-radius:28px}' +
+      '.g2-body-svg{width:100%;height:100%;display:block}' +
+      /* 托盘（教学互动 / 演示里「拿出一件」） */
+      '.g2-tray{display:flex;gap:min(5vw,20px);justify-content:center;align-items:center;width:100%}' +
+      '.g2-part-btn{display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.72);' +
+      'border:3px solid #bfe3f2;border-radius:22px;padding:7%;width:min(26vw,116px);aspect-ratio:1/1;' +
+      'box-sizing:border-box;cursor:pointer;box-shadow:0 6px 14px rgba(58,154,201,.18);transition:transform .15s ease}' +
+      '.g2-part-btn:active{transform:scale(.96)}' +
+      '.g2-part-btn svg{width:90%;height:90%;display:block;pointer-events:none}' +
+      '.g2-part-btn.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.g2-part-btn.wrong{animation:g2shake .5s;border-color:#f0a0a0}' +
+      '.g2-part-btn.picked{transform:translateY(-6px) scale(1.06);filter:drop-shadow(0 0 10px #ffc85e)}' +
+      '.g2-part-btn.g2-glow{animation:g2glow 1.1s ease-in-out infinite}' +
+      /* 答题 A：缺一个部位的身体 + 选项栏零件 */
+      '.g2-ask{display:flex;flex-direction:column;align-items:center;width:100%;gap:1.2vh}' +
+      '.option.g2-opt .slot svg{width:86%;max-width:108px;height:auto;display:block;' +
+      'filter:drop-shadow(0 4px 6px rgba(40,110,150,.28))}' +
+      /* 答题 B：👍 按钮 + 小人 */
+      '.g2-thumb-wrap{display:flex;flex-direction:column;align-items:center;gap:2vh;width:100%}' +
+      '.g2-thumb{display:flex;align-items:center;justify-content:center;width:min(56vw,260px);' +
+      'aspect-ratio:1/1;background:rgba(255,255,255,.78);border:4px solid #ffd66b;border-radius:32px;' +
+      'box-shadow:0 10px 22px rgba(224,169,59,.3);cursor:pointer;transition:transform .15s ease}' +
+      '.g2-thumb:active{transform:scale(.95)}' +
+      '.g2-thumb.off{opacity:.4;filter:grayscale(.4);pointer-events:none}' +
+      '.g2-thumb-svg{width:62%;height:62%;display:block}' +
+      '.g2-actor{width:min(40vw,180px);aspect-ratio:100/152}' +
+      '.g2-actor svg{width:100%;height:100%;display:block}' +
+      /* 答题 C：三个小人 */
+      '.g2-grid{display:flex;gap:min(3vw,12px);justify-content:center;align-items:center;width:100%;margin:1vh auto}' +
+      '.g2-mini{position:relative;width:min(30vw,150px);aspect-ratio:100/152;background:rgba(255,255,255,.7);' +
+      'border:3px solid #bfe3f2;border-radius:22px;padding:4%;cursor:pointer;display:block;box-sizing:border-box;' +
+      'box-shadow:0 6px 14px rgba(58,154,201,.18);transition:transform .15s ease}' +
+      '.g2-mini:active{transform:scale(.96)}' +
+      '.g2-mini svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.g2-mini.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.g2-mini.wrong{animation:g2shake .5s;border-color:#f0a0a0}' +
+      /* 动作 / 反馈动画 */
+      '@keyframes g2nod{0%,100%{transform:rotate(0)}25%{transform:rotate(-16deg)}75%{transform:rotate(10deg)}}' +
+      '@keyframes g2clapL{0%,100%{transform:translateX(0)}50%{transform:translateX(9px)}}' +
+      '@keyframes g2clapR{0%,100%{transform:translateX(0)}50%{transform:translateX(-9px)}}' +
+      '@keyframes g2stomp{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}' +
+      '@keyframes g2happy{0%,100%{transform:rotate(0)}25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}' +
+      '@keyframes g2pulse{0%,100%{opacity:.4}50%{opacity:.9}}' +
+      '@keyframes g2shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      '@keyframes g2glow{0%,100%{filter:drop-shadow(0 0 3px rgba(255,205,110,.5))}' +
+      '50%{filter:drop-shadow(0 0 14px rgba(255,190,80,.95))}}' +
+      '.g2-head{transform-box:fill-box;transform-origin:50% 95%}' +
+      '.g2-nod{animation:g2nod .9s ease-in-out infinite}' +
+      '.g2-hand-l,.g2-hand-r{transform-box:fill-box;transform-origin:center}' +
+      '.g2-hand-l.g2-clap{animation:g2clapL .5s ease-in-out infinite}' +
+      '.g2-hand-r.g2-clap{animation:g2clapR .5s ease-in-out infinite}' +
+      '.g2-stomp{transform-box:fill-box;transform-origin:50% 0%;animation:g2stomp .5s ease-in-out infinite}' +
+      '.g2-hl{filter:drop-shadow(0 0 9px #ffb74d) drop-shadow(0 0 4px #ffb74d)}' +
+      '.g2-happy{transform-box:fill-box;transform-origin:50% 100%;animation:g2happy 1.1s ease-in-out infinite}' +
+      '@media (max-height:560px){' +
+      '.g2-stage{gap:.5vh;padding-bottom:1vh}' +
+      '.g2-body{width:min(26vw,120px)}' +
+      '.g2-part-btn{width:min(12vw,58px)}' +
+      '.g2-actor{width:min(26vw,120px)}' +
+      '.g2-thumb{width:min(26vw,120px)}' +
+      '.g2-mini{width:min(18vw,100px)}' +
+      '.g2-grid{margin:.5vh auto}}';
+    document.head.appendChild(s);
+  }
+
+  function g2BodyNode(parts, hl, drop, slotPart) {
+    var wrap = document.createElement('div');
+    wrap.className = 'g2-body' + (drop ? ' g2-drop' : '');
+    if (drop) wrap.dataset.drop = 'body';
+    wrap.setAttribute('aria-label', '小人');
+    wrap.appendChild(g2BodySvgEl(parts, hl, slotPart));
+    return wrap;
+  }
+
+  /* ---------------- 题型 A：听音拼身体（缺一个部位 + 3 个零件） ---------------- */
+  function renderG2A(q) {
+    ensureG2Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'g2-ask';
+    var present = G2_PARTS.filter(function (p) { return p !== q.part; });
+    var body = g2BodyNode(present, null, true, q.part);
+    body.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      if (state.pickedFruit === null) return;
+      resolveG2A(state.pickedFruit, body);
+    });
+    box.appendChild(body);
+    askDisplay.appendChild(box);
+  }
+
+  function resolveG2A(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'G2A') return;
+    var drop = (typeof target === 'string') ? target
+      : (target && target.dataset ? target.dataset.drop : null);
+    var part = q.options[itemIdx] ? q.options[itemIdx].part : null;
+    var ok = (drop === 'body') && (part === q.part);
+    if (ok) {
+      var bodyEl = (typeof target === 'string')
+        ? askDisplay.querySelector('.g2-body[data-drop="body"]') : target;
+      var svg = bodyEl && bodyEl.querySelector('.g2-body-svg');
+      if (svg) {
+        var present = G2_PARTS.filter(function (p) { return p !== q.part; });
+        svg.innerHTML = g2BodyInner(present.concat([q.part]), null);
+      }
+      if (bodyEl) bodyEl.classList.add('right');
+      judge(true, bodyEl);
+    } else {
+      if (target && target.classList) {
+        target.classList.add('wrong');
+        setTimeout(function () { target.classList.remove('wrong'); }, 520);
+      }
+      judge(false, optionEls[itemIdx] || target);
+    }
+  }
+
+  /* ---------------- 题型 B：听指令做动作（👍 永远判对，§三.12） ---------------- */
+  function renderG2B(q) {
+    ensureG2Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'g2-thumb-wrap';
+    var actor = document.createElement('div');
+    actor.className = 'g2-actor';
+    actor.setAttribute('aria-hidden', 'true');
+    actor.appendChild(g2BodySvgEl(G2_PARTS, q.act, null));
+    wrap.appendChild(actor);
+    var thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'g2-thumb';
+    thumb.setAttribute('aria-label', '我做到啦');
+    thumb.innerHTML = g2ThumbSvg();
+    thumb.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      coin(); ting();
+      judge(true, thumb);
+    });
+    wrap.appendChild(thumb);
+    askDisplay.appendChild(wrap);
+  }
+
+  /* ---------------- 题型 C：听指令找部位（3 个完整小人，各高亮头/手/脚） ---------------- */
+  function renderG2C(q) {
+    ensureG2Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'g2-grid';
+    grid.dataset.n = '3';
+    grid.setAttribute('aria-label', '小人');
+    q.options.forEach(function (opt, i) {
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'g2-mini';
+      card.dataset.idx = String(i);
+      card.dataset.hl = opt.hl;
+      card.setAttribute('aria-label', '小人');
+      card.appendChild(g2BodySvgEl(G2_PARTS, opt.hl, null));
+      card.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(Number(card.dataset.idx) === state.question.correct, card);
+      });
+      grid.appendChild(card);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /* ---------------- 出题：A 拼身体 / B 听指令做动作 / C 找部位 ---------------- */
+  function makeQuestionG2(type, prev) {
+    ensureG2Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var want = pick(G2_PARTS);
+        var others = G2_PARTS.filter(function (p) { return p !== want; });
+        shuffle(others);
+        var optsA = [want].concat(others.slice(0, 2));
+        shuffle(optsA);
+        q = {
+          type: 'G2A', sig: 'A:' + want + ':' + optsA.join(','), part: want,
+          options: optsA.map(function (p) { return { kind: 'g2part', part: p }; }),
+          correct: optsA.indexOf(want), audio: ['g2_a_' + want]
+        };
+      } else if (type === 1) {
+        var actp = pick(G2_PARTS);
+        var bkey = actp === 'head' ? 'g2_b_head' : (actp === 'hand' ? 'g2_t_hand2' : 'g2_t_foot2');
+        q = {
+          type: 'G2B', sig: 'B:' + actp, act: actp, options: [], correct: 0, audio: [bkey]
+        };
+      } else {
+        var target = pick(G2_PARTS);
+        var order = G2_PARTS.slice();
+        shuffle(order);
+        q = {
+          type: 'G2C', sig: 'C:' + target + ':' + order.join(','), part: target,
+          options: order.map(function (p) { return { kind: 'g2body', hl: p }; }),
+          correct: order.indexOf(target), audio: ['g2_c_' + target]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /** 教学互动判定：把零件放到身上（拖 / 点都走这里） */
+  function resolveG2T(itemIdx, target) {
+    var me = state.tut;
+    if (!me || !me.askPart) return;
+    var drop = (typeof target === 'string') ? target
+      : (target && target.dataset ? target.dataset.drop : null);
+    var part = (me.items && me.items[itemIdx]) ? me.items[itemIdx] : null;
+    if (drop === 'body' && part === me.askPart) {
+      var bodyEl = askDisplay.querySelector('.g2-body[data-drop="body"]');
+      var svg = bodyEl && bodyEl.querySelector('.g2-body-svg');
+      if (svg) {
+        var placed = (me.have || []).concat([me.askPart]);
+        svg.innerHTML = g2BodyInner(placed, null);
+      }
+      if (bodyEl) bodyEl.classList.add('right');
+      clearHint(); coin(); ting();
+      me.askPart = null;
+      setTimeout(function () { if (state.tut === me && me._advance) me._advance(); }, 900);
+    } else {
+      if (target && target.classList) {
+        target.classList.add('wrong');
+        setTimeout(function () { target.classList.remove('wrong'); }, 520);
+      }
+      say(['again']);
+      if (state.tut === me) armHint();
+    }
+  }
+
+  /* 教学：6 演示 + 3 互动 + TPR 模仿（RULES §三.10 双倍量、§三.14 点按推进、§二.12 四秒小手） */
+  var runG2Tutorial = (function () {
+    var ACTS = [
+      /* 头：身体登场 → 拿出头并贴上 → 互动 */
+      { t: 'demo', sid: 'body',  word: 'g2_t_body',  have: [] },
+      { t: 'demo', sid: 'head',  word: 'g2_t_head',  have: [],      show: 'head', add: 'head' },
+      { t: 'ask',  sid: 'askHead', word: 'g2_t_head_ask', have: [], items: ['head', 'hand', 'foot'], ans: 'head' },
+      /* 手 */
+      { t: 'demo', sid: 'hand1', word: 'g2_t_hand1', have: ['head'], show: 'hand' },
+      { t: 'demo', sid: 'hand2', word: 'g2_t_hand2', have: ['head'], show: 'hand', add: 'hand' },
+      { t: 'ask',  sid: 'askHand', word: 'g2_t_hand_ask', have: ['head'], items: ['hand', 'foot'], ans: 'hand' },
+      /* 脚 */
+      { t: 'demo', sid: 'foot1', word: 'g2_t_foot1', have: ['head', 'hand'], show: 'foot' },
+      { t: 'demo', sid: 'foot2', word: 'g2_t_foot2', have: ['head', 'hand'], show: 'foot', add: 'foot' },
+      /* 综合互动：完整小人，点小人继续 */
+      { t: 'ask',  sid: 'askFoot', word: 'g2_t_happy', have: G2_PARTS.slice(), touch: 'body' },
+      /* TPR 模仿：演示拍手 + 👍 确认 */
+      { t: 'mimic', sid: 'tpr', word: 'g2_t_tpr', act: 'clap' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.askPart = null; me.pick = null; me.waitTap = false; me.have = null;
+      me.canDrag = false; me.customMode = null; me.replay = null; me._advance = null;
+      me.items = null; me.touchPart = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid) {
+      blank(me);
+      ensureG2Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'g2-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', '拼身体');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    function tray(me, parts) {
+      var row = document.createElement('div');
+      row.className = 'g2-tray';
+      parts.forEach(function (part, idx) {
+        var btn = document.createElement('div');
+        btn.className = 'g2-part-btn';
+        btn.dataset.part = part;
+        btn.dataset.item = part;
+        btn.dataset.idx = String(idx);
+        btn.dataset.drag = 'item';
+        btn.setAttribute('aria-label', G2_PART_CN[part] || '部位');
+        btn.appendChild(g2PartSvg(part));
+        btn.addEventListener('click', function () {
+          if (state.tut !== me || !me.askPart || state.busy) return;
+          me.pick = idx;
+          Array.prototype.forEach.call(row.querySelectorAll('.picked'), function (p) { p.classList.remove('picked'); });
+          btn.classList.add('picked');
+        });
+        row.appendChild(btn);
+      });
+      return row;
+    }
+    function playDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var body = g2BodyNode(act.have, null, false);
+      w.appendChild(body);
+      if (act.show) {
+        var row = tray(me, [act.show]);
+        var btn = row.firstChild;
+        btn.classList.add('g2-glow');
+        w.appendChild(row);
+      }
+      var inner = body.querySelector('.g2-body-svg');
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        if (act.add) {
+          var added = act.have.concat([act.add]);
+          inner.innerHTML = g2BodyInner(added, null);
+        }
+        gate(me, next);
+      });
+    }
+    function playAsk(me, act, next) {
+      if (act.touch) {
+        var w = stage(me, act.sid);
+        var body = g2BodyNode(act.have, null, true);
+        body.classList.add('g2-happy');
+        w.appendChild(body);
+        me.hintTarget = body;
+        me.replay = function () { say([act.word]); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          body.addEventListener('click', function (ev) {
+            if (state.tut !== me) return;
+            if (ev && ev.stopPropagation) ev.stopPropagation();
+            clearHint(); coin(); ting();
+            body.classList.add('right');
+            setTimeout(function () { if (state.tut === me) next(); }, 800);
+          });
+          armHint();
+        });
+        return;
+      }
+      var w2 = stage(me, act.sid);
+      var body2 = g2BodyNode(act.have, null, true);
+      w2.appendChild(body2);
+      var row = tray(me, act.items);
+      w2.appendChild(row);
+      var ansBtn = row.querySelector('[data-part="' + act.ans + '"]');
+      me.items = act.items.slice();
+      me.have = act.have.slice();
+      me.askPart = act.ans;
+      me.canDrag = true;
+      me.customMode = 'G2T';
+      me._advance = next;
+      me.pick = null;
+      me.hintFrom = ansBtn;
+      me.hintTo = body2;
+      me.hintToY = 0.5;
+      me.hintTarget = body2;
+      body2.addEventListener('click', function () {
+        if (state.tut !== me || !me.askPart || state.busy) return;
+        if (me.pick === null) return;
+        resolveG2T(me.pick, body2);
+      });
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) armHint(); });
+    }
+    function playMimic(me, act, next) {
+      var w = stage(me, act.sid);
+      var actor = document.createElement('div');
+      actor.className = 'g2-actor';
+      actor.setAttribute('aria-hidden', 'true');
+      actor.appendChild(g2BodySvgEl(G2_PARTS, 'clap', null));
+      w.appendChild(actor);
+      var thumb = document.createElement('button');
+      thumb.type = 'button';
+      thumb.className = 'g2-thumb off';
+      thumb.setAttribute('aria-label', '我做到啦');
+      thumb.innerHTML = g2ThumbSvg();
+      w.appendChild(thumb);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        thumb.classList.remove('off');
+        say(['g2_t_youdo'], function () {
+          if (state.tut !== me) return;
+          me.hintTarget = thumb;
+          armHint();
+          thumb.addEventListener('click', function () {
+            if (state.tut !== me) return;
+            clearHint(); coin(); ting();
+            me.replay = function () { say(['g2_t_great']); };
+            say(['g2_t_great'], function () { if (state.tut === me) next(); });
+          });
+        });
+      });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'mimic') { playMimic(me, act, next); return; }
+      playAsk(me, act, next);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
   var runB4Tutorial = (function () {
@@ -15614,6 +16172,9 @@
     if (q.type === 'G1A') { renderG1A(q); return; }
     if (q.type === 'G1B') { optionsBar.classList.add('gone'); renderG1B(q); return; }
     if (q.type === 'G1C') { optionsBar.classList.add('gone'); renderG1C(q); return; }
+    if (q.type === 'G2A') { renderG2A(q); return; }
+    if (q.type === 'G2B') { optionsBar.classList.add('gone'); renderG2B(q); return; }
+    if (q.type === 'G2C') { optionsBar.classList.add('gone'); renderG2C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -16037,7 +16598,7 @@
       return;
     }
     // 第 7 岛第 1 关 B/C：题目画在中央宫格，选项栏收起
-    if (q.type === 'G1B' || q.type === 'G1C') {
+    if (q.type === 'G1B' || q.type === 'G1C' || q.type === 'G2B' || q.type === 'G2C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -16222,6 +16783,10 @@
         // 第 7 岛第 1 关题型 A：可拖到脸上的器官零件
         btn.classList.add('g1-opt');
         slot.appendChild(g1PartSvg(opt.part));
+      } else if (opt.kind === 'g2part') {
+        // 第 7 岛第 2 关题型 A：可拖到身上的部位零件
+        btn.classList.add('g2-opt');
+        slot.appendChild(g2PartSvg(opt.part));
       } else if (opt.kind === 'f1animal') {
         // 第 4 岛第 1 关题型 C：可拖进农场的动物
         btn.classList.add('f1-opt');
@@ -16368,6 +16933,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'G1A') {
         // 第 7 岛第 1 关题型 A：器官零件可拖到脸上
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'G2A') {
+        // 第 7 岛第 2 关题型 A：部位零件可拖到身上
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -16605,7 +17175,7 @@
         // 注意：第 3 岛第 4 / 5 关 A/B 的题目画在中央、不走选项栏，重洗会让 q.options 与 DOM 错位（点对也判错），故跳过。
         var qt = state.question && state.question.type;
         if (qt !== 'B4A' && qt !== 'B4B' && qt !== 'B5A' && qt !== 'B5B' &&
-            qt !== 'G1B' && qt !== 'G1C') {
+            qt !== 'G1B' && qt !== 'G1C' && qt !== 'G2B' && qt !== 'G2C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -16772,6 +17342,10 @@
         resolveG1A(d.idx, target);
       } else if (d.mode === 'G1T') {
         resolveG1T(d.idx, target);
+      } else if (d.mode === 'G2A') {
+        resolveG2A(d.idx, target);
+      } else if (d.mode === 'G2T') {
+        resolveG2T(d.idx, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -17751,6 +18325,14 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '7-2': {
+      // 身体部位与 TPR 动作（head / hand / foot）：头手脚各 2 演示 + 1 互动 + 1 综合互动 + TPR 模仿，共 11 环节；
+      // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、互动「把零件拖/点到身上」、TPR 👍 永远判对（§三.12）
+      custom: runG2Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -18003,6 +18585,7 @@
         q.type === 'F8C' || q.type === 'F9B' || q.type === 'F10A' || q.type === 'F11C' || q.type === 'F12C' || q.type === 'F13C' ||
         q.type === 'F14A' || q.type === 'F14C' || q.type === 'F15A' || q.type === 'F15C' ||
         q.type === 'G1A' ||
+        q.type === 'G2A' ||
         q.type === 'B4C') return q.type;
     return null;
   }
@@ -18696,6 +19279,8 @@
             if (o.kind === 'b5xscene') return 's:' + o.scene;
             if (o.kind === 'g1part') return 'i:' + o.part;
             if (o.kind === 'g1face') return 's:' + o.hl;
+            if (o.kind === 'g2part') return 'i:' + o.part;
+            if (o.kind === 'g2body') return 's:' + o.hl;
             if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
