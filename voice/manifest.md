@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**777** 条（英文 771 + 中文 6）
+总条目：**798** 条（英文 792 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -775,6 +775,27 @@
 | `g2_c_head` | en | Find the head. Who is nodding? | 已存在 |
 | `g2_c_hand` | en | Find the hands. Who is clapping? | 已存在 |
 | `g2_c_foot` | en | Find the feet. Who is stomping? | 已存在 |
+| `g3_t_robot` | en | Look! A magic robot. Let's start it! | 已存在 |
+| `g3_t_cmd1` | en | First, touch your head. Then, clap your hands. | 已存在 |
+| `g3_t_cmd2` | en | First, touch your nose. Then, stomp your feet. | 已存在 |
+| `g3_t_cmd3` | en | First, close your eyes. Then, jump! | 已存在 |
+| `g3_t_youdo` | en | Now you! Do it, then touch the button! | 已存在 |
+| `g3_t_out` | en | Wow! The robot is awake! Let's play! | 已存在 |
+| `g3_cmd_ears_clap` | en | First, touch your ears. Then, clap your hands. | 已存在 |
+| `g3_cmd_head_stomp` | en | First, touch your head. Then, stomp your feet. | 已存在 |
+| `g3_cmd_nose_jump` | en | First, touch your nose. Then, jump! | 已存在 |
+| `g3_cmd_eyes_clap` | en | First, close your eyes. Then, clap your hands. | 已存在 |
+| `g3_cmd_nose_clap` | en | First, touch your nose. Then, clap your hands. | 已存在 |
+| `g3_then_clap` | en | Then, clap your hands! | 已存在 |
+| `g3_then_stomp` | en | Then, stomp your feet! | 已存在 |
+| `g3_then_jump` | en | Then, jump! | 已存在 |
+| `g3_c_ask` | en | Did he do it right? | 已存在 |
+| `g3_c_head_nose` | en | First, touch your head. Then, touch your nose. | 已存在 |
+| `g3_c_nose_head` | en | First, touch your nose. Then, touch your head. | 已存在 |
+| `g3_c_ears_nose` | en | First, touch your ears. Then, touch your nose. | 已存在 |
+| `g3_c_nose_ears` | en | First, touch your nose. Then, touch your ears. | 已存在 |
+| `g3_c_head_ears` | en | First, touch your head. Then, touch your ears. | 已存在 |
+| `g3_c_ears_head` | en | First, touch your ears. Then, touch your head. | 已存在 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

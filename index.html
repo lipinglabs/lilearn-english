@@ -3865,7 +3865,8 @@
     '6-4': { numbers: null,       make: 'makeF14', title: '第 4 关', tutorial: true },
     '6-5': { numbers: null,       make: 'makeF15', title: '第 5 关', tutorial: true },
     '7-1': { numbers: null,       make: 'makeG1',  title: '第 1 关', tutorial: true },
-    '7-2': { numbers: null, make: 'makeG2', title: '第 2 关', tutorial: true }
+    '7-2': { numbers: null, make: 'makeG2', title: '第 2 关', tutorial: true },
+    '7-3': { numbers: null, make: 'makeG3', title: '第 3 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4051,6 +4052,7 @@
     if (def && def.make === 'makeF15') return makeQuestionF15(typeIdx, prev);
     if (def && def.make === 'makeG1') return makeQuestionG1(typeIdx, prev);
     if (def && def.make === 'makeG2') return makeQuestionG2(typeIdx, prev);
+    if (def && def.make === 'makeG3') return makeQuestionG3(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -15912,6 +15914,686 @@
     return api;
   })();
 
+
+  /* ============================================================
+     第 7 岛第 3 关（L7-W3：复合指令 First... Then...）
+     概念：魔法机器人 + 两步复合指令「First, touch your X. Then, do Y.」
+     教学 10 环节（RULES §三.10 双倍量 + §三.14 点按推进 + §二.12 四秒小手 + §三.12 模仿型交互）：
+       唤醒(演示1) → 头+拍手(演示2 + 互动1) → 鼻+跺脚(演示3/4 + 互动2)
+       → 闭眼+跳(演示5/6 + 互动3) → 过渡语；
+       每个复合指令 2 次演示（第二次为「分步高亮」：先亮第一步部位、再亮第二步，视觉不同，§三.10）；
+       互动一律「机器人演示 + 孩子模仿 + 点大按钮确认」，按钮永远判对（§三.12）。
+     答题 12 轮（4/4/4）：
+       A 听指令做两步动作（机器人演示 + 大按钮，永远判对）/
+       B 听指令按顺序拖拽（3 个动作图标按序拖进「先 / 再」两个框，第一步落位后口播 then 分句）/
+       C 听长句找错误（滑稽小人两画面按序排，与听到的顺序比对，✅/❌ 判断；画面顺序 50/50 混合，防视觉作弊 §三.16）。
+     规则：无英文字母外显（框上只有中文「先」「再」）、答对只音效+星星（禁人声）、
+           答错 again+四秒小手、拖拽热区比视觉大一圈（§三.15）、定格不吞顶栏点击（§三.18）、
+           零生图零 emoji（§二.17，全部手写内联 SVG）。
+     ============================================================ */
+
+  /* ---- 手写 SVG：魔法机器人（带肚子按钮）+ 滑稽小人 + 动作图标 ---- */
+  var G3_SHELL = '#e9f4fb';    // 机器人外壳
+  var G3_SHELL_D = '#bcdcf1';  // 外壳暗部（关节 / 四肢）
+  var G3_LINE = '#6fa8cc';     // 描边
+  var G3_SCREEN = '#33507a';   // 脸屏
+  var G3_GLOW = '#7fe3ff';     // 眼睛 / 嘴荧光
+  var G3_BTN = '#ffd66b';      // 按钮黄
+  var G3_BTN_D = '#e0a93b';
+  var G3_BLUSH = '#ffb3c1';
+  var G3_ACT_CN = { head: '头', nose: '鼻子', ears: '耳朵', eyes: '眼睛', clap: '拍手', stomp: '跺脚', jump: '跳' };
+  var G3_THEN_KEY = { clap: 'g3_then_clap', stomp: 'g3_then_stomp', jump: 'g3_then_jump' };
+
+  /** 四角星（「摸到这个部位」的闪光） */
+  function g3Spark(cx, cy, r) {
+    r = r || 9;
+    var k = r * 0.22;
+    return '<path class="g3-spark" d="M' + cx + ' ' + (cy - r) +
+      ' Q' + (cx + k) + ' ' + (cy - k) + ' ' + (cx + r) + ' ' + cy +
+      ' Q' + (cx + k) + ' ' + (cy + k) + ' ' + cx + ' ' + (cy + r) +
+      ' Q' + (cx - k) + ' ' + (cy + k) + ' ' + (cx - r) + ' ' + cy +
+      ' Q' + (cx - k) + ' ' + (cy - k) + ' ' + cx + ' ' + (cy - r) + ' Z" fill="' + G3_BTN + '"/>';
+  }
+
+  /** 一只举起的手：从肩膀 (sx,sy) 画圆角手臂到 (px,py)，末端是圆手 */
+  function g3ArmTo(sx, sy, px, py, side) {
+    var mx = (sx + px) / 2 + (side === 'l' ? -10 : 10);
+    var my = (sy + py) / 2 - 26;
+    var d = 'M' + sx + ' ' + sy + ' Q' + mx + ' ' + my + ' ' + px + ' ' + py;
+    return '<g class="g3-arms g3-arms-touch-' + side + '">' +
+      '<path d="' + d + '" fill="none" stroke="' + G3_SHELL_D + '" stroke-width="14" stroke-linecap="round"/>' +
+      '<path d="' + d + '" fill="none" stroke="' + G3_LINE + '" stroke-width="2.2" stroke-linecap="round" opacity=".5"/>' +
+      '<circle class="g3-mitten" cx="' + px + '" cy="' + py + '" r="11" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.6"/></g>';
+  }
+  function g3ArmsRest() {
+    return '<g class="g3-arms g3-arms-rest">' +
+      '<g class="g3-arm g3-arm-l"><rect x="24" y="120" width="42" height="14" rx="7" fill="' + G3_SHELL_D + '" stroke="' + G3_LINE + '" stroke-width="2.6"/>' +
+      '<circle cx="27" cy="127" r="10.5" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.6"/></g>' +
+      '<g class="g3-arm g3-arm-r"><rect x="134" y="120" width="42" height="14" rx="7" fill="' + G3_SHELL_D + '" stroke="' + G3_LINE + '" stroke-width="2.6"/>' +
+      '<circle cx="173" cy="127" r="10.5" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.6"/></g></g>';
+  }
+  function g3ArmsClap() {
+    return '<g class="g3-arms g3-arms-clap">' +
+      '<path d="M66 127 Q50 106 84 121" fill="none" stroke="' + G3_SHELL_D + '" stroke-width="14" stroke-linecap="round"/>' +
+      '<path d="M134 127 Q150 106 116 121" fill="none" stroke="' + G3_SHELL_D + '" stroke-width="14" stroke-linecap="round"/>' +
+      '<circle class="g3-mitten g3-mitten-l" cx="86" cy="121" r="11" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.6"/>' +
+      '<circle class="g3-mitten g3-mitten-r" cx="114" cy="121" r="11" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.6"/></g>';
+  }
+  function g3LegsRest() {
+    return '<g class="g3-legs g3-legs-rest">' +
+      '<g class="g3-leg g3-leg-l"><rect x="72" y="180" width="21" height="28" rx="10.5" fill="' + G3_SHELL_D + '" stroke="' + G3_LINE + '" stroke-width="2.6"/>' +
+      '<ellipse cx="82" cy="212" rx="17" ry="9.5" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.6"/></g>' +
+      '<g class="g3-leg g3-leg-r"><rect x="107" y="180" width="21" height="28" rx="10.5" fill="' + G3_SHELL_D + '" stroke="' + G3_LINE + '" stroke-width="2.6"/>' +
+      '<ellipse cx="118" cy="212" rx="17" ry="9.5" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.6"/></g></g>';
+  }
+  function g3LegsStomp() {
+    return '<g class="g3-legs g3-legs-stomp">' +
+      '<g class="g3-leg g3-leg-l"><rect x="72" y="180" width="21" height="28" rx="10.5" fill="' + G3_SHELL_D + '" stroke="' + G3_LINE + '" stroke-width="2.6"/>' +
+      '<ellipse class="g3-foot g3-foot-l" cx="82" cy="216" rx="17" ry="9.5" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.6"/></g>' +
+      '<g class="g3-leg g3-leg-r"><rect x="107" y="180" width="21" height="28" rx="10.5" fill="' + G3_SHELL_D + '" stroke="' + G3_LINE + '" stroke-width="2.6"/>' +
+      '<ellipse class="g3-foot g3-foot-r" cx="118" cy="216" rx="17" ry="9.5" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.6"/></g>' +
+      '<g class="g3-stomp-lines" fill="none" stroke="' + G3_BTN_D + '" stroke-width="2.6" stroke-linecap="round">' +
+      '<path d="M68 228 l-7 6"/><path d="M82 230 l0 8"/><path d="M96 228 l7 6"/>' +
+      '<path d="M104 228 l-7 6"/><path d="M118 230 l0 8"/><path d="M132 228 l7 6"/></g></g>';
+  }
+
+  /**
+   * 魔法机器人 SVG。
+   * o = { a1, a2, sleep, happy, seq }：
+   *   a1/a2 —— 两步动作（head/nose/ears/eyes × clap/stomp/jump），3.2s 循环里第一步占前半、第二步占后半；
+   *   sleep —— 睡着（闭眼 + Zzz 折线 + 天线变暗）；
+   *   happy —— 开心摇摆；
+   *   seq  —— 分步高亮（第二遍演示：按顺序点亮当前动作对应的部位）。
+   */
+  function g3RobotSvgEl(o) {
+    o = o || {};
+    var a1 = o.a1 || null, a2 = o.a2 || null;
+    var glow1 = o.seq ? ' g3-glow-a1' : '', glow2 = o.seq ? ' g3-glow-a2' : '';
+    var s = '';
+    s += '<ellipse class="g3-shadow" cx="100" cy="232" rx="44" ry="6.5" fill="#3a6a8a" opacity=".14"/>';
+    s += '<g class="g3-bot' + (o.happy ? ' g3-happy' : '') + '">';
+    // 天线
+    s += '<g class="g3-antenna"><rect x="96.5" y="18" width="7" height="20" rx="3.5" fill="' + G3_SHELL_D + '" stroke="' + G3_LINE + '" stroke-width="2.6"/>' +
+      '<circle class="g3-antenna-ball" cx="100" cy="12" r="8.5" fill="' + G3_BTN + '" stroke="' + G3_BTN_D + '" stroke-width="2.6"/></g>';
+    // 头 + 脸屏
+    s += '<g class="g3-head">';
+    s += '<rect x="52" y="30" width="96" height="84" rx="33" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="3"/>';
+    s += '<rect x="43" y="58" width="11" height="26" rx="5.5" fill="' + G3_SHELL_D + '" stroke="' + G3_LINE + '" stroke-width="2.6"/>';
+    s += '<rect x="146" y="58" width="11" height="26" rx="5.5" fill="' + G3_SHELL_D + '" stroke="' + G3_LINE + '" stroke-width="2.6"/>';
+    s += '<rect x="60" y="38" width="80" height="68" rx="27" fill="' + G3_SCREEN + '"/>';
+    s += '<g class="g3-eyes">' +
+      '<g class="g3-eyes-open' + (a1 === 'eyes' ? ' g3win-hide-a1' : '') + '">' +
+      '<circle class="g3-eye" cx="82" cy="62" r="8.5" fill="' + G3_GLOW + '"/>' +
+      '<circle class="g3-eye" cx="118" cy="62" r="8.5" fill="' + G3_GLOW + '"/>' +
+      '<circle cx="84.5" cy="59.5" r="2.8" fill="#fff"/><circle cx="120.5" cy="59.5" r="2.8" fill="#fff"/></g>' +
+      '<g class="g3-eyes-shut' + (a1 === 'eyes' ? ' g3win-show-a1' : '') + '">' +
+      '<path d="M73 62 Q82 69 91 62" fill="none" stroke="' + G3_GLOW + '" stroke-width="3.6" stroke-linecap="round"/>' +
+      '<path d="M109 62 Q118 69 127 62" fill="none" stroke="' + G3_GLOW + '" stroke-width="3.6" stroke-linecap="round"/></g></g>';
+    s += '<circle class="g3-nose' + (a1 === 'nose' ? glow1 : '') + '" cx="100" cy="78" r="6" fill="' + G3_BLUSH + '"/>';
+    s += '<path class="g3-mouth" d="M87 90 Q100 101 113 90" fill="none" stroke="' + G3_GLOW + '" stroke-width="3.4" stroke-linecap="round"/>';
+    // 睡痕 Zzz：SVG 折线，不是文字（§二.1 无英文字母）
+    s += '<g class="g3-zzz"><path d="M150 28 l13 0 0 5 -9 8 9 0" fill="none" stroke="' + G3_GLOW + '" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>' +
+      '<path d="M162 12 l9 0 0 4 -6 6 6 0" fill="none" stroke="' + G3_GLOW + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></g>';
+    s += '</g>';
+    // 身体 + 肚子按钮（和下方大按钮同一个造型，呼应「按按钮」）
+    s += '<g class="g3-torso' + (a2 === 'stomp' ? glow2 : '') + '">' +
+      '<rect x="60" y="110" width="80" height="74" rx="30" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="3"/>' +
+      '<g class="g3-belly"><circle cx="100" cy="147" r="15" fill="' + G3_BTN + '" stroke="' + G3_BTN_D + '" stroke-width="3"/>' +
+      '<circle cx="100" cy="147" r="6" fill="#fff" opacity=".6"/></g></g>';
+    // 手臂：休息姿态常驻，动作姿态按窗口显示
+    s += g3ArmsRest();
+    if (a1 === 'head') s += g3ArmTo(134, 127, 100, 30, 'r') + g3Spark(100, 22, 8);
+    if (a1 === 'nose') s += g3ArmTo(134, 127, 100, 78, 'r') + g3Spark(113, 73, 7);
+    if (a1 === 'ears') { s += g3ArmTo(66, 127, 49, 71, 'l') + g3ArmTo(134, 127, 151, 71, 'r') + g3Spark(43, 64, 7) + g3Spark(157, 64, 7); }
+    if (a2 === 'clap') s += g3ArmsClap();
+    // 腿：休息 / 跺脚
+    s += g3LegsRest();
+    if (a2 === 'stomp') s += g3LegsStomp();
+    s += '</g>';
+    var el = svgEl('svg');
+    el.setAttribute('viewBox', '0 0 200 240');
+    el.setAttribute('class', 'g3-robot-svg' +
+      (a1 && a2 ? ' g3-run' : '') +
+      (a2 === 'jump' ? ' g3-has-jump' : '') +
+      (o.sleep ? ' g3-st-sleep' : '') +
+      (o.seq ? ' g3-st-seq' : ''));
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = s;
+    return el;
+  }
+
+  /** 滑稽小人（做题 C）：同一张小脸，一只手摸到指定部位 */
+  function g3SillySvg(part) {
+    var s = '';
+    s += '<path d="M34 104 Q30 70 50 62 Q70 70 66 104 Z" fill="#ffd9e0" stroke="#e8a0b0" stroke-width="3" stroke-linejoin="round"/>';
+    s += '<rect x="40" y="100" width="8" height="10" rx="4" fill="#e8a0b0"/>';
+    s += '<rect x="52" y="100" width="8" height="10" rx="4" fill="#e8a0b0"/>';
+    s += '<circle cx="50" cy="38" r="26" fill="#ffe9d6" stroke="#e8b98a" stroke-width="3"/>';
+    s += '<path d="M36 18 L44 2 L56 14 Z" fill="#9fd0f5" stroke="#6fa8cc" stroke-width="2.6" stroke-linejoin="round"/>' +
+      '<circle cx="44" cy="3" r="4" fill="' + G3_BTN + '" stroke="' + G3_BTN_D + '" stroke-width="2"/>';
+    s += '<ellipse cx="34" cy="46" rx="5" ry="3.4" fill="' + G3_BLUSH + '" opacity=".8"/>' +
+      '<ellipse cx="66" cy="46" rx="5" ry="3.4" fill="' + G3_BLUSH + '" opacity=".8"/>';
+    s += '<path d="M38 36 Q43 31 48 36" fill="none" stroke="#5a4a3a" stroke-width="2.8" stroke-linecap="round"/>' +
+      '<path d="M52 36 Q57 31 62 36" fill="none" stroke="#5a4a3a" stroke-width="2.8" stroke-linecap="round"/>';
+    s += '<circle cx="50" cy="44" r="5.5" fill="#ff8fa3" stroke="#e07080" stroke-width="2"/>';
+    s += '<path d="M36 52 Q50 68 64 52" fill="none" stroke="#5a4a3a" stroke-width="3" stroke-linecap="round"/>';
+    if (part === 'head') {
+      s += '<path d="M68 76 Q80 40 57 17" fill="none" stroke="#ffe9d6" stroke-width="11" stroke-linecap="round"/>' +
+        '<path d="M68 76 Q80 40 57 17" fill="none" stroke="#e8b98a" stroke-width="2" stroke-linecap="round" opacity=".55"/>' +
+        '<circle cx="56" cy="13" r="9.5" fill="#ffe9d6" stroke="#e8b98a" stroke-width="2.8"/>';
+    } else if (part === 'nose') {
+      s += '<path d="M68 78 Q78 62 63 51" fill="none" stroke="#ffe9d6" stroke-width="11" stroke-linecap="round"/>' +
+        '<path d="M68 78 Q78 62 63 51" fill="none" stroke="#e8b98a" stroke-width="2" stroke-linecap="round" opacity=".55"/>' +
+        '<circle cx="61" cy="48" r="9.5" fill="#ffe9d6" stroke="#e8b98a" stroke-width="2.8"/>';
+    } else {
+      s += '<path d="M32 78 Q16 58 26 42" fill="none" stroke="#ffe9d6" stroke-width="11" stroke-linecap="round"/>' +
+        '<path d="M68 78 Q84 58 74 42" fill="none" stroke="#ffe9d6" stroke-width="11" stroke-linecap="round"/>' +
+        '<circle cx="26" cy="39" r="9" fill="#ffe9d6" stroke="#e8b98a" stroke-width="2.8"/>' +
+        '<circle cx="74" cy="39" r="9" fill="#ffe9d6" stroke="#e8b98a" stroke-width="2.8"/>';
+    }
+    var el = svgEl('svg');
+    el.setAttribute('viewBox', '0 0 100 112');
+    el.setAttribute('class', 'g3-silly-svg');
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = s;
+    return el;
+  }
+
+  /** 动作图标（答题 B 的 3 个可拖图标）：同一张小脸 / 同一双小手，只换动作 */
+  function g3ActIconSvg(act) {
+    var bg = '<circle cx="50" cy="50" r="46" fill="#f2f9fd" stroke="#cfe7f5" stroke-width="3"/>';
+    var face = '<circle cx="50" cy="46" r="21" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="3"/>';
+    var eyesOpen = '<circle cx="43.5" cy="43" r="3.2" fill="#33507a"/><circle cx="56.5" cy="43" r="3.2" fill="#33507a"/>';
+    var eyesShut = '<path d="M37 43 Q43.5 48.5 50 43" fill="none" stroke="#33507a" stroke-width="2.8" stroke-linecap="round"/>' +
+      '<path d="M50 43 Q56.5 48.5 63 43" fill="none" stroke="#33507a" stroke-width="2.8" stroke-linecap="round"/>';
+    var smile = '<path d="M43 54 Q50 60 57 54" fill="none" stroke="#33507a" stroke-width="2.6" stroke-linecap="round"/>';
+    function mitten(x, y) {
+      return '<circle cx="' + x + '" cy="' + y + '" r="9.5" fill="#fff" stroke="' + G3_LINE + '" stroke-width="2.8"/>';
+    }
+    var inner;
+    if (act === 'head') {
+      inner = face + eyesOpen + smile + mitten(50, 16) + g3Spark(50, 6, 6);
+    } else if (act === 'nose') {
+      inner = face + eyesOpen + '<circle cx="50" cy="49" r="3.4" fill="' + G3_BLUSH + '"/>' + smile + mitten(64, 52) + g3Spark(68, 40, 5.5);
+    } else if (act === 'ears') {
+      inner = face + eyesOpen + smile + mitten(25, 42) + mitten(75, 42) + g3Spark(19, 33, 5) + g3Spark(81, 33, 5);
+    } else if (act === 'eyes') {
+      inner = face + eyesShut + smile + g3Spark(50, 25, 5);
+    } else if (act === 'clap') {
+      inner = mitten(33, 50) + mitten(67, 50) +
+        '<path d="M20 33 Q27 44 20 56" fill="none" stroke="' + G3_BTN_D + '" stroke-width="2.6" stroke-linecap="round"/>' +
+        '<path d="M80 33 Q73 44 80 56" fill="none" stroke="' + G3_BTN_D + '" stroke-width="2.6" stroke-linecap="round"/>';
+    } else if (act === 'stomp') {
+      inner = '<rect x="34" y="50" width="32" height="14" rx="7" fill="' + G3_SHELL_D + '" stroke="' + G3_LINE + '" stroke-width="2.6"/>' +
+        '<ellipse cx="50" cy="70" rx="19" ry="10" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.8"/>' +
+        '<path d="M50 20 l0 12" stroke="' + G3_BTN_D + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M39 25 l0 8" stroke="' + G3_BTN_D + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M61 25 l0 8" stroke="' + G3_BTN_D + '" stroke-width="3" stroke-linecap="round"/>';
+    } else {
+      inner = '<circle cx="50" cy="24" r="11" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.8"/>' +
+        '<circle cx="46" cy="22" r="2.4" fill="#33507a"/><circle cx="54" cy="22" r="2.4" fill="#33507a"/>' +
+        '<rect x="40" y="33" width="20" height="24" rx="9" fill="' + G3_SHELL + '" stroke="' + G3_LINE + '" stroke-width="2.8"/>' +
+        '<path d="M42 63 Q37 74 29 76" fill="none" stroke="' + G3_LINE + '" stroke-width="6" stroke-linecap="round"/>' +
+        '<path d="M58 63 Q63 74 71 76" fill="none" stroke="' + G3_LINE + '" stroke-width="6" stroke-linecap="round"/>' +
+        '<path d="M50 86 l0 8" stroke="' + G3_BTN_D + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M39 90 l0 6" stroke="' + G3_BTN_D + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M61 90 l0 6" stroke="' + G3_BTN_D + '" stroke-width="3" stroke-linecap="round"/>';
+    }
+    var el = svgEl('svg');
+    el.setAttribute('viewBox', '0 0 100 100');
+    el.setAttribute('class', 'g3-act-svg');
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = bg + inner;
+    return el;
+  }
+
+  /** 大按钮（和机器人肚子按钮同一个造型：黄圆 + 星星） */
+  function g3BtnSvg() {
+    return '<svg viewBox="0 0 120 120" class="g3-btn-svg" aria-hidden="true">' +
+      '<circle cx="60" cy="60" r="54" fill="' + G3_BTN + '" stroke="' + G3_BTN_D + '" stroke-width="5"/>' +
+      '<circle cx="60" cy="60" r="44" fill="none" stroke="#fff" stroke-width="4" opacity=".55"/>' +
+      '<path d="M60 31 l9.8 21.6 23.7 2.6 -17.6 16.2 4.8 23.2 -20.7 -12.2 -20.7 12.2 4.8 -23.2 -17.6 -16.2 23.7 -2.6 Z" ' +
+      'fill="#fff" opacity=".92" stroke="' + G3_BTN_D + '" stroke-width="2.4" stroke-linejoin="round"/></svg>';
+  }
+
+  function ensureG3Css() {
+    if (document.getElementById('g3-style')) return;
+    var s = document.createElement('style');
+    s.id = 'g3-style';
+    s.textContent =
+      /* 教学舞台 */
+      '.g3-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'width:100%;gap:1.8vh;padding-bottom:6vh;box-sizing:border-box}' +
+      '.g3-robot-wrap{width:min(56vw,240px);aspect-ratio:200/240;display:flex;align-items:center;justify-content:center}' +
+      '.g3-robot-svg{width:100%;height:100%;display:block}' +
+      /* 机器人：睡 / 醒 / 呼吸 / 天线 */
+      '.g3-eyes-open,.g3-eyes-shut{transition:opacity .45s ease}' +
+      '.g3-eyes-shut{opacity:0}' +
+      '.g3-zzz{opacity:0}' +
+      '.g3-st-sleep .g3-zzz{opacity:1;animation:g3zzz 1.8s ease-in-out infinite}' +
+      '.g3-st-sleep .g3-eyes-open{opacity:0}' +
+      '.g3-st-sleep .g3-eyes-shut{opacity:1}' +
+      '.g3-st-sleep .g3-antenna-ball{fill:#c7d4dc}' +
+      '@keyframes g3zzz{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-5px);opacity:.95}}' +
+      '.g3-shadow{transform-box:fill-box;transform-origin:50% 50%}' +
+      '.g3-torso{transform-box:fill-box;transform-origin:50% 100%;animation:g3breath 2.8s ease-in-out infinite}' +
+      '@keyframes g3breath{0%,100%{transform:scale(1)}50%{transform:scale(1.02,1.035)}}' +
+      '.g3-antenna-ball{transform-box:fill-box;transform-origin:50% 50%;animation:g3ball 1.7s ease-in-out infinite}' +
+      '@keyframes g3ball{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}' +
+      /* 两步循环窗口（3.2s：第一步 0–50%，第二步 50–100%）。动作姿态默认隐藏，窗口动画接管 */
+      '.g3-arms-touch-l,.g3-arms-touch-r,.g3-arms-clap,.g3-legs-stomp,.g3-spark{opacity:0}' +
+      '.g3-run .g3-arms-rest,.g3-run .g3-legs-rest{animation:g3win-rest 3.2s ease-in-out infinite}' +
+      '.g3-run .g3-arms-touch-l,.g3-run .g3-arms-touch-r,.g3-run .g3-spark{animation:g3win-a1 3.2s ease-in-out infinite}' +
+      '.g3-run .g3-arms-clap,.g3-run .g3-legs-stomp{animation:g3win-a2 3.2s ease-in-out infinite}' +
+      '.g3-run .g3-eyes-open.g3win-hide-a1{animation:g3win-hide-a1 3.2s ease-in-out infinite}' +
+      '.g3-run .g3-eyes-shut.g3win-show-a1{animation:g3win-a1 3.2s ease-in-out infinite}' +
+      '@keyframes g3win-rest{0%,6%{opacity:1}12%,44%{opacity:0}50%,56%{opacity:1}62%,92%{opacity:0}97%,100%{opacity:1}}' +
+      '@keyframes g3win-a1{0%,10%{opacity:0}18%,42%{opacity:1}50%,100%{opacity:0}}' +
+      '@keyframes g3win-a2{0%,54%{opacity:0}62%,92%{opacity:1}100%{opacity:0}}' +
+      '@keyframes g3win-hide-a1{0%,10%{opacity:1}18%,42%{opacity:0}50%,100%{opacity:1}}' +
+      /* 摸到部位：小手轻晃 + 星星闪 */
+      '.g3-run .g3-arms-touch-l .g3-mitten,.g3-run .g3-arms-touch-r .g3-mitten{animation:g3bob 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}' +
+      '@keyframes g3bob{0%,10%{transform:translateY(0)}18%,42%{transform:translateY(-2.5px)}50%,100%{transform:translateY(0)}}' +
+      '.g3-run .g3-spark{transform-box:fill-box;transform-origin:50% 50%;animation:g3spark 3.2s ease-in-out infinite}' +
+      '@keyframes g3spark{0%,10%{transform:scale(.4)}18%{transform:scale(1.15)}26%,42%{transform:scale(.9)}50%,100%{transform:scale(.4)}}' +
+      /* 拍手：两只小手向中间合拢 */
+      '.g3-run .g3-arms-clap .g3-mitten-l{animation:g3clapL 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}' +
+      '.g3-run .g3-arms-clap .g3-mitten-r{animation:g3clapR 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}' +
+      '@keyframes g3clapL{0%,54%{transform:translateX(0)}66%,74%{transform:translateX(9px)}82%,92%{transform:translateX(0)}100%{transform:translateX(0)}}' +
+      '@keyframes g3clapR{0%,54%{transform:translateX(0)}66%,74%{transform:translateX(-9px)}82%,92%{transform:translateX(0)}100%{transform:translateX(0)}}' +
+      /* 跺脚：两只脚交替下沉 + 烟尘线 */
+      '.g3-run .g3-legs-stomp .g3-foot-l{animation:g3stompL 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}' +
+      '.g3-run .g3-legs-stomp .g3-foot-r{animation:g3stompR 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}' +
+      '@keyframes g3stompL{0%,54%{transform:translateY(0)}62%,72%{transform:translateY(7px)}80%,100%{transform:translateY(0)}}' +
+      '@keyframes g3stompR{0%,54%{transform:translateY(0)}76%,86%{transform:translateY(7px)}94%,100%{transform:translateY(0)}}' +
+      /* 跳：整机上浮双连跳 + 影子压缩 */
+      '.g3-run.g3-has-jump .g3-bot{animation:g3jump 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}' +
+      '@keyframes g3jump{0%,54%{transform:translateY(0)}62%{transform:translateY(-30px)}70%{transform:translateY(0)}78%{transform:translateY(-15px)}88%,100%{transform:translateY(0)}}' +
+      '.g3-run.g3-has-jump .g3-shadow{animation:g3shadow 3.2s ease-in-out infinite}' +
+      '@keyframes g3shadow{0%,54%{transform:scale(1);opacity:.14}62%{transform:scale(.72);opacity:.08}70%{transform:scale(1);opacity:.14}78%{transform:scale(.86);opacity:.1}88%,100%{transform:scale(1);opacity:.14}}' +
+      /* 分步高亮（第二遍演示：按顺序点亮当前部位） */
+      '.g3-glow-a1{animation:g3glow1 3.2s ease-in-out infinite}' +
+      '.g3-glow-a2{animation:g3glow2 3.2s ease-in-out infinite}' +
+      '@keyframes g3glow1{0%,10%{filter:none}18%,42%{filter:drop-shadow(0 0 9px #ffb74d) drop-shadow(0 0 4px #ffb74d)}50%,100%{filter:none}}' +
+      '@keyframes g3glow2{0%,54%{filter:none}62%,92%{filter:drop-shadow(0 0 9px #ffb74d) drop-shadow(0 0 4px #ffb74d)}100%{filter:none}}' +
+      /* 开心摇摆 */
+      '.g3-bot.g3-happy{animation:g3wiggle 1.05s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}' +
+      '@keyframes g3wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-3.5deg)}75%{transform:rotate(3.5deg)}}' +
+      /* 答题 A：机器人 + 大按钮（唯一、≥44vw、正下方，§三.12） */
+      '.g3-ask{display:flex;flex-direction:column;align-items:center;gap:2.4vh;width:100%}' +
+      '.g3-btn{display:flex;align-items:center;justify-content:center;width:min(46vw,200px);aspect-ratio:1/1;' +
+      'border:none;background:none;padding:0;cursor:pointer;transition:transform .15s ease;' +
+      'filter:drop-shadow(0 8px 16px rgba(224,169,59,.35))}' +
+      '.g3-btn:active{transform:scale(.94)}' +
+      '.g3-btn.off{opacity:.45;filter:grayscale(.35);pointer-events:none}' +
+      '.g3-btn.right{filter:drop-shadow(0 0 16px rgba(127,209,138,.85))}' +
+      '.g3-btn:not(.off):not(.right){animation:g3btnpulse 1.6s ease-in-out infinite}' +
+      '@keyframes g3btnpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}' +
+      '.g3-btn-svg{width:100%;height:100%;display:block}' +
+      /* 答题 B：先 / 再两个框（中文徽标，无英文字母） */
+      '.g3-b{display:flex;flex-direction:column;align-items:center;width:100%;gap:2.4vh}' +
+      '.g3-slots{display:flex;gap:min(5vw,22px);justify-content:center;width:100%}' +
+      '.g3-slot{position:relative;width:min(34vw,150px);aspect-ratio:1/1;border-radius:26px;' +
+      'border:3px dashed #f0c26b;background:rgba(255,255,255,.72);padding:12%;box-sizing:border-box;' +
+      'display:flex;align-items:center;justify-content:center;cursor:pointer;' +
+      'box-shadow:0 6px 14px rgba(224,169,59,.16);transition:transform .15s ease,box-shadow .2s ease}' +
+      '.g3-slot:active{transform:scale(.97)}' +
+      '.g3-slot.drop-hot{outline:4px dashed #ffb74d;outline-offset:3px;box-shadow:0 0 0 6px rgba(255,183,77,.25)}' +
+      '.g3-slot.filled{border-style:solid;border-color:#7FD18A;background:#eafaf0}' +
+      '.g3-slot.filled svg{width:84%;height:84%;display:block}' +
+      '.g3-slot-badge{position:absolute;top:-15px;left:50%;transform:translateX(-50%);' +
+      'background:#ffd66b;border:2.5px solid #e0a93b;border-radius:14px;padding:1px 12px;' +
+      'font-size:clamp(15px,4.2vw,20px);color:#8a5a12;font-weight:700;line-height:1.35;white-space:nowrap}' +
+      /* 答题 C：滑稽小人两画面 + 顺序箭头 */
+      '.g3-c{display:flex;flex-direction:column;align-items:center;width:100%}' +
+      '.g3-panels{display:flex;gap:min(2vw,10px);justify-content:center;align-items:center;width:100%}' +
+      '.g3-panel{position:relative;width:min(36vw,160px);aspect-ratio:100/112;background:rgba(255,255,255,.75);' +
+      'border:3px solid #bfe3f2;border-radius:24px;padding:10% 7% 6%;box-sizing:border-box;' +
+      'display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(58,154,201,.16)}' +
+      '.g3-panel svg{width:100%;height:100%;display:block}' +
+      '.g3-arrow{width:min(9vw,40px);flex:0 0 auto;display:flex;align-items:center;justify-content:center}' +
+      '.g3-arrow svg{width:100%;display:block}' +
+      /* 选项栏里的动作图标 */
+      '.option.g3-opt .slot svg{width:88%;max-width:112px;height:auto;display:block}' +
+      /* 横屏矮屏压缩（§三.15：家具/托盘不得换行、不得越界） */
+      '@media (max-height:560px){' +
+      '.g3-stage{gap:.5vh;padding-bottom:1vh}' +
+      '.g3-robot-wrap{width:min(30vw,130px)}' +
+      '.g3-btn{width:min(26vw,120px)}' +
+      '.g3-slot{width:min(22vw,96px);border-radius:18px;padding:10%}' +
+      '.g3-slot-badge{font-size:14px;padding:0 9px}' +
+      '.g3-panel{width:min(24vw,104px)}' +
+      '.g3-panels{gap:min(1.5vw,8px)}}';
+    document.head.appendChild(s);
+  }
+
+  /* ---------------- 题型 A：听指令做两步动作（机器人演示 + 大按钮，永远判对 §三.12） ---------------- */
+  function renderG3A(q) {
+    ensureG3Css();
+    askDisplay.innerHTML = '';
+    var wrap = document.createElement('div');
+    wrap.className = 'g3-ask';
+    var bot = document.createElement('div');
+    bot.className = 'g3-robot-wrap';
+    bot.setAttribute('aria-hidden', 'true');
+    bot.appendChild(g3RobotSvgEl({ a1: q.a1, a2: q.a2 }));
+    wrap.appendChild(bot);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'g3-btn';
+    btn.setAttribute('aria-label', '我做到啦');
+    btn.innerHTML = g3BtnSvg();
+    btn.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      coin(); ting();
+      judge(true, btn);
+    });
+    wrap.appendChild(btn);
+    askDisplay.appendChild(wrap);
+  }
+
+  /* ---------------- 题型 B：听指令按顺序拖拽（3 个动作图标 → 先 / 再两个框） ---------------- */
+  function renderG3B(q) {
+    ensureG3Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'g3-b';
+    var row = document.createElement('div');
+    row.className = 'g3-slots';
+    ['step1', 'step2'].forEach(function (slot, i) {
+      var z = document.createElement('div');
+      z.className = 'g3-slot';
+      z.dataset.drop = slot;
+      z.dataset.slot = slot;
+      z.setAttribute('aria-label', i === 0 ? '先' : '再');
+      z.innerHTML = '<span class="g3-slot-badge">' + (i === 0 ? '先' : '再') + '</span>';
+      z.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        if (state.pickedFruit === null) return;
+        resolveG3B(state.pickedFruit, z);
+      });
+      row.appendChild(z);
+    });
+    box.appendChild(row);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 B 判定（拖 / 点都走这里）：图标要对、顺序要对 */
+  function resolveG3B(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'G3B') return;
+    var drop = (typeof target === 'string') ? target : (target && target.dataset ? target.dataset.drop : null);
+    var act = q.options[itemIdx] ? q.options[itemIdx].act : null;
+    if (!act || !drop) return;
+    var step = q.steps[q.stepsDone];
+    if (!step) return;
+    var ok = (act === step.act) && (drop === step.slot);
+    if (ok) {
+      var slotEl = (typeof target === 'string')
+        ? askDisplay.querySelector('.g3-slot[data-drop="' + drop + '"]') : target;
+      if (slotEl) {
+        slotEl.classList.add('filled');
+        slotEl.innerHTML = '<span class="g3-slot-badge">' + (drop === 'step1' ? '先' : '再') + '</span>';
+        slotEl.appendChild(g3ActIconSvg(act));
+      }
+      q.stepsDone += 1;
+      coin(); ting(); clearHint();
+      state.pickedFruit = null; clearPicked();
+      if (q.stepsDone < q.steps.length) {
+        say([q.stepAudios[q.stepsDone]]);   // 第一步落位，口播第二步（then 分句）
+      } else {
+        judge(true, slotEl);
+      }
+    } else {
+      var wBtn = (typeof target !== 'string' && target) ? target : optionEls[itemIdx];
+      if (wBtn && wBtn.classList) {
+        wBtn.classList.add('wrong');
+        setTimeout(function () { wBtn.classList.remove('wrong'); }, 520);
+      }
+      judge(false, wBtn);
+    }
+  }
+
+  /* ---------------- 题型 C：听长句找错误（滑稽小人两画面，✅ / ❌ 判断） ---------------- */
+  function renderG3C(q) {
+    ensureG3Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'g3-c';
+    var row = document.createElement('div');
+    row.className = 'g3-panels';
+    q.pic.forEach(function (act, i) {
+      if (i === 1) {
+        var arrow = document.createElement('div');
+        arrow.className = 'g3-arrow';
+        arrow.setAttribute('aria-hidden', 'true');
+        arrow.innerHTML = '<svg viewBox="0 0 40 30" aria-hidden="true">' +
+          '<path d="M4 15 L29 15" stroke="#e0a93b" stroke-width="5" stroke-linecap="round"/>' +
+          '<path d="M21 5 L33 15 L21 25" fill="none" stroke="#e0a93b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        row.appendChild(arrow);
+      }
+      var p = document.createElement('div');
+      p.className = 'g3-panel';
+      p.dataset.act = act;
+      p.innerHTML = '<span class="g3-slot-badge">' + (i === 0 ? '先' : '再') + '</span>';
+      p.appendChild(g3SillySvg(act));
+      row.appendChild(p);
+    });
+    box.appendChild(row);
+    askDisplay.appendChild(box);
+  }
+
+  /* ---------------- 出题：A 两步动作 / B 顺序拖拽 / C 找错误 ---------------- */
+  var G3_A_CASES = [
+    { a1: 'ears', a2: 'clap' },
+    { a1: 'head', a2: 'stomp' },
+    { a1: 'nose', a2: 'jump' },
+    { a1: 'eyes', a2: 'clap' }
+  ];
+  var G3_B_CASES = [
+    { a1: 'nose', a2: 'clap', extra: 'jump' },
+    { a1: 'head', a2: 'stomp', extra: 'clap' },
+    { a1: 'eyes', a2: 'jump', extra: 'stomp' },
+    { a1: 'ears', a2: 'clap', extra: 'stomp' }
+  ];
+  var G3_C_CASES = [
+    { a1: 'head', a2: 'nose' },
+    { a1: 'nose', a2: 'head' },
+    { a1: 'ears', a2: 'nose' },
+    { a1: 'nose', a2: 'ears' },
+    { a1: 'head', a2: 'ears' },
+    { a1: 'ears', a2: 'head' }
+  ];
+  /** 复合指令语音 key（同句同 key，RULES §1.12：教学 3 句与答题 A/B 共用） */
+  function g3CmdKey(a1, a2) {
+    var k = a1 + '+' + a2;
+    if (k === 'head+clap') return 'g3_t_cmd1';
+    if (k === 'nose+stomp') return 'g3_t_cmd2';
+    if (k === 'eyes+jump') return 'g3_t_cmd3';
+    return 'g3_cmd_' + a1 + '_' + a2;
+  }
+
+  function makeQuestionG3(type, prev) {
+    ensureG3Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var c = G3_A_CASES[randInt(0, G3_A_CASES.length - 1)];
+        q = {
+          type: 'G3A', sig: 'A:' + c.a1 + '+' + c.a2, a1: c.a1, a2: c.a2,
+          options: [], correct: 0, audio: [g3CmdKey(c.a1, c.a2)]
+        };
+      } else if (type === 1) {
+        var b = G3_B_CASES[randInt(0, G3_B_CASES.length - 1)];
+        var acts = shuffle([b.a1, b.a2, b.extra]);
+        q = {
+          type: 'G3B', sig: 'B:' + b.a1 + '+' + b.a2 + ':' + acts.join(','),
+          a1: b.a1, a2: b.a2,
+          options: acts.map(function (a) { return { kind: 'g3act', act: a }; }),
+          correct: acts.indexOf(b.a1),
+          steps: [{ act: b.a1, slot: 'step1' }, { act: b.a2, slot: 'step2' }],
+          stepsDone: 0,
+          stepAudios: [null, G3_THEN_KEY[b.a2]],
+          audio: [g3CmdKey(b.a1, b.a2)]
+        };
+      } else {
+        var cc = G3_C_CASES[randInt(0, G3_C_CASES.length - 1)];
+        // 画面顺序 50/50：与语音一致（做对了）或相反（做反了）。
+        // 没有语音就无法判断对错——防止孩子不看只听、或干脆无脑点同一个按钮（§三.16）。
+        var same = Math.random() < 0.5;
+        var pic = same ? [cc.a1, cc.a2] : [cc.a2, cc.a1];
+        var opts = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
+        q = {
+          type: 'G3C', sig: 'C:' + cc.a1 + '>' + cc.a2 + ':' + (same ? 'y' : 'n') + ':' + opts.map(function (o) { return o.val ? 'y' : 'n'; }).join(''),
+          a1: cc.a1, a2: cc.a2, pic: pic, right: same,
+          options: opts, correct: opts[0].val === same ? 0 : 1,
+          audio: ['g3_c_' + cc.a1 + '_' + cc.a2, 'g3_c_ask']
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* 教学：唤醒 + 3 组复合指令（各 2 演示 + 1 互动）+ 过渡，共 10 环节。
+     RULES §三.10 双倍量 + §三.14 点按推进 + §二.12 四秒小手 + §三.12 模仿型交互 */
+  var runG3Tutorial = (function () {
+    var ACTS = [
+      /* 演示 1：机器人睡着登场，语音里被唤醒 */
+      { t: 'demo', sid: 'wake', word: 'g3_t_robot', sleep: true },
+      /* 演示 2 + 互动 1：先摸头，再拍手 */
+      { t: 'demo', sid: 'd1a', word: 'g3_t_cmd1', a1: 'head', a2: 'clap' },
+      { t: 'ask',  sid: 'a1',  word: 'g3_t_cmd1', a1: 'head', a2: 'clap' },
+      /* 演示 3/4 + 互动 2：先摸鼻子，再跺脚（第二次为分步高亮） */
+      { t: 'demo', sid: 'd2a', word: 'g3_t_cmd2', a1: 'nose', a2: 'stomp' },
+      { t: 'demo', sid: 'd2b', word: 'g3_t_cmd2', a1: 'nose', a2: 'stomp', seq: true },
+      { t: 'ask',  sid: 'a2',  word: 'g3_t_cmd2', a1: 'nose', a2: 'stomp' },
+      /* 演示 5/6 + 互动 3：先闭眼，再跳 */
+      { t: 'demo', sid: 'd3a', word: 'g3_t_cmd3', a1: 'eyes', a2: 'jump' },
+      { t: 'demo', sid: 'd3b', word: 'g3_t_cmd3', a1: 'eyes', a2: 'jump', seq: true },
+      { t: 'ask',  sid: 'a3',  word: 'g3_t_cmd3', a1: 'eyes', a2: 'jump' },
+      /* 过渡：机器人醒了 */
+      { t: 'out',  sid: 'out', word: 'g3_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.askPart = null; me.pick = null; me.waitTap = false;
+      me.canDrag = false; me.customMode = null; me.replay = null; me._advance = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid) {
+      blank(me);
+      ensureG3Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'g3-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', '魔法机器人');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /* 演示步：语音播完定格，必须点屏幕才推进（§三.14；不吞顶栏点击 §三.18） */
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    function robotInto(w, o) {
+      var bot = document.createElement('div');
+      bot.className = 'g3-robot-wrap';
+      bot.setAttribute('aria-hidden', 'true');
+      bot.appendChild(g3RobotSvgEl(o));
+      w.appendChild(bot);
+      return bot;
+    }
+    function playDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var bot = robotInto(w, { a1: act.a1, a2: act.a2, sleep: !!act.sleep, seq: !!act.seq });
+      if (act.sleep) {
+        // 纯装饰：语音播放期间把机器人唤醒（不参与步骤推进，§三.14 只管「不自动前进」）
+        setTimeout(function () {
+          if (state.tut !== me) return;
+          var svg = bot.querySelector('.g3-robot-svg');
+          if (svg) { svg.classList.remove('g3-st-sleep'); }
+        }, 650);
+      }
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        gate(me, next);
+      });
+    }
+    function playAsk(me, act, next) {
+      var w = stage(me, act.sid);
+      robotInto(w, { a1: act.a1, a2: act.a2 });
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'g3-btn off';
+      btn.setAttribute('aria-label', '我做到啦');
+      btn.innerHTML = g3BtnSvg();
+      w.appendChild(btn);
+      me.replay = function () { say([act.word]); };
+      say([act.word, 'g3_t_youdo'], function () {
+        if (state.tut !== me) return;
+        btn.classList.remove('off');
+        me.hintTarget = btn;
+        armHint();
+        btn.addEventListener('click', function () {
+          if (state.tut !== me) return;
+          clearHint(); coin(); ting();
+          btn.classList.add('right');
+          me.replay = function () { say(['g2_t_great']); };
+          say(['g2_t_great'], function () { if (state.tut === me) next(); });
+        });
+      });
+    }
+    function playOut(me, act) {
+      var w = stage(me, act.sid);
+      robotInto(w, { happy: true });
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        tutFinish(me, false);   // 过渡语自带，不叠加 t_ready（§三.10）
+      });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'out') { playOut(me, act); return; }
+      playAsk(me, act, next);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
   var runB4Tutorial = (function () {
@@ -16175,6 +16857,10 @@
     if (q.type === 'G2A') { renderG2A(q); return; }
     if (q.type === 'G2B') { optionsBar.classList.add('gone'); renderG2B(q); return; }
     if (q.type === 'G2C') { optionsBar.classList.add('gone'); renderG2C(q); return; }
+    /* ---- 第 7 岛第 3 关：复合指令（A 机器人+大按钮选项栏收起；B 先/再两框+选项栏图标；C 两画面+选项栏对错） ---- */
+    if (q.type === 'G3A') { optionsBar.classList.add('gone'); renderG3A(q); return; }
+    if (q.type === 'G3B') { renderG3B(q); return; }
+    if (q.type === 'G3C') { renderG3C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -16598,7 +17284,8 @@
       return;
     }
     // 第 7 岛第 1 关 B/C：题目画在中央宫格，选项栏收起
-    if (q.type === 'G1B' || q.type === 'G1C' || q.type === 'G2B' || q.type === 'G2C') {
+    if (q.type === 'G1B' || q.type === 'G1C' || q.type === 'G2B' || q.type === 'G2C' ||
+        q.type === 'G3A') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -16787,6 +17474,10 @@
         // 第 7 岛第 2 关题型 A：可拖到身上的部位零件
         btn.classList.add('g2-opt');
         slot.appendChild(g2PartSvg(opt.part));
+      } else if (opt.kind === 'g3act') {
+        // 第 7 岛第 3 关题型 B：可拖进「先 / 再」框的动作图标
+        btn.classList.add('g3-opt');
+        slot.appendChild(g3ActIconSvg(opt.act));
       } else if (opt.kind === 'f1animal') {
         // 第 4 岛第 1 关题型 C：可拖进农场的动物
         btn.classList.add('f1-opt');
@@ -16938,6 +17629,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'G2A') {
         // 第 7 岛第 2 关题型 A：部位零件可拖到身上
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'G3B') {
+        // 第 7 岛第 3 关题型 B：动作图标可拖进「先 / 再」框
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -17175,7 +17871,7 @@
         // 注意：第 3 岛第 4 / 5 关 A/B 的题目画在中央、不走选项栏，重洗会让 q.options 与 DOM 错位（点对也判错），故跳过。
         var qt = state.question && state.question.type;
         if (qt !== 'B4A' && qt !== 'B4B' && qt !== 'B5A' && qt !== 'B5B' &&
-            qt !== 'G1B' && qt !== 'G1C' && qt !== 'G2B' && qt !== 'G2C') {
+            qt !== 'G1B' && qt !== 'G1C' && qt !== 'G2B' && qt !== 'G2C' && qt !== 'G3A') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -17346,6 +18042,8 @@
         resolveG2A(d.idx, target);
       } else if (d.mode === 'G2T') {
         resolveG2T(d.idx, target);
+      } else if (d.mode === 'G3B') {
+        resolveG3B(d.idx, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -18333,6 +19031,14 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '7-3': {
+      // 复合指令（First... Then...）：魔法机器人 + 两步动作；10 环节（唤醒 + 3 组「2 演示 + 1 互动」+ 过渡）；
+      // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、互动「机器人演示 + 孩子模仿 + 点大按钮」👍 永远判对（§三.12）
+      custom: runG3Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -18586,6 +19292,7 @@
         q.type === 'F14A' || q.type === 'F14C' || q.type === 'F15A' || q.type === 'F15C' ||
         q.type === 'G1A' ||
         q.type === 'G2A' ||
+        q.type === 'G3B' ||
         q.type === 'B4C') return q.type;
     return null;
   }
@@ -18863,6 +19570,12 @@
 
       // 第 7 岛第 1 关题型 A：点器官选中，再点脸投放（拖拽的等价路径）
       if (q.type === 'G1A') {
+        tapFruit(idx, btn);
+        return;
+      }
+
+      // 第 7 岛第 3 关题型 B：点动作图标选中，再点「先 / 再」框投放（拖拽的等价路径）
+      if (q.type === 'G3B') {
         tapFruit(idx, btn);
         return;
       }
@@ -19281,6 +19994,7 @@
             if (o.kind === 'g1face') return 's:' + o.hl;
             if (o.kind === 'g2part') return 'i:' + o.part;
             if (o.kind === 'g2body') return 's:' + o.hl;
+            if (o.kind === 'g3act') return 'i:' + o.act;
             if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
             if (o.shape) return o.shape.id;
@@ -19290,6 +20004,11 @@
           steps: q.steps ? q.steps.map(function (s) { return { item: s.item, target: s.target, place: s.place }; }) : null,
           stepsDone: (typeof q.stepsDone === 'number') ? q.stepsDone : null,
           stepAudios: q.stepAudios || null,
+          g3steps: (q.type === 'G3B' && q.steps) ? q.steps.map(function (s) { return { act: s.act, slot: s.slot }; }) : null,
+          g3a1: q.a1 || null,
+          g3a2: q.a2 || null,
+          g3pic: q.pic ? q.pic.slice() : null,
+          g3right: (typeof q.right === 'boolean') ? q.right : null,
           furns: q.furns ? q.furns.slice() : null,
           weight: q.weight || null,
           ask: q.ask || null,

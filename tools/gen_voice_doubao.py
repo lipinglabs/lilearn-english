@@ -1135,6 +1135,40 @@ add("g2_c_head",  "Find the head. Who is nodding?", "en", -15, EN_ASK)
 add("g2_c_hand",  "Find the hands. Who is clapping?", "en", -15, EN_ASK)
 add("g2_c_foot",  "Find the feet. Who is stomping?", "en", -15, EN_ASK)
 
+# ---- 第 7 岛第 3 关：复合指令（First... Then... Touch your..., then...）----
+# 主题「魔法机器人」：机器人睡着 → 唤醒 → 演示两步复合指令 → 孩子模仿 + 点大按钮确认。
+# 全部 rate -15（≈0.85x）。教学 10 环节：唤醒(演示1) + 头拍手(演示2+互动1) +
+# 鼻跺脚(演示3/4 + 互动2) + 眼跳(演示5/6 + 互动3) + 过渡语；每指令 2 次演示（第二次为分步高亮，视觉不同）。
+# 语音复用（RULES §1.12 同句同 key）：
+#   - 互动成功句复用 g2_t_great（"Great! You did it!"）；
+#   - 答题 B 的 eyes+jump 复用教学 g3_t_cmd3；head+stomp / ears+clap 与答题 A 共用；
+#   - 答题 B 第一步落位后播 then 分句（g3_then_*）。
+# 本批 21 条新生成，已通过 audit 去重自检。
+add("g3_t_robot",   "Look! A magic robot. Let's start it!", "en", -15, EN_ASK)
+add("g3_t_cmd1",    "First, touch your head. Then, clap your hands.", "en", -15, EN_ASK)
+add("g3_t_cmd2",    "First, touch your nose. Then, stomp your feet.", "en", -15, EN_ASK)
+add("g3_t_cmd3",    "First, close your eyes. Then, jump!", "en", -15, EN_ASK)
+add("g3_t_youdo",   "Now you! Do it, then touch the button!", "en", -15, EN_ASK)
+add("g3_t_out",     "Wow! The robot is awake! Let's play!", "en", -12, EN_PRAISE)
+# 答题 A/B 共用指令（A 听指令做两步动作 / B 听指令按顺序拖拽）
+add("g3_cmd_ears_clap",  "First, touch your ears. Then, clap your hands.", "en", -15, EN_ASK)
+add("g3_cmd_head_stomp", "First, touch your head. Then, stomp your feet.", "en", -15, EN_ASK)
+add("g3_cmd_nose_jump",  "First, touch your nose. Then, jump!", "en", -15, EN_ASK)
+add("g3_cmd_eyes_clap",  "First, close your eyes. Then, clap your hands.", "en", -15, EN_ASK)
+add("g3_cmd_nose_clap",  "First, touch your nose. Then, clap your hands.", "en", -15, EN_ASK)
+# 答题 B：第一步落位后口播第二步（then 分句）
+add("g3_then_clap",  "Then, clap your hands!", "en", -15, EN_ASK)
+add("g3_then_stomp", "Then, stomp your feet!", "en", -15, EN_ASK)
+add("g3_then_jump",  "Then, jump!", "en", -15, EN_ASK)
+# 答题 C：听长句找错误（滑稽小人动作做反 / 做对，✅/❌ 判断，答案 50/50 混合防视觉作弊）
+add("g3_c_ask",        "Did he do it right?", "en", -15, EN_ASK)
+add("g3_c_head_nose",  "First, touch your head. Then, touch your nose.", "en", -15, EN_ASK)
+add("g3_c_nose_head",  "First, touch your nose. Then, touch your head.", "en", -15, EN_ASK)
+add("g3_c_ears_nose",  "First, touch your ears. Then, touch your nose.", "en", -15, EN_ASK)
+add("g3_c_nose_ears",  "First, touch your nose. Then, touch your ears.", "en", -15, EN_ASK)
+add("g3_c_head_ears",  "First, touch your head. Then, touch your ears.", "en", -15, EN_ASK)
+add("g3_c_ears_head",  "First, touch your ears. Then, touch your head.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
