@@ -1261,6 +1261,36 @@ add("h1_c_happy", "The girl is happy. Put the happy mouth on the face.", "en", -
 add("h1_c_sad",   "The boy is sad. Put the sad mouth on the face.", "en", -15, EN_ASK)
 add("h1_c_angry", "The girl is angry. Put the angry mouth on the face.", "en", -15, EN_ASK)
 
+# ============================================================
+# 第 8 岛第 2 关（L8-W2：身体感受 Hungry / Thirsty / Sleepy）
+# 教学 13 环节（RULES §三.10 双倍量：3 个感受 × 2 演示 + 2 互动）+ 过渡：
+#   · 演示 1：小人做感受动作 + 语音 + 物品飞过去（播完定格等点按，§三.14）；
+#   · 演示 2：换氛围装饰 + 不同句式；
+#   · 互动 1：二选一送对的东西（4 秒小手 §二.12）；
+#   · 互动 2：三选一找出该感受的小人（点错抖 + again）。
+# 答题 A 复用 h2_t_*_find；B 听音送物品；C 听情景纠错（✅/❌ 复用 yesno）。
+# 本批 17 条新生成（"Find the hungry boy." 复用 l5w4_a、"You are a great helper! Let's play!" 复用 l6w4_t_out，RULES §1.12 同句同 key）。
+# ------------------------------------------------------------
+add("h2_t_hungry1",  "His tummy is rumbling. He is hungry. Give him some bread.", "en", -15, EN_ASK)
+add("h2_t_hungry2",  "Look! He is holding his tummy. He is very hungry. Bread, please!", "en", -15, EN_ASK)
+add("h2_t_hungry_give", "Give the bread to the hungry boy.", "en", -15, EN_ASK)
+add("h2_t_thirsty1", "He is sweating. He is thirsty. Give him some water.", "en", -15, EN_ASK)
+add("h2_t_thirsty2", "Look! He is hot and thirsty. Water, please!", "en", -15, EN_ASK)
+add("h2_t_thirsty_give", "Give the water to the thirsty boy.", "en", -15, EN_ASK)
+add("h2_t_thirsty_find", "Find the thirsty boy.", "en", -15, EN_ASK)
+add("h2_t_sleepy1",  "He is yawning. He is sleepy. Give him a pillow.", "en", -15, EN_ASK)
+add("h2_t_sleepy2",  "Look! His eyes are closing. He is sleepy. Pillow, please!", "en", -15, EN_ASK)
+add("h2_t_sleepy_give", "Give the pillow to the sleepy boy.", "en", -15, EN_ASK)
+add("h2_t_sleepy_find", "Find the sleepy boy.", "en", -15, EN_ASK)
+# 答题 B：听音送物品（中央小人 + 3 件物品）
+add("h2_b_hungry",  "The boy is hungry. Give him the bread.", "en", -15, EN_ASK)
+add("h2_b_thirsty", "The boy is thirsty. Give him the water.", "en", -15, EN_ASK)
+add("h2_b_sleepy",  "The boy is sleepy. Give him the pillow.", "en", -15, EN_ASK)
+# 答题 C：听情景纠错（✅/❌ 判断语音描述是否与画面一致）
+add("h2_c_hungry",  "The boy is hungry. Is he eating bread?", "en", -15, EN_ASK)
+add("h2_c_thirsty", "The boy is thirsty. Is he drinking water?", "en", -15, EN_ASK)
+add("h2_c_sleepy",  "The boy is sleepy. Is he holding a pillow?", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

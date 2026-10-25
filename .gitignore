@@ -115,6 +115,8 @@ apply_*.py
 # 探针截图与输出（不入库）
 h1-*.png
 h1l-*.png
+h2-*.png
+h2l-*.png
 g2-*.png
 g2l-*.png
 g3-*.png
