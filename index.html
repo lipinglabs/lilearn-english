@@ -3871,7 +3871,8 @@
     '7-5': { numbers: null, make: 'makeG5', title: '第 5 关', tutorial: true },
     '8-1': { numbers: null, make: 'makeH1', title: '第 1 关', tutorial: true },
     '8-2': { numbers: null, make: 'makeH2', title: '第 2 关', tutorial: true },
-    '8-3': { numbers: null, make: 'makeH3', title: '第 3 关', tutorial: true }
+    '8-3': { numbers: null, make: 'makeH3', title: '第 3 关', tutorial: true },
+    '8-4': { numbers: null, make: 'makeH4', title: '第 4 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4084,6 +4085,7 @@
     if (def && def.make === 'makeH1') return makeQuestionH1(typeIdx, prev);
     if (def && def.make === 'makeH2') return makeQuestionH2(typeIdx, prev);
     if (def && def.make === 'makeH3') return makeQuestionH3(typeIdx, prev);
+    if (def && def.make === 'makeH4') return makeQuestionH4(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -19645,6 +19647,679 @@
   })();
 
 
+  /* ============================================================
+     第 8 岛第 4 关（L8-W4：综合感知 · 表情变变变）
+     概念：因果 → 情绪（冰淇淋掉了 → 难过；玩具被抢 → 生气），并学会用物品/动作安抚。
+     教学 9 环节（RULES §三.10 双倍量：2 个情境故事 × 2 演示 + 2 互动 + 过渡）：
+       · 演示 1：开心 → 事件（掉落/被抢）→ 变脸（播完定格等点按，§三.14）；
+       · 演示 2：结果特写 + 不同句式；
+       · 互动 1：给物品（二选一，点对飞到小人身上、变开心）；互动 2：三选一「找出这个情绪的脸」；
+       · 故事 2 互动 1：听指令做生气表情（巨大👍确认，§三.12 永远判对）；互动 2：找生气脸。
+     答题 12 轮（4/4/4，选项每局洗牌 §二.9）：
+       A 听音找情景（3 幅情景卡点目标，voice 描述事件+情绪）/
+       B 听因果选表情（中央「无表情」情景 + 选项栏 3 张情绪脸）/；
+       C TPR 情绪大爆发（中央难过小人 + 巨大👍，永远判对 §三.12）。
+     规则：无英文字母外显、答对只音效+星星（禁人声 §1.6）、答错 again+四秒小手、
+           点击热区比视觉大一圈（§三.15）、零生图零 emoji（§二.17 全部手写 SVG）、
+           定格不吞顶栏点击（§三.18）、跨关组件不依赖别关样式（§三.17）。
+     ============================================================ */
+
+  var H4_INK = '#5a4a42';
+  var H4_SKIN = '#ffddc4', H4_SKIN_S = '#e8b895';
+  var H4_BODY = '#8fd3b0', H4_BODY_S = '#5faa86';
+  var H4_HAIR = '#5a3d2b';
+  var H4_EMO = ['happy', 'sad', 'angry', 'sleepy'];
+  var H4_A_SITS = ['ice_fall', 'eat_apple', 'play_toy', 'toy_gone'];
+  var H4_EMO_OF = { ice_fall: 'sad', eat_apple: 'happy', play_toy: 'happy', toy_gone: 'angry', sleep_bed: 'sleepy' };
+  var H4_A_KEY = { ice_fall: 'h4_a_ice', eat_apple: 'h4_a_apple', play_toy: 'h4_a_play', toy_gone: 'h4_a_gone' };
+  var H4_B_CAUSES = [
+    { sit: 'ice_fall',  emo: 'sad',    key: 'h4_b_sad' },
+    { sit: 'toy_gone',  emo: 'angry',  key: 'h4_b_angry' },
+    { sit: 'sleep_bed', emo: 'sleepy', key: 'h4_b_sleepy' },
+    { sit: 'eat_apple', emo: 'happy',  key: 'h4_b_happy' }
+  ];
+
+  /* ---- 婴儿/小人脸（happy/sad/angry/sleepy/neutral） ---- */
+  function h4Face(emo) {
+    var ink = H4_INK;
+    if (emo === 'happy') {
+      return '<path d="M46 42 q6 -7 12 0" fill="none" stroke="' + ink + '" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M62 42 q6 -7 12 0" fill="none" stroke="' + ink + '" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M48 58 q12 12 24 0" fill="none" stroke="' + ink + '" stroke-width="3.4" stroke-linecap="round"/>' +
+        '<circle cx="38" cy="56" r="5" fill="#ffb9b9" opacity=".6"/>' +
+        '<circle cx="82" cy="56" r="5" fill="#ffb9b9" opacity=".6"/>';
+    }
+    if (emo === 'sad') {
+      return '<path d="M44 34 L56 29" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M76 34 L64 29" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M46 46 q6 7 12 0" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M62 46 q6 7 12 0" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path class="h4-tear" d="M48 52 c-2.6 3.8 -2.2 6.6 0 7.6 c2.2 -1 2.6 -3.8 0 -7.6 z" fill="#8ecae6" stroke="#5a9ec9" stroke-width="1.8"/>' +
+        '<path d="M48 64 q12 -10 24 0" fill="none" stroke="' + ink + '" stroke-width="3.4" stroke-linecap="round"/>' +
+        '<circle cx="38" cy="60" r="4.4" fill="#ffb9b9" opacity=".5"/>';
+    }
+    if (emo === 'angry') {
+      return '<path d="M44 30 L58 36" fill="none" stroke="' + ink + '" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M76 30 L62 36" fill="none" stroke="' + ink + '" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M46 44 q6 4 12 0" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M62 44 q6 4 12 0" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M49 60 q11 13 22 0 q-11 -6 -22 0 z" fill="#c94a48" stroke="#a83a3e" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<path class="h4-steam" d="M84 20 q6 -8 2 -14 M92 22 q7 -9 3 -16" fill="none" stroke="#e8a0a0" stroke-width="2.6" stroke-linecap="round"/>';
+    }
+    if (emo === 'sleepy') {
+      return '<path d="M46 46 q6 7 12 0" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M62 46 q6 7 12 0" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<ellipse cx="60" cy="62" rx="7" ry="9" fill="#c94a48" stroke="#a83a3e" stroke-width="2.4"/>' +
+        '<ellipse cx="60" cy="66" rx="4" ry="3" fill="#ff8fa3"/>' +
+        '<path class="h4-zzz" d="M88 20 h10 l-10 9 h10" fill="none" stroke="#8fb8e0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<path class="h4-zzz z2" d="M96 6 h7 l-7 6 h7" fill="none" stroke="#8fb8e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
+    }
+    /* neutral：无表情（答题 B 的情景用） */
+    return '<circle cx="50" cy="44" r="4.6" fill="' + ink + '"/>' +
+      '<circle cx="70" cy="44" r="4.6" fill="' + ink + '"/>' +
+      '<path d="M52 62 h16" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>';
+  }
+
+  /* 头（120 坐标系里 cx=60 cy=48 r=30）：脸卡与小人共用 */
+  function h4HeadMarkup(emo) {
+    return '<circle cx="30" cy="48" r="5" fill="' + H4_SKIN + '" stroke="' + H4_SKIN_S + '" stroke-width="2.4"/>' +
+      '<circle cx="90" cy="48" r="5" fill="' + H4_SKIN + '" stroke="' + H4_SKIN_S + '" stroke-width="2.4"/>' +
+      '<circle cx="60" cy="48" r="30" fill="' + H4_SKIN + '" stroke="' + H4_SKIN_S + '" stroke-width="3.2"/>' +
+      '<path d="M32 46 A30 30 0 0 1 88 46 Q74 34 60 34 Q46 34 32 46 Z" fill="' + H4_HAIR + '"/>' +
+      h4Face(emo);
+  }
+
+  function h4Arms(emo) {
+    var sk = H4_SKIN, sks = H4_SKIN_S;
+    if (emo === 'happy') {
+      /* 右手抬起（拿东西），左手垂下 */
+      return '<path d="M42 100 Q32 114 34 124" fill="none" stroke="' + sk + '" stroke-width="9" stroke-linecap="round"/>' +
+        '<circle cx="34" cy="126" r="6" fill="' + sk + '" stroke="' + sks + '" stroke-width="2.4"/>' +
+        '<path d="M78 100 Q92 86 86 68" fill="none" stroke="' + sk + '" stroke-width="9" stroke-linecap="round"/>' +
+        '<circle cx="86" cy="66" r="6" fill="' + sk + '" stroke="' + sks + '" stroke-width="2.4"/>';
+    }
+    /* 其他：双手垂下 */
+    return '<path d="M42 100 Q32 114 34 124" fill="none" stroke="' + sk + '" stroke-width="9" stroke-linecap="round"/>' +
+      '<circle cx="34" cy="126" r="6" fill="' + sk + '" stroke="' + sks + '" stroke-width="2.4"/>' +
+      '<path d="M78 100 Q88 114 86 124" fill="none" stroke="' + sk + '" stroke-width="9" stroke-linecap="round"/>' +
+      '<circle cx="86" cy="126" r="6" fill="' + sk + '" stroke="' + sks + '" stroke-width="2.4"/>';
+  }
+
+  /* ---- 手写 SVG：物品（冰淇淋 / 苹果 / 玩具积木 / 石头），viewBox 0 0 100 100 ---- */
+  function h4ItemInner(item) {
+    if (item === 'ice') {
+      return '<path d="M36 48 l14 40 l14 -40 z" fill="#e0a96d" stroke="#c08d5b" stroke-width="3" stroke-linejoin="round"/>' +
+        '<path d="M40 58 l10 26 M60 58 l-10 26" fill="none" stroke="#c08d5b" stroke-width="2" opacity=".6"/>' +
+        '<circle cx="50" cy="38" r="17" fill="#ffd9e0" stroke="#e8a0b0" stroke-width="3"/>' +
+        '<circle cx="50" cy="24" r="11" fill="#fff3d6" stroke="#e0c9a0" stroke-width="2.6"/>' +
+        '<circle cx="44" cy="34" r="2.4" fill="#e86a8a" opacity=".6"/>';
+    }
+    if (item === 'apple') {
+      return '<circle cx="50" cy="56" r="24" fill="#e85555" stroke="#c23a3a" stroke-width="3"/>' +
+        '<ellipse cx="41" cy="48" rx="6" ry="8" fill="#ffffff" opacity=".35"/>' +
+        '<path d="M50 34 q0 -8 6 -12" fill="none" stroke="#7a5230" stroke-width="3.4" stroke-linecap="round"/>' +
+        '<path d="M56 26 q10 -6 14 2 q-10 4 -14 -2 z" fill="#5fa84a" stroke="#4a8a3a" stroke-width="2.2" stroke-linejoin="round"/>';
+    }
+    if (item === 'toy') {
+      return '<rect x="24" y="42" width="52" height="46" rx="9" fill="#9fd0f5" stroke="#6fa8d8" stroke-width="3"/>' +
+        '<path d="M50 52 l5.4 11.4 12.6 1.4 -9.4 8.6 2.6 12.4 -11.2 -6.2 -11.2 6.2 2.6 -12.4 -9.4 -8.6 12.6 -1.4 z" fill="#ffd66b" stroke="#e0a93b" stroke-width="2" stroke-linejoin="round"/>';
+    }
+    /* rock */
+    return '<path d="M22 64 q-5 -22 16 -30 q18 -8 32 4 q12 10 6 26 q-4 14 -26 14 q-24 0 -28 -14 z" fill="#b9b9c2" stroke="#93939e" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M34 50 q10 -6 20 0" fill="none" stroke="#93939e" stroke-width="2.4" opacity=".7" stroke-linecap="round"/>';
+  }
+
+  function h4PropMarkup(prop) {
+    if (!prop) return '';
+    return '<g transform="translate(84 46) scale(0.34)">' + h4ItemInner(prop) + '</g>';
+  }
+
+  /** 完整小人（viewBox 0 0 120 160），emo + 手持道具 */
+  function h4KidInner(emo, prop) {
+    var shadow = '<ellipse cx="60" cy="156" rx="32" ry="5" fill="#d8b08c" opacity=".22"/>';
+    var legs = '<rect x="50" y="132" width="9" height="16" rx="4.5" fill="#6b7ea8"/>' +
+      '<rect x="61" y="132" width="9" height="16" rx="4.5" fill="#6b7ea8"/>' +
+      '<ellipse cx="54" cy="150" rx="7" ry="3.4" fill="#8a6142"/>' +
+      '<ellipse cx="66" cy="150" rx="7" ry="3.4" fill="#8a6142"/>';
+    var body = '<path d="M41 132 L41 96 Q41 80 60 80 Q79 80 79 96 L79 132 Q79 138 71 138 H49 Q41 138 41 132 Z" fill="' + H4_BODY + '" stroke="' + H4_BODY_S + '" stroke-width="3"/>';
+    return shadow + legs + body + h4Arms(emo) + h4HeadMarkup(emo) + h4PropMarkup(prop);
+  }
+
+  function h4KidSvg(emo, prop) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 120 160');
+    s.setAttribute('class', 'h4-kid-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = h4KidInner(emo, prop);
+    return s;
+  }
+
+  /** 脸卡（只取头部，viewBox 20 8 84 84） */
+  function h4FaceSvg(emo) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '20 8 84 84');
+    s.setAttribute('class', 'h4-face-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = h4HeadMarkup(emo);
+    return s;
+  }
+
+  function h4SvgOf(inner, cls) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 130 160');
+    s.setAttribute('class', cls || 'h4-scene-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = inner;
+    return s;
+  }
+
+  /* ---- 情景（viewBox 0 0 130 160）：ice_fall / eat_apple / play_toy / toy_gone / sleep_bed ---- */
+  function h4BedInner() {
+    return '<ellipse cx="65" cy="150" rx="52" ry="5" fill="#d8b08c" opacity=".2"/>' +
+      '<rect x="16" y="92" width="100" height="40" rx="8" fill="#c98f57" stroke="#a8743f" stroke-width="3"/>' +
+      '<rect x="12" y="66" width="12" height="72" rx="6" fill="#b07a45" stroke="#96633a" stroke-width="2.4"/>' +
+      '<rect x="108" y="80" width="12" height="58" rx="6" fill="#b07a45" stroke="#96633a" stroke-width="2.4"/>' +
+      '<rect x="26" y="80" width="40" height="22" rx="10" fill="#eaf2ff" stroke="#b9c9dd" stroke-width="2.6"/>' +
+      '<circle cx="48" cy="80" r="18" fill="' + H4_SKIN + '" stroke="' + H4_SKIN_S + '" stroke-width="2.8"/>' +
+      '<path d="M34 76 q5 4 10 0" fill="none" stroke="' + H4_INK + '" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<path d="M54 76 q5 4 10 0" fill="none" stroke="' + H4_INK + '" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<path d="M44 86 q4 3 8 0" fill="none" stroke="' + H4_INK + '" stroke-width="2" stroke-linecap="round"/>' +
+      '<path d="M66 100 q26 -6 44 0 v30 H66 z" fill="#7fb8d8" stroke="#5f9cc0" stroke-width="3"/>' +
+      '<path class="h4-zzz" d="M92 40 h10 l-10 9 h10" fill="none" stroke="#8fb8e0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path class="h4-zzz z2" d="M100 24 h7 l-7 6 h7" fill="none" stroke="#8fb8e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+
+  function h4SceneInner(sit, neutral) {
+    if (sit === 'sleep_bed') return h4BedInner();
+    var emo = neutral ? 'neutral' : H4_EMO_OF[sit];
+    var prop = sit === 'eat_apple' ? 'apple' : (sit === 'play_toy' ? 'toy' : '');
+    var kid = h4KidInner(emo, prop);
+    var extra = '';
+    if (sit === 'ice_fall') {
+      extra = '<g transform="translate(86 118) scale(0.34)">' + h4ItemInner('ice') + '</g>' +
+        '<path class="h4-fall" d="M78 104 q7 8 5 18 M96 102 q8 9 6 20" fill="none" stroke="#e8b54a" stroke-width="2.6" stroke-linecap="round" opacity=".85"/>';
+    } else if (sit === 'toy_gone') {
+      extra = '<g transform="translate(94 120) scale(0.3)">' + h4ItemInner('toy') + '</g>' +
+        '<circle cx="82" cy="112" r="3.2" fill="#c94a48" opacity=".55"/>' +
+        '<path d="M72 100 q8 6 6 16" fill="none" stroke="#c94a48" stroke-width="2.4" stroke-linecap="round" opacity=".6"/>';
+    }
+    return kid + extra;
+  }
+
+  function h4SceneSvg(sit, neutral, cls) {
+    return h4SvgOf(h4SceneInner(sit, neutral), cls);
+  }
+
+  /** 演示 1 的「事件前」画面：开心 + 手持道具 */
+  function h4BeforeInner(sit) {
+    return h4KidInner('happy', sit === 'ice_fall' ? 'ice' : 'toy');
+  }
+
+  /* ---- 巨大👍按钮（§三.12） ---- */
+  function h4ThumbSvg() {
+    return '<svg viewBox="0 0 100 100" class="h4-thumb-svg" aria-hidden="true">' +
+      '<rect x="39" y="12" width="17" height="40" rx="8.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="17" y="45" width="48" height="35" rx="13.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="22" y="75" width="39" height="13" rx="6.5" fill="#7fb3d5" stroke="#4f9fd6" stroke-width="3"/>' +
+      '</svg>';
+  }
+
+  function ensureH4Css() {
+    if (document.getElementById('h4-style')) return;
+    var s = document.createElement('style');
+    s.id = 'h4-style';
+    s.textContent =
+      '.h4-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'width:100%;gap:1.6vh;padding-bottom:6vh;box-sizing:border-box}' +
+      '.h4-bstage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'width:100%;gap:1.6vh;padding-bottom:6vh;box-sizing:border-box}' +
+      /* 情景卡 */
+      '.h4-scene-card{position:relative;width:min(60vw,240px);aspect-ratio:130/160;background:rgba(255,255,255,.75);' +
+      'border:3px solid #ffd9a0;border-radius:24px;padding:5%;box-sizing:border-box;display:flex;' +
+      'align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(214,164,110,.18)}' +
+      '.h4-scene-card.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.h4-scene-card svg{width:100%;height:100%;display:block}' +
+      '.h4-scene-grid{display:flex;gap:min(3vw,12px);justify-content:center;align-items:center;width:100%;margin:1vh auto}' +
+      '.h4-scene-grid .h4-scene-card{width:min(27vw,124px);padding:4%;border-radius:20px}' +
+      '.h4-scene-grid .h4-scene-card.wrong{animation:h4shake .5s;border-color:#f0a0a0}' +
+      /* 脸卡（教学找脸 / 答题 B 选项栏） */
+      '.h4-face-grid{display:flex;gap:min(3.4vw,14px);justify-content:center;align-items:center;width:100%;margin:1vh auto}' +
+      '.h4-face-card{position:relative;width:min(26vw,116px);aspect-ratio:1/1;background:rgba(255,255,255,.82);' +
+      'border:3px solid #ffd9a0;border-radius:20px;padding:6%;cursor:pointer;display:block;' +
+      'box-sizing:border-box;box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease}' +
+      '.h4-face-card:active{transform:scale(.96)}' +
+      '.h4-face-card svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.h4-face-card.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.h4-face-card.wrong{animation:h4shake .5s;border-color:#f0a0a0}' +
+      '.h4-face-card.h4-glow{animation:h4glow 1.1s ease-in-out infinite}' +
+      /* 给物品（教学互动 1） */
+      '.h4-items{display:flex;gap:min(4vw,18px);justify-content:center;align-items:center;width:100%;margin:1vh auto}' +
+      '.h4-item{position:relative;width:min(25vw,116px);aspect-ratio:1/1;background:rgba(255,255,255,.82);' +
+      'border:3px solid #ffd9a0;border-radius:20px;padding:9%;cursor:pointer;display:block;' +
+      'box-sizing:border-box;box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease}' +
+      '.h4-item:active{transform:scale(.96)}' +
+      '.h4-item svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.h4-item.right{border-color:#7FD18A;background:#eafaf0}' +
+      '.h4-item.wrong{animation:h4shake .5s;border-color:#f0a0a0}' +
+      '.h4-item.h4-glow{animation:h4glow 1.1s ease-in-out infinite}' +
+      /* 巨大👍 */
+      '.h4-thumb{display:flex;align-items:center;justify-content:center;width:min(52vw,240px);aspect-ratio:1/1;' +
+      'background:rgba(255,255,255,.82);border:4px solid #ffd66b;border-radius:34px;' +
+      'box-shadow:0 10px 22px rgba(224,169,59,.3);cursor:pointer;transition:transform .15s ease;' +
+      'animation:h4thump 1.5s ease-in-out infinite}' +
+      '.h4-thumb:active{transform:scale(.95)}' +
+      '.h4-thumb.right{box-shadow:0 0 0 5px rgba(127,209,138,.55)}' +
+      '.h4-thumb-svg{width:60%;height:60%;display:block}' +
+      '@keyframes h4thump{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}' +
+      /* 选项栏里的情绪脸 */
+      '.option.h4-opt .slot{padding:8%}' +
+      '.option.h4-opt .slot svg{width:92%;max-width:118px;height:auto;display:block;' +
+      'filter:drop-shadow(0 4px 6px rgba(150,90,40,.24))}' +
+      /* 装饰 */
+      '.h4-tear{animation:h4fade 1.3s ease-in-out infinite}' +
+      '.h4-zzz{animation:h4fade 1.7s ease-in-out infinite}' +
+      '.h4-zzz.z2{animation-delay:.5s}' +
+      '.h4-steam{animation:h4steam .7s ease-in-out infinite}' +
+      '.h4-fall{animation:h4fall .9s ease-in-out infinite}' +
+      '@keyframes h4pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}' +
+      '@keyframes h4shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      '@keyframes h4glow{0%,100%{filter:drop-shadow(0 0 3px rgba(255,205,110,.5))}' +
+      '50%{filter:drop-shadow(0 0 14px rgba(255,190,80,.95))}}' +
+      '@keyframes h4fade{0%,100%{opacity:.3}50%{opacity:1}}' +
+      '@keyframes h4steam{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:.95;transform:translateY(-3px)}}' +
+      '@keyframes h4fall{0%,100%{opacity:.25}50%{opacity:.95}}' +
+      '@keyframes h4fly{0%{opacity:0;transform:translate(60px,26px) scale(.5)}' +
+      '70%{opacity:1;transform:translate(0,0) scale(1.1)}100%{transform:translate(0,0) scale(1)}}' +
+      '.h4-gift{position:absolute;right:6%;bottom:8%;width:min(22vw,86px);aspect-ratio:1/1;animation:h4fly .8s cubic-bezier(.2,1.4,.5,1) both}' +
+      '.h4-gift svg{width:100%;height:100%;display:block}' +
+      /* 横屏矮屏：所有可点目标必须留在视口内（§三.15） */
+      '@media (max-height:560px){' +
+      '.h4-stage,.h4-bstage{gap:.6vh;padding-bottom:1.5vh}' +
+      '.h4-scene-card{width:min(28vw,132px)}' +
+      '.h4-scene-grid .h4-scene-card{width:min(17vw,96px)}' +
+      '.h4-scene-grid{margin:.3vh auto}' +
+      '.h4-face-grid{margin:.3vh auto}' +
+      '.h4-face-card{width:min(15vw,88px)}' +
+      '.h4-items{margin:.3vh auto}' +
+      '.h4-item{width:min(15vw,88px)}' +
+      '.h4-thumb{width:min(24vw,110px);border-radius:26px}' +
+      '.h4-gift{width:min(13vw,56px)}}';
+    document.head.appendChild(s);
+  }
+
+  /* ---------------- 出题：A 听音找情景 / B 听因果选表情 / C TPR 拥抱 ---------------- */
+  function makeQuestionH4(type, prev) {
+    ensureH4Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：3 幅情景（目标 + 2 干扰），听 voice 描述事件点目标画面 */
+        var target = pick(H4_A_SITS);
+        var others = H4_A_SITS.filter(function (s) { return s !== target; });
+        shuffle(others);
+        var sits = shuffle([target, others[0], others[1]]);
+        q = {
+          type: 'H4A', sig: 'A:' + target + ':' + sits.join(','), sitTarget: target, sits: sits,
+          answer: sits.indexOf(target), correct: sits.indexOf(target),
+          options: [], audio: [H4_A_KEY[target]]
+        };
+      } else if (type === 1) {
+        /* B：中央「无表情」情景 + 3 张情绪脸，听因果选对的脸 */
+        var cause = H4_B_CAUSES[randInt(0, H4_B_CAUSES.length - 1)];
+        var emo = cause.emo;
+        var pool = H4_EMO.filter(function (e) { return e !== emo; });
+        shuffle(pool);
+        var faces = shuffle([emo, pool[0], pool[1]]);
+        q = {
+          type: 'H4B', sig: 'B:' + cause.sit + ':' + emo + ':' + faces.join(','),
+          sit: cause.sit, emo: emo, faces: faces,
+          options: faces.map(function (f) { return { kind: 'h4face', emo: f }; }),
+          answer: faces.indexOf(emo), correct: faces.indexOf(emo),
+          audio: [cause.key]
+        };
+      } else {
+        /* C：TPR 情绪大爆发（巨大👍，永远判对 §三.12） */
+        state.h4cFlip = !state.h4cFlip;
+        var hkey = state.h4cFlip ? 'h4_c_hug' : 'h4_c_hug2';
+        q = {
+          type: 'H4C', sig: 'C:' + hkey, emo: 'sad',
+          options: [], correct: 0, audio: [hkey]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：3 幅情景卡，点目标（画在中央，选项栏收起） */
+  function renderH4A(q) {
+    ensureH4Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'h4-scene-grid';
+    grid.dataset.n = '3';
+    grid.setAttribute('aria-label', '情景');
+    q.sits.forEach(function (sit, i) {
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'h4-scene-card';
+      card.dataset.idx = String(i);
+      card.dataset.sit = sit;
+      card.setAttribute('aria-label', '情景');
+      card.appendChild(h4SceneSvg(sit));
+      card.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, card);
+      });
+      grid.appendChild(card);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 B：中央「无表情」情景 + 选项栏 3 张情绪脸 */
+  function renderH4B(q) {
+    ensureH4Css();
+    askDisplay.innerHTML = '';
+    var card = document.createElement('div');
+    card.className = 'h4-scene-card';
+    card.id = 'h4-bscene';
+    card.setAttribute('aria-label', '情景');
+    card.appendChild(h4SceneSvg(q.sit, true));
+    askDisplay.appendChild(card);
+  }
+
+  /** 题型 C：中央难过小人 + 巨大👍（TPR，永远判对） */
+  function renderH4C(q) {
+    ensureH4Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'h4-bstage';
+    w.setAttribute('aria-label', '小朋友');
+    var kid = document.createElement('div');
+    kid.className = 'h4-scene-card h4-kidcard';
+    kid.setAttribute('aria-label', '小朋友');
+    kid.appendChild(h4SvgOf(h4KidInner('sad', '')));
+    w.appendChild(kid);
+    var thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'h4-thumb';
+    thumb.setAttribute('aria-label', '我做到啦');
+    thumb.innerHTML = h4ThumbSvg();
+    thumb.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      judge(true, thumb);
+    });
+    w.appendChild(thumb);
+    askDisplay.appendChild(w);
+  }
+
+  /* 教学：9 环节（2 个情境故事 × 2 演示 + 2 互动 + 过渡）。
+     §三.10 双倍量 + §三.14 点按推进 + §二.12 四秒小手 + §三.12 生气脸👍永远判对。 */
+  var runH4Tutorial = (function () {
+    var ACTS = [
+      /* 冰淇淋掉了 → 难过 */
+      { t: 'demo',  sid: 'ice1',     word: 'h4_t_ice1',     sit: 'ice_fall',  emo: 'sad' },
+      { t: 'demo',  sid: 'ice2',     word: 'h4_t_ice2',     sit: 'ice_fall',  emo: 'sad', closeup: true },
+      { t: 'give',  sid: 'iceGive',  word: 'h4_t_ice_give', target: 'ice',    items: ['ice', 'rock'], giver: 'sad' },
+      { t: 'find',  sid: 'iceFind',  word: 'h4_t_ice_find', emo: 'sad' },
+      /* 玩具被抢 → 生气 */
+      { t: 'demo',  sid: 'toy1',     word: 'h4_t_toy1',     sit: 'toy_gone',  emo: 'angry' },
+      { t: 'demo',  sid: 'toy2',     word: 'h4_t_toy2',     sit: 'toy_gone',  emo: 'angry', closeup: true },
+      { t: 'mimic', sid: 'toyMimic', word: 'h1_t_angry_ask', emo: 'angry' },
+      { t: 'find',  sid: 'toyFind',  word: 'h4_t_toy_find', emo: 'angry' },
+      /* 过渡 */
+      { t: 'out',   sid: 'out',      word: 'h4_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null; me._advance = null;
+      me.canDrag = false; me.customMode = null;
+      me.giveOn = false; me.findOn = false; me.askLock = false;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid) {
+      blank(me);
+      ensureH4Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'h4-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', '情景');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /* 演示定格：等用户点屏幕任意位置才 next()（禁止定时器自动前进；不吞顶栏点击 §三.18） */
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示 1：事件前（开心）→ 事件后（变脸）→ 定格；演示 2 = 结果特写 */
+    function playDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var card = document.createElement('div');
+      card.className = 'h4-scene-card';
+      card.setAttribute('aria-label', '情景');
+      card.appendChild(h4SvgOf(h4BeforeInner(act.sit)));
+      w.appendChild(card);
+      var shown = false;
+      var showAfter = function () {
+        if (shown || state.tut !== me) return;
+        shown = true;
+        card.innerHTML = '';
+        card.appendChild(h4SceneSvg(act.sit));
+        if (act.closeup) card.classList.add('h4-right');
+      };
+      me.replay = function () { say([act.word]); };
+      setTimeout(showAfter, 850);
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        showAfter();
+        gate(me, next);
+      });
+    }
+    /* 互动 1：给物品（点对物品飞到小人身上、变开心） */
+    function playGive(me, act, next) {
+      var w = stage(me, act.sid);
+      var card = document.createElement('div');
+      card.className = 'h4-scene-card h4-kidcard';
+      card.setAttribute('aria-label', '小朋友');
+      card.appendChild(h4SvgOf(h4KidInner(act.giver || 'sad', '')));
+      w.appendChild(card);
+      var line = document.createElement('div');
+      line.className = 'h4-items';
+      line.setAttribute('aria-label', '东西');
+      var ansEl = null;
+      act.items.forEach(function (it) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'h4-item';
+        btn.dataset.item = it;
+        btn.setAttribute('aria-label', '东西');
+        btn.appendChild(h4ItemSvgEl(it));
+        btn.addEventListener('click', function () {
+          if (state.tut !== me || !me.giveOn) return;
+          if (it === act.target) {
+            me.giveOn = false;
+            clearHint(); coin(); ting();
+            btn.classList.add('right');
+            card.innerHTML = '';
+            card.appendChild(h4SvgOf(h4KidInner('happy', act.target)));
+            card.classList.add('h4-right');
+            setTimeout(function () { if (state.tut === me) next(); }, 900);
+          } else {
+            btn.classList.add('wrong');
+            setTimeout(function () { btn.classList.remove('wrong'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+        if (it === act.target) ansEl = btn;
+        line.appendChild(btn);
+      });
+      w.appendChild(line);
+      me.giveOn = false;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.giveOn = true;
+        me.hintTarget = ansEl;
+        armHint();
+      });
+    }
+    /* 互动 2：三选一「找出这个情绪的脸」 */
+    function playFind(me, act, next) {
+      var w = stage(me, act.sid);
+      var grid = document.createElement('div');
+      grid.className = 'h4-face-grid';
+      grid.dataset.n = '3';
+      grid.setAttribute('aria-label', '表情');
+      var pool = H4_EMO.filter(function (e) { return e !== act.emo; });
+      shuffle(pool);
+      var faces = shuffle([act.emo, pool[0], pool[1]]);
+      faces.forEach(function (emo, i) {
+        var card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'h4-face-card';
+        card.dataset.idx = String(i);
+        card.dataset.emo = emo;
+        card.setAttribute('aria-label', '表情');
+        card.appendChild(h4FaceSvg(emo));
+        card.addEventListener('click', function () {
+          if (state.tut !== me || !me.findOn) return;
+          if (emo === act.emo) {
+            me.findOn = false;
+            clearHint(); coin(); ting();
+            card.classList.add('right');
+            setTimeout(function () { if (state.tut === me) next(); }, 900);
+          } else {
+            card.classList.add('wrong');
+            setTimeout(function () { card.classList.remove('wrong'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+        grid.appendChild(card);
+      });
+      w.appendChild(grid);
+      me.findOn = false;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.findOn = true;
+        var ansCard = grid.querySelector('[data-emo="' + act.emo + '"]');
+        me.hintTarget = ansCard;
+        armHint();
+      });
+    }
+    /* 互动 3：听指令做生气表情（巨大👍确认，§三.12 永远判对） */
+    function playMimic(me, act, next) {
+      var w = stage(me, act.sid);
+      var card = document.createElement('div');
+      card.className = 'h4-scene-card h4-kidcard';
+      card.setAttribute('aria-label', '小朋友');
+      card.appendChild(h4SvgOf(h4KidInner(act.emo || 'angry', '')));
+      w.appendChild(card);
+      var thumb = document.createElement('button');
+      thumb.type = 'button';
+      thumb.className = 'h4-thumb';
+      thumb.setAttribute('aria-label', '我做到啦');
+      thumb.innerHTML = h4ThumbSvg();
+      w.appendChild(thumb);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.findOn = true;
+        me.hintTarget = thumb;
+        armHint();
+        thumb.addEventListener('click', function () {
+          if (state.tut !== me || me.askLock) return;
+          me.askLock = true;
+          clearHint(); coin(); ting();
+          thumb.classList.add('right');
+          me.replay = function () { say(['g2_t_great']); };
+          say(['g2_t_great'], function () {
+            if (state.tut !== me) return;
+            me.askLock = false;
+            next();
+          });
+        });
+      });
+    }
+    /* 过渡：三张开心/难过/生气脸一起发光 → "You know how they feel! Let's play!" → 答题 */
+    function playOut(me, act) {
+      var w = stage(me, act.sid);
+      var grid = document.createElement('div');
+      grid.className = 'h4-face-grid';
+      grid.setAttribute('aria-label', '表情');
+      ['happy', 'sad', 'angry'].forEach(function (emo) {
+        var card = document.createElement('div');
+        card.className = 'h4-face-card h4-glow';
+        card.setAttribute('aria-hidden', 'true');
+        card.appendChild(h4FaceSvg(emo));
+        grid.appendChild(card);
+      });
+      w.appendChild(grid);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        tutFinish(me, false);
+      });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'out') { playOut(me, act); return; }
+      if (act.t === 'give') { playGive(me, act, next); return; }
+      if (act.t === 'mimic') { playMimic(me, act, next); return; }
+      playFind(me, act, next);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
+  /* 物品 svg 包装（教学互动 1 的选项） */
+  function h4ItemSvgEl(item) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 100 100');
+    s.setAttribute('class', 'h4-item-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = h4ItemInner(item);
+    return s;
+  }
+
+
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
   var runB4Tutorial = (function () {
@@ -19941,6 +20616,10 @@
     if (q.type === 'H3A') { renderH3A(q); return; }
     if (q.type === 'H3B') { optionsBar.classList.add('gone'); renderH3B(q); return; }
     if (q.type === 'H3C') { renderH3C(q); return; }
+    /* ---- 第 8 岛第 4 关：综合感知（A 3 情景卡；B 中央情景 + 选项栏情绪脸；C 中央小人 + 👍） ---- */
+    if (q.type === 'H4A') { optionsBar.classList.add('gone'); renderH4A(q); return; }
+    if (q.type === 'H4B') { renderH4B(q); return; }
+    if (q.type === 'H4C') { optionsBar.classList.add('gone'); renderH4C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -20368,7 +21047,7 @@
         q.type === 'G3A' || q.type === 'G4A' || q.type === 'G4B' || q.type === 'G4C' ||
         q.type === 'G5A' || q.type === 'G5B' || q.type === 'G5C' ||
         q.type === 'H1A' || q.type === 'H1B' || q.type === 'H2A' ||
-        q.type === 'H3B') {
+        q.type === 'H3B' || q.type === 'H4A' || q.type === 'H4C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -20655,6 +21334,10 @@
         // 第 8 岛第 3 关题型 A：可拖/点到婴儿身上的物品（玩具 / 糖果 / 辣椒 / 书 / 石头）
         btn.classList.add('h3-opt');
         slot.appendChild(h3ItemSvg(opt.item));
+      } else if (opt.kind === 'h4face') {
+        // 第 8 岛第 4 关题型 B：3 张情绪脸（开心 / 难过 / 生气 / 困），点选
+        btn.classList.add('h4-opt');
+        slot.appendChild(h4FaceSvg(opt.emo));
       } else {
         btn.classList.add('pile-opt');
         slot.appendChild(pileNode(opt.fruit, opt.count, 'opt'));
@@ -20984,7 +21667,8 @@
             qt !== 'G1B' && qt !== 'G1C' && qt !== 'G2B' && qt !== 'G2C' && qt !== 'G3A' &&
             qt !== 'G4A' && qt !== 'G4B' && qt !== 'G4C' &&
             qt !== 'G5A' && qt !== 'G5B' && qt !== 'G5C' &&
-            qt !== 'H1A' && qt !== 'H1B' && qt !== 'H2A' && qt !== 'H3B') {
+            qt !== 'H1A' && qt !== 'H1B' && qt !== 'H2A' && qt !== 'H3B' &&
+            qt !== 'H4A' && qt !== 'H4C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -22202,6 +22886,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '8-4': {
+      // 综合感知·表情变变变（因果 → 情绪：冰淇淋掉了/玩具被抢）；9 环节
+      // （2 个情境故事 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）；
+      // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、生气脸👍永远判对（§三.12）
+      custom: runH4Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -23178,6 +23871,7 @@
             if (o.kind === 'h1mouth') return 'm:' + o.mood;
             if (o.kind === 'h2item') return 'i:' + o.item;
             if (o.kind === 'h3item') return 'i:' + o.item;
+            if (o.kind === 'h4face') return 'e:' + o.emo;
             if (o.kind === 'g3act') return 'i:' + o.act;
             if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
@@ -23229,7 +23923,12 @@
           h3item: q.item || null,
           h3claim: q.claim || null,
           h3truth: (typeof q.truth === 'boolean') ? q.truth : null,
-          h3answer: (typeof q.answer === 'number') ? q.answer : null
+          h3answer: (typeof q.answer === 'number') ? q.answer : null,
+          h4sit: q.sitTarget || q.sit || null,
+          h4sits: q.sits ? q.sits.slice() : null,
+          h4emo: q.emo || null,
+          h4faces: q.faces ? q.faces.slice() : null,
+          h4answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },

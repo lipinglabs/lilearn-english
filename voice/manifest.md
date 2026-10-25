@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**887** 条（英文 881 + 中文 6）
+总条目：**905** 条（英文 899 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -866,25 +866,43 @@
 | `h2_c_hungry` | en | The boy is hungry. Is he eating bread? | 已存在 |
 | `h2_c_thirsty` | en | The boy is thirsty. Is he drinking water? | 已存在 |
 | `h2_c_sleepy` | en | The boy is sleepy. Is he holding a pillow? | 已存在 |
-| `h3_t_toy1` | en | Look! The baby is crying. He is sad. Give him a toy. | 待生成 |
-| `h3_t_toy2` | en | Look! The baby is happy now. He loves the toy! | 待生成 |
-| `h3_t_toy_give` | en | Give the toy to the baby. | 待生成 |
-| `h3_t_toy_find` | en | Find the toy. Give it to the baby. | 待生成 |
-| `h3_t_hug1` | en | The baby is crying again. Give him a hug. | 待生成 |
-| `h3_t_hug2` | en | The baby is happy now. A big hug is so warm! | 待生成 |
-| `h3_t_hug_self` | en | Can you give a hug? Hug yourself! | 待生成 |
-| `h3_t_hug_baby` | en | Now give the baby a big hug! | 待生成 |
-| `h3_t_candy1` | en | The baby wants some candy. Give him some candy. | 待生成 |
-| `h3_t_candy2` | en | Look! The baby is happy now. Candy is sweet! | 待生成 |
-| `h3_t_candy_give` | en | Give him some candy. | 待生成 |
-| `h3_t_candy_find` | en | Find the candy. Give it to the baby. | 待生成 |
-| `h3_t_out` | en | You are so kind! Let's play! | 待生成 |
-| `h3_a_toy` | en | The baby is crying. Give him a toy. | 待生成 |
-| `h3_a_candy` | en | The baby is crying. Give him some candy. | 待生成 |
-| `h3_b_hug` | en | He is sad. Give him a hug! | 待生成 |
-| `h3_b_hug2` | en | The baby is crying. Give him a big hug! | 待生成 |
-| `h3_c_toy` | en | The baby is crying. Did we give him a toy? | 待生成 |
-| `h3_c_candy` | en | The baby is crying. Did we give him some candy? | 待生成 |
+| `h3_t_toy1` | en | Look! The baby is crying. He is sad. Give him a toy. | 已存在 |
+| `h3_t_toy2` | en | Look! The baby is happy now. He loves the toy! | 已存在 |
+| `h3_t_toy_give` | en | Give the toy to the baby. | 已存在 |
+| `h3_t_toy_find` | en | Find the toy. Give it to the baby. | 已存在 |
+| `h3_t_hug1` | en | The baby is crying again. Give him a hug. | 已存在 |
+| `h3_t_hug2` | en | The baby is happy now. A big hug is so warm! | 已存在 |
+| `h3_t_hug_self` | en | Can you give a hug? Hug yourself! | 已存在 |
+| `h3_t_hug_baby` | en | Now give the baby a big hug! | 已存在 |
+| `h3_t_candy1` | en | The baby wants some candy. Give him some candy. | 已存在 |
+| `h3_t_candy2` | en | Look! The baby is happy now. Candy is sweet! | 已存在 |
+| `h3_t_candy_give` | en | Give him some candy. | 已存在 |
+| `h3_t_candy_find` | en | Find the candy. Give it to the baby. | 已存在 |
+| `h3_t_out` | en | You are so kind! Let's play! | 已存在 |
+| `h3_a_toy` | en | The baby is crying. Give him a toy. | 已存在 |
+| `h3_a_candy` | en | The baby is crying. Give him some candy. | 已存在 |
+| `h3_b_hug` | en | He is sad. Give him a hug! | 已存在 |
+| `h3_b_hug2` | en | The baby is crying. Give him a big hug! | 已存在 |
+| `h3_c_toy` | en | The baby is crying. Did we give him a toy? | 已存在 |
+| `h3_c_candy` | en | The baby is crying. Did we give him some candy? | 已存在 |
+| `h4_t_ice1` | en | The ice cream fell down. He is sad. | 待生成 |
+| `h4_t_ice2` | en | Look! He is sad now. His ice cream is on the ground. | 待生成 |
+| `h4_t_ice_give` | en | The boy is sad. Give him an ice cream. | 待生成 |
+| `h4_t_ice_find` | en | Find the sad boy. | 待生成 |
+| `h4_t_toy1` | en | His toy is gone. He is angry. | 待生成 |
+| `h4_t_toy2` | en | Look! He is angry now. His toy is gone. | 待生成 |
+| `h4_t_toy_find` | en | Find the angry boy. | 待生成 |
+| `h4_t_out` | en | You know how they feel! Let's play! | 待生成 |
+| `h4_a_ice` | en | The ice cream fell down. He is sad. Find the picture. | 待生成 |
+| `h4_a_apple` | en | He is eating an apple. He is happy. Find the picture. | 待生成 |
+| `h4_a_play` | en | He is playing with his toy. He is happy. Find the picture. | 待生成 |
+| `h4_a_gone` | en | His toy is gone. He is angry. Find the picture. | 待生成 |
+| `h4_b_sad` | en | The ice cream fell down. How does he feel? | 待生成 |
+| `h4_b_angry` | en | His toy is gone. How does he feel? | 待生成 |
+| `h4_b_sleepy` | en | He is in bed. It is night. How does he feel? | 待生成 |
+| `h4_b_happy` | en | He is eating an apple. How does he feel? | 待生成 |
+| `h4_c_hug` | en | The baby is crying. Give him a hug! | 待生成 |
+| `h4_c_hug2` | en | He is sad. Give him a big hug! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

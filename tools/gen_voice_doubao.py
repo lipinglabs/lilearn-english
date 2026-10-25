@@ -1323,6 +1323,37 @@ add("h3_b_hug2",   "The baby is crying. Give him a big hug!", "en", -15, EN_ASK)
 add("h3_c_toy",    "The baby is crying. Did we give him a toy?", "en", -15, EN_ASK)
 add("h3_c_candy",  "The baby is crying. Did we give him some candy?", "en", -15, EN_ASK)
 
+# ============================================================
+# 第 8 岛第 4 关（L8-W4：综合感知 · 表情变变变 · 因果 → 情绪）
+# 教学 9 环节（RULES §三.10 双倍量：2 个情境故事 × 2 演示 + 2 互动 + 过渡）：
+#   · 演示 1：开心 → 事件（掉落/被抢）→ 变脸（播完定格等点按，§三.14）；
+#   · 演示 2：结果特写 + 不同句式；
+#   · 互动：给物品（二选一）、找情绪脸（三选一）、听指令做生气表情（复用 h1_t_angry_ask，§1.12）。
+# 答题 A 听音找情景 / B 听因果选表情 / C TPR 拥抱（👍 永远判对）。
+# 本批 18 条新生成，已通过 audit 去重自检。
+# ------------------------------------------------------------
+add("h4_t_ice1",     "The ice cream fell down. He is sad.", "en", -15, EN_ASK)
+add("h4_t_ice2",     "Look! He is sad now. His ice cream is on the ground.", "en", -15, EN_ASK)
+add("h4_t_ice_give", "The boy is sad. Give him an ice cream.", "en", -15, EN_ASK)
+add("h4_t_ice_find", "Find the sad boy.", "en", -15, EN_ASK)
+add("h4_t_toy1",     "His toy is gone. He is angry.", "en", -15, EN_ASK)
+add("h4_t_toy2",     "Look! He is angry now. His toy is gone.", "en", -15, EN_ASK)
+add("h4_t_toy_find", "Find the angry boy.", "en", -15, EN_ASK)
+add("h4_t_out",      "You know how they feel! Let's play!", "en", -12, EN_PRAISE)
+# 答题 A：听音找情景（3 幅情景卡点目标）
+add("h4_a_ice",   "The ice cream fell down. He is sad. Find the picture.", "en", -15, EN_ASK)
+add("h4_a_apple", "He is eating an apple. He is happy. Find the picture.", "en", -15, EN_ASK)
+add("h4_a_play",  "He is playing with his toy. He is happy. Find the picture.", "en", -15, EN_ASK)
+add("h4_a_gone",  "His toy is gone. He is angry. Find the picture.", "en", -15, EN_ASK)
+# 答题 B：听因果选表情（中央无表情情景 + 3 张情绪脸）
+add("h4_b_sad",    "The ice cream fell down. How does he feel?", "en", -15, EN_ASK)
+add("h4_b_angry",  "His toy is gone. How does he feel?", "en", -15, EN_ASK)
+add("h4_b_sleepy", "He is in bed. It is night. How does he feel?", "en", -15, EN_ASK)
+add("h4_b_happy",  "He is eating an apple. How does he feel?", "en", -15, EN_ASK)
+# 答题 C：TPR 拥抱（👍 永远判对）
+add("h4_c_hug",  "The baby is crying. Give him a hug!", "en", -15, EN_ASK)
+add("h4_c_hug2", "He is sad. Give him a big hug!", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
