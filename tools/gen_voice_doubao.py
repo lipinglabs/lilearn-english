@@ -1456,6 +1456,28 @@ add("l93_b_rain",   "Find the boy in the rain. He has an umbrella.", "en", -15, 
 add("l93_c_hot",    "Show me hot!", "en", -15, EN_ASK)
 add("l93_c_cold",   "Show me cold!", "en", -15, EN_ASK)
 
+# 第 9 岛第 4 关（L9-W4：找错误 · 捣蛋鬼换装）：把衣物穿到「错」的部位（鞋子戴头上 / 裤子套胳膊 / 帽子穿脚）
+# 搞怪 + 温柔鼓励，全部英文 Allison。笑声用 TTS 念 "Ha! Ha! Ha!"（答题阶段禁人声，只有音效 + 笑声 TTS 在教学中）。
+add("l94_t_shoes1",      "Look! Let's be silly! Put the shoes on his head!", "en", -15, EN_ASK)
+add("l94_t_shoes2",      "Oh! The shoes are on his head! So funny!", "en", -15, EN_ASK)
+add("l94_t_shoes_your",  "Your turn! Put the shoes on his head!", "en", -15, EN_ASK)
+add("l94_t_shoes_again", "Now again! Put the shoes on his head!", "en", -15, EN_ASK)
+add("l94_t_pants1",      "Oh no! Pants on his arms! So funny!", "en", -15, EN_ASK)
+add("l94_t_pants2",      "Look! His pants are on his arms!", "en", -15, EN_ASK)
+add("l94_t_pants_put",   "Your turn! Put the pants on his arms!", "en", -15, EN_ASK)
+add("l94_t_pants_again", "Again! Put the pants on his arms!", "en", -15, EN_ASK)
+add("l94_t_out",         "You are a silly master! Let's play!", "en", -12, EN_PRAISE)
+add("l94_laugh",         "Ha! Ha! Ha!", "en", -12, EN_PRAISE)
+add("l94_a_hat",         "Put the hat on his foot!", "en", -15, EN_ASK)
+add("l94_a_shoes",       "Put the shoes on his head!", "en", -15, EN_ASK)
+add("l94_a_pants",       "Put the pants on his arms!", "en", -15, EN_ASK)
+add("l94_b_shoes",       "He is wearing shoes on his head!", "en", -15, EN_ASK)
+add("l94_b_pants",       "He is wearing pants on his arms!", "en", -15, EN_ASK)
+add("l94_b_hat",         "He is wearing a hat on his foot!", "en", -15, EN_ASK)
+add("l94_c_hand",        "Show me silly! Put your hand on your head!", "en", -15, EN_ASK)
+add("l94_c_nose",        "Show me silly! Put your finger on your nose!", "en", -15, EN_ASK)
+add("l94_c_jump",        "Show me silly! Jump like a frog!", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

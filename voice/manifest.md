@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**974** 条（英文 968 + 中文 6）
+总条目：**993** 条（英文 987 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -959,19 +959,38 @@
 | `l92_c_off_hat` | en | Show me. Take off your hat! | 已存在 |
 | `l92_c_on_coat` | en | Show me. Put on your coat! | 已存在 |
 | `l92_c_off_coat` | en | Show me. Take off your coat! | 已存在 |
-| `l93_t_hot1` | en | Look! The sun is shining. It's hot! | 待生成 |
-| `l93_t_hot2` | en | The sun is shining. It's hot! Put on the T-shirt. | 待生成 |
-| `l93_t_hot_put` | en | It's hot. Put on the T-shirt. | 待生成 |
-| `l93_t_cold1` | en | Oh no! It's snowing. Brrr! It's cold! Wear a coat. | 待生成 |
-| `l93_t_cold2` | en | Look! It's snowing. Brrr! It's cold. Wear a warm coat. | 待生成 |
-| `l93_t_warm1` | en | It's cold. We need to wear warm clothes. | 待生成 |
-| `l93_t_warm2` | en | Good! Now he is warm and happy. | 待生成 |
-| `l93_t_out` | en | You are a weather master! Let's play! | 待生成 |
-| `l93_b_hot` | en | Find the boy who is hot. He is sweating. | 待生成 |
-| `l93_b_cold` | en | Find the boy who is cold. He is shivering. | 待生成 |
-| `l93_b_rain` | en | Find the boy in the rain. He has an umbrella. | 待生成 |
-| `l93_c_hot` | en | Show me hot! | 待生成 |
-| `l93_c_cold` | en | Show me cold! | 待生成 |
+| `l93_t_hot1` | en | Look! The sun is shining. It's hot! | 已存在 |
+| `l93_t_hot2` | en | The sun is shining. It's hot! Put on the T-shirt. | 已存在 |
+| `l93_t_hot_put` | en | It's hot. Put on the T-shirt. | 已存在 |
+| `l93_t_cold1` | en | Oh no! It's snowing. Brrr! It's cold! Wear a coat. | 已存在 |
+| `l93_t_cold2` | en | Look! It's snowing. Brrr! It's cold. Wear a warm coat. | 已存在 |
+| `l93_t_warm1` | en | It's cold. We need to wear warm clothes. | 已存在 |
+| `l93_t_warm2` | en | Good! Now he is warm and happy. | 已存在 |
+| `l93_t_out` | en | You are a weather master! Let's play! | 已存在 |
+| `l93_b_hot` | en | Find the boy who is hot. He is sweating. | 已存在 |
+| `l93_b_cold` | en | Find the boy who is cold. He is shivering. | 已存在 |
+| `l93_b_rain` | en | Find the boy in the rain. He has an umbrella. | 已存在 |
+| `l93_c_hot` | en | Show me hot! | 已存在 |
+| `l93_c_cold` | en | Show me cold! | 已存在 |
+| `l94_t_shoes1` | en | Look! Let's be silly! Put the shoes on his head! | 待生成 |
+| `l94_t_shoes2` | en | Oh! The shoes are on his head! So funny! | 待生成 |
+| `l94_t_shoes_your` | en | Your turn! Put the shoes on his head! | 待生成 |
+| `l94_t_shoes_again` | en | Now again! Put the shoes on his head! | 待生成 |
+| `l94_t_pants1` | en | Oh no! Pants on his arms! So funny! | 待生成 |
+| `l94_t_pants2` | en | Look! His pants are on his arms! | 待生成 |
+| `l94_t_pants_put` | en | Your turn! Put the pants on his arms! | 待生成 |
+| `l94_t_pants_again` | en | Again! Put the pants on his arms! | 待生成 |
+| `l94_t_out` | en | You are a silly master! Let's play! | 待生成 |
+| `l94_laugh` | en | Ha! Ha! Ha! | 待生成 |
+| `l94_a_hat` | en | Put the hat on his foot! | 待生成 |
+| `l94_a_shoes` | en | Put the shoes on his head! | 待生成 |
+| `l94_a_pants` | en | Put the pants on his arms! | 待生成 |
+| `l94_b_shoes` | en | He is wearing shoes on his head! | 待生成 |
+| `l94_b_pants` | en | He is wearing pants on his arms! | 待生成 |
+| `l94_b_hat` | en | He is wearing a hat on his foot! | 待生成 |
+| `l94_c_hand` | en | Show me silly! Put your hand on your head! | 待生成 |
+| `l94_c_nose` | en | Show me silly! Put your finger on your nose! | 待生成 |
+| `l94_c_jump` | en | Show me silly! Jump like a frog! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

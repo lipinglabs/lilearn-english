@@ -3456,7 +3456,10 @@
   function markCleared(island, level) {
     progress.cleared[island + '-' + level] = true;
     if (level < LEVELS_PER_ISLAND) {
-      progress.unlockedLevel[island] = Math.max(progress.unlockedLevel[island] || 1, level + 1);
+      /* 仅当同岛下一关真实存在时才解锁（§：不足 5 关的岛如 9-4 不可越界到 9-5） */
+      if (LEVEL_DEFS[island + '-' + (level + 1)]) {
+        progress.unlockedLevel[island] = Math.max(progress.unlockedLevel[island] || 1, level + 1);
+      }
     } else if (island < ISLANDS.length) {
       progress.unlockedIsland = Math.max(progress.unlockedIsland, island + 1);
       progress.unlockedLevel[island + 1] = Math.max(progress.unlockedLevel[island + 1] || 1, 1);
@@ -3876,7 +3879,8 @@
     '8-5': { numbers: null, make: 'makeH5', title: '第 5 关', tutorial: true },
     '9-1': { numbers: null, make: 'makeL9', title: '第 1 关', tutorial: true },
     '9-2': { numbers: null, make: 'makeL92', title: '第 2 关', tutorial: true },
-    '9-3': { numbers: null, make: 'makeL93', title: '第 3 关', tutorial: true }
+    '9-3': { numbers: null, make: 'makeL93', title: '第 3 关', tutorial: true },
+    '9-4': { numbers: null, make: 'makeL94', title: '第 4 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4108,6 +4112,7 @@
     if (def && def.make === 'makeL9') return makeQuestionL9(typeIdx, prev);
     if (def && def.make === 'makeL92') return makeQuestionL92(typeIdx, prev);
     if (def && def.make === 'makeL93') return makeQuestionL93(typeIdx, prev);
+    if (def && def.make === 'makeL94') return makeQuestionL94(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -22842,6 +22847,524 @@
 
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
+
+  /* ======================================================================
+     第 9 岛第 4 关（L9-W4）：找错误 · 捣蛋鬼换装（silly dress-up）
+     —— 把衣物穿到「错」的部位：鞋子戴头上、裤子套胳膊上、帽子穿脚上。
+     全部手写 SVG（沿用 9-1 的小人与衣物，新增 3 组「错位贴合」变换），零 PNG、零生图。
+     搞笑动画 = 极轻量 CSS（小人左右扭动 + 5 颗小星星炸开，仅 transform / opacity）；
+     搞怪音效 Boing = WebAudio 实时合成（零音频文件）；笑声 = 教学演示里的一句 TTS（答题禁人声）。
+     演示严格「语音播完定格 + 点屏幕才推进」（§三.14）；互动 4 秒小手（§二.12）；
+     拖拽热区 = 整个小人 +12%，**落在小人身上任意位置都算成功**（§二.11，绝不要求对准部位）；
+     TPR 用巨大 👍 且永远判对（§三.12）。
+     ====================================================================== */
+  var L94_ITEMS = ['hat', 'shoes', 'pants'];
+  /* 每件衣物的「捣蛋默认槽位」（音效里说的部位就是它） */
+  var L94_SLOT = { shoes: 'head', pants: 'arms', hat: 'foot' };
+  /* 错位贴合：按「衣物本地区间 → 目标部位」逐一换算（120×175 小人坐标） */
+  var L94_FIT = {
+    /* 鞋子戴头上：本地区间 6..98 × 48..77 → 33..87 × 8..25（正好扣在头顶） */
+    shoesHead: 'translate(29.5,-20.2) scale(0.587)',
+    /* 帽子穿脚上：本地区间 21..79 × 20..58 → 28..56 × 156..173（套在右脚上） */
+    hatFoot: 'translate(6.5,147.5) scale(0.45)',
+    /* 裤子套胳膊上：拉宽压扁，裤腰在胸口、两只裤腿罩住两条胳膊（本地 → 22..100 × 70..116） */
+    pantsArms: 'translate(-13.6,59.8) scale(1.48,0.64)'
+  };
+
+  function l94SillyFit(item, slot) {
+    if (slot === 'head' && item === 'shoes') return L94_FIT.shoesHead;
+    if (slot === 'foot' && item === 'hat') return L94_FIT.hatFoot;
+    if (slot === 'arms' && item === 'pants') return L94_FIT.pantsArms;
+    return null;
+  }
+
+  /** looks：'item@slot' 数组；槽位与衣物本身部位一致 = 正常穿，不一致 = 捣蛋错位（后画的盖在上面） */
+  function l94KidInner(looks) {
+    var normals = [], sillies = [];
+    (looks || []).forEach(function (s) {
+      var p = String(s).split('@');
+      var item = p[0], slot = p[1] || L9_PART[item];
+      var fit = (slot === L9_PART[item]) ? null : l94SillyFit(item, slot);
+      if (fit) sillies.push({ item: item, fit: fit });
+      else normals.push(item);
+    });
+    var html = l9KidInner(normals);
+    sillies.forEach(function (s) {
+      html += '<g class="l94-worn" transform="' + s.fit + '">' + l9ItemInner(s.item) + '</g>';
+    });
+    return html;
+  }
+
+  function l94KidSvg(looks) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 120 175');
+    s.setAttribute('class', 'l9-kid-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = l94KidInner(looks);
+    return s;
+  }
+
+  function l94LookStr(card) { return card ? (card.dataset.look || '') : ''; }
+  function l94LookArr(card) { var v = l94LookStr(card); return v ? v.split(',') : []; }
+
+  function l94Repaint(card) {
+    if (!card) return;
+    var wrap = card.querySelector('.l92-kid-wrap');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    wrap.appendChild(l94KidSvg(l94LookArr(card)));
+  }
+
+  function l94SetLook(card, looks) {
+    if (!card) return;
+    card.dataset.look = (looks || []).join(',');
+    l94Repaint(card);
+  }
+
+  /** 小人卡（复用 9-2/9-3 的骨架：热区 ::after 外扩 12%、id=l94-kid、data-drop=kid） */
+  function l94KidCard(looks) {
+    var card = document.createElement('div');
+    card.className = 'l92-kidcard l94-kidcard';
+    card.id = 'l94-kid';
+    card.dataset.drop = 'kid';
+    card.dataset.look = '';
+    card.setAttribute('aria-label', '小朋友');
+    var wrap = document.createElement('div');
+    wrap.className = 'l92-kid-wrap';
+    card.appendChild(wrap);
+    l94SetLook(card, (looks || []).slice());
+    return card;
+  }
+
+  /* ---- 搞怪音效 Boing：WebAudio 下滑 + 回弹，零音频文件（§二.7 不打大文件） ---- */
+  function boing() {
+    try {
+      var ctx = ensureCtx();
+      if (!ctx) return;
+      var t0 = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(780, t0);
+      osc.frequency.exponentialRampToValueAtTime(185, t0 + 0.17);
+      osc.frequency.exponentialRampToValueAtTime(330, t0 + 0.25);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.17, t0 + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.34);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.38);
+    } catch (e) { /* 音效失败不影响流程 */ }
+  }
+
+  /* ---- 搞怪动画：小人扭两下 + 5 颗小星星炸开（纯 CSS，700ms 后自动清理） ---- */
+  function l94Celebrate(card) {
+    if (!card) return;
+    card.classList.add('l94-silly');
+    setTimeout(function () { card.classList.remove('l94-silly'); }, 780);
+    var host = card.parentNode;
+    if (!host) return;
+    var burst = document.createElement('div');
+    burst.className = 'l94-burst';
+    burst.setAttribute('aria-hidden', 'true');
+    for (var i = 0; i < 5; i++) {
+      var sp = document.createElement('i');
+      sp.className = 'l94-spark';
+      sp.style.setProperty('--a', (i * 72 - 90) + 'deg');
+      sp.style.setProperty('--d', (i * 0.05).toFixed(2) + 's');
+      burst.appendChild(sp);
+    }
+    host.appendChild(burst);
+    setTimeout(function () { if (burst.parentNode) burst.parentNode.removeChild(burst); }, 760);
+  }
+
+  function ensureL94Css() {
+    ensureL92Css();
+    if (document.getElementById('l94-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l94-style';
+    s.textContent =
+      '.l94-stage,.l94-ask,.l94-bstage{position:relative;display:flex;flex-direction:column;align-items:center;' +
+      'justify-content:center;width:100%;max-width:100%;min-width:0;gap:1.2vh;padding-bottom:3vh;' +
+      'box-sizing:border-box}' +
+      /* 捣蛋小人：扭两下（只动 transform） */
+      '.l94-kidcard.l94-silly{animation:l94wiggle .78s cubic-bezier(.35,1.3,.5,1)}' +
+      '@keyframes l94wiggle{0%,100%{transform:rotate(0) scale(1)}15%{transform:rotate(-7deg) scale(1.05)}' +
+      '33%{transform:rotate(6deg) scale(1.06)}52%{transform:rotate(-5deg) scale(1.03)}' +
+      '72%{transform:rotate(4deg) scale(1.02)}88%{transform:rotate(-2deg)}}' +
+      /* 星星炸开 */
+      '.l94-burst{position:absolute;left:50%;top:38%;width:0;height:0;pointer-events:none;z-index:5}' +
+      '.l94-spark{position:absolute;left:0;top:0;width:11px;height:11px;border-radius:50%;' +
+      'background:radial-gradient(circle at 35% 35%,#fff2b0,#ffc94d 60%,#ffb020);' +
+      'box-shadow:0 0 6px rgba(255,190,60,.9);opacity:0;' +
+      'animation:l94spark .72s ease-out forwards;animation-delay:var(--d)}' +
+      '@keyframes l94spark{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--a)) translateY(0) scale(.4)}' +
+      '25%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--a)) translateY(-72px) scale(1)}}' +
+      /* B 型：3 张「穿搭图」一排，点选 */
+      '.l94-kidrow{position:relative;display:flex;gap:min(4vw,18px);justify-content:center;align-items:center;' +
+      'width:100%;max-width:100%;flex-wrap:nowrap}' +
+      '.l94-kidrow .l94-kidbtn{position:relative;width:min(28vw,116px);aspect-ratio:120/175;padding:0;' +
+      'border:3px solid #ffd9a0;border-radius:18px;background:rgba(255,255,255,.92);box-sizing:border-box;' +
+      'display:flex;align-items:center;justify-content:center;box-shadow:0 5px 12px rgba(214,164,110,.16);' +
+      'cursor:pointer;touch-action:manipulation;transition:transform .15s ease;overflow:hidden}' +
+      '.l94-kidrow .l94-kidbtn::after{content:"";position:absolute;inset:-8%;border-radius:22px}' +
+      '.l94-kidrow .l94-kidbtn:active{transform:scale(.97)}' +
+      '.l94-kidrow .l94-kidbtn svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.l94-kidrow .l94-kidbtn.right{border-color:#7FD18A;background:#eafaf0;' +
+      'box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.l94-kidrow .l94-kidbtn.l94-bad{animation:h4shake .4s}' +
+      '.l92-card.l92-nudge{animation:h4shake .45s}' +
+      '@media (max-height:560px){' +
+      '.l94-stage,.l94-ask,.l94-bstage{gap:.5vh;padding-bottom:.8vh}' +
+      '.l94-kidrow .l94-kidbtn{width:min(17vw,96px)}}';
+    document.head.appendChild(s);
+  }
+
+  /* ---------------- 出题：A 听指令搞破坏 / B 听语句找荒诞图 / C TPR 极速搞怪 ---------------- */
+  var L94_A_KEY = { hat: 'l94_a_hat', shoes: 'l94_a_shoes', pants: 'l94_a_pants' };
+  var L94_SILLY = [
+    { look: 'shoes@head', key: 'l94_b_shoes', item: 'shoes' },
+    { look: 'pants@arms', key: 'l94_b_pants', item: 'pants' },
+    { look: 'hat@foot', key: 'l94_b_hat', item: 'hat' }
+  ];
+  var L94_NORMAL = ['hat@head', 'pants@legs', 'shoes@feet'];
+  var L94_C = [
+    { key: 'l94_c_hand', look: 'shoes@head' },
+    { key: 'l94_c_nose', look: 'hat@foot' },
+    { key: 'l94_c_jump', look: 'pants@arms' }
+  ];
+
+  function makeQuestionL94(type, prev) {
+    ensureL94Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：小人只穿打底衫，下方 3 件衣物，听指令把指定那件「穿到错的地方」 */
+        var item = pick(L94_ITEMS);
+        var rest = L94_ITEMS.filter(function (x) { return x !== item; });
+        shuffle(rest);
+        var items = shuffle([item, rest[0], rest[1]]);
+        q = {
+          type: 'L94A', sig: 'A:' + item + ':' + items.join(','),
+          l94Item: item, l94Slot: L94_SLOT[item], items: items,
+          look: item + '@' + L94_SLOT[item],
+          options: items.map(function (it) { return { kind: 'l94item', item: it }; }),
+          answer: items.indexOf(item), correct: items.indexOf(item),
+          audio: [L94_A_KEY[item]]
+        };
+      } else if (type === 1) {
+        /* B：3 张穿搭图（1 张荒诞 + 2 张正常），听句子点出「捣蛋的那张」 */
+        var S = pick(L94_SILLY);
+        var decoys = L94_NORMAL.filter(function (l) { return l.split('@')[0] !== S.item; });
+        var looks = shuffle([S.look, decoys[0], decoys[1]]);
+        q = {
+          type: 'L94B', sig: 'B:' + S.look + ':' + looks.join(','),
+          l94Looks: looks, l94Silly: S.look,
+          options: [], answer: looks.indexOf(S.look), correct: looks.indexOf(S.look),
+          audio: [S.key]
+        };
+      } else {
+        /* C：TPR 极速搞怪（巨大👍，永远判对 §三.12） */
+        state.l94cIdx = ((state.l94cIdx || 0) + 1) % L94_C.length;
+        var c = L94_C[state.l94cIdx];
+        q = {
+          type: 'L94C', sig: 'C:' + c.key, l94Look: c.look,
+          options: [], correct: 0, audio: [c.key]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 判定：只看「拿的是不是那件」，落点在小人身上任意处都算中（§二.11） ---------------- */
+
+  function l94NeedWeight() {
+    if (state.phase === 'tutorial') return state.tut ? state.tut.l94Item : null;
+    return state.question ? state.question.l94Item : null;
+  }
+
+  function l94Bounce(el) {
+    if (!el) return;
+    el.classList.add('l92-nudge');
+    setTimeout(function () { el.classList.remove('l92-nudge'); }, 470);
+    if (state.phase === 'tutorial') armHint();
+  }
+
+  function l94ClearPick() {
+    state.l92Pick = null;
+    if (!askDisplay) return;
+    Array.prototype.forEach.call(askDisplay.querySelectorAll('.l92-card'), function (n) {
+      n.classList.remove('picked');
+    });
+  }
+
+  function l94Pick(el) {
+    var item = el.dataset.item;
+    var same = state.l92Pick && state.l92Pick.item === item;
+    l94ClearPick();
+    if (!same) { state.l92Pick = { item: item, from: 'tray' }; el.classList.add('picked'); }
+  }
+
+  /** 把衣物「搞破坏地」穿到小人身上：立刻换脸 + Boing + 扭动 + 星星炸开 */
+  function l94WearSilly(card, item, withAnim) {
+    if (!card) return;
+    var slot = L94_SLOT[item] || 'head';
+    var looks = l94LookArr(card).filter(function (s) { return s.split('@')[0] !== item; });
+    looks.push(item + '@' + slot);
+    l94SetLook(card, looks);
+    card.classList.add('l92-right');
+    if (withAnim) { boing(); l94Celebrate(card); }
+  }
+
+  function resolveL94(el, target) {
+    if (!el) return false;
+    var item = el.dataset.item;
+    var drop = target && target.dataset ? target.dataset.drop : null;
+    /* 没落到小人身上：平滑弹回，不判错、不消失（§二.11） */
+    if (drop !== 'kid') { l94Bounce(el); return false; }
+    if (item !== l94NeedWeight()) {
+      /* 拿错了：温柔鼓励一次，不推进（本关少报错、多鼓励捣蛋） */
+      say(['again']);
+      l94Bounce(el);
+      if (state.phase === 'tutorial') armHint();
+      return false;
+    }
+    var kid = target.id === 'l94-kid' ? target : askDisplay.querySelector('#l94-kid');
+    l94ClearPick();
+    if (state.phase === 'tutorial') {
+      l94WearSilly(kid, item, true);
+      var me = state.tut;
+      if (me) {
+        me.l94On = false;
+        me.canDrag = false;
+        setTimeout(function () { if (state.tut === me && me._l94Next) me._l94Next(); }, 900);
+      }
+      return true;
+    }
+    l94WearSilly(kid, item, false);
+    boing();
+    judge(true, kid);
+    return true;
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：只穿打底衫的小人（拖放目标）+ 底部 3 件衣物 */
+  function renderL94A(q) {
+    ensureL94Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l92-ask l94-ask';
+    var kid = l94KidCard([]);
+    kid.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      if (!state.l92Pick || state.l92Pick.from !== 'tray') return;
+      var src = askDisplay.querySelector('.l92-card[data-item="' + state.l92Pick.item + '"]');
+      resolveL94(src, kid);
+    });
+    box.appendChild(kid);
+    var tray = l92Tray(q.items, true);
+    box.appendChild(tray);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 B：3 张穿搭图（1 张荒诞 + 2 张正常），听句子点荒诞的那张 */
+  function renderL94B(q) {
+    ensureL94Css();
+    askDisplay.innerHTML = '';
+    var row = document.createElement('div');
+    row.className = 'l94-kidrow';
+    row.dataset.n = '3';
+    row.setAttribute('aria-label', '小朋友');
+    q.l94Looks.forEach(function (lk, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l94-kidbtn';
+      b.dataset.look = lk;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', '小朋友');
+      var s = svgEl('svg');
+      s.setAttribute('viewBox', '0 0 120 175');
+      s.setAttribute('aria-hidden', 'true');
+      s.innerHTML = l94KidInner([lk]);
+      b.appendChild(s);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        if (i === q.correct) { b.classList.add('right'); l94Celebrate(b); boing(); }
+        else b.classList.add('l94-bad');
+        judge(i === q.correct, b);
+      });
+      row.appendChild(b);
+    });
+    askDisplay.appendChild(row);
+  }
+
+  /** 题型 C：示范小人（已经「捣蛋」穿好）+ 巨大👍 */
+  function renderL94C(q) {
+    ensureL94Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l92-bstage l94-bstage';
+    w.setAttribute('aria-label', '小朋友');
+    var kid = l94KidCard([q.l94Look]);
+    kid.removeAttribute('data-drop');
+    kid.removeAttribute('id');
+    kid.setAttribute('aria-hidden', 'true');
+    w.appendChild(kid);
+    var thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'l92-thumb';
+    thumb.setAttribute('aria-label', '我做到啦');
+    thumb.innerHTML = l92ThumbSvg();
+    thumb.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      judge(true, thumb);
+    });
+    w.appendChild(thumb);
+    askDisplay.appendChild(w);
+  }
+
+  /* 教学：9 环节（Shoes 2 演示 + 2 互动 / Pants 2 演示 + 2 互动 / 过渡） */
+  var runL94Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'shoes1',    word: 'l94_t_shoes1',     look: 'shoes@head', item: 'shoes', before: [],   tray: ['shoes'],           laugh: true },
+      { t: 'demo', sid: 'shoes2',    word: 'l94_t_shoes2',     look: 'shoes@head', item: 'shoes', before: [],   tray: ['shoes', 'hat'],    laugh: true },
+      { t: 'drag', sid: 'shoesTry1', word: 'l94_t_shoes_your', look: '',           item: 'shoes', before: [],   tray: ['shoes', 'hat'] },
+      { t: 'drag', sid: 'shoesTry2', word: 'l94_t_shoes_again', look: '',          item: 'shoes', before: [],   tray: ['pants', 'shoes'] },
+      { t: 'demo', sid: 'pants1',    word: 'l94_t_pants1',     look: 'pants@arms', item: 'pants', before: [],   tray: ['pants'],           laugh: true },
+      { t: 'demo', sid: 'pants2',    word: 'l94_t_pants2',     look: 'pants@arms', item: 'pants', before: [],   tray: ['pants', 'shirt'],  laugh: true },
+      { t: 'drag', sid: 'pantsTry1', word: 'l94_t_pants_put',  look: '',           item: 'pants', before: [],   tray: ['pants', 'shirt'] },
+      { t: 'drag', sid: 'pantsTry2', word: 'l94_t_pants_again', look: '',          item: 'pants', before: [],   tray: ['pants', 'hat'] },
+      { t: 'out',  sid: 'out',       word: 'l94_t_out',        look: 'shoes@head,pants@arms', item: null, before: [], tray: [] }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null; me._advance = null;
+      me.canDrag = false; me.l94On = false; me.askLock = false; me.l94Item = null; me._l94Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL94Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l92-stage l94-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '情景');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示：语音 → 衣物「歪着」飞上身（Boing + 扭动 + 星星）→ 笑声 → 定格等点按 */
+    function playDemo(me, act, next) {
+      var w = stage(me, act);
+      var kid = l94KidCard(act.before || []);
+      kid.removeAttribute('data-drop');
+      w.appendChild(kid);
+      var tray = l92Tray(act.tray || [], false);
+      if (act.item) {
+        var g = tray.querySelector('.l92-card[data-item="' + act.item + '"]');
+        if (g) g.classList.add('l92-glow');
+      }
+      w.appendChild(tray);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        l94WearSilly(kid, act.item, true);
+        /* 演示里配一句 TTS 笑声（答题阶段禁人声，只有音效） */
+        setTimeout(function () {
+          if (state.tut !== me) return;
+          if (act.laugh) {
+            say(['l94_laugh'], function () {
+              if (state.tut !== me) return;
+              gate(me, next);
+            });
+          } else {
+            gate(me, next);
+          }
+        }, 700);
+      });
+    }
+    /* 互动：把对的衣物拖 / 点到小人身上（落在身上任意位置都算中，4 秒小手） */
+    function playDrag(me, act, next) {
+      var w = stage(me, act);
+      var kid = l94KidCard(act.before || []);
+      me.l94Item = act.item;
+      me._l94Next = next;
+      kid.addEventListener('click', function () {
+        if (state.tut !== me || !me.l94On) return;
+        if (!state.l92Pick || state.l92Pick.from !== 'tray') return;
+        var src = askDisplay.querySelector('.l92-card[data-item="' + state.l92Pick.item + '"]');
+        resolveL94(src, kid);
+      });
+      w.appendChild(kid);
+      var tray = l92Tray(act.tray || [], true);
+      w.appendChild(tray);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l94On = true;
+        me.canDrag = true;
+        me.customMode = 'L94';
+        me.hintFrom = tray.querySelector('.l92-card[data-item="' + act.item + '"]');
+        me.hintTo = kid;
+        me.hintTarget = me.hintFrom;
+        armHint();
+      });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'drag') { playDrag(me, act, next); return; }
+      /* 过渡：身上两处都在捣蛋 → 语音 → 答题 */
+      var w = stage(me, act);
+      var kid = l94KidCard(act.look ? act.look.split(',') : []);
+      kid.removeAttribute('data-drop');
+      w.appendChild(kid);
+      w.appendChild(l92Tray([], false));
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        tutFinish(me, false);
+      });
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -23156,6 +23679,10 @@
     if (q.type === 'L93A') { optionsBar.classList.add('gone'); renderL93A(q); return; }
     if (q.type === 'L93B') { optionsBar.classList.add('gone'); renderL93B(q); return; }
     if (q.type === 'L93C') { optionsBar.classList.add('gone'); renderL93C(q); return; }
+    /* ---- 第 9 岛第 4 关：找错误 · 捣蛋鬼换装（A 拖到小人身上任意处 / B 3 张穿搭图点荒诞那张 / C 示范 + 👍） ---- */
+    if (q.type === 'L94A') { optionsBar.classList.add('gone'); renderL94A(q); return; }
+    if (q.type === 'L94B') { optionsBar.classList.add('gone'); renderL94B(q); return; }
+    if (q.type === 'L94C') { optionsBar.classList.add('gone'); renderL94C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -23890,6 +24417,10 @@
         // 第 9 岛第 3 关：T 恤 / 外套（同上，仅兜底）
         btn.classList.add('l9-opt');
         slot.appendChild(l9ItemSvg(opt.item));
+      } else if (opt.kind === 'l94item') {
+        // 第 9 岛第 4 关：衣物（画在底部物品栏，仅兜底渲染）
+        btn.classList.add('l9-opt');
+        slot.appendChild(l9ItemSvg(opt.item));
       } else {
         btn.classList.add('pile-opt');
         slot.appendChild(pileNode(opt.fruit, opt.count, 'opt'));
@@ -24234,7 +24765,8 @@
             qt !== 'H5B' && qt !== 'H5C' &&
             qt !== 'L9B' && qt !== 'L9C' &&
             qt !== 'L92A' && qt !== 'L92C' &&
-            qt !== 'L93A' && qt !== 'L93B' && qt !== 'L93C') {
+            qt !== 'L93A' && qt !== 'L93B' && qt !== 'L93C' &&
+            qt !== 'L94A' && qt !== 'L94B' && qt !== 'L94C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -24382,7 +24914,7 @@
       d.ghost.remove();
       state.lastPointerAt = Date.now();
       /* 第 9 岛第 2 关：轻点由元素自己的 click（l92Pick / resolveL92）处理 */
-      if (d.mode === 'L92' || d.mode === 'L93') return;
+      if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94') return;
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
       else if (d.mode === 'F14T') tutPickF14(d.el);
@@ -24446,6 +24978,8 @@
         resolveL92(d.el, target);
       } else if (d.mode === 'L93') {
         resolveL93(d.el, target);
+      } else if (d.mode === 'L94') {
+        resolveL94(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -24479,7 +25013,7 @@
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
-    } else if (d.mode === 'L92' || d.mode === 'L93') {
+    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -24487,7 +25021,7 @@
       d.ghost.style.top = sr1.top + 'px';
       d.ghost.style.transform = 'scale(1)';
       setTimeout(function () { if (d.ghost.parentNode) d.ghost.remove(); }, 240);
-      l92Bounce(d.el);
+      if (d.mode === 'L94') l94Bounce(d.el); else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
       d.ghost.style.transition = 'transform .18s, opacity .18s';
@@ -25540,6 +26074,16 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '9-4': {
+      // 找错误 · 捣蛋鬼换装：把衣物穿到「错」的部位（鞋子戴头上 / 裤子套胳膊 / 帽子穿脚）；
+      // 9 环节（Shoes 2 演示 + 2 互动 / Pants 2 演示 + 2 互动 / 过渡）；演示点按推进（§三.14）、
+      // 互动 4 秒小手（§二.12）、拖到小人身上任意处都算成功（§二.11，绝不要求对准部位）；
+      // 搞怪动画 = 极轻量 CSS（小人扭两下 + 5 颗小星星炸开），笑声用教学 TTS、Boing 用 WebAudio 合成
+      custom: runL94Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -25787,6 +26331,7 @@
     /* 第 9 岛第 2 关：穿 / 脱共用一套引擎，方向由「拖的是身上还是栏里」决定 */
     if (q.type === 'L92A' || q.type === 'L92B') return 'L92';
     if (q.type === 'L93A') return 'L93';
+    if (q.type === 'L94A') return 'L94';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -26536,6 +27081,7 @@
             if (o.kind === 'l9item') return 'i:' + o.item;
             if (o.kind === 'l92item') return 'i:' + o.item;
             if (o.kind === 'l93item') return 'i:' + o.item;
+            if (o.kind === 'l94item') return 'i:' + o.item;
             if (o.kind === 'g3act') return 'i:' + o.act;
             if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
@@ -26613,7 +27159,14 @@
           l93item: q.item || null,
           l93items: q.items ? q.items.slice() : null,
           l93kids: q.kidStates ? q.kidStates.slice() : null,
-          l93answer: (typeof q.answer === 'number') ? q.answer : null
+          l93answer: (typeof q.answer === 'number') ? q.answer : null,
+          l94item: q.l94Item || null,
+          l94slot: q.l94Slot || null,
+          l94look: q.look || null,
+          l94looks: q.l94Looks ? q.l94Looks.slice() : null,
+          l94silly: q.l94Silly || null,
+          l94c: (typeof q.l94Look === 'string') ? q.l94Look : null,
+          l94answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },

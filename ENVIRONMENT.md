@@ -14,7 +14,7 @@
 | 线上地址 | https://lipinglabs.github.io/lilearn-english/ |
 | 仓库 | `lipinglabs/lilearn-english`（**public**） |
 | 技术形态 | 纯静态：单页 HTML + 两个数据脚本 + Service Worker。**无构建、无框架、无后端、无 npm 依赖** |
-| 内容规模 | 12 岛 × 5 关框架；已做第 1–6 岛全部（30 关，已全通）+ 第 7 岛全部 5 关（身体与五官岛收官）+ 第 8 岛全部 5 关（情绪与感受岛收官）+ 第 9 岛第 1–3 关（衣物穿戴 / 穿脱动作 / 天气与衣服，已上线），共 43 关 |
+| 内容规模 | 12 岛 × 5 关框架；已做第 1–6 岛全部（30 关，已全通）+ 第 7 岛全部 5 关（身体与五官岛收官）+ 第 8 岛全部 5 关（情绪与感受岛收官）+ 第 9 岛第 1–4 关（衣物穿戴 / 穿脱动作 / 天气与衣服 / 找错误捣蛋鬼换装，已上线），共 44 关 |
 | 部署 | GitHub Pages（源 `main` 分支根目录 `/`，legacy 构建），推送即自动重建 |
 
 ---
@@ -64,7 +64,7 @@
 
 ```
 index.html   823,853 B / 18,736 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  26,220,188 B /  7,798 行   ← window.VOICE_BANK，828 条 base64 mp3
+voice.js  32,855,070 B /  9,699 行   ← window.VOICE_BANK，993 条 base64 mp3
 assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
 ```
 
@@ -406,6 +406,14 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   语音 974 条（本关新生成 13 条 l93_ 系列；"It's cold. Put on the coat." 复用 l92_b_coat，§1.12）；
   踩坑：① L93B 起初用 `q.kids` 存状态字符串，与既有 `g5kids`/`g4kids` 快照映射（`k.kid.id`）冲突导致 `Game.snapshot()` 抛 TypeError → 改名 `q.kidStates`；② 直线交叉的手臂看着像「绑带」→ 改弧形；③ 雨点压在头发上会被误读成「流汗」→ 移到头顶外侧；
   探针 `tools/probe_l93.js` 双视口逐项断言：10 教学步 sigOk/audioOk/skyOk（每步天气层 kind）/ 演示后衣物按 before+on 累加 / 拖到空白处不推进且衣服仍在、幽灵回收 / 4 秒小手 / 12 轮 L93A/L93B/L93C 各 4 且 starsDelta=1 / 答对 voiceOnCorrect 空 / A 型天气层真渲染（太阳 or ≥4 雪花）且小人感受与天气一致 / B 型三个小人状态互不相同 / C 型 👍 ≥44vw / 无英文 / 双视口无溢出 / 通关 stars=12 / grand=false / 小旗不升 / cleared['9-3']=true / unlockedLevel[9]=4 / 语音 AUDIO_PASS。
+- **第 9 岛 W4 已完成（2026-10-25）**：找错误 · 捣蛋鬼换装——手写 SVG 圆润卡通小人（打底衫 + 短裤 + 光脚）+ hat / shoes / pants 三件衣物图层（与部位同坐标贴合）；核心理念：**任何衣物拖到小人身上任意处都算成功**（落错部位也行，鼓励捣蛋），只有拿错衣物才温柔鼓励一次（§二.11 少报错多鼓励）；
+  美术：`l94KidInner` 复用 9-1 小人骨架，`l94SetLook` 把 `item@部位` 直接贴合（shoes→head / pants→arms / hat→foot 全是荒诞组合）；`l94KidCard` 复用 9-2/9-3 热区（::after inset -8% 比视觉大一圈）；
+  三种题型：A 听指令把指定衣物「穿到错的部位」（底部 3 件衣物栏，拖到小人身上任意处 = 成功，触发 Boing + 扭动 + 星星）/ B 听句子在 3 张穿搭图（1 荒诞 + 2 正常）里点出捣蛋的那张 / C TPR「Show me silly!」（示范小人 + 巨大👍，永远判对 §三.12）；
+  教学 9 环节：Shoes 2 演示（穿鞋到头上 + 笑声 `l94_laugh`）+ 2 互动 / Pants 2 演示 + 2 互动 / 过渡（身上 shoes@head + pants@arms 两处都在捣蛋）；演示语音播完定格、必须点屏幕才推进（§三.14）；互动 4 秒小手（§二.12）；
+  拖拽宽容：拖到空白处不判错、不消失、不推进（§二.11），幽灵回收；音效：WebAudio 合成 `boing()`（下滑 + 回弹，零音频文件 §二.7）；CSS 跳舞扭动 + 5 颗星星炸开，零 GIF / 重负载；
+  语音 993 条（本关新生成 19 条 l94_ 系列：t_ 教学 10 条 / a_ 指令 3 条 / b_ 找图 3 条 / c_ TPR 3 条 + laugh 笑声 1 条；人声只在开场 / 题干 / 通关，答题阶段只有音效）；
+  顺手修了一个跨关进度 bug：`markCleared` 在不足 5 关的岛（如 9-4）会越界把 `unlockedLevel` 推到不存在的 9-5——改为仅当同岛下一关真实存在于 `LEVEL_DEFS` 时才解锁（§解锁链），同时回归 `tools/probe_l93.js` 双视口确认 9-3 不受影响；
+  探针 `tools/probe_l94.js` 双视口逐项断言：9 教学步 sigOk/audioOk/demoOk（演示定格等点按）/ hintOk（4 秒小手）/ blankOk（拖空白弹回）/ dragOk（落小人任意处成功）/ 12 轮 L94A/L94B/L94C 各 4 且 starsDelta=1 / 答对 voiceOnCorrect 空 / 无英文 / 双视口无溢出 / 通关 stars=12 / grand=false / 小旗不升 / cleared['9-4']=true / unlockedLevel[9]=4 / 语音 AUDIO_PASS。
 - **第 7 岛主题**：`ISLANDS[6]` 由原来的「天气与季节」改为**「身体与五官」**（本岛第 1 关就是五官 eye / nose / mouth / ear）；
   地图图标为手写笑脸 SVG（`islandIconNode` index===7），不用 emoji 字符（RULES §二.5 / §二.17）。
 - **第 5 岛主题**：`ISLANDS[4]` 为**「食物与饮料」**，地图图标用 3D 面包 PNG；
