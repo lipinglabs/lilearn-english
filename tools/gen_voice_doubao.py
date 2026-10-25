@@ -1436,6 +1436,26 @@ add("l92_c_off_hat",  "Show me. Take off your hat!", "en", -15, EN_ASK)
 add("l92_c_on_coat",  "Show me. Put on your coat!", "en", -15, EN_ASK)
 add("l92_c_off_coat", "Show me. Take off your coat!", "en", -15, EN_ASK)
 
+# ------------------------------------------------------------
+# 第 9 岛第 3 关（L9-W3：天气与衣服 Hot / Cold, Coat / T-shirt）
+# 教学：Hot 2 演示 + 1 互动 / Cold 2 演示 + 1 互动 / 综合 2 演示 + 1 互动 / 过渡
+# 答题 A 听天气穿衣服 / B 找对应感受的小人 / C TPR「Show me hot / cold」
+# 注：「It's cold. Put on the coat.」复用 l92_b_coat（§1.12 禁止重复文本）
+# ------------------------------------------------------------
+add("l93_t_hot1",   "Look! The sun is shining. It's hot!", "en", -15, EN_ASK)
+add("l93_t_hot2",   "The sun is shining. It's hot! Put on the T-shirt.", "en", -15, EN_ASK)
+add("l93_t_hot_put","It's hot. Put on the T-shirt.", "en", -15, EN_ASK)
+add("l93_t_cold1",  "Oh no! It's snowing. Brrr! It's cold! Wear a coat.", "en", -15, EN_ASK)
+add("l93_t_cold2",  "Look! It's snowing. Brrr! It's cold. Wear a warm coat.", "en", -15, EN_ASK)
+add("l93_t_warm1",  "It's cold. We need to wear warm clothes.", "en", -15, EN_ASK)
+add("l93_t_warm2",  "Good! Now he is warm and happy.", "en", -12, EN_PRAISE)
+add("l93_t_out",    "You are a weather master! Let's play!", "en", -12, EN_PRAISE)
+add("l93_b_hot",    "Find the boy who is hot. He is sweating.", "en", -15, EN_ASK)
+add("l93_b_cold",   "Find the boy who is cold. He is shivering.", "en", -15, EN_ASK)
+add("l93_b_rain",   "Find the boy in the rain. He has an umbrella.", "en", -15, EN_ASK)
+add("l93_c_hot",    "Show me hot!", "en", -15, EN_ASK)
+add("l93_c_cold",   "Show me cold!", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

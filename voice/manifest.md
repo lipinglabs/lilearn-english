@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**961** 条（英文 955 + 中文 6）
+总条目：**974** 条（英文 968 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -941,24 +941,37 @@
 | `l9_c_pants` | en | Put on your pants! | 已存在 |
 | `l9_c_shoes` | en | Put on your shoes! | 已存在 |
 | `l9_c_hat` | en | Put on your hat! | 已存在 |
-| `l92_t_shoes_on` | en | Look! He has no shoes. Put on the shoes. | 待生成 |
-| `l92_t_hat_off` | en | It's hot. Take off the hat. | 待生成 |
-| `l92_t_coat_off` | en | Take off the coat. | 待生成 |
-| `l92_t_pants_off` | en | Now, take off the pants. | 待生成 |
-| `l92_t_pants_take` | en | Take off the pants. | 待生成 |
-| `l92_t_out` | en | You can dress up and take off! Let's play! | 待生成 |
-| `l92_a_hat` | en | It's time to sleep. Take off the hat. | 待生成 |
-| `l92_a_shoes` | en | It's time to sleep. Take off the shoes. | 待生成 |
-| `l92_a_coat` | en | It's hot. Take off the coat. | 待生成 |
-| `l92_a_pants` | en | It's time to sleep. Take off the pants. | 待生成 |
-| `l92_b_hat` | en | It's cold. Put on the hat. | 待生成 |
-| `l92_b_coat` | en | It's cold. Put on the coat. | 待生成 |
-| `l92_b_pants` | en | It's cold. Put on the pants. | 待生成 |
-| `l92_b_shoes` | en | It's cold. Put on the shoes. | 待生成 |
-| `l92_c_on_hat` | en | Show me. Put on your hat! | 待生成 |
-| `l92_c_off_hat` | en | Show me. Take off your hat! | 待生成 |
-| `l92_c_on_coat` | en | Show me. Put on your coat! | 待生成 |
-| `l92_c_off_coat` | en | Show me. Take off your coat! | 待生成 |
+| `l92_t_shoes_on` | en | Look! He has no shoes. Put on the shoes. | 已存在 |
+| `l92_t_hat_off` | en | It's hot. Take off the hat. | 已存在 |
+| `l92_t_coat_off` | en | Take off the coat. | 已存在 |
+| `l92_t_pants_off` | en | Now, take off the pants. | 已存在 |
+| `l92_t_pants_take` | en | Take off the pants. | 已存在 |
+| `l92_t_out` | en | You can dress up and take off! Let's play! | 已存在 |
+| `l92_a_hat` | en | It's time to sleep. Take off the hat. | 已存在 |
+| `l92_a_shoes` | en | It's time to sleep. Take off the shoes. | 已存在 |
+| `l92_a_coat` | en | It's hot. Take off the coat. | 已存在 |
+| `l92_a_pants` | en | It's time to sleep. Take off the pants. | 已存在 |
+| `l92_b_hat` | en | It's cold. Put on the hat. | 已存在 |
+| `l92_b_coat` | en | It's cold. Put on the coat. | 已存在 |
+| `l92_b_pants` | en | It's cold. Put on the pants. | 已存在 |
+| `l92_b_shoes` | en | It's cold. Put on the shoes. | 已存在 |
+| `l92_c_on_hat` | en | Show me. Put on your hat! | 已存在 |
+| `l92_c_off_hat` | en | Show me. Take off your hat! | 已存在 |
+| `l92_c_on_coat` | en | Show me. Put on your coat! | 已存在 |
+| `l92_c_off_coat` | en | Show me. Take off your coat! | 已存在 |
+| `l93_t_hot1` | en | Look! The sun is shining. It's hot! | 待生成 |
+| `l93_t_hot2` | en | The sun is shining. It's hot! Put on the T-shirt. | 待生成 |
+| `l93_t_hot_put` | en | It's hot. Put on the T-shirt. | 待生成 |
+| `l93_t_cold1` | en | Oh no! It's snowing. Brrr! It's cold! Wear a coat. | 待生成 |
+| `l93_t_cold2` | en | Look! It's snowing. Brrr! It's cold. Wear a warm coat. | 待生成 |
+| `l93_t_warm1` | en | It's cold. We need to wear warm clothes. | 待生成 |
+| `l93_t_warm2` | en | Good! Now he is warm and happy. | 待生成 |
+| `l93_t_out` | en | You are a weather master! Let's play! | 待生成 |
+| `l93_b_hot` | en | Find the boy who is hot. He is sweating. | 待生成 |
+| `l93_b_cold` | en | Find the boy who is cold. He is shivering. | 待生成 |
+| `l93_b_rain` | en | Find the boy in the rain. He has an umbrella. | 待生成 |
+| `l93_c_hot` | en | Show me hot! | 待生成 |
+| `l93_c_cold` | en | Show me cold! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
