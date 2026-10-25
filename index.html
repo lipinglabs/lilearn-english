@@ -3866,7 +3866,8 @@
     '6-5': { numbers: null,       make: 'makeF15', title: '第 5 关', tutorial: true },
     '7-1': { numbers: null,       make: 'makeG1',  title: '第 1 关', tutorial: true },
     '7-2': { numbers: null, make: 'makeG2', title: '第 2 关', tutorial: true },
-    '7-3': { numbers: null, make: 'makeG3', title: '第 3 关', tutorial: true }
+    '7-3': { numbers: null, make: 'makeG3', title: '第 3 关', tutorial: true },
+    '7-4': { numbers: null, make: 'makeG4', title: '第 4 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4053,6 +4054,7 @@
     if (def && def.make === 'makeG1') return makeQuestionG1(typeIdx, prev);
     if (def && def.make === 'makeG2') return makeQuestionG2(typeIdx, prev);
     if (def && def.make === 'makeG3') return makeQuestionG3(typeIdx, prev);
+    if (def && def.make === 'makeG4') return makeQuestionG4(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -16594,6 +16596,574 @@
     return api;
   })();
 
+
+  /* ============================================================
+     第 7 岛第 4 关（L7-W4：快速反应群像找茬 I Spy）
+     概念：3–5 个手写 SVG 卡通小人同屏，听英文指令找出做对应动作的那个。
+     教学 13 环节（RULES §三.10 双倍量 + §三.14 点按推进 + §二.12 四秒小手）：
+       摸耳朵男孩(3 人演示×2 + 3/4 人互动×2) → 拍手女孩(4/5 人演示×2 + 4/5 人互动×2)
+       → 闭眼小人(4/5 人演示×2 + 5 人互动×2) → 过渡语；
+       每个知识点 2 次演示（人数 / 高亮不同）+ 2 次互动（互动 B 加难：群像更大）。
+     答题 12 轮（4/4/4）：
+       A 单目标群像找茬（4–5 人，唯一一个小人同时匹配性别+动作）/
+       B 双目标复合找茬（5 人，先点第一个再点第二个，第一步落位口播 then 分句）/
+       C 动作纠错（3 人：名词性别的小人做错动作=陷阱，另一个性别的小人做对动作=答案，
+         必须找到画面里唯一真的在做该动作的人，防止「听到名词就点」）。
+     规则：无英文字母外显（aria-label 只有中文）、答对只音效+星星（禁人声）、答错 again+四秒小手、
+           点击热区比视觉大一圈（§三.15，按钮 padding:8%）、零生图零 emoji（§二.17）、
+           动画只用 transform/opacity 的简单 CSS（同屏 5 个小人也不烫手机）。
+     ============================================================ */
+
+  /* ---- 手写 SVG：轻量卡通小人体系（6 变体 × 7 动作）---- */
+  var G4_SKIN = '#ffdcbb', G4_SKIN2 = '#ffd0ab', G4_HAIR = '#6b4a34';
+  var G4_INK = '#4a3628', G4_MOUTH = '#c2604f';
+  var G4_PANTS = '#5a6b8a', G4_SHOE = '#3d3d4a';
+  var G4_ACT_CN = { ear: '摸耳朵', clap: '拍手', nose: '摸鼻子', stomp: '跺脚', jump: '跳', eyes: '闭眼', head: '摸头' };
+  var G4_ACTS = ['ear', 'clap', 'nose', 'stomp', 'jump', 'eyes', 'head'];
+  /* 6 个小人变体：3 男 3 女，只换发型 / 发色 / 衣服 / 肤色（§二.16 同一套零件） */
+  var G4_KIDS = [
+    { id: 'b1', gender: 'boy',  hair: 'short', hairColor: '#6b4a34', shirt: '#7fb8d8', skin: G4_SKIN },
+    { id: 'b2', gender: 'boy',  hair: 'spiky', hairColor: '#3d3d4a', shirt: '#8fd0a8', skin: '#f6cfa5' },
+    { id: 'b3', gender: 'boy',  hair: 'curly', hairColor: '#b45a2a', shirt: '#9fd0f5', skin: G4_SKIN },
+    { id: 'g1', gender: 'girl', hair: 'pony',  hairColor: '#a0522d', shirt: '#ffb3c1', skin: G4_SKIN },
+    { id: 'g2', gender: 'girl', hair: 'buns',  hairColor: '#3d3d4a', shirt: '#c9b6e8', skin: '#f6cfa5' },
+    { id: 'g3', gender: 'girl', hair: 'long',  hairColor: '#6b4a34', shirt: '#ffd66b', skin: G4_SKIN }
+  ];
+
+  /** 四角星光（标出「摸到这个部位」；g4- 自己的类，不跨关复用 g3-spark，§三.17） */
+  function g4Spark(cx, cy, r) {
+    r = r || 10;
+    var k = r * 0.22;
+    return '<path class="g4-spark" d="M' + cx + ' ' + (cy - r) +
+      ' Q' + (cx + k) + ' ' + (cy - k) + ' ' + (cx + r) + ' ' + cy +
+      ' Q' + (cx + k) + ' ' + (cy + k) + ' ' + cx + ' ' + (cy + r) +
+      ' Q' + (cx - k) + ' ' + (cy + k) + ' ' + (cx - r) + ' ' + cy +
+      ' Q' + (cx - k) + ' ' + (cy - k) + ' ' + cx + ' ' + (cy - r) + ' Z" fill="#ffb74d"/>';
+  }
+
+  /** 发型（局部坐标，头中心 0,0，半径 27） */
+  function g4Hair(style, color) {
+    if (style === 'short') {
+      return '<path d="M-27 0 A27 27 0 0 1 27 0 Q18 -9 0 -9 Q-18 -9 -27 0 Z" fill="' + color + '"/>' +
+        '<path d="M-2 -32 q7 -9 15 -3" stroke="' + color + '" stroke-width="4.5" fill="none" stroke-linecap="round"/>';
+    }
+    if (style === 'spiky') {
+      return '<path d="M-27 2 L-23 -9 L-15 -1 L-9 -13 L-2 -3 L4 -14 L11 -2 L18 -10 L23 -1 L27 2 Z" fill="' + color + '"/>';
+    }
+    if (style === 'pony') {
+      return '<path d="M-27 0 A27 27 0 0 1 27 0 Q18 -9 0 -9 Q-18 -9 -27 0 Z" fill="' + color + '"/>' +
+        '<ellipse cx="31" cy="-12" rx="9" ry="15" fill="' + color + '" transform="rotate(20 31 -12)"/>' +
+        '<rect x="-5" y="-15" width="10" height="6" rx="3" fill="#ff8fa3"/>';
+    }
+    if (style === 'buns') {
+      return '<path d="M-27 0 A27 27 0 0 1 27 0 Q18 -9 0 -9 Q-18 -9 -27 0 Z" fill="' + color + '"/>' +
+        '<circle cx="-29" cy="-16" r="8.5" fill="' + color + '"/><circle cx="29" cy="-16" r="8.5" fill="' + color + '"/>' +
+        '<circle cx="-29" cy="-16" r="3" fill="#ff8fa3" opacity=".75"/><circle cx="29" cy="-16" r="3" fill="#ff8fa3" opacity=".75"/>';
+    }
+    if (style === 'long') {
+      return '<path d="M-27 0 A27 27 0 0 1 27 0 Q18 -9 0 -9 Q-18 -9 -27 0 Z" fill="' + color + '"/>' +
+        '<rect x="-31" y="-2" width="12" height="36" rx="6" fill="' + color + '"/>' +
+        '<rect x="19" y="-2" width="12" height="36" rx="6" fill="' + color + '"/>';
+    }
+    return '<g fill="' + color + '">' +
+      '<circle cx="-20" cy="-12" r="10"/><circle cx="-6" cy="-20" r="11"/><circle cx="9" cy="-19" r="10.5"/>' +
+      '<circle cx="21" cy="-10" r="9.5"/><circle cx="0" cy="-8" r="12"/></g>';
+  }
+
+  /** 脸：eyes=闭眼（两条弧），否则圆眼；带小鼻子和笑嘴（F8 同款嘴型，缩到 100px 也读得出） */
+  function g4Face(mood) {
+    var eyes = (mood === 'eyes')
+      ? '<path d="M-14 4 q5 -7 10 0" stroke="' + G4_INK + '" stroke-width="2.8" fill="none" stroke-linecap="round"/>' +
+        '<path d="M4 4 q5 -7 10 0" stroke="' + G4_INK + '" stroke-width="2.8" fill="none" stroke-linecap="round"/>'
+      : '<circle cx="-9" cy="4" r="3.4" fill="' + G4_INK + '"/>' +
+        '<circle cx="9" cy="4" r="3.4" fill="' + G4_INK + '"/>' +
+        '<circle cx="-10.3" cy="2.6" r="1.2" fill="#ffffff"/>' +
+        '<circle cx="7.7" cy="2.6" r="1.2" fill="#ffffff"/>';
+    return eyes +
+      '<circle cx="0" cy="13" r="2.6" fill="' + G4_SKIN2 + '"/>' +
+      '<path d="M-9 20 q9 10 18 0 q-9 -4 -18 0" fill="' + G4_MOUTH + '"/>';
+  }
+
+  /** 一只手臂：11px 圆头描边（缩到 100px 也是肉肉的小胳膊，F8 同款做法） */
+  function g4Arm(d, skin) {
+    return '<path d="' + d + '" stroke="' + skin + '" stroke-width="11" stroke-linecap="round" fill="none"/>';
+  }
+
+  /**
+   * 小人内部 markup。姿态全部用「显式画手臂路径 + 末端圆手」（不用 CSS rotate，几何精确）：
+   *   ear/nose/head —— 右手举到对应部位 + 星光标记；
+   *   clap —— 双臂在胸前合拢；
+   *   stomp/jump/eyes —— 手臂自然下垂，动作在腿 / 整体 / 眼睛上。
+   */
+  function g4KidInner(kid, act) {
+    var skin = kid.skin;
+    var arms = '', extra = '';
+    if (act === 'ear') {
+      arms = g4Arm('M54 112 q-9 16 -6 30', skin) +
+        '<circle class="g4-hand g4-hand-l" cx="48" cy="142" r="8" fill="' + skin + '"/>' +
+        '<path d="M106 112 Q124 86 109 58" stroke="' + skin + '" stroke-width="11" stroke-linecap="round" fill="none"/>' +
+        '<circle class="g4-hand g4-hand-r" cx="108" cy="56" r="8" fill="' + skin + '"/>';
+      extra = g4Spark(120, 46, 10);
+    } else if (act === 'nose') {
+      arms = g4Arm('M54 112 q-9 16 -6 30', skin) +
+        '<circle class="g4-hand g4-hand-l" cx="48" cy="142" r="8" fill="' + skin + '"/>' +
+        '<path d="M106 112 Q104 82 86 66" stroke="' + skin + '" stroke-width="11" stroke-linecap="round" fill="none"/>' +
+        '<circle class="g4-hand g4-hand-r" cx="84" cy="64" r="8" fill="' + skin + '"/>';
+      extra = g4Spark(68, 66, 9);
+    } else if (act === 'head') {
+      arms = g4Arm('M54 112 q-9 16 -6 30', skin) +
+        '<circle class="g4-hand g4-hand-l" cx="48" cy="142" r="8" fill="' + skin + '"/>' +
+        '<path d="M106 112 Q114 70 86 32" stroke="' + skin + '" stroke-width="11" stroke-linecap="round" fill="none"/>' +
+        '<circle class="g4-hand g4-hand-r" cx="84" cy="29" r="8" fill="' + skin + '"/>';
+      extra = g4Spark(62, 22, 9);
+    } else if (act === 'clap') {
+      arms = '<path d="M54 112 Q46 96 72 104" stroke="' + skin + '" stroke-width="11" stroke-linecap="round" fill="none"/>' +
+        '<path d="M106 112 Q114 96 88 104" stroke="' + skin + '" stroke-width="11" stroke-linecap="round" fill="none"/>' +
+        '<circle class="g4-hand g4-hand-l" cx="74" cy="103" r="8" fill="' + skin + '"/>' +
+        '<circle class="g4-hand g4-hand-r" cx="86" cy="103" r="8" fill="' + skin + '"/>';
+    } else {
+      arms = g4Arm('M54 112 q-9 16 -6 30', skin) +
+        '<circle class="g4-hand g4-hand-l" cx="48" cy="142" r="8" fill="' + skin + '"/>' +
+        g4Arm('M106 112 q9 16 6 30', skin) +
+        '<circle class="g4-hand g4-hand-r" cx="112" cy="142" r="8" fill="' + skin + '"/>';
+    }
+    var s = '';
+    s += '<ellipse class="g4-shadow" cx="80" cy="196" rx="34" ry="6" fill="#3a5a7a" opacity=".18"/>';
+    s += '<g class="g4-bot">';
+    // 腿 + 脚
+    s += '<g class="g4-legs">' +
+      '<rect x="64" y="156" width="14" height="26" rx="7" fill="' + G4_PANTS + '"/>' +
+      '<rect x="82" y="156" width="14" height="26" rx="7" fill="' + G4_PANTS + '"/>' +
+      '<ellipse class="g4-foot g4-foot-l" cx="71" cy="187" rx="13" ry="8" fill="' + G4_SHOE + '"/>' +
+      '<ellipse class="g4-foot g4-foot-r" cx="89" cy="187" rx="13" ry="8" fill="' + G4_SHOE + '"/></g>';
+    // 脖子 + 上身
+    s += '<g class="g4-body">' +
+      '<rect x="70" y="62" width="20" height="28" rx="9" fill="' + skin + '"/>' +
+      '<path d="M52 160 v-28 q0 -26 28 -26 q28 0 28 26 v28 z" fill="' + kid.shirt + '"/></g>';
+    // 头（外层 g4-head-g 专供摇晃动画，避免 CSS transform 覆盖 translate 属性）
+    s += '<g class="g4-head-g"><g transform="translate(80 50)">' +
+      '<circle cx="-27" cy="4" r="6.4" fill="' + G4_SKIN2 + '"/>' +
+      '<circle cx="27" cy="4" r="6.4" fill="' + G4_SKIN2 + '"/>' +
+      '<circle r="27" fill="' + skin + '"/>' +
+      g4Hair(kid.hair, kid.hairColor) +
+      '<circle cx="-16" cy="13" r="4.2" fill="#ffb9b9" opacity=".55"/>' +
+      '<circle cx="16" cy="13" r="4.2" fill="#ffb9b9" opacity=".55"/>' +
+      g4Face(act === 'eyes' ? 'eyes' : 'happy') +
+      '</g></g>';
+    // 手臂画在最后：手压在头 / 胸上才是「摸到」
+    s += arms;
+    s += extra;
+    s += '</g>';
+    return s;
+  }
+
+  function g4KidSvg(kid, act) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 160 200');
+    s.setAttribute('class', 'g4-kid-svg g4-act-' + act);
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = g4KidInner(kid, act);
+    return s;
+  }
+
+  /** 小人按钮：外层 padding 让点击热区比视觉大一圈（§三.15） */
+  function g4KidNode(kid, act, opts) {
+    opts = opts || {};
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'g4-kid' + (opts.hl ? ' g4-hl' : '');
+    b.dataset.kid = kid.id;
+    b.dataset.gender = kid.gender;
+    b.dataset.act = act;
+    b.setAttribute('aria-label', kid.gender === 'boy' ? '小男孩' : '小女孩');
+    b.appendChild(g4KidSvg(kid, act));
+    return b;
+  }
+
+  function ensureG4Css() {
+    if (document.getElementById('g4-style')) return;
+    var s = document.createElement('style');
+    s.id = 'g4-style';
+    s.textContent =
+      /* 舞台 + 群像布局（flex-wrap 自动换行，竖屏 3/行、横屏 5/行） */
+      '.g4-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'width:100%;gap:1.8vh;padding-bottom:6vh;box-sizing:border-box}' +
+      '.g4-kids{display:flex;flex-wrap:wrap;gap:min(3vw,14px);justify-content:center;align-items:flex-start;' +
+      'width:min(94vw,470px);margin:0 auto}' +
+      /* 小人按钮：padding:8% 让热区比图形大一圈；box-sizing:border-box 防止百分比 padding 撑破宽度 */
+      '.g4-kid{width:min(26vw,120px);aspect-ratio:160/200;padding:8%;box-sizing:border-box;' +
+      'border-radius:24px;background:rgba(255,255,255,.55);border:3px solid transparent;' +
+      'display:flex;align-items:center;justify-content:center;cursor:pointer;' +
+      'transition:transform .15s ease,box-shadow .2s ease,border-color .2s ease,opacity .2s ease}' +
+      '.g4-kid:active{transform:scale(.96)}' +
+      '.g4-kid svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.g4-kid.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 5px rgba(127,209,138,.45)}' +
+      '.g4-kid.done{border-color:#7FD18A;background:#eafaf0;opacity:.82}' +
+      '.g4-kid.wrong{animation:g4shake .5s;border-color:#f0a0a0}' +
+      '.g4-kid.g4-hl{animation:g4hl 1.2s ease-in-out infinite}' +
+      '@keyframes g4hl{0%,100%{box-shadow:0 0 0 0 rgba(255,183,77,0)}50%{box-shadow:0 0 0 9px rgba(255,183,77,.45)}}' +
+      '@keyframes g4shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      /* 小人动画：全部 transform / opacity，简单不烫手机 */
+      '.g4-kid-svg .g4-shadow{transform-box:fill-box;transform-origin:50% 50%}' +
+      '.g4-kid-svg .g4-body{transform-box:fill-box;transform-origin:50% 100%;animation:g4breath 2.6s ease-in-out infinite}' +
+      '@keyframes g4breath{0%,100%{transform:scale(1)}50%{transform:scale(1.015,1.03)}}' +
+      '.g4-spark{animation:g4sp 1.6s ease-in-out infinite}' +
+      '@keyframes g4sp{0%,100%{opacity:.5}50%{opacity:1}}' +
+      /* 拍手：两只小手向中间合拢 */
+      '.g4-act-clap .g4-hand-l{animation:g4clapL .6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}' +
+      '.g4-act-clap .g4-hand-r{animation:g4clapR .6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}' +
+      '@keyframes g4clapL{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}' +
+      '@keyframes g4clapR{0%,100%{transform:translateX(0)}50%{transform:translateX(-6px)}}' +
+      /* 跺脚：两只脚交替下沉 */
+      '.g4-act-stomp .g4-foot-l{animation:g4stompL .6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}' +
+      '.g4-act-stomp .g4-foot-r{animation:g4stompR .6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}' +
+      '@keyframes g4stompL{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}' +
+      '@keyframes g4stompR{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}' +
+      /* 跳：整体双连跳 + 影子压缩 */
+      '.g4-act-jump .g4-bot{animation:g4jump .9s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}' +
+      '@keyframes g4jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-16px)}60%{transform:translateY(0)}80%{transform:translateY(-7px)}}' +
+      '.g4-act-jump .g4-shadow{animation:g4jshadow .9s ease-in-out infinite}' +
+      '@keyframes g4jshadow{0%,100%{transform:scale(1);opacity:.18}40%{transform:scale(.75);opacity:.1}60%{transform:scale(1);opacity:.18}80%{transform:scale(.9);opacity:.14}}' +
+      /* 摸部位：举着的小手轻轻晃 */
+      '.g4-act-ear .g4-hand-r,.g4-act-nose .g4-hand-r,.g4-act-head .g4-hand-r' +
+      '{animation:g4bob 1.4s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}' +
+      '@keyframes g4bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}' +
+      /* 闭眼：脑袋轻轻摇（睡意）——动画挂在外层 g4-head-g，不覆盖 translate */
+      '.g4-act-eyes .g4-head-g{animation:g4sway 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}' +
+      '@keyframes g4sway{0%,100%{transform:rotate(0)}50%{transform:rotate(2.5deg)}}' +
+      /* 横屏矮屏压缩（§三.15：不得越界） */
+      '@media (max-height:560px){' +
+      '.g4-stage{gap:.5vh;padding-bottom:1vh}' +
+      '.g4-kid{width:min(20vw,104px);border-radius:18px;padding:6%}' +
+      '.g4-kids{gap:min(2vw,10px)}}';
+    document.head.appendChild(s);
+  }
+
+  /* ---------------- 群像场景构建 ---------------- */
+
+  /** 单目标场景：n 个小人，其中一个（target 性别）做 target 动作，其余动作互异且 ≠ 目标动作 */
+  function g4Scene(n, target) {
+    var pool = G4_KIDS.filter(function (k) { return k.gender === target.gender; }).slice();
+    var tKid = pool.splice(randInt(0, pool.length - 1), 1)[0];
+    var others = G4_KIDS.filter(function (k) { return k !== tKid; });
+    shuffle(others);
+    var picked = others.slice(0, n - 1);
+    var acts = G4_ACTS.filter(function (a) { return a !== target.act; });
+    shuffle(acts);
+    var scene = picked.map(function (k, i) { return { kid: k, act: acts[i] }; });
+    scene.push({ kid: tKid, act: target.act });
+    shuffle(scene);
+    return scene;
+  }
+
+  /** 双目标场景：两个不同性别的目标 + n-2 个干扰（动作互异） */
+  function g4Scene2(n, t1, t2) {
+    function pick(g) {
+      var p = G4_KIDS.filter(function (k) { return k.gender === g; }).slice();
+      return p.splice(randInt(0, p.length - 1), 1)[0];
+    }
+    var k1 = pick(t1.gender), k2 = pick(t2.gender);
+    var rest = G4_KIDS.filter(function (k) { return k !== k1 && k !== k2; });
+    shuffle(rest);
+    var picked = rest.slice(0, n - 2);
+    var acts = G4_ACTS.filter(function (a) { return a !== t1.act && a !== t2.act; });
+    shuffle(acts);
+    var scene = picked.map(function (k, i) { return { kid: k, act: acts[i] }; });
+    scene.push({ kid: k1, act: t1.act }, { kid: k2, act: t2.act });
+    shuffle(scene);
+    return scene;
+  }
+
+  /**
+   * 动作纠错场景（3 人）：
+   *   陷阱 = 名词性别的小人，但做的是别的动作；
+   *   答案 = 另一个性别的小人，做的是语音里说的动作；
+   *   第三人 = 第三个动作。
+   * 孩子必须找到「真的在做该动作」的人，不能听到名词就点。
+   */
+  function g4SceneC(cc) {
+    var other = cc.gender === 'boy' ? 'girl' : 'boy';
+    function pick(g, except) {
+      var p = G4_KIDS.filter(function (k) { return k.gender === g && (!except || k !== except); }).slice();
+      return p[randInt(0, p.length - 1)];
+    }
+    var ansKid = pick(other, null);
+    var trapKid = pick(cc.gender, ansKid);
+    var restPool = G4_KIDS.filter(function (k) { return k !== ansKid && k !== trapKid; });
+    var thirdKid = restPool[randInt(0, restPool.length - 1)];
+    var acts = G4_ACTS.filter(function (a) { return a !== cc.act; });
+    shuffle(acts);
+    var scene = [
+      { kid: ansKid, act: cc.act },
+      { kid: trapKid, act: acts[0] },
+      { kid: thirdKid, act: acts[1] }
+    ];
+    shuffle(scene);
+    return scene;
+  }
+
+  /* ---------------- 答题渲染（三型共用群像，判定逻辑不同） ---------------- */
+  function renderG4Kids(q) {
+    ensureG4Css();
+    askDisplay.innerHTML = '';
+    var row = document.createElement('div');
+    row.className = 'g4-kids';
+    row.setAttribute('aria-label', '一群小人');
+    q.kids.forEach(function (k, i) {
+      var el = g4KidNode(k.kid, k.act, {});
+      el.dataset.idx = String(i);
+      el.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        resolveG4Tap(i, el);
+      });
+      row.appendChild(el);
+    });
+    askDisplay.appendChild(row);
+  }
+
+  /** 答题点击判定：A/C 单目标；B 双目标按顺序 */
+  function resolveG4Tap(idx, el) {
+    var q = state.question;
+    if (!q) return;
+    if (q.type === 'G4B') {
+      if (el.classList.contains('done')) return;   // 已经点过的step不再响应
+      var k = q.kids[idx];
+      var step = q.steps[q.stepsDone];
+      if (!step) return;
+      var ok = (k.kid.gender === step.gender && k.act === step.act);
+      if (ok) {
+        el.classList.add('done');
+        q.stepsDone += 1;
+        coin(); ting();
+        if (q.stepsDone < q.steps.length) {
+          say([q.stepAudios[q.stepsDone]]);   // 第一步落位，口播第二步
+        } else {
+          judge(true, el);
+        }
+      } else {
+        judge(false, el);
+      }
+      return;
+    }
+    judge(idx === q.answer, el);
+  }
+
+  /* ---------------- 出题：A 单目标 / B 双目标 / C 动作纠错 ---------------- */
+  var G4_SENT = {
+    'boy+ear': 'g4_t_ear', 'girl+clap': 'g4_t_clap',
+    'boy+stomp': 'g4_a_boy_stomp', 'girl+jump': 'g4_a_girl_jump',
+    'boy+nose': 'g4_a_boy_nose', 'girl+eyes': 'g4_a_girl_eyes',
+    'boy+head': 'g4_a_boy_head', 'girl+ear': 'g4_a_girl_ear'
+  };
+  var G4_A_CASES = [
+    { gender: 'boy', act: 'ear' }, { gender: 'girl', act: 'clap' },
+    { gender: 'boy', act: 'stomp' }, { gender: 'girl', act: 'jump' },
+    { gender: 'boy', act: 'nose' }, { gender: 'girl', act: 'eyes' },
+    { gender: 'boy', act: 'head' }, { gender: 'girl', act: 'ear' }
+  ];
+  var G4_B_CASES = [
+    { s1: { gender: 'boy', act: 'nose' }, s2: { gender: 'girl', act: 'jump' }, key: 'g4_b1', then: 'g4_b1_then' },
+    { s1: { gender: 'girl', act: 'ear' }, s2: { gender: 'boy', act: 'clap' }, key: 'g4_b2', then: 'g4_b2_then' },
+    { s1: { gender: 'boy', act: 'head' }, s2: { gender: 'girl', act: 'stomp' }, key: 'g4_b3', then: 'g4_b3_then' },
+    { s1: { gender: 'girl', act: 'eyes' }, s2: { gender: 'boy', act: 'jump' }, key: 'g4_b4', then: 'g4_b4_then' }
+  ];
+
+  function g4SceneSig(scene) {
+    return scene.map(function (k) { return k.kid.id + k.act; }).join(',');
+  }
+
+  function makeQuestionG4(type, prev) {
+    ensureG4Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var c = G4_A_CASES[randInt(0, G4_A_CASES.length - 1)];
+        var scene = g4Scene(4 + randInt(0, 1), c);   // 4–5 人
+        var ans = -1;
+        scene.forEach(function (k, i) { if (k.kid.gender === c.gender && k.act === c.act) ans = i; });
+        q = {
+          type: 'G4A', sig: 'A:' + c.gender + '+' + c.act + ':' + g4SceneSig(scene),
+          noun: c.gender, act: c.act, kids: scene, answer: ans, correct: ans, options: [],
+          audio: [G4_SENT[c.gender + '+' + c.act]]
+        };
+      } else if (type === 1) {
+        var b = G4_B_CASES[randInt(0, G4_B_CASES.length - 1)];
+        var sceneB = g4Scene2(5, b.s1, b.s2);
+        q = {
+          type: 'G4B', sig: 'B:' + b.key + ':' + g4SceneSig(sceneB),
+          noun: b.s1.gender, act: b.s1.act,
+          steps: [b.s1, b.s2], stepsDone: 0,
+          stepAudios: [null, b.then],
+          kids: sceneB, answer: -1, correct: -1, options: [],
+          audio: [b.key]
+        };
+      } else {
+        var cc = G4_A_CASES[randInt(0, G4_A_CASES.length - 1)];
+        var sceneC = g4SceneC(cc);
+        var ansC = -1;
+        sceneC.forEach(function (k, i) { if (k.act === cc.act) ansC = i; });
+        q = {
+          type: 'G4C', sig: 'C:' + cc.gender + '+' + cc.act + ':' + g4SceneSig(sceneC),
+          noun: cc.gender, act: cc.act, kids: sceneC, answer: ansC, correct: ansC, options: [],
+          audio: [G4_SENT[cc.gender + '+' + cc.act]]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* 教学：3 个知识点 × 2 演示 + 2 互动 + 过渡，共 13 环节。
+     RULES §三.10 双倍量 + §三.14 点按推进 + §二.12 四秒小手 */
+  var runG4Tutorial = (function () {
+    var ACTS = [
+      /* 摸耳朵男孩：先看到一群人，再听指令 + 高亮目标 */
+      { t: 'demo', sid: 'intro', word: 'g4_t_ear_intro', n: 3, target: { gender: 'boy', act: 'ear' }, hint: false },
+      { t: 'demo', sid: 'ear1',  word: 'g4_t_ear_intro', n: 3, target: { gender: 'boy', act: 'ear' }, hint: true },
+      { t: 'ask',  sid: 'earA',  word: 'g4_t_ear',  n: 3, target: { gender: 'boy', act: 'ear' } },
+      { t: 'ask',  sid: 'earB',  word: 'g4_t_ear',  n: 4, target: { gender: 'boy', act: 'ear' } },
+      /* 拍手女孩 */
+      { t: 'demo', sid: 'clap1', word: 'g4_t_clap', n: 4, target: { gender: 'girl', act: 'clap' }, hint: true },
+      { t: 'demo', sid: 'clap2', word: 'g4_t_clap', n: 5, target: { gender: 'girl', act: 'clap' }, hint: true },
+      { t: 'ask',  sid: 'clapA', word: 'g4_t_clap', n: 4, target: { gender: 'girl', act: 'clap' } },
+      { t: 'ask',  sid: 'clapB', word: 'g4_t_clap', n: 5, target: { gender: 'girl', act: 'clap' } },
+      /* 闭眼小人 */
+      { t: 'demo', sid: 'eyes1', word: 'g4_t_eyes', n: 4, target: { gender: 'boy', act: 'eyes' }, hint: true },
+      { t: 'demo', sid: 'eyes2', word: 'g4_t_eyes', n: 5, target: { gender: 'boy', act: 'eyes' }, hint: true },
+      { t: 'ask',  sid: 'eyesA', word: 'g4_t_eyes', n: 5, target: { gender: 'boy', act: 'eyes' } },
+      { t: 'ask',  sid: 'eyesB', word: 'g4_t_eyes', n: 5, target: { gender: 'boy', act: 'eyes' } },
+      /* 过渡 */
+      { t: 'out',  sid: 'out',   word: 'g4_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null; me._advance = null;
+      me.canDrag = false; me.customMode = null; me.askLock = false;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid) {
+      blank(me);
+      ensureG4Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'g4-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', '找小人');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /* 演示步：语音播完定格，必须点屏幕才推进（§三.14；不吞顶栏点击 §三.18） */
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    function kidsInto(w, scene, hlTarget) {
+      var row = document.createElement('div');
+      row.className = 'g4-kids';
+      row.setAttribute('aria-label', '一群小人');
+      scene.forEach(function (k) {
+        var isT = hlTarget && (k.kid.gender === hlTarget.gender && k.act === hlTarget.act);
+        row.appendChild(g4KidNode(k.kid, k.act, { hl: !!isT }));
+      });
+      w.appendChild(row);
+      return row;
+    }
+    function playDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      kidsInto(w, g4Scene(act.n, act.target), act.hint ? act.target : null);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        gate(me, next);
+      });
+    }
+    function playAsk(me, act, next) {
+      var w = stage(me, act.sid);
+      var scene = g4Scene(act.n, act.target);
+      var row = document.createElement('div');
+      row.className = 'g4-kids';
+      row.setAttribute('aria-label', '一群小人');
+      var targetEl = null;
+      scene.forEach(function (k) {
+        var isT = (k.kid.gender === act.target.gender && k.act === act.target.act);
+        var el = g4KidNode(k.kid, k.act, {});
+        if (isT) targetEl = el;
+        el.addEventListener('click', function () {
+          if (state.tut !== me || me.askLock) return;
+          if (isT) {
+            me.askLock = true;   // 防连点跳过步骤
+            clearHint(); coin(); ting();
+            el.classList.add('right');
+            me.replay = function () { say(['g4_t_great']); };
+            say(['g4_t_great'], function () { if (state.tut === me) next(); });
+          } else {
+            el.classList.add('wrong');
+            setTimeout(function () { el.classList.remove('wrong'); }, 520);
+            say(['again']);
+            if (state.tut === me) armHint();
+          }
+        });
+        row.appendChild(el);
+      });
+      w.appendChild(row);
+      me.hintTarget = targetEl;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) armHint(); });
+    }
+    function playOut(me, act) {
+      var w = stage(me, act.sid);
+      // 过渡画面：三个小人各做一个动作庆祝（不设目标）
+      var pool = G4_KIDS.slice();
+      shuffle(pool);
+      var acts = ['clap', 'jump', 'ear'];
+      var scene = pool.slice(0, 3).map(function (k, i) { return { kid: k, act: acts[i] }; });
+      kidsInto(w, scene, null);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        tutFinish(me, false);   // 过渡语自带，不叠加 t_ready（§三.10）
+      });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'out') { playOut(me, act); return; }
+      playAsk(me, act, next);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
   var runB4Tutorial = (function () {
@@ -16861,6 +17431,12 @@
     if (q.type === 'G3A') { optionsBar.classList.add('gone'); renderG3A(q); return; }
     if (q.type === 'G3B') { renderG3B(q); return; }
     if (q.type === 'G3C') { renderG3C(q); return; }
+    /* ---- 第 7 岛第 4 关：群像找茬（A 单目标 / B 双目标顺序点选 / C 动作纠错，全部画在中央） ---- */
+    if (q.type === 'G4A' || q.type === 'G4B' || q.type === 'G4C') {
+      optionsBar.classList.add('gone');
+      renderG4Kids(q);
+      return;
+    }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -17285,7 +17861,7 @@
     }
     // 第 7 岛第 1 关 B/C：题目画在中央宫格，选项栏收起
     if (q.type === 'G1B' || q.type === 'G1C' || q.type === 'G2B' || q.type === 'G2C' ||
-        q.type === 'G3A') {
+        q.type === 'G3A' || q.type === 'G4A' || q.type === 'G4B' || q.type === 'G4C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -17871,7 +18447,8 @@
         // 注意：第 3 岛第 4 / 5 关 A/B 的题目画在中央、不走选项栏，重洗会让 q.options 与 DOM 错位（点对也判错），故跳过。
         var qt = state.question && state.question.type;
         if (qt !== 'B4A' && qt !== 'B4B' && qt !== 'B5A' && qt !== 'B5B' &&
-            qt !== 'G1B' && qt !== 'G1C' && qt !== 'G2B' && qt !== 'G2C' && qt !== 'G3A') {
+            qt !== 'G1B' && qt !== 'G1C' && qt !== 'G2B' && qt !== 'G2C' && qt !== 'G3A' &&
+            qt !== 'G4A' && qt !== 'G4B' && qt !== 'G4C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -19039,6 +19616,14 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '7-4': {
+      // 快速反应群像找茬（I Spy）：3–5 个手写小人同屏听指令找人；13 环节（3 知识点 × 2 演示 + 2 互动 + 过渡）；
+      // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、C 型名词陷阱防「听到名词就点」
+      custom: runG4Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -20016,6 +20601,10 @@
           ansBox: q.ansBox || null,
           cmp: q.cmp || null,
           ansScene: q.ansScene || null,
+          g4kids: q.kids ? q.kids.map(function (k) { return { kid: k.kid.id, gender: k.kid.gender, act: k.act }; }) : null,
+          g4noun: q.noun || null,
+          g4act: q.act || null,
+          g4steps: (q.type === 'G4B' && q.steps) ? q.steps.map(function (s) { return { gender: s.gender, act: s.act }; }) : null,
           part: q.part || null,
           hl: q.hl || null
         } : null

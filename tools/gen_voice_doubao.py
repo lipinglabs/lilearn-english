@@ -1169,6 +1169,38 @@ add("g3_c_nose_ears",  "First, touch your nose. Then, touch your ears.", "en", -
 add("g3_c_head_ears",  "First, touch your head. Then, touch your ears.", "en", -15, EN_ASK)
 add("g3_c_ears_head",  "First, touch your ears. Then, touch your head.", "en", -15, EN_ASK)
 
+# ---- 第 7 岛第 4 关：快速反应群像找茬（I Spy）----
+# 主题「视力大挑战」：3–5 个手写 SVG 卡通小人同屏，听指令找出做对应动作的那个。
+# 全部 rate -15（≈0.85x）。教学 13 环节（3 个知识点 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）：
+#   摸耳朵男孩(3→4 人) / 拍手女孩(4→5 人) / 闭眼小人(4→5 人)。
+# 语音复用（RULES §1.12 同句同 key）：
+#   - 教学「摸耳朵男孩」「拍手女孩」两句同时是答题 A/C 的题干；
+#   - 答题 C（动作纠错）复用 A 的题干句（名词是陷阱，答案靠动作）；
+#   - 互动成功句 g4_t_great 本关专用（找到啦的夸奖）。
+# 本批 20 条新生成，已通过 audit 去重自检。
+add("g4_t_ear_intro", "Look! So many children. Find the boy touching his ear.", "en", -15, EN_ASK)
+add("g4_t_ear",       "Find the boy touching his ear.", "en", -15, EN_ASK)
+add("g4_t_clap",      "Find the girl clapping her hands.", "en", -15, EN_ASK)
+add("g4_t_eyes",      "Find the one closing his eyes.", "en", -15, EN_ASK)
+add("g4_t_out",       "You have sharp eyes! Let's play!", "en", -12, EN_PRAISE)
+add("g4_t_great",     "Great! You found him!", "en", -12, EN_PRAISE)
+# 答题 A 题干（单目标群像找茬；boy+ear / girl+clap 复用教学句）
+add("g4_a_boy_stomp",  "Find the boy stomping his feet.", "en", -15, EN_ASK)
+add("g4_a_girl_jump",  "Find the girl jumping.", "en", -15, EN_ASK)
+add("g4_a_boy_nose",   "Find the boy touching his nose.", "en", -15, EN_ASK)
+add("g4_a_girl_eyes",  "Find the girl closing her eyes.", "en", -15, EN_ASK)
+add("g4_a_boy_head",   "Find the boy touching his head.", "en", -15, EN_ASK)
+add("g4_a_girl_ear",   "Find the girl touching her ear.", "en", -15, EN_ASK)
+# 答题 B 题干（双目标复合找茬：先点一个，再点另一个；第一步落位后口播 then 分句）
+add("g4_b1",      "First, find the boy touching his nose. Then, find the girl jumping.", "en", -15, EN_ASK)
+add("g4_b1_then", "Then, find the girl jumping.", "en", -15, EN_ASK)
+add("g4_b2",      "First, find the girl touching her ear. Then, find the boy clapping his hands.", "en", -15, EN_ASK)
+add("g4_b2_then", "Then, find the boy clapping his hands.", "en", -15, EN_ASK)
+add("g4_b3",      "First, find the boy touching his head. Then, find the girl stomping her feet.", "en", -15, EN_ASK)
+add("g4_b3_then", "Then, find the girl stomping her feet.", "en", -15, EN_ASK)
+add("g4_b4",      "First, find the girl closing her eyes. Then, find the boy jumping.", "en", -15, EN_ASK)
+add("g4_b4_then", "Then, find the boy jumping.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

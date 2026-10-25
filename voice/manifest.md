@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**798** 条（英文 792 + 中文 6）
+总条目：**818** 条（英文 812 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -796,6 +796,26 @@
 | `g3_c_nose_ears` | en | First, touch your nose. Then, touch your ears. | 已存在 |
 | `g3_c_head_ears` | en | First, touch your head. Then, touch your ears. | 已存在 |
 | `g3_c_ears_head` | en | First, touch your ears. Then, touch your head. | 已存在 |
+| `g4_t_ear_intro` | en | Look! So many children. Find the boy touching his ear. | 待生成 |
+| `g4_t_ear` | en | Find the boy touching his ear. | 待生成 |
+| `g4_t_clap` | en | Find the girl clapping her hands. | 待生成 |
+| `g4_t_eyes` | en | Find the one closing his eyes. | 待生成 |
+| `g4_t_out` | en | You have sharp eyes! Let's play! | 待生成 |
+| `g4_t_great` | en | Great! You found him! | 待生成 |
+| `g4_a_boy_stomp` | en | Find the boy stomping his feet. | 待生成 |
+| `g4_a_girl_jump` | en | Find the girl jumping. | 待生成 |
+| `g4_a_boy_nose` | en | Find the boy touching his nose. | 待生成 |
+| `g4_a_girl_eyes` | en | Find the girl closing her eyes. | 待生成 |
+| `g4_a_boy_head` | en | Find the boy touching his head. | 待生成 |
+| `g4_a_girl_ear` | en | Find the girl touching her ear. | 待生成 |
+| `g4_b1` | en | First, find the boy touching his nose. Then, find the girl jumping. | 待生成 |
+| `g4_b1_then` | en | Then, find the girl jumping. | 待生成 |
+| `g4_b2` | en | First, find the girl touching her ear. Then, find the boy clapping his hands. | 待生成 |
+| `g4_b2_then` | en | Then, find the boy clapping his hands. | 待生成 |
+| `g4_b3` | en | First, find the boy touching his head. Then, find the girl stomping her feet. | 待生成 |
+| `g4_b3_then` | en | Then, find the girl stomping her feet. | 待生成 |
+| `g4_b4` | en | First, find the girl closing her eyes. Then, find the boy jumping. | 待生成 |
+| `g4_b4_then` | en | Then, find the boy jumping. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
