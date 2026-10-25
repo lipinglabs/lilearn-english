@@ -1201,6 +1201,29 @@ add("g4_b3_then", "Then, find the girl stomping her feet.", "en", -15, EN_ASK)
 add("g4_b4",      "First, find the girl closing her eyes. Then, find the boy jumping.", "en", -15, EN_ASK)
 add("g4_b4_then", "Then, find the boy jumping.", "en", -15, EN_ASK)
 
+# ---- 第 7 岛第 5 关：TPR 终极游乐场（结业关，只考不教新词，RULES §三.9）----
+# 主题「全身运动游乐场 / 街机跳舞机」：热身复习本岛全部身体部位与动作，答题大量 TPR（做动作 + 点大👍确认）。
+# 全部 rate -15（≈0.85x）。教学 7 环节：摸头+拍手（2 演示 + 1 互动）→ 摸鼻+跺脚（2 演示 + 1 互动）→ 过渡。
+# 语音复用（RULES §1.12 同句同 key）：
+#   - 互动成功句复用 g2_t_great（"Great! You did it!"）；
+#   - 答题 A 单步动作复用 g2_t_hand2 / g2_t_foot2 / g2_b_head / g1_c_nose；
+#   - 答题 B 复合指令复用 g3 的 8 条 First... Then... 句；
+#   - 答题 C 找小人复用 g4 的 8 条 Find the boy/girl... 句。
+# 本批仅 10 条新生成，已通过 audit 去重自检。
+add("g5_t_warmup",  "Welcome to the action park! Let's warm up. First, touch your head. Then, clap your hands.", "en", -15, EN_ASK)
+add("g5_t_youdo1",  "Now you try! Touch your head, then clap your hands.", "en", -15, EN_ASK)
+add("g5_t_next",    "Great! Next, touch your nose. Then, stomp your feet.", "en", -15, EN_ASK)
+add("g5_t_youdo2",  "Touch your nose, then stomp your feet.", "en", -15, EN_ASK)
+add("g5_t_out",     "You are ready! Let's start the action!", "en", -12, EN_PRAISE)
+# 答题 A：单步动作大比拼（clap/stomp/head/nose 复用既有 key；jump/ears/闭眼 新生成）
+add("g5_a_jump",  "Jump!", "en", -15, EN_ASK)
+add("g5_a_ears",  "Touch your ears!", "en", -15, EN_ASK)
+add("g5_a_eyes",  "Close your eyes!", "en", -15, EN_ASK)
+# 答题 B：复合指令大挑战（ears+jump 是用户示例句，新生成；其余复用 g3 复合句）
+add("g5_b_ears_jump", "First, touch your ears. Then, jump!", "en", -15, EN_ASK)
+# 答题 C：听指令找对应小人（boy+eyes 为用户示例句；其余复用 g4 的 Find... 句）
+add("g5_c_boy_eyes", "Find the boy touching his eyes.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

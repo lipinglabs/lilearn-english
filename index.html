@@ -3867,7 +3867,8 @@
     '7-1': { numbers: null,       make: 'makeG1',  title: '第 1 关', tutorial: true },
     '7-2': { numbers: null, make: 'makeG2', title: '第 2 关', tutorial: true },
     '7-3': { numbers: null, make: 'makeG3', title: '第 3 关', tutorial: true },
-    '7-4': { numbers: null, make: 'makeG4', title: '第 4 关', tutorial: true }
+    '7-4': { numbers: null, make: 'makeG4', title: '第 4 关', tutorial: true },
+    '7-5': { numbers: null, make: 'makeG5', title: '第 5 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4055,6 +4056,7 @@
     if (def && def.make === 'makeG2') return makeQuestionG2(typeIdx, prev);
     if (def && def.make === 'makeG3') return makeQuestionG3(typeIdx, prev);
     if (def && def.make === 'makeG4') return makeQuestionG4(typeIdx, prev);
+    if (def && def.make === 'makeG5') return makeQuestionG5(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -17164,6 +17166,390 @@
     return api;
   })();
 
+
+  /* ============================================================
+     第 7 岛第 5 关（L7-W5：TPR 终极游乐场）—— 本岛结业关（RULES §三.9）
+     概念：全身运动游乐场 / 街机跳舞机。只考不教新词（身体部位与动作已在 W1–W4 教过），
+           教学是延长版热身复习，答题大量 TPR（孩子做动作 + 点巨大👍按钮确认）。
+     教学 7 环节（§三.14 点按推进 + §二.12 四秒小手 + §三.12 模仿型交互）：
+       摸头+拍手（2 演示 + 1 互动）→ 摸鼻+跺脚（2 演示 + 1 互动）→ 过渡语；
+       演示步主角小人用「双半窗口」循环展示两步动作（复用 G4 小人体系，§三.17 成对注入 CSS）。
+     答题 12 轮（4/4/4）：
+       A 单步动作大比拼（屏幕中央只有巨大👍按钮，语音说单步动作，做完点按钮，永远判对）/
+       B 复合指令大挑战（两步动作按顺序做，点按钮确认）/
+       C 听指令找对应小人（3 个做不同动作的小人，点对应的那个——动脑与动手交替的休息）。
+     规则：无英文字母外显、答对只音效+星星（禁人声）、答错 again+四秒小手、
+           大按钮 ≥44vw 且始终醒目（§三.12）、零生图零 emoji（§二.17）、
+           动画只用 transform/opacity 的简单 CSS（同屏多个小人也不烫手机）。
+     通关：level===LEVELS_PER_ISLAND 自动走 finish() 的 grand 模式（大彩带 + 奖杯 + 第 7 岛小旗），
+           地图上第 7 岛 cleared 点亮、解锁第 8 岛（引擎通用逻辑）。
+     ============================================================ */
+
+  /** 街机/跳舞机场景：天空（渐变 + 星光）与地面跳舞机踏板（全部手写 SVG / CSS，零图片） */
+  function g5SkySvg() {
+    var stars = [[36, 54, 9], [118, 104, 7], [298, 62, 10], [352, 138, 6],
+                 [68, 176, 6], [258, 186, 8], [176, 44, 6], [214, 128, 5]];
+    var s = '';
+    stars.forEach(function (p) { s += g4Spark(p[0], p[1], p[2]); });
+    return '<svg viewBox="0 0 390 240" aria-hidden="true" preserveAspectRatio="xMidYMid slice">' + s + '</svg>';
+  }
+  function g5FloorSvg() {
+    var pads = [[6, '#ff8fa3'], [82, '#ffd66b'], [158, '#7fe3ff'], [234, '#8fd0a8'], [310, '#c9b6e8']];
+    var s = '';
+    pads.forEach(function (p) {
+      s += '<rect x="' + p[0] + '" y="0" width="74" height="24" rx="12" fill="' + p[1] + '" opacity=".9"/>';
+    });
+    return '<svg viewBox="0 0 390 24" aria-hidden="true" preserveAspectRatio="xMidYMid meet">' + s + '</svg>';
+  }
+
+  /** 巨大醒目的大拇指按钮（街机按钮造型：粉圆 + 白👍 + 黄袖口） */
+  function g5ThumbSvg() {
+    return '<svg viewBox="0 0 120 120" class="g5-thumb-svg" aria-hidden="true">' +
+      '<circle cx="60" cy="60" r="55" fill="#ff8fa3" stroke="#e07080" stroke-width="5"/>' +
+      '<circle cx="60" cy="60" r="44" fill="none" stroke="#ffffff" stroke-width="4" opacity=".55"/>' +
+      '<rect x="50" y="20" width="17" height="40" rx="8.5" fill="#ffffff"/>' +
+      '<rect x="26" y="52" width="48" height="36" rx="14" fill="#ffffff"/>' +
+      '<rect x="30" y="82" width="42" height="14" rx="7" fill="#ffd66b" stroke="#e0a93b" stroke-width="2.4"/>' +
+      '</svg>';
+  }
+
+  /**
+   * 复合主角小人：同一个 G4 小人变体的两份 SVG 叠放，第一份做第一步、第二份做第二步，
+   * 用 3.2s 双半窗口交叉淡入（第一步 0–50%、第二步 50–100%）——几何复用 G4 的姿态画法。
+   */
+  function g5ComboKid(kid, a1, a2) {
+    var wrap = document.createElement('div');
+    wrap.className = 'g5-combo';
+    wrap.setAttribute('aria-hidden', 'true');
+    var s1 = g4KidSvg(kid, a1); s1.classList.add('g5-half-a1');
+    var s2 = g4KidSvg(kid, a2); s2.classList.add('g5-half-a2');
+    wrap.appendChild(s1);
+    wrap.appendChild(s2);
+    return wrap;
+  }
+
+  function ensureG5Css() {
+    ensureG4Css();   // 复用 G4 小人体系：必须成对注入它的 CSS（§三.17），否则动作动画类没有规则
+    if (document.getElementById('g5-style')) return;
+    var s = document.createElement('style');
+    s.id = 'g5-style';
+    s.textContent =
+      /* 教学舞台 + 街机场景容器 */
+      '.g5-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'width:100%;gap:1.6vh;padding-bottom:5vh;box-sizing:border-box}' +
+      '.g5-ask{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'gap:2.6vh;width:100%;min-height:48vh;padding:4vh 5vw 9vh;box-sizing:border-box;border-radius:36px;' +
+      'overflow:hidden;background:linear-gradient(180deg,#ffe9f2 0%,#f6e9f7 52%,#e9f1fb 100%)}' +
+      '.g5-sky{position:absolute;inset:0;pointer-events:none}' +
+      '.g5-sky svg{position:absolute;width:100%;height:100%}' +
+      '.g5-floor{position:absolute;left:0;right:0;bottom:1.8vh;pointer-events:none;opacity:.92}' +
+      '.g5-floor svg{width:100%;display:block}' +
+      /* 主角小人 */
+      '.g5-hero{position:relative;z-index:1;width:min(50vw,220px);aspect-ratio:160/200}' +
+      '.g5-hero>svg{width:100%;height:100%;display:block}' +
+      '.g5-combo{position:relative;width:100%;height:100%}' +
+      '.g5-combo svg{position:absolute;left:0;top:0;width:100%;height:100%}' +
+      '.g5-half-a1{animation:g5win-a1 3.2s ease-in-out infinite}' +
+      '.g5-half-a2{animation:g5win-a2 3.2s ease-in-out infinite}' +
+      '@keyframes g5win-a1{0%,10%{opacity:0}18%,42%{opacity:1}50%,100%{opacity:0}}' +
+      '@keyframes g5win-a2{0%,54%{opacity:0}62%,92%{opacity:1}100%{opacity:0}}' +
+      '.g5-cheer{animation:g5cheer 1s ease-in-out infinite}' +
+      '@keyframes g5cheer{0%,100%{transform:rotate(0)}25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}' +
+      /* 巨大大拇指按钮：唯一、≥44vw、正下方、始终轻拍吸引注意（§三.12） */
+      '.g5-thumb{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;' +
+      'width:min(52vw,240px);aspect-ratio:1/1;border:none;background:none;padding:0;cursor:pointer;' +
+      'filter:drop-shadow(0 10px 20px rgba(224,112,128,.42));animation:g5thump 1.5s ease-in-out infinite;' +
+      'transition:transform .15s ease}' +
+      '.g5-thumb:active{transform:scale(.93)}' +
+      '.g5-thumb.off{opacity:.45;filter:grayscale(.35);pointer-events:none;animation:none}' +
+      '.g5-thumb.right{filter:drop-shadow(0 0 18px rgba(127,209,138,.9))}' +
+      '@keyframes g5thump{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}' +
+      '.g5-thumb-svg{width:100%;height:100%;display:block}' +
+      /* 横屏矮屏压缩（§三.15：不得越界） */
+      '@media (max-height:560px){' +
+      '.g5-stage{gap:.5vh;padding-bottom:1vh}' +
+      '.g5-ask{gap:1.4vh;min-height:44vh;padding:2vh 4vw 6vh;border-radius:24px}' +
+      '.g5-hero{width:min(30vw,128px)}' +
+      '.g5-thumb{width:min(28vw,120px)}' +
+      '.g5-floor{bottom:1vh}}';
+    document.head.appendChild(s);
+  }
+
+  /* ---------------- 出题：A 单步动作 / B 复合指令 / C 找小人 ---------------- */
+  /* A：单步动作（clap/stomp/head/nose 复用既有 key，jump/ears/闭眼 本关新生成） */
+  var G5_A_ACTS = [
+    { act: 'clap', key: 'g2_t_hand2' }, { act: 'stomp', key: 'g2_t_foot2' },
+    { act: 'jump', key: 'g5_a_jump' },   { act: 'head', key: 'g2_b_head' },
+    { act: 'nose', key: 'g1_c_nose' },   { act: 'ears', key: 'g5_a_ears' },
+    { act: 'eyes', key: 'g5_a_eyes' }
+  ];
+  /* B：复合指令（复用 G3 的 8 条 First... Then... 句；ears+jump 为本关示例新句） */
+  var G5_B_CASES = [
+    { a1: 'head', a2: 'clap', key: 'g3_t_cmd1' }, { a1: 'nose', a2: 'stomp', key: 'g3_t_cmd2' },
+    { a1: 'eyes', a2: 'jump', key: 'g3_t_cmd3' }, { a1: 'ears', a2: 'clap', key: 'g3_cmd_ears_clap' },
+    { a1: 'head', a2: 'stomp', key: 'g3_cmd_head_stomp' }, { a1: 'nose', a2: 'jump', key: 'g3_cmd_nose_jump' },
+    { a1: 'eyes', a2: 'clap', key: 'g3_cmd_eyes_clap' }, { a1: 'nose', a2: 'clap', key: 'g3_cmd_nose_clap' },
+    { a1: 'ears', a2: 'jump', key: 'g5_b_ears_jump' }
+  ];
+  /* C：听指令找小人（复用 G4 的 8 条 Find... 句；boy+eyes 为本关示例新句） */
+  var G5_C_CASES = [
+    { gender: 'boy', act: 'ear', key: 'g4_t_ear' }, { gender: 'girl', act: 'clap', key: 'g4_t_clap' },
+    { gender: 'boy', act: 'stomp', key: 'g4_a_boy_stomp' }, { gender: 'girl', act: 'jump', key: 'g4_a_girl_jump' },
+    { gender: 'boy', act: 'nose', key: 'g4_a_boy_nose' }, { gender: 'girl', act: 'eyes', key: 'g4_a_girl_eyes' },
+    { gender: 'boy', act: 'head', key: 'g4_a_boy_head' }, { gender: 'girl', act: 'ear', key: 'g4_a_girl_ear' },
+    { gender: 'boy', act: 'eyes', key: 'g5_c_boy_eyes' }
+  ];
+
+  function makeQuestionG5(type, prev) {
+    ensureG5Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var a = G5_A_ACTS[randInt(0, G5_A_ACTS.length - 1)];
+        q = {
+          type: 'G5A', sig: 'A:' + a.act, act: a.act,
+          options: [], correct: 0, audio: [a.key]
+        };
+      } else if (type === 1) {
+        var b = G5_B_CASES[randInt(0, G5_B_CASES.length - 1)];
+        q = {
+          type: 'G5B', sig: 'B:' + b.a1 + '+' + b.a2, a1: b.a1, a2: b.a2,
+          options: [], correct: 0, audio: [b.key]
+        };
+      } else {
+        var c = G5_C_CASES[randInt(0, G5_C_CASES.length - 1)];
+        var scene = g4Scene(3, c);   // 3 个小人，目标（性别+动作）唯一
+        var ans = -1;
+        scene.forEach(function (k, i) { if (k.kid.gender === c.gender && k.act === c.act) ans = i; });
+        q = {
+          type: 'G5C', sig: 'C:' + c.gender + '+' + c.act + ':' + g4SceneSig(scene),
+          noun: c.gender, act: c.act, kids: scene, answer: ans, correct: ans,
+          options: [], audio: [c.key]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 街机场景外壳（天空 + 跳舞机踏板）；返回容器，由调用方继续放主角 / 按钮 / 群像 */
+  function g5SceneInto(parent, withFloor) {
+    var sky = document.createElement('div');
+    sky.className = 'g5-sky';
+    sky.setAttribute('aria-hidden', 'true');
+    sky.innerHTML = g5SkySvg();
+    parent.appendChild(sky);
+    if (withFloor !== false) {
+      var floor = document.createElement('div');
+      floor.className = 'g5-floor';
+      floor.setAttribute('aria-hidden', 'true');
+      floor.innerHTML = g5FloorSvg();
+      parent.appendChild(floor);
+    }
+  }
+
+  /** A / B：屏幕中央是巨大👍按钮（孩子做动作，点按钮确认；永远判对 §三.12） */
+  function renderG5Action(q) {
+    ensureG5Css();
+    askDisplay.innerHTML = '';
+    var ask = document.createElement('div');
+    ask.className = 'g5-ask';
+    g5SceneInto(ask);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'g5-thumb';
+    btn.setAttribute('aria-label', '我做到啦');
+    btn.innerHTML = g5ThumbSvg();
+    btn.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      coin(); ting();
+      judge(true, btn);
+    });
+    ask.appendChild(btn);
+    askDisplay.appendChild(ask);
+  }
+
+  /** C：3 个做不同动作的小人，点对应的那个（复用 G4 群像按钮） */
+  function renderG5Find(q) {
+    ensureG5Css();
+    askDisplay.innerHTML = '';
+    var ask = document.createElement('div');
+    ask.className = 'g5-ask';
+    g5SceneInto(ask);
+    var row = document.createElement('div');
+    row.className = 'g4-kids';
+    row.style.position = 'relative';
+    row.style.zIndex = '1';
+    row.setAttribute('aria-label', '一群小人');
+    q.kids.forEach(function (k, i) {
+      var el = g4KidNode(k.kid, k.act, {});
+      el.dataset.idx = String(i);
+      el.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, el);
+      });
+      row.appendChild(el);
+    });
+    ask.appendChild(row);
+    askDisplay.appendChild(ask);
+  }
+
+  /* 教学：热身复习 7 环节（演示点按推进 + 互动大按钮确认）。
+     RULES §三.9 结业关只考不教新词——本教学是延长版热身，把 W2/W3 的复合指令复习一遍。 */
+  var runG5Tutorial = (function () {
+    var ACTS = [
+      /* 摸头 + 拍手 */
+      { t: 'demo', sid: 'warm1', word: 'g5_t_warmup', kid: 'b1', a1: 'head', a2: 'clap' },
+      { t: 'demo', sid: 'warm2', word: 'g5_t_warmup', kid: 'b2', a1: 'head', a2: 'clap' },
+      { t: 'ask',  sid: 'ask1',  word: 'g5_t_youdo1', kid: 'b3', a1: 'head', a2: 'clap' },
+      /* 摸鼻子 + 跺脚 */
+      { t: 'demo', sid: 'next1', word: 'g5_t_next',   kid: 'g1', a1: 'nose', a2: 'stomp' },
+      { t: 'demo', sid: 'next2', word: 'g5_t_next',   kid: 'g2', a1: 'nose', a2: 'stomp' },
+      { t: 'ask',  sid: 'ask2',  word: 'g5_t_youdo2', kid: 'g3', a1: 'nose', a2: 'stomp' },
+      /* 过渡 */
+      { t: 'out',  sid: 'out',   word: 'g5_t_out' }
+    ];
+
+    function kidOf(id) {
+      for (var i = 0; i < G4_KIDS.length; i++) if (G4_KIDS[i].id === id) return G4_KIDS[i];
+      return G4_KIDS[0];
+    }
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null; me._advance = null;
+      me.canDrag = false; me.customMode = null; me.askLock = false;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid) {
+      blank(me);
+      ensureG5Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'g5-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', '动作游乐场');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /* 演示步：语音播完定格，必须点屏幕才推进（§三.14；不吞顶栏点击 §三.18） */
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /** 场景 + 主角小人（复合两步循环）；返回 hero 容器 */
+    function heroInto(ask, kid, a1, a2, cheer) {
+      var hero = document.createElement('div');
+      hero.className = 'g5-hero' + (cheer ? ' g5-cheer' : '');
+      hero.setAttribute('aria-hidden', 'true');
+      hero.appendChild(g5ComboKid(kid, a1, a2));
+      ask.appendChild(hero);
+      return hero;
+    }
+    function playDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var ask = document.createElement('div');
+      ask.className = 'g5-ask';
+      g5SceneInto(ask);
+      w.appendChild(ask);
+      heroInto(ask, kidOf(act.kid), act.a1, act.a2, false);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        gate(me, next);
+      });
+    }
+    function playAsk(me, act, next) {
+      var w = stage(me, act.sid);
+      var ask = document.createElement('div');
+      ask.className = 'g5-ask';
+      g5SceneInto(ask);
+      w.appendChild(ask);
+      heroInto(ask, kidOf(act.kid), act.a1, act.a2, false);
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'g5-thumb off';
+      btn.setAttribute('aria-label', '我做到啦');
+      btn.innerHTML = g5ThumbSvg();
+      ask.appendChild(btn);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        btn.classList.remove('off');
+        me.hintTarget = btn;
+        armHint();
+        btn.addEventListener('click', function () {
+          if (state.tut !== me || me.askLock) return;
+          me.askLock = true;   // 防连点跳过步骤
+          clearHint(); coin(); ting();
+          btn.classList.add('right');
+          me.replay = function () { say(['g2_t_great']); };
+          say(['g2_t_great'], function () { if (state.tut === me) next(); });
+        });
+      });
+    }
+    function playOut(me, act) {
+      var w = stage(me, act.sid);
+      var ask = document.createElement('div');
+      ask.className = 'g5-ask';
+      g5SceneInto(ask);
+      w.appendChild(ask);
+      var hero = document.createElement('div');
+      hero.className = 'g5-hero g5-cheer';
+      hero.setAttribute('aria-hidden', 'true');
+      hero.appendChild(g4KidSvg(kidOf('g1'), 'clap'));   // 庆祝：小女孩拍手
+      ask.appendChild(hero);
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'g5-thumb';
+      btn.setAttribute('aria-label', '我做到啦');
+      btn.innerHTML = g5ThumbSvg();
+      ask.appendChild(btn);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        tutFinish(me, false);   // 过渡语自带，不叠加 t_ready（§三.10）
+      });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'out') { playOut(me, act); return; }
+      playAsk(me, act, next);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
   var runB4Tutorial = (function () {
@@ -17435,6 +17821,17 @@
     if (q.type === 'G4A' || q.type === 'G4B' || q.type === 'G4C') {
       optionsBar.classList.add('gone');
       renderG4Kids(q);
+      return;
+    }
+    /* ---- 第 7 岛第 5 关：TPR 终极游乐场（结业关；A/B 街景+巨大👍按钮；C 群像找小人） ---- */
+    if (q.type === 'G5A' || q.type === 'G5B') {
+      optionsBar.classList.add('gone');
+      renderG5Action(q);
+      return;
+    }
+    if (q.type === 'G5C') {
+      optionsBar.classList.add('gone');
+      renderG5Find(q);
       return;
     }
 
@@ -17861,7 +18258,8 @@
     }
     // 第 7 岛第 1 关 B/C：题目画在中央宫格，选项栏收起
     if (q.type === 'G1B' || q.type === 'G1C' || q.type === 'G2B' || q.type === 'G2C' ||
-        q.type === 'G3A' || q.type === 'G4A' || q.type === 'G4B' || q.type === 'G4C') {
+        q.type === 'G3A' || q.type === 'G4A' || q.type === 'G4B' || q.type === 'G4C' ||
+        q.type === 'G5A' || q.type === 'G5B' || q.type === 'G5C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -18448,7 +18846,8 @@
         var qt = state.question && state.question.type;
         if (qt !== 'B4A' && qt !== 'B4B' && qt !== 'B5A' && qt !== 'B5B' &&
             qt !== 'G1B' && qt !== 'G1C' && qt !== 'G2B' && qt !== 'G2C' && qt !== 'G3A' &&
-            qt !== 'G4A' && qt !== 'G4B' && qt !== 'G4C') {
+            qt !== 'G4A' && qt !== 'G4B' && qt !== 'G4C' &&
+            qt !== 'G5A' && qt !== 'G5B' && qt !== 'G5C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -19624,6 +20023,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '7-5': {
+      // TPR 终极游乐场（结业关，RULES §三.9 只考不教新词）：街机跳舞机场景 + 巨大👍按钮；
+      // 7 环节热身复习（摸头+拍手 / 摸鼻+跺脚 各 2 演示 + 1 互动 + 过渡）；
+      // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、👍 永远判对（§三.12）
+      custom: runG5Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -20601,6 +21009,11 @@
           ansBox: q.ansBox || null,
           cmp: q.cmp || null,
           ansScene: q.ansScene || null,
+          g5kids: q.kids ? q.kids.map(function (k) { return { kid: k.kid.id, gender: k.kid.gender, act: k.act }; }) : null,
+          g5noun: q.noun || null,
+          g5act: q.act || null,
+          g5a1: q.a1 || null,
+          g5a2: q.a2 || null,
           g4kids: q.kids ? q.kids.map(function (k) { return { kid: k.kid.id, gender: k.kid.gender, act: k.act }; }) : null,
           g4noun: q.noun || null,
           g4act: q.act || null,

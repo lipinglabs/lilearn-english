@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**818** 条（英文 812 + 中文 6）
+总条目：**828** 条（英文 822 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -796,26 +796,36 @@
 | `g3_c_nose_ears` | en | First, touch your nose. Then, touch your ears. | 已存在 |
 | `g3_c_head_ears` | en | First, touch your head. Then, touch your ears. | 已存在 |
 | `g3_c_ears_head` | en | First, touch your ears. Then, touch your head. | 已存在 |
-| `g4_t_ear_intro` | en | Look! So many children. Find the boy touching his ear. | 待生成 |
-| `g4_t_ear` | en | Find the boy touching his ear. | 待生成 |
-| `g4_t_clap` | en | Find the girl clapping her hands. | 待生成 |
-| `g4_t_eyes` | en | Find the one closing his eyes. | 待生成 |
-| `g4_t_out` | en | You have sharp eyes! Let's play! | 待生成 |
-| `g4_t_great` | en | Great! You found him! | 待生成 |
-| `g4_a_boy_stomp` | en | Find the boy stomping his feet. | 待生成 |
-| `g4_a_girl_jump` | en | Find the girl jumping. | 待生成 |
-| `g4_a_boy_nose` | en | Find the boy touching his nose. | 待生成 |
-| `g4_a_girl_eyes` | en | Find the girl closing her eyes. | 待生成 |
-| `g4_a_boy_head` | en | Find the boy touching his head. | 待生成 |
-| `g4_a_girl_ear` | en | Find the girl touching her ear. | 待生成 |
-| `g4_b1` | en | First, find the boy touching his nose. Then, find the girl jumping. | 待生成 |
-| `g4_b1_then` | en | Then, find the girl jumping. | 待生成 |
-| `g4_b2` | en | First, find the girl touching her ear. Then, find the boy clapping his hands. | 待生成 |
-| `g4_b2_then` | en | Then, find the boy clapping his hands. | 待生成 |
-| `g4_b3` | en | First, find the boy touching his head. Then, find the girl stomping her feet. | 待生成 |
-| `g4_b3_then` | en | Then, find the girl stomping her feet. | 待生成 |
-| `g4_b4` | en | First, find the girl closing her eyes. Then, find the boy jumping. | 待生成 |
-| `g4_b4_then` | en | Then, find the boy jumping. | 待生成 |
+| `g4_t_ear_intro` | en | Look! So many children. Find the boy touching his ear. | 已存在 |
+| `g4_t_ear` | en | Find the boy touching his ear. | 已存在 |
+| `g4_t_clap` | en | Find the girl clapping her hands. | 已存在 |
+| `g4_t_eyes` | en | Find the one closing his eyes. | 已存在 |
+| `g4_t_out` | en | You have sharp eyes! Let's play! | 已存在 |
+| `g4_t_great` | en | Great! You found him! | 已存在 |
+| `g4_a_boy_stomp` | en | Find the boy stomping his feet. | 已存在 |
+| `g4_a_girl_jump` | en | Find the girl jumping. | 已存在 |
+| `g4_a_boy_nose` | en | Find the boy touching his nose. | 已存在 |
+| `g4_a_girl_eyes` | en | Find the girl closing her eyes. | 已存在 |
+| `g4_a_boy_head` | en | Find the boy touching his head. | 已存在 |
+| `g4_a_girl_ear` | en | Find the girl touching her ear. | 已存在 |
+| `g4_b1` | en | First, find the boy touching his nose. Then, find the girl jumping. | 已存在 |
+| `g4_b1_then` | en | Then, find the girl jumping. | 已存在 |
+| `g4_b2` | en | First, find the girl touching her ear. Then, find the boy clapping his hands. | 已存在 |
+| `g4_b2_then` | en | Then, find the boy clapping his hands. | 已存在 |
+| `g4_b3` | en | First, find the boy touching his head. Then, find the girl stomping her feet. | 已存在 |
+| `g4_b3_then` | en | Then, find the girl stomping her feet. | 已存在 |
+| `g4_b4` | en | First, find the girl closing her eyes. Then, find the boy jumping. | 已存在 |
+| `g4_b4_then` | en | Then, find the boy jumping. | 已存在 |
+| `g5_t_warmup` | en | Welcome to the action park! Let's warm up. First, touch your head. Then, clap your hands. | 已存在 |
+| `g5_t_youdo1` | en | Now you try! Touch your head, then clap your hands. | 已存在 |
+| `g5_t_next` | en | Great! Next, touch your nose. Then, stomp your feet. | 已存在 |
+| `g5_t_youdo2` | en | Touch your nose, then stomp your feet. | 已存在 |
+| `g5_t_out` | en | You are ready! Let's start the action! | 已存在 |
+| `g5_a_jump` | en | Jump! | 已存在 |
+| `g5_a_ears` | en | Touch your ears! | 已存在 |
+| `g5_a_eyes` | en | Close your eyes! | 已存在 |
+| `g5_b_ears_jump` | en | First, touch your ears. Then, jump! | 已存在 |
+| `g5_c_boy_eyes` | en | Find the boy touching his eyes. | 已存在 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
