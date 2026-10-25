@@ -3872,7 +3872,8 @@
     '8-1': { numbers: null, make: 'makeH1', title: '第 1 关', tutorial: true },
     '8-2': { numbers: null, make: 'makeH2', title: '第 2 关', tutorial: true },
     '8-3': { numbers: null, make: 'makeH3', title: '第 3 关', tutorial: true },
-    '8-4': { numbers: null, make: 'makeH4', title: '第 4 关', tutorial: true }
+    '8-4': { numbers: null, make: 'makeH4', title: '第 4 关', tutorial: true },
+    '8-5': { numbers: null, make: 'makeH5', title: '第 5 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4086,6 +4087,7 @@
     if (def && def.make === 'makeH2') return makeQuestionH2(typeIdx, prev);
     if (def && def.make === 'makeH3') return makeQuestionH3(typeIdx, prev);
     if (def && def.make === 'makeH4') return makeQuestionH4(typeIdx, prev);
+    if (def && def.make === 'makeH5') return makeQuestionH5(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -20320,6 +20322,755 @@
   }
 
 
+  /* ======================================================================
+     第 8 岛第 5 关（L8-W5）：游乐场 · 情绪与感受终极考验（变脸魔法师）
+     —— 第 8 岛结业关：面具（happy/sad/angry/sleepy）+ 生理感受（hungry/thirsty/sleepy）
+        + 安慰动作（hug），把 8-1～8-4 的情绪线全部复习一遍再考。
+     全部手写 SVG（同一个卡通小人 6 种状态 + 4 张面具 + 物品），零 PNG、零生图。
+     演示严格「语音播完定格 + 点屏幕才推进」（§三.14）；互动 4 秒小手（§二.12）；
+     TPR 互动与 C 型题用巨大 👍 且永远判对（§三.12）；拖拽热区比视觉大一圈（§二.11）。
+     复用 H4 的五官 / 物品 / 配色，故 ensureH5Css() 必须先 ensureH4Css()（§三.17 成对注入）。
+     ====================================================================== */
+  var H5_INK = H4_INK, H5_SKIN = H4_SKIN, H5_SKIN_S = H4_SKIN_S, H5_HAIR = H4_HAIR;
+  var H5_EMO = ['happy', 'sad', 'angry', 'sleepy'];
+  var H5_FEELS = ['hungry', 'thirsty', 'sleepy'];
+  var H5_MASKS = {
+    happy: ['#ffe6a8', '#e0a93b'],
+    sad: ['#c7e6f8', '#6fa8d8'],
+    angry: ['#ffc9c4', '#d97a72'],
+    sleepy: ['#dccdf2', '#9b86c9']
+  };
+  var H5_A_CAUSES = [
+    { emo: 'sad',    key: 'h5_a_ice' },
+    { emo: 'angry',  key: 'h5_a_toy' },
+    { emo: 'happy',  key: 'h5_a_gift' },
+    { emo: 'sleepy', key: 'h5_a_bed' }
+  ];
+  var H5_B_KEY = { happy: 'h5_b_happy', hungry: 'h5_b_hungry', angry: 'h5_b_angry', sleepy: 'h5_b_sleepy' };
+  var H5_C_KEYS = [
+    { emo: 'thirsty', key: 'h5_c_thirsty' },
+    { emo: 'hungry',  key: 'h5_c_hungry' },
+    { emo: 'sleepy',  key: 'h5_c_sleepy' },
+    { emo: 'happy',   key: 'h5_c_happy' }
+  ];
+
+  /* ---- 五官：happy/sad/angry/sleepy 复用 H4，新增 hungry / thirsty ---- */
+  function h5Face(st) {
+    if (st === 'hungry') {
+      /* 眼皮下垂 + 泪（饿得哭）+ 波浪嘴 */
+      return '<path d="M44 42 q6 6 12 0" fill="none" stroke="' + H5_INK + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M64 42 q6 6 12 0" fill="none" stroke="' + H5_INK + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path class="h4-tear" d="M74 48 c-3.6 5.2 -3 9 0 10.4 c3 -1.4 3.6 -5.2 0 -10.4 z" fill="#8ecae6" stroke="#5a9ec9" stroke-width="1.8"/>' +
+        '<path d="M49 64 q5.5 -5 11 0 q5.5 5 11 0" fill="none" stroke="' + H5_INK + '" stroke-width="3" stroke-linecap="round"/>';
+    }
+    if (st === 'thirsty') {
+      /* 眼皮下垂 + 张嘴吐舌 + 额角汗珠 */
+      return '<path d="M44 44 q6 6 12 0" fill="none" stroke="' + H5_INK + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M64 44 q6 6 12 0" fill="none" stroke="' + H5_INK + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<ellipse cx="60" cy="62" rx="7" ry="8.4" fill="#c94a48" stroke="#a83a3e" stroke-width="2.2"/>' +
+        '<ellipse cx="60" cy="67" rx="4.6" ry="3.6" fill="#ff8fa3"/>' +
+        '<path class="h4-fall" d="M86 32 q3.6 4.6 0 7.4 q-3.6 -2.8 0 -7.4 z" fill="#9fd0f5" stroke="#5a9ec9" stroke-width="1.6"/>' +
+        '<path class="h4-fall h5-delay" d="M33 36 q3.2 4.2 0 6.8 q-3.2 -2.6 0 -6.8 z" fill="#9fd0f5" stroke="#5a9ec9" stroke-width="1.6"/>';
+    }
+    if (st === 'angry') {
+      /* 眯成斜线的眼睛（放在刘海下方，不会被头发盖住）+ 张嘴喊 + 冒气 */
+      return '<path d="M45 42 L58 48" fill="none" stroke="' + H5_INK + '" stroke-width="3.4" stroke-linecap="round"/>' +
+        '<path d="M75 42 L62 48" fill="none" stroke="' + H5_INK + '" stroke-width="3.4" stroke-linecap="round"/>' +
+        '<path d="M49 60 q11 13 22 0 q-11 -6 -22 0 z" fill="#c94a48" stroke="#a83a3e" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<path class="h4-steam" d="M84 22 q6 -8 2 -14 M92 24 q7 -9 3 -16" fill="none" stroke="#e8a0a0" stroke-width="2.6" stroke-linecap="round"/>';
+    }
+    return h4Face(st);
+  }
+
+  function h5HeadMarkup(st) {
+    return '<circle cx="30" cy="48" r="5" fill="' + H5_SKIN + '" stroke="' + H5_SKIN_S + '" stroke-width="2.4"/>' +
+      '<circle cx="90" cy="48" r="5" fill="' + H5_SKIN + '" stroke="' + H5_SKIN_S + '" stroke-width="2.4"/>' +
+      '<circle cx="60" cy="48" r="30" fill="' + H5_SKIN + '" stroke="' + H5_SKIN_S + '" stroke-width="3.2"/>' +
+      '<path d="M32 46 A30 30 0 0 1 88 46 Q74 34 60 34 Q46 34 32 46 Z" fill="' + H5_HAIR + '"/>' +
+      h5Face(st);
+  }
+
+  /* ---- 手臂：每种状态一个可一眼分辨的姿态 ---- */
+  function h5Arms(st) {
+    var sk = H5_SKIN, sks = H5_SKIN_S;
+    var arm = function (d, cx, cy) {
+      return '<path d="' + d + '" fill="none" stroke="' + sk + '" stroke-width="9" stroke-linecap="round"/>' +
+        '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="' + sk + '" stroke="' + sks + '" stroke-width="2.4"/>';
+    };
+    if (st === 'hungry') {
+      /* 双手抱住肚子 */
+      return arm('M42 100 Q34 118 48 120', 48, 120) + arm('M78 100 Q86 118 72 120', 72, 120);
+    }
+    if (st === 'thirsty') {
+      /* 一只手抬到脸边扇风 */
+      return arm('M78 100 Q96 84 82 62', 80, 60) + arm('M42 100 Q32 114 34 124', 34, 126);
+    }
+    if (st === 'sleepy') {
+      /* 一只手捂住嘴打哈欠 */
+      return arm('M78 100 Q94 84 72 68', 70, 66) + arm('M42 100 Q32 114 34 124', 34, 126);
+    }
+    if (st === 'sad') {
+      /* 双手举起求抱 */
+      return arm('M42 100 Q26 86 30 66', 30, 64) + arm('M78 100 Q94 86 90 66', 90, 64);
+    }
+    if (st === 'angry') {
+      /* 双手握拳叉腰 */
+      return arm('M42 104 Q28 110 38 118', 38, 118) + arm('M78 104 Q92 110 82 118', 82, 118);
+    }
+    /* happy：一只手举起 */
+    return arm('M42 100 Q32 114 34 124', 34, 126) + arm('M78 100 Q96 82 86 62', 86, 60);
+  }
+
+  /** 完整小人（viewBox 0 0 120 160）：6 种状态 + 可选手持道具 */
+  function h5KidInner(st, item) {
+    var shadow = '<ellipse cx="60" cy="156" rx="32" ry="5" fill="#d8b08c" opacity=".22"/>';
+    var legs = '<rect x="50" y="132" width="9" height="16" rx="4.5" fill="#6b7ea8"/>' +
+      '<rect x="61" y="132" width="9" height="16" rx="4.5" fill="#6b7ea8"/>' +
+      '<ellipse cx="54" cy="150" rx="7" ry="3.4" fill="#8a6142"/>' +
+      '<ellipse cx="66" cy="150" rx="7" ry="3.4" fill="#8a6142"/>';
+    var body = '<path d="M41 132 L41 96 Q41 80 60 80 Q79 80 79 96 L79 132 Q79 138 71 138 H49 Q41 138 41 132 Z" ' +
+      'fill="' + H4_BODY + '" stroke="' + H4_BODY_S + '" stroke-width="3"/>';
+    var prop = item ? '<g transform="translate(84 44) scale(0.34)">' + h4ItemInner(item) + '</g>' : '';
+    var extra = '';
+    if (st === 'hungry') {
+      /* 肚子叫：画在身体左侧的「响声弧线」，不压在手和衣服上（小尺寸也看得清） */
+      extra = '<path class="h5-rumble" d="M33 112 q-5 7 0 14" fill="none" stroke="#d99a2b" ' +
+        'stroke-width="2.8" stroke-linecap="round"/>' +
+        '<path class="h5-rumble h5-delay" d="M26 106 q-8 13 0 26" fill="none" stroke="#d99a2b" ' +
+        'stroke-width="2.6" stroke-linecap="round" opacity=".8"/>';
+    }
+    return shadow + legs + body + h5Arms(st) + h5HeadMarkup(st) + prop + extra;
+  }
+
+  function h5KidSvg(st, item) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 120 160');
+    s.setAttribute('class', 'h5-kid-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = h5KidInner(st, item);
+    return s;
+  }
+
+  function h5KidWrap(st, item) {
+    var d = document.createElement('div');
+    d.className = 'h5-kid-wrap';
+    d.appendChild(h5KidSvg(st, item));
+    return d;
+  }
+
+  function h5KidCard(st, item) {
+    var card = document.createElement('div');
+    card.className = 'h5-kidcard';
+    card.dataset.state = st;
+    card.setAttribute('aria-label', '小朋友');
+    card.appendChild(h5KidWrap(st, item));
+    return card;
+  }
+
+  function h5KidBtn(st, item, idx) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'h5-kidcard h5-kidbtn';
+    b.dataset.state = st;
+    b.dataset.idx = String(idx);
+    b.setAttribute('aria-label', '小朋友');
+    b.appendChild(h5KidWrap(st, item));
+    return b;
+  }
+
+  /* ---- 面具：与头部同坐标（cx 60 cy 48 r 30），戴上去正好盖住脸 ---- */
+  function h5MaskInner(emo) {
+    var c = H5_MASKS[emo] || H5_MASKS.happy;
+    return '<circle cx="60" cy="48" r="33" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="3.6"/>' +
+      '<circle cx="60" cy="48" r="28" fill="#ffffff" stroke="' + c[1] + '" stroke-width="1.8"/>' +
+      '<circle cx="60" cy="48" r="27" fill="' + c[0] + '" opacity=".76"/>' +
+      /* 两侧系带 + 顶部小孔：一眼看出是「面具」而不是一张脸 */
+      '<path d="M27 38 q-9 -3 -11 4 q9 5 11 1 z" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="2.2" stroke-linejoin="round"/>' +
+      '<path d="M93 38 q9 -3 11 4 q-9 5 -11 1 z" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="2.2" stroke-linejoin="round"/>' +
+      '<circle cx="60" cy="12" r="3.2" fill="' + c[1] + '"/>' +
+      h5Face(emo);   /* 面具上的表情与小人的表情同一套画法，戴上去才「一致地变脸」 */
+  }
+
+  function h5MaskSvg(emo) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '13 5 94 84');
+    s.setAttribute('class', 'h5-mask-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = h5MaskInner(emo);
+    return s;
+  }
+
+  /** 把面具「戴」到小人脸上：飞入 → 换脸（面具留在脸上，看得出戴了面具） */
+  function h5WearMask(card, emo, cb) {
+    if (!card) { if (cb) cb(); return; }
+    var wear = card.querySelector('.h5-worn');
+    if (wear && wear.parentNode) wear.parentNode.removeChild(wear);
+    wear = document.createElement('div');
+    wear.className = 'h5-worn h5-flyin';
+    wear.appendChild(h5MaskSvg(emo));
+    card.appendChild(wear);
+    card.dataset.state = emo;   // 语义状态立刻生效（视觉换脸在落定后补上）
+    setTimeout(function () { wear.classList.remove('h5-flyin'); }, 760);
+    setTimeout(function () {
+      var wrap = card.querySelector('.h5-kid-wrap');
+      if (wrap) { wrap.innerHTML = ''; wrap.appendChild(h5KidSvg(emo)); }
+      card.dataset.state = emo;
+      if (cb) cb();
+    }, 620);
+  }
+
+  /* ---- 拥抱：两臂环抱 + 爱心 ---- */
+  function h5HugSvgNode() {
+    var d = document.createElement('div');
+    d.className = 'h5-hugarms';
+    d.setAttribute('aria-hidden', 'true');
+    d.innerHTML = '<svg viewBox="0 0 120 160" aria-hidden="true">' +
+      '<path d="M20 92 Q60 140 100 92" fill="none" stroke="#f3bccb" stroke-width="13" stroke-linecap="round"/>' +
+      '<path d="M25 100 Q60 150 95 100" fill="none" stroke="#e79fb2" stroke-width="10" stroke-linecap="round" opacity=".9"/>' +
+      '<circle cx="21" cy="90" r="7.5" fill="#f9d3dd" stroke="#e79fb2" stroke-width="2.4"/>' +
+      '<circle cx="99" cy="90" r="7.5" fill="#f9d3dd" stroke="#e79fb2" stroke-width="2.4"/>' +
+      '</svg>';
+    return d;
+  }
+
+  function h5HeartNode() {
+    var d = document.createElement('div');
+    d.className = 'h5-heart';
+    d.setAttribute('aria-hidden', 'true');
+    d.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M50 84 C22 64 12 48 20 34 C28 22 44 24 50 36 C56 24 72 22 80 34 C88 48 78 64 50 84 Z" ' +
+      'fill="#f28aa8" stroke="#d96a89" stroke-width="3.4" stroke-linejoin="round"/>' +
+      '</svg>';
+    return d;
+  }
+
+  /* ---- 巨大👍（§三.12） ---- */
+  function h5ThumbSvg() {
+    return '<svg viewBox="0 0 100 100" class="h5-thumb-svg" aria-hidden="true">' +
+      '<rect x="39" y="12" width="17" height="40" rx="8.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="17" y="45" width="48" height="35" rx="13.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="22" y="75" width="39" height="13" rx="6.5" fill="#7fb3d5" stroke="#4f9fd6" stroke-width="3"/>' +
+      '</svg>';
+  }
+
+  function ensureH5Css() {
+    ensureH4Css();   /* 复用 H4 五官/物品 + .h4-tear/.h4-zzz/.h4-steam/.h4-fall 动画（§三.17 成对注入） */
+    if (document.getElementById('h5-style')) return;
+    var s = document.createElement('style');
+    s.id = 'h5-style';
+    s.textContent =
+      '.h5-stage,.h5-ask,.h5-bstage{position:relative;display:flex;flex-direction:column;align-items:center;' +
+      'justify-content:center;width:100%;gap:1.4vh;padding-bottom:5vh;box-sizing:border-box}' +
+      /* 小人卡 */
+      '.h5-kidcard{position:relative;width:min(46vw,190px);aspect-ratio:120/160;background:rgba(255,255,255,.75);' +
+      'border:3px solid #ffd9a0;border-radius:24px;padding:4%;box-sizing:border-box;display:flex;' +
+      'align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(214,164,110,.18)}' +
+      '.h5-kidcard svg.h5-kid-svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.h5-kidcard.h5-right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.h5-kidcard.h5-focus{border-color:#ffb861;box-shadow:0 0 0 5px rgba(255,190,90,.55);transform:scale(1.04)}' +
+      '.h5-kidcard.h5-right-now{animation:h5pad .5s}' +
+      /* 拖放热区：比视觉大一圈（§二.11） */
+      '.h5-kidcard.h5-dropface{cursor:pointer}' +
+      '.h5-kidcard.h5-dropface::after{content:"";position:absolute;inset:-12%;border-radius:34px}' +
+      /* 三小人一排 / 四个宫格 */
+      '.h5-kidrow{display:flex;gap:min(2.6vw,12px);justify-content:center;align-items:center;width:100%;margin:.6vh auto}' +
+      '.h5-kidrow .h5-kidcard{width:min(27vw,124px);padding:3%;border-radius:20px}' +
+      '.h5-kidrow .h5-kidcard:not(.h5-focus):not(.h5-pickkid){opacity:.62}' +
+      '.h5-kidrow .h5-kidcard.h5-pickkid{opacity:1}' +
+      '.h5-kidgrid{display:grid;grid-template-columns:repeat(2,auto);gap:min(3vw,14px);justify-content:center;' +
+      'align-items:center;width:100%;margin:.6vh auto}' +
+      '.h5-kidgrid .h5-kidcard{width:min(32vw,150px);padding:3%;border-radius:22px;cursor:pointer;' +
+      'transition:transform .15s ease}' +
+      '.h5-kidgrid .h5-kidcard:active{transform:scale(.96)}' +
+      '.h5-kidcard.h5-wrongpick{animation:h4shake .5s;border-color:#f0a0a0}' +
+      /* 面具卡（教学一排 + 选项栏） */
+      '.h5-maskrow{display:flex;gap:min(3.4vw,14px);justify-content:center;align-items:center;width:100%;margin:.8vh auto}' +
+      '.h5-maskcard{position:relative;width:min(25vw,112px);aspect-ratio:1/1;background:rgba(255,255,255,.82);' +
+      'border:3px solid #ffd9a0;border-radius:20px;padding:7%;box-sizing:border-box;display:block;' +
+      'box-shadow:0 6px 14px rgba(214,164,110,.18)}' +
+      '.h5-maskcard svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.h5-maskcard.h5-pick{cursor:pointer;transition:transform .15s ease}' +
+      '.h5-maskcard.h5-pick:active{transform:scale(.95)}' +
+      '.h5-maskcard.h5-right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.h5-maskcard.h5-wrongcls{animation:h4shake .5s;border-color:#f0a0a0}' +
+      '.h5-maskrow-2 .h5-maskcard{width:min(30vw,132px)}' +
+      /* 戴在脸上的面具（覆盖头部） */
+      '.h5-worn{position:absolute;left:50%;top:30%;width:76%;transform:translate(-50%,-50%);pointer-events:none;z-index:3}' +
+      '.h5-worn svg{width:100%;height:auto;display:block}' +
+      '.h5-worn.h5-flyin{animation:h5flyin .62s cubic-bezier(.2,1.2,.5,1) both}' +
+      /* 拥抱 */
+      '.h5-hugarms{position:absolute;inset:0;pointer-events:none;z-index:4;animation:h4pop .5s ease both}' +
+      '.h5-hugarms svg{width:100%;height:100%;display:block}' +
+      '.h5-heart{position:absolute;left:50%;top:6%;width:38%;transform:translateX(-50%);' +
+      'pointer-events:none;z-index:5;animation:h5heart 1.1s ease-in-out infinite}' +
+      '.h5-heart svg{width:100%;height:auto;display:block}' +
+      /* 巨大👍 */
+      '.h5-thumb{display:flex;align-items:center;justify-content:center;width:min(52vw,240px);aspect-ratio:1/1;' +
+      'background:rgba(255,255,255,.82);border:4px solid #ffd66b;border-radius:34px;' +
+      'box-shadow:0 10px 22px rgba(224,169,59,.3);cursor:pointer;transition:transform .15s ease;' +
+      'animation:h4thump 1.5s ease-in-out infinite}' +
+      '.h5-thumb:active{transform:scale(.95)}' +
+      '.h5-thumb.right{box-shadow:0 0 0 5px rgba(127,209,138,.55)}' +
+      '.h5-thumb-svg{width:60%;height:60%;display:block}' +
+      '@keyframes h4thump{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}' +
+      /* 选项栏里的面具 */
+      '.option.h5-opt .slot{padding:6%}' +
+      '.option.h5-opt .slot svg{width:94%;max-width:124px;height:auto;display:block;' +
+      'filter:drop-shadow(0 4px 6px rgba(150,90,40,.24))}' +
+      '.option.picked.h5-opt{border-color:#7FD18A;box-shadow:0 0 0 4px rgba(127,209,138,.45)}' +
+      /* 装饰动画 */
+      '.h5-rumble{animation:h4fade 1.1s ease-in-out infinite}' +
+      '.h5-delay{animation-delay:.45s}' +
+      '@keyframes h5flyin{0%{opacity:0;transform:translate(-10%,-190%) scale(.45) rotate(-16deg)}' +
+      '70%{opacity:1;transform:translate(-50%,-54%) scale(1.08) rotate(2deg)}' +
+      '100%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}' +
+      '@keyframes h5heart{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.12)}}' +
+      '@keyframes h5pad{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}' +
+      /* 横屏矮屏：所有可点目标必须留在视口内（§三.15） */
+      '@media (max-height:560px){' +
+      '.h5-stage,.h5-ask,.h5-bstage{gap:.5vh;padding-bottom:1.2vh}' +
+      '.h5-kidcard{width:min(24vw,116px)}' +
+      '.h5-kidrow .h5-kidcard{width:min(15vw,88px)}' +
+      '.h5-kidgrid{gap:min(2vw,10px)}' +
+      '.h5-kidgrid .h5-kidcard{width:min(18vw,104px)}' +
+      '.h5-maskcard{width:min(14vw,80px)}' +
+      '.h5-maskrow-2 .h5-maskcard{width:min(16vw,92px)}' +
+      '.h5-thumb{width:min(24vw,110px);border-radius:26px}' +
+      '.h5-heart{width:24%}}';
+    document.head.appendChild(s);
+  }
+
+  /* ---------------- 出题：A 听情景戴面具 / B 听长句找小人 / C TPR ---------------- */
+  function makeQuestionH5(type, prev) {
+    ensureH5Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：中央无表情小人 + 3 张面具；听情景把对的面具拖/点上去 */
+        var cause = H5_A_CAUSES[randInt(0, H5_A_CAUSES.length - 1)];
+        var emo = cause.emo;
+        var pool = H5_EMO.filter(function (e) { return e !== emo; });
+        shuffle(pool);
+        var masks = shuffle([emo, pool[0], pool[1]]);
+        q = {
+          type: 'H5A', sig: 'A:' + emo + ':' + masks.join(','), emo: emo, masks: masks,
+          options: masks.map(function (m) { return { kind: 'h5mask', emo: m }; }),
+          answer: masks.indexOf(emo), correct: masks.indexOf(emo),
+          audio: [cause.key]
+        };
+      } else if (type === 1) {
+        /* B：4 个不同状态的小人（开心吃冰淇淋 / 饿得哭 / 生气 / 困），听长句找目标 */
+        var target = pick(['happy', 'hungry', 'angry', 'sleepy']);
+        var states = shuffle(['happy', 'hungry', 'angry', 'sleepy']);
+        q = {
+          type: 'H5B', sig: 'B:' + target + ':' + states.join(','), states: states, target: target,
+          options: [], answer: states.indexOf(target), correct: states.indexOf(target),
+          audio: [H5_B_KEY[target]]
+        };
+      } else {
+        /* C：TPR 情绪大爆发（巨大👍，永远判对 §三.12） */
+        state.h5cIdx = ((state.h5cIdx || 0) + 1) % H5_C_KEYS.length;
+        var c = H5_C_KEYS[state.h5cIdx];
+        q = {
+          type: 'H5C', sig: 'C:' + c.key, emo: c.emo,
+          options: [], correct: 0, audio: [c.key]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：中央无表情小人（拖放目标，热区大一圈）+ 选项栏 3 张面具 */
+  function renderH5A(q) {
+    ensureH5Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'h5-ask';
+    var card = h5KidCard('neutral');
+    card.id = 'h5-face';
+    card.classList.add('h5-dropface');
+    card.dataset.drop = 'face';
+    card.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      if (state.pickedFruit === null || state.pickedFruit === undefined) return;
+      resolveH5A(state.pickedFruit, card);
+    });
+    box.appendChild(card);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 A 判定：把面具拖 / 点到小人脸上（§二.11 两条路径都走这里） */
+  function resolveH5A(maskIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'H5A') return;
+    var drop = (typeof target === 'string') ? target
+      : (target && target.dataset ? target.dataset.drop : null);
+    var opt = q.options[maskIdx];
+    var ok = (drop === 'face') && !!opt && opt.emo === q.emo;
+    if (ok) {
+      var card = (typeof target === 'string')
+        ? askDisplay.querySelector('#h5-face') : target;
+      if (card) { h5WearMask(card, q.emo); card.classList.add('h5-right'); }
+      judge(true, card);
+    } else {
+      judge(false, optionEls[maskIdx] || target);
+    }
+  }
+
+  /** 题型 B：4 个状态的小人宫格，点目标 */
+  function renderH5B(q) {
+    ensureH5Css();
+    askDisplay.innerHTML = '';
+    var grid = document.createElement('div');
+    grid.className = 'h5-kidgrid';
+    grid.dataset.n = '4';
+    grid.setAttribute('aria-label', '小朋友');
+    q.states.forEach(function (st, i) {
+      var card = h5KidBtn(st, st === 'happy' ? 'ice' : '', i);
+      card.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        if (i === q.answer) card.classList.add('h5-right');
+        judge(i === q.answer, card);
+      });
+      grid.appendChild(card);
+    });
+    askDisplay.appendChild(grid);
+  }
+
+  /** 题型 C：中央「示范小人」+ 巨大👍（TPR，永远判对） */
+  function renderH5C(q) {
+    ensureH5Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'h5-bstage';
+    w.setAttribute('aria-label', '小朋友');
+    var card = h5KidCard(q.emo || 'thirsty');
+    card.setAttribute('aria-hidden', 'true');
+    w.appendChild(card);
+    var thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'h5-thumb';
+    thumb.setAttribute('aria-label', '我做到啦');
+    thumb.innerHTML = h5ThumbSvg();
+    thumb.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      judge(true, thumb);
+    });
+    w.appendChild(thumb);
+    askDisplay.appendChild(w);
+  }
+
+  /* 教学：10 环节（面具 2 演示 + 贴面具 1 互动 + 感受 2 演示 + 找感受 1 互动
+     + 安慰 2 演示 + TPR 1 互动 + 过渡）。§三.10 双倍量 + §三.14 点按推进 + §二.12 四秒小手 + §三.12 👍 永远判对。 */
+  var runH5Tutorial = (function () {
+    var ACTS = [
+      /* 换面具（2 演示） */
+      { t: 'maskdemo', sid: 'maskHappy',  word: 'h5_t_mask1',      emo: 'happy' },
+      { t: 'maskdemo', sid: 'maskSad',    word: 'h5_t_mask2',      emo: 'sad' },
+      /* 互动 1：听指令贴面具（生气 / 开心 二选一） */
+      { t: 'masktap',  sid: 'maskTap',    word: 'h5_t_angry_put',  emo: 'angry', items: ['angry', 'happy'] },
+      /* 找生理感受（2 演示：饿 / 困） */
+      { t: 'feeldemo', sid: 'feelHungry', word: 'h5_t_feel1',      hl: 'hungry' },
+      { t: 'feeldemo', sid: 'feelSleepy', word: 'h5_t_feel2',      hl: 'sleepy' },
+      /* 互动 2：听指令找感受 */
+      { t: 'findfeel', sid: 'findSleepy', word: 'h5_t_find_sleepy', hl: 'sleepy' },
+      /* 安慰动作（2 演示：问 + 拥抱 / 拥抱后变开心） */
+      { t: 'hugdemo',  sid: 'hugAsk',     word: 'h5_t_cry1',       follow: 'h5_t_hug' },
+      { t: 'hugdemo',  sid: 'hugResult',  word: 'h5_t_hug2',       result: true },
+      /* 互动 3：TPR 做表情 + 拥抱（👍 永远判对） */
+      { t: 'tpr',      sid: 'tprHappy',   word: 'h5_t_tpr',        emo: 'happy' },
+      /* 过渡 */
+      { t: 'out',      sid: 'out',        word: 'h5_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null; me._advance = null;
+      me.canDrag = false; me.customMode = null;
+      me.maskOn = false; me.feelOn = false; me.askLock = false;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid) {
+      blank(me);
+      ensureH5Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'h5-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', '情景');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /* 演示定格：等用户点屏幕任意位置才 next()（禁止定时器自动前进；不吞顶栏点击 §三.18） */
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    function maskRow(host, list, pick) {
+      var row = document.createElement('div');
+      row.className = 'h5-maskrow' + (list.length === 2 ? ' h5-maskrow-2' : '');
+      row.setAttribute('aria-label', '面具');
+      list.forEach(function (m) {
+        var el = document.createElement(pick ? 'button' : 'div');
+        if (pick) el.type = 'button';
+        el.className = 'h5-maskcard' + (pick ? ' h5-pick' : '');
+        el.dataset.mask = m;
+        if (pick) el.setAttribute('aria-label', '面具');
+        else el.setAttribute('aria-hidden', 'true');
+        el.appendChild(h5MaskSvg(m));
+        row.appendChild(el);
+      });
+      host.appendChild(row);
+      return row;
+    }
+    /* 演示：无表情小人 + 三张面具（开心 / 难过 / 生气）→ 面具飞上去变脸 → 定格 */
+    function playMaskDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var card = h5KidCard('neutral');
+      w.appendChild(card);
+      maskRow(w, ['happy', 'sad', 'angry'], false);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        /* 面具落定（换脸完成）后才定格，保证孩子看到「变脸」结果 */
+        h5WearMask(card, act.emo, function () {
+          if (state.tut !== me) return;
+          card.classList.add('h5-right');
+          gate(me, next);
+        });
+      });
+    }
+    /* 互动 1：听指令贴面具（点对了飞上去） */
+    function playMaskTap(me, act, next) {
+      var w = stage(me, act.sid);
+      var card = h5KidCard('neutral');
+      w.appendChild(card);
+      var row = maskRow(w, act.items, true);
+      var ansEl = row.querySelector('[data-mask="' + act.emo + '"]');
+      Array.prototype.forEach.call(row.querySelectorAll('.h5-maskcard'), function (btn) {
+        var m = btn.dataset.mask;
+        btn.addEventListener('click', function () {
+          if (state.tut !== me || !me.maskOn) return;
+          if (m === act.emo) {
+            me.maskOn = false;
+            clearHint(); coin(); ting();
+            btn.classList.add('h5-right');
+            h5WearMask(card, act.emo);
+            card.classList.add('h5-right');
+            setTimeout(function () { if (state.tut === me) next(); }, 1000);
+          } else {
+            btn.classList.add('h5-wrongcls');
+            setTimeout(function () { btn.classList.remove('h5-wrongcls'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+      });
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.maskOn = true;
+        me.hintTarget = ansEl;
+        armHint();
+      });
+    }
+    /* 演示：三个小人（饿 / 渴 / 困），高亮目标 → 定格 */
+    function playFeelDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var row = document.createElement('div');
+      row.className = 'h5-kidrow';
+      row.setAttribute('aria-label', '小朋友');
+      H5_FEELS.forEach(function (st) {
+        var card = h5KidCard(st);
+        if (st === act.hl) card.classList.add('h5-focus');
+        card.setAttribute('aria-hidden', 'true');
+        row.appendChild(card);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        gate(me, next);
+      });
+    }
+    /* 互动 2：三选一「找到这个感受的小人」 */
+    function playFindFeel(me, act, next) {
+      var w = stage(me, act.sid);
+      var row = document.createElement('div');
+      row.className = 'h5-kidrow';
+      row.setAttribute('aria-label', '小朋友');
+      var order = shuffle(H5_FEELS.slice());
+      var ansCard = null;
+      order.forEach(function (st, i) {
+        var card = h5KidCard(st);
+        card.classList.add('h5-pickkid');
+        card.dataset.idx = String(i);
+        card.setAttribute('role', 'button');
+        card.addEventListener('click', function () {
+          if (state.tut !== me || !me.feelOn) return;
+          if (st === act.hl) {
+            me.feelOn = false;
+            clearHint(); coin(); ting();
+            card.classList.add('h5-right');
+            setTimeout(function () { if (state.tut === me) next(); }, 900);
+          } else {
+            card.classList.add('h5-wrongpick');
+            setTimeout(function () { card.classList.remove('h5-wrongpick'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+        if (st === act.hl) ansCard = card;
+        row.appendChild(card);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.feelOn = true;
+        me.hintTarget = ansCard;
+        armHint();
+      });
+    }
+    /* 演示：哭泣小人 →（问句）→ 拥抱 →（Give him a hug!）→ 定格；第二遍演示「拥抱后变开心」 */
+    function playHugDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var card = h5KidCard('sad');
+      w.appendChild(card);
+      var hugOn = function () {
+        if (card.querySelector('.h5-hugarms')) return;
+        card.appendChild(h5HugSvgNode());
+        card.appendChild(h5HeartNode());
+        card.classList.add('h5-right');
+      };
+      if (act.result) {
+        /* 演示 2：抱一下 → 变开心 → 定格 */
+        me.replay = function () { say([act.word, 'h5_t_hug']); };
+        say([act.word], function () {
+          if (state.tut !== me) return;
+          hugOn();
+          setTimeout(function () {
+            if (state.tut !== me) return;
+            var wrap = card.querySelector('.h5-kid-wrap');
+            if (wrap) { wrap.innerHTML = ''; wrap.appendChild(h5KidSvg('happy')); }
+            card.dataset.state = 'happy';
+            gate(me, next);
+          }, 1000);
+        });
+        return;
+      }
+      /* 演示 1：问句 → 画面给拥抱 → "Give him a hug!" → 定格 */
+      me.replay = function () { say([act.word, act.follow]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        hugOn();
+        setTimeout(function () {
+          if (state.tut !== me) return;
+          say([act.follow], function () {
+            if (state.tut !== me) return;
+            gate(me, next);
+          });
+        }, 650);
+      });
+    }
+    /* 互动 3：TPR（做表情 + 拥抱，巨大👍确认，§三.12 永远判对） */
+    function playTpr(me, act, next) {
+      var w = stage(me, act.sid);
+      var card = h5KidCard(act.emo || 'happy');
+      card.setAttribute('aria-hidden', 'true');
+      w.appendChild(card);
+      var thumb = document.createElement('button');
+      thumb.type = 'button';
+      thumb.className = 'h5-thumb';
+      thumb.setAttribute('aria-label', '我做到啦');
+      thumb.innerHTML = h5ThumbSvg();
+      w.appendChild(thumb);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.feelOn = true;
+        me.hintTarget = thumb;
+        armHint();
+        thumb.addEventListener('click', function () {
+          if (state.tut !== me || me.askLock) return;
+          me.askLock = true;
+          clearHint(); coin(); ting();
+          thumb.classList.add('right');
+          me.replay = function () { say(['g2_t_great']); };
+          say(['g2_t_great'], function () {
+            if (state.tut !== me) return;
+            me.askLock = false;
+            next();
+          });
+        });
+      });
+    }
+    /* 过渡：四张面具一起发光 → "You are the best emotion master! Let's play!" → 答题 */
+    function playOut(me, act) {
+      var w = stage(me, act.sid);
+      var row = document.createElement('div');
+      row.className = 'h5-maskrow';
+      row.setAttribute('aria-label', '面具');
+      H5_EMO.forEach(function (m) {
+        var card = document.createElement('div');
+        card.className = 'h5-maskcard';
+        card.style.animation = 'h4glow 1.1s ease-in-out infinite';
+        card.setAttribute('aria-hidden', 'true');
+        card.appendChild(h5MaskSvg(m));
+        row.appendChild(card);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        tutFinish(me, false);
+      });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'maskdemo') { playMaskDemo(me, act, next); return; }
+      if (act.t === 'masktap')  { playMaskTap(me, act, next); return; }
+      if (act.t === 'feeldemo') { playFeelDemo(me, act, next); return; }
+      if (act.t === 'findfeel') { playFindFeel(me, act, next); return; }
+      if (act.t === 'hugdemo')  { playHugDemo(me, act, next); return; }
+      if (act.t === 'tpr')      { playTpr(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
   var runB4Tutorial = (function () {
@@ -20620,6 +21371,10 @@
     if (q.type === 'H4A') { optionsBar.classList.add('gone'); renderH4A(q); return; }
     if (q.type === 'H4B') { renderH4B(q); return; }
     if (q.type === 'H4C') { optionsBar.classList.add('gone'); renderH4C(q); return; }
+    /* ---- 第 8 岛第 5 关：游乐场终极关（A 中央无表情小人 + 选项栏面具；B 4 小人宫格；C 中央小人 + 👍） ---- */
+    if (q.type === 'H5A') { renderH5A(q); return; }
+    if (q.type === 'H5B') { optionsBar.classList.add('gone'); renderH5B(q); return; }
+    if (q.type === 'H5C') { optionsBar.classList.add('gone'); renderH5C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -21338,6 +22093,10 @@
         // 第 8 岛第 4 关题型 B：3 张情绪脸（开心 / 难过 / 生气 / 困），点选
         btn.classList.add('h4-opt');
         slot.appendChild(h4FaceSvg(opt.emo));
+      } else if (opt.kind === 'h5mask') {
+        // 第 8 岛第 5 关题型 A：可拖/点到小人脸上的面具（开心 / 难过 / 生气 / 困）
+        btn.classList.add('h5-opt');
+        slot.appendChild(h5MaskSvg(opt.emo));
       } else {
         btn.classList.add('pile-opt');
         slot.appendChild(pileNode(opt.fruit, opt.count, 'opt'));
@@ -21427,6 +22186,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'H3A') {
         // 第 8 岛第 3 关题型 A：物品可拖到婴儿身上
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'H5A') {
+        // 第 8 岛第 5 关题型 A：面具可拖到小人脸上
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -21668,7 +22432,8 @@
             qt !== 'G4A' && qt !== 'G4B' && qt !== 'G4C' &&
             qt !== 'G5A' && qt !== 'G5B' && qt !== 'G5C' &&
             qt !== 'H1A' && qt !== 'H1B' && qt !== 'H2A' && qt !== 'H3B' &&
-            qt !== 'H4A' && qt !== 'H4C') {
+            qt !== 'H4A' && qt !== 'H4C' &&
+            qt !== 'H5B' && qt !== 'H5C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -21847,6 +22612,8 @@
         resolveH2B(d.idx, target);
       } else if (d.mode === 'H3A') {
         resolveH3A(d.idx, target);
+      } else if (d.mode === 'H5A') {
+        resolveH5A(d.idx, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -22895,6 +23662,16 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '8-5': {
+      // 游乐场·情绪与感受终极考验（变脸魔法师，第 8 岛结业关）：面具 4 张 + 6 种状态小人 + 拥抱；
+      // 10 环节（换面具 2 演示 + 贴面具 1 互动 + 找感受 2 演示 + 找感受 1 互动
+      // + 安慰 2 演示 + TPR 1 互动 + 过渡，RULES §三.10 双倍量）；
+      // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、TPR👍永远判对（§三.12）
+      custom: runH5Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -23149,6 +23926,7 @@
         q.type === 'G1A' ||
         q.type === 'G2A' ||
         q.type === 'G3B' || q.type === 'H1C' || q.type === 'H2B' || q.type === 'H3A' ||
+        q.type === 'H5A' ||
         q.type === 'B4C') return q.type;
     return null;
   }
@@ -23444,6 +24222,11 @@
 
       // 第 8 岛第 3 关题型 A：点物品选中，再点婴儿送给他（拖拽的等价路径）
       if (q.type === 'H3A') {
+        tapFruit(idx, btn);
+        return;
+      }
+      // 第 8 岛第 5 关题型 A：点面具选中，再点小人戴上去（拖拽的等价路径）
+      if (q.type === 'H5A') {
         tapFruit(idx, btn);
         return;
       }
@@ -23872,6 +24655,7 @@
             if (o.kind === 'h2item') return 'i:' + o.item;
             if (o.kind === 'h3item') return 'i:' + o.item;
             if (o.kind === 'h4face') return 'e:' + o.emo;
+            if (o.kind === 'h5mask') return 'k:' + o.emo;
             if (o.kind === 'g3act') return 'i:' + o.act;
             if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
@@ -23928,7 +24712,12 @@
           h4sits: q.sits ? q.sits.slice() : null,
           h4emo: q.emo || null,
           h4faces: q.faces ? q.faces.slice() : null,
-          h4answer: (typeof q.answer === 'number') ? q.answer : null
+          h4answer: (typeof q.answer === 'number') ? q.answer : null,
+          h5emo: q.emo || null,
+          h5masks: q.masks ? q.masks.slice() : null,
+          h5states: q.states ? q.states.slice() : null,
+          h5target: q.target || null,
+          h5answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },

@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**905** 条（英文 899 + 中文 6）
+总条目：**928** 条（英文 922 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -885,24 +885,47 @@
 | `h3_b_hug2` | en | The baby is crying. Give him a big hug! | 已存在 |
 | `h3_c_toy` | en | The baby is crying. Did we give him a toy? | 已存在 |
 | `h3_c_candy` | en | The baby is crying. Did we give him some candy? | 已存在 |
-| `h4_t_ice1` | en | The ice cream fell down. He is sad. | 待生成 |
-| `h4_t_ice2` | en | Look! He is sad now. His ice cream is on the ground. | 待生成 |
-| `h4_t_ice_give` | en | The boy is sad. Give him an ice cream. | 待生成 |
-| `h4_t_ice_find` | en | Find the sad boy. | 待生成 |
-| `h4_t_toy1` | en | His toy is gone. He is angry. | 待生成 |
-| `h4_t_toy2` | en | Look! He is angry now. His toy is gone. | 待生成 |
-| `h4_t_toy_find` | en | Find the angry boy. | 待生成 |
-| `h4_t_out` | en | You know how they feel! Let's play! | 待生成 |
-| `h4_a_ice` | en | The ice cream fell down. He is sad. Find the picture. | 待生成 |
-| `h4_a_apple` | en | He is eating an apple. He is happy. Find the picture. | 待生成 |
-| `h4_a_play` | en | He is playing with his toy. He is happy. Find the picture. | 待生成 |
-| `h4_a_gone` | en | His toy is gone. He is angry. Find the picture. | 待生成 |
-| `h4_b_sad` | en | The ice cream fell down. How does he feel? | 待生成 |
-| `h4_b_angry` | en | His toy is gone. How does he feel? | 待生成 |
-| `h4_b_sleepy` | en | He is in bed. It is night. How does he feel? | 待生成 |
-| `h4_b_happy` | en | He is eating an apple. How does he feel? | 待生成 |
-| `h4_c_hug` | en | The baby is crying. Give him a hug! | 待生成 |
-| `h4_c_hug2` | en | He is sad. Give him a big hug! | 待生成 |
+| `h4_t_ice1` | en | The ice cream fell down. He is sad. | 已存在 |
+| `h4_t_ice2` | en | Look! He is sad now. His ice cream is on the ground. | 已存在 |
+| `h4_t_ice_give` | en | The boy is sad. Give him an ice cream. | 已存在 |
+| `h4_t_ice_find` | en | Find the sad boy. | 已存在 |
+| `h4_t_toy1` | en | His toy is gone. He is angry. | 已存在 |
+| `h4_t_toy2` | en | Look! He is angry now. His toy is gone. | 已存在 |
+| `h4_t_toy_find` | en | Find the angry boy. | 已存在 |
+| `h4_t_out` | en | You know how they feel! Let's play! | 已存在 |
+| `h4_a_ice` | en | The ice cream fell down. He is sad. Find the picture. | 已存在 |
+| `h4_a_apple` | en | He is eating an apple. He is happy. Find the picture. | 已存在 |
+| `h4_a_play` | en | He is playing with his toy. He is happy. Find the picture. | 已存在 |
+| `h4_a_gone` | en | His toy is gone. He is angry. Find the picture. | 已存在 |
+| `h4_b_sad` | en | The ice cream fell down. How does he feel? | 已存在 |
+| `h4_b_angry` | en | His toy is gone. How does he feel? | 已存在 |
+| `h4_b_sleepy` | en | He is in bed. It is night. How does he feel? | 已存在 |
+| `h4_b_happy` | en | He is eating an apple. How does he feel? | 已存在 |
+| `h4_c_hug` | en | The baby is crying. Give him a hug! | 已存在 |
+| `h4_c_hug2` | en | He is sad. Give him a big hug! | 已存在 |
+| `h5_t_mask1` | en | Look! A magic face. Let's put on the happy mask! | 待生成 |
+| `h5_t_mask2` | en | Now the sad mask. Put on the sad mask! | 待生成 |
+| `h5_t_angry_put` | en | The boy is angry. Put on the angry mask. | 待生成 |
+| `h5_t_feel1` | en | Look at the boy. His tummy is rumbling. He is hungry. | 待生成 |
+| `h5_t_feel2` | en | Look! This boy is yawning. He is sleepy. | 待生成 |
+| `h5_t_find_sleepy` | en | Find the sleepy boy. Touch the sleepy boy. | 待生成 |
+| `h5_t_cry1` | en | The baby is crying. He is sad. What should we do? | 待生成 |
+| `h5_t_hug` | en | Give him a hug! | 待生成 |
+| `h5_t_hug2` | en | Look! A hug makes him happy! | 待生成 |
+| `h5_t_tpr` | en | Show me a happy face! Then give a hug. | 待生成 |
+| `h5_t_out` | en | You are the best emotion master! Let's play! | 待生成 |
+| `h5_a_ice` | en | His ice cream fell down. How does he feel? Put on the correct mask. | 待生成 |
+| `h5_a_toy` | en | His toy is gone. How does he feel? Put on the correct mask. | 待生成 |
+| `h5_a_gift` | en | He got a new toy. How does he feel? Put on the correct mask. | 待生成 |
+| `h5_a_bed` | en | He is going to bed. How does he feel? Put on the correct mask. | 待生成 |
+| `h5_b_happy` | en | Find the boy who is happy. He has an ice cream. | 待生成 |
+| `h5_b_hungry` | en | Find the boy who is hungry and crying. | 待生成 |
+| `h5_b_angry` | en | Find the boy who is angry. His toy is gone. | 待生成 |
+| `h5_b_sleepy` | en | Find the boy who is sleepy. He is yawning. | 待生成 |
+| `h5_c_thirsty` | en | Show me thirsty! Pretend to drink water. | 待生成 |
+| `h5_c_hungry` | en | Show me hungry! Pretend to eat. | 待生成 |
+| `h5_c_sleepy` | en | Show me sleepy! Pretend to yawn. | 待生成 |
+| `h5_c_happy` | en | Show me happy! Smile for me. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

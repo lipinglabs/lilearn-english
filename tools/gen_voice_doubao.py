@@ -1354,6 +1354,38 @@ add("h4_b_happy",  "He is eating an apple. How does he feel?", "en", -15, EN_ASK
 add("h4_c_hug",  "The baby is crying. Give him a hug!", "en", -15, EN_ASK)
 add("h4_c_hug2", "He is sad. Give him a big hug!", "en", -15, EN_ASK)
 
+# ------------------------------------------------------------
+# 第 8 岛第 5 关（L8-W5：游乐场 · 情绪与感受终极考验 / 变脸魔法师）
+# 教学：换面具（2 演示）→ 贴面具（互动）→ 找生理感受（2 演示 + 互动）→ 安慰（2 演示 + TPR）
+# 答题 A 听情景戴面具 / B 听长句找小人 / C TPR「Show me ...」
+# ------------------------------------------------------------
+add("h5_t_mask1", "Look! A magic face. Let's put on the happy mask!", "en", -15, EN_ASK)
+add("h5_t_mask2", "Now the sad mask. Put on the sad mask!", "en", -15, EN_ASK)
+add("h5_t_angry_put", "The boy is angry. Put on the angry mask.", "en", -15, EN_ASK)
+add("h5_t_feel1", "Look at the boy. His tummy is rumbling. He is hungry.", "en", -15, EN_ASK)
+add("h5_t_feel2", "Look! This boy is yawning. He is sleepy.", "en", -15, EN_ASK)
+add("h5_t_find_sleepy", "Find the sleepy boy. Touch the sleepy boy.", "en", -15, EN_ASK)
+add("h5_t_cry1", "The baby is crying. He is sad. What should we do?", "en", -15, EN_ASK)
+add("h5_t_hug", "Give him a hug!", "en", -12, EN_PRAISE)
+add("h5_t_hug2", "Look! A hug makes him happy!", "en", -15, EN_ASK)
+add("h5_t_tpr", "Show me a happy face! Then give a hug.", "en", -15, EN_ASK)
+add("h5_t_out", "You are the best emotion master! Let's play!", "en", -12, EN_PRAISE)
+# 答题 A：听情景戴面具
+add("h5_a_ice",  "His ice cream fell down. How does he feel? Put on the correct mask.", "en", -15, EN_ASK)
+add("h5_a_toy",  "His toy is gone. How does he feel? Put on the correct mask.", "en", -15, EN_ASK)
+add("h5_a_gift", "He got a new toy. How does he feel? Put on the correct mask.", "en", -15, EN_ASK)
+add("h5_a_bed",  "He is going to bed. How does he feel? Put on the correct mask.", "en", -15, EN_ASK)
+# 答题 B：听长句在 4 个小人里找目标
+add("h5_b_happy",  "Find the boy who is happy. He has an ice cream.", "en", -15, EN_ASK)
+add("h5_b_hungry", "Find the boy who is hungry and crying.", "en", -15, EN_ASK)
+add("h5_b_angry",  "Find the boy who is angry. His toy is gone.", "en", -15, EN_ASK)
+add("h5_b_sleepy", "Find the boy who is sleepy. He is yawning.", "en", -15, EN_ASK)
+# 答题 C：TPR 做动作（👍 永远判对）
+add("h5_c_thirsty", "Show me thirsty! Pretend to drink water.", "en", -15, EN_ASK)
+add("h5_c_hungry",  "Show me hungry! Pretend to eat.", "en", -15, EN_ASK)
+add("h5_c_sleepy",  "Show me sleepy! Pretend to yawn.", "en", -15, EN_ASK)
+add("h5_c_happy",   "Show me happy! Smile for me.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
