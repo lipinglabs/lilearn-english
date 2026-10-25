@@ -1291,6 +1291,38 @@ add("h2_c_hungry",  "The boy is hungry. Is he eating bread?", "en", -15, EN_ASK)
 add("h2_c_thirsty", "The boy is thirsty. Is he drinking water?", "en", -15, EN_ASK)
 add("h2_c_sleepy",  "The boy is sleepy. Is he holding a pillow?", "en", -15, EN_ASK)
 
+# ============================================================
+# 第 8 岛第 3 关（L8-W3：安慰别人 Give him a toy / a hug / candy）
+# 教学 13 环节（RULES §三.10 双倍量：3 个安抚动作 × 2 演示 + 2 互动 + 过渡）：
+#   · 演示 1：婴儿大哭 + 语音 + 安抚物飞过去 → 变开心（播完定格等点按，§三.14）；
+#   · 演示 2：开心结果 + 不同句式/装饰；
+#   · 互动 1/2：给物品（二选一 / 三选一）、拥抱（👍 永远判对 §三.12）+ 4 秒小手（§二.12）。
+# 答题 A 听音送物品 / B TPR 拥抱（👍） / C 听情景纠错（✅/❌ 复用 yesno）。
+# 本批 19 条新生成，已通过 audit 去重自检。
+# ------------------------------------------------------------
+add("h3_t_toy1",   "Look! The baby is crying. He is sad. Give him a toy.", "en", -15, EN_ASK)
+add("h3_t_toy2",   "Look! The baby is happy now. He loves the toy!", "en", -15, EN_ASK)
+add("h3_t_toy_give", "Give the toy to the baby.", "en", -15, EN_ASK)
+add("h3_t_toy_find", "Find the toy. Give it to the baby.", "en", -15, EN_ASK)
+add("h3_t_hug1",   "The baby is crying again. Give him a hug.", "en", -15, EN_ASK)
+add("h3_t_hug2",   "The baby is happy now. A big hug is so warm!", "en", -15, EN_ASK)
+add("h3_t_hug_self", "Can you give a hug? Hug yourself!", "en", -15, EN_ASK)
+add("h3_t_hug_baby", "Now give the baby a big hug!", "en", -15, EN_ASK)
+add("h3_t_candy1", "The baby wants some candy. Give him some candy.", "en", -15, EN_ASK)
+add("h3_t_candy2", "Look! The baby is happy now. Candy is sweet!", "en", -15, EN_ASK)
+add("h3_t_candy_give", "Give him some candy.", "en", -15, EN_ASK)
+add("h3_t_candy_find", "Find the candy. Give it to the baby.", "en", -15, EN_ASK)
+add("h3_t_out",    "You are so kind! Let's play!", "en", -12, EN_PRAISE)
+# 答题 A：听音送物品（中央婴儿 + 3 件物品）
+add("h3_a_toy",    "The baby is crying. Give him a toy.", "en", -15, EN_ASK)
+add("h3_a_candy",  "The baby is crying. Give him some candy.", "en", -15, EN_ASK)
+# 答题 B：TPR 拥抱（👍 永远判对）
+add("h3_b_hug",    "He is sad. Give him a hug!", "en", -15, EN_ASK)
+add("h3_b_hug2",   "The baby is crying. Give him a big hug!", "en", -15, EN_ASK)
+# 答题 C：听情景纠错（✅/❌ 判断语音描述是否与画面一致）
+add("h3_c_toy",    "The baby is crying. Did we give him a toy?", "en", -15, EN_ASK)
+add("h3_c_candy",  "The baby is crying. Did we give him some candy?", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

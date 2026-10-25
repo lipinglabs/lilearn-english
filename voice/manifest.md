@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**868** 条（英文 862 + 中文 6）
+总条目：**887** 条（英文 881 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -849,23 +849,42 @@
 | `h1_c_happy` | en | The girl is happy. Put the happy mouth on the face. | 已存在 |
 | `h1_c_sad` | en | The boy is sad. Put the sad mouth on the face. | 已存在 |
 | `h1_c_angry` | en | The girl is angry. Put the angry mouth on the face. | 已存在 |
-| `h2_t_hungry1` | en | His tummy is rumbling. He is hungry. Give him some bread. | 待生成 |
-| `h2_t_hungry2` | en | Look! He is holding his tummy. He is very hungry. Bread, please! | 待生成 |
-| `h2_t_hungry_give` | en | Give the bread to the hungry boy. | 待生成 |
-| `h2_t_thirsty1` | en | He is sweating. He is thirsty. Give him some water. | 待生成 |
-| `h2_t_thirsty2` | en | Look! He is hot and thirsty. Water, please! | 待生成 |
-| `h2_t_thirsty_give` | en | Give the water to the thirsty boy. | 待生成 |
-| `h2_t_thirsty_find` | en | Find the thirsty boy. | 待生成 |
-| `h2_t_sleepy1` | en | He is yawning. He is sleepy. Give him a pillow. | 待生成 |
-| `h2_t_sleepy2` | en | Look! His eyes are closing. He is sleepy. Pillow, please! | 待生成 |
-| `h2_t_sleepy_give` | en | Give the pillow to the sleepy boy. | 待生成 |
-| `h2_t_sleepy_find` | en | Find the sleepy boy. | 待生成 |
-| `h2_b_hungry` | en | The boy is hungry. Give him the bread. | 待生成 |
-| `h2_b_thirsty` | en | The boy is thirsty. Give him the water. | 待生成 |
-| `h2_b_sleepy` | en | The boy is sleepy. Give him the pillow. | 待生成 |
-| `h2_c_hungry` | en | The boy is hungry. Is he eating bread? | 待生成 |
-| `h2_c_thirsty` | en | The boy is thirsty. Is he drinking water? | 待生成 |
-| `h2_c_sleepy` | en | The boy is sleepy. Is he holding a pillow? | 待生成 |
+| `h2_t_hungry1` | en | His tummy is rumbling. He is hungry. Give him some bread. | 已存在 |
+| `h2_t_hungry2` | en | Look! He is holding his tummy. He is very hungry. Bread, please! | 已存在 |
+| `h2_t_hungry_give` | en | Give the bread to the hungry boy. | 已存在 |
+| `h2_t_thirsty1` | en | He is sweating. He is thirsty. Give him some water. | 已存在 |
+| `h2_t_thirsty2` | en | Look! He is hot and thirsty. Water, please! | 已存在 |
+| `h2_t_thirsty_give` | en | Give the water to the thirsty boy. | 已存在 |
+| `h2_t_thirsty_find` | en | Find the thirsty boy. | 已存在 |
+| `h2_t_sleepy1` | en | He is yawning. He is sleepy. Give him a pillow. | 已存在 |
+| `h2_t_sleepy2` | en | Look! His eyes are closing. He is sleepy. Pillow, please! | 已存在 |
+| `h2_t_sleepy_give` | en | Give the pillow to the sleepy boy. | 已存在 |
+| `h2_t_sleepy_find` | en | Find the sleepy boy. | 已存在 |
+| `h2_b_hungry` | en | The boy is hungry. Give him the bread. | 已存在 |
+| `h2_b_thirsty` | en | The boy is thirsty. Give him the water. | 已存在 |
+| `h2_b_sleepy` | en | The boy is sleepy. Give him the pillow. | 已存在 |
+| `h2_c_hungry` | en | The boy is hungry. Is he eating bread? | 已存在 |
+| `h2_c_thirsty` | en | The boy is thirsty. Is he drinking water? | 已存在 |
+| `h2_c_sleepy` | en | The boy is sleepy. Is he holding a pillow? | 已存在 |
+| `h3_t_toy1` | en | Look! The baby is crying. He is sad. Give him a toy. | 待生成 |
+| `h3_t_toy2` | en | Look! The baby is happy now. He loves the toy! | 待生成 |
+| `h3_t_toy_give` | en | Give the toy to the baby. | 待生成 |
+| `h3_t_toy_find` | en | Find the toy. Give it to the baby. | 待生成 |
+| `h3_t_hug1` | en | The baby is crying again. Give him a hug. | 待生成 |
+| `h3_t_hug2` | en | The baby is happy now. A big hug is so warm! | 待生成 |
+| `h3_t_hug_self` | en | Can you give a hug? Hug yourself! | 待生成 |
+| `h3_t_hug_baby` | en | Now give the baby a big hug! | 待生成 |
+| `h3_t_candy1` | en | The baby wants some candy. Give him some candy. | 待生成 |
+| `h3_t_candy2` | en | Look! The baby is happy now. Candy is sweet! | 待生成 |
+| `h3_t_candy_give` | en | Give him some candy. | 待生成 |
+| `h3_t_candy_find` | en | Find the candy. Give it to the baby. | 待生成 |
+| `h3_t_out` | en | You are so kind! Let's play! | 待生成 |
+| `h3_a_toy` | en | The baby is crying. Give him a toy. | 待生成 |
+| `h3_a_candy` | en | The baby is crying. Give him some candy. | 待生成 |
+| `h3_b_hug` | en | He is sad. Give him a hug! | 待生成 |
+| `h3_b_hug2` | en | The baby is crying. Give him a big hug! | 待生成 |
+| `h3_c_toy` | en | The baby is crying. Did we give him a toy? | 待生成 |
+| `h3_c_candy` | en | The baby is crying. Did we give him some candy? | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

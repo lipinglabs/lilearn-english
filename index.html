@@ -3870,7 +3870,8 @@
     '7-4': { numbers: null, make: 'makeG4', title: '第 4 关', tutorial: true },
     '7-5': { numbers: null, make: 'makeG5', title: '第 5 关', tutorial: true },
     '8-1': { numbers: null, make: 'makeH1', title: '第 1 关', tutorial: true },
-    '8-2': { numbers: null, make: 'makeH2', title: '第 2 关', tutorial: true }
+    '8-2': { numbers: null, make: 'makeH2', title: '第 2 关', tutorial: true },
+    '8-3': { numbers: null, make: 'makeH3', title: '第 3 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4082,6 +4083,7 @@
     if (def && def.make === 'makeG5') return makeQuestionG5(typeIdx, prev);
     if (def && def.make === 'makeH1') return makeQuestionH1(typeIdx, prev);
     if (def && def.make === 'makeH2') return makeQuestionH2(typeIdx, prev);
+    if (def && def.make === 'makeH3') return makeQuestionH3(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -19002,6 +19004,647 @@
     return api;
   })();
 
+  /* ============================================================
+     第 8 岛第 3 关（L8-W3：安慰别人 —— Give him a toy / a hug / candy）
+     概念：婴儿哭了（sad）→ 用玩具 / 拥抱 / 糖果安抚，婴儿变开心。
+     教学 13 环节（RULES §三.10 双倍量：3 个安抚动作 × 2 演示 + 2 互动 + 过渡）：
+       · 演示 1：婴儿哇哇大哭 + 语音 + 安抚物（玩具 / 拥抱爱心 / 糖果）飞过去 → 婴儿变开心（播完定格等点按，§三.14）；
+       · 演示 2：换一套氛围装饰 + 不同句式（§三.10 两次演示视觉/话术至少一项不同）；
+       · 互动 1：给物品（二选一，点对物品飞到婴儿身上）/ 拥抱（巨大👍确认，§三.12 永远判对）；
+       · 互动 2：给物品（三选一，更难）/ 拥抱婴儿（👍确认）。
+     答题 12 轮（4/4/4，选项每局洗牌 §二.9）：
+       A 听音送物品（中央哭泣婴儿 + 选项栏 3 件物品，拖 / 点到婴儿身上）/
+       B TPR 安慰动作（中央难过婴儿 + 巨大👍按钮，永远判对 §三.12）/；
+       C 听情景纠错（中央一个完整小场景 + ✅/❌ 判断语音描述是否与画面一致）。
+     规则：无英文字母外显、答对只音效+星星（禁人声 §1.6）、答错 again+四秒小手、
+           拖拽热区比视觉大一圈（§三.15）、零生图零 emoji（§二.17 全部手写 SVG）、
+           定格不吞顶栏点击（§三.18）、跨关组件不依赖别关样式（§三.17）。
+     ============================================================ */
+
+  var H3_INK = '#5a4a42';
+  var H3_SKIN = '#ffddc4', H3_SKIN_S = '#e8b895';
+  var H3_BODY = '#ffe08a', H3_BODY_S = '#e6bf5f';
+  var H3_HAIR = '#6b4a34';
+  var H3_COMFORT = ['toy', 'candy'];
+  var H3_DISTRACT = ['pepper', 'book', 'rock'];
+
+  /* ---- 婴儿手臂（cry 求抱抱 / happy 张开 / sad 垂下） ---- */
+  function h3Arms(st) {
+    var sk = H3_SKIN, sks = H3_SKIN_S;
+    if (st === 'cry') {
+      return '<path d="M42 100 Q24 92 26 72" fill="none" stroke="' + sk + '" stroke-width="9" stroke-linecap="round"/>' +
+        '<path d="M78 100 Q96 92 94 72" fill="none" stroke="' + sk + '" stroke-width="9" stroke-linecap="round"/>' +
+        '<circle cx="25" cy="70" r="6.5" fill="' + sk + '" stroke="' + sks + '" stroke-width="2.4"/>' +
+        '<circle cx="95" cy="70" r="6.5" fill="' + sk + '" stroke="' + sks + '" stroke-width="2.4"/>';
+    }
+    if (st === 'happy') {
+      return '<path d="M42 104 Q26 108 22 120" fill="none" stroke="' + sk + '" stroke-width="9" stroke-linecap="round"/>' +
+        '<path d="M78 104 Q94 108 98 120" fill="none" stroke="' + sk + '" stroke-width="9" stroke-linecap="round"/>' +
+        '<circle cx="21" cy="122" r="6.5" fill="' + sk + '" stroke="' + sks + '" stroke-width="2.4"/>' +
+        '<circle cx="99" cy="122" r="6.5" fill="' + sk + '" stroke="' + sks + '" stroke-width="2.4"/>';
+    }
+    /* sad：手垂下 */
+    return '<path d="M42 104 Q34 116 37 126" fill="none" stroke="' + sk + '" stroke-width="9" stroke-linecap="round"/>' +
+      '<path d="M78 104 Q86 116 83 126" fill="none" stroke="' + sk + '" stroke-width="9" stroke-linecap="round"/>' +
+      '<circle cx="37" cy="128" r="6.5" fill="' + sk + '" stroke="' + sks + '" stroke-width="2.4"/>' +
+      '<circle cx="83" cy="128" r="6.5" fill="' + sk + '" stroke="' + sks + '" stroke-width="2.4"/>';
+  }
+
+  /* ---- 婴儿脸（cry 大哭 / happy 笑 / sad 难过） ---- */
+  function h3Face(st) {
+    var ink = H3_INK;
+    if (st === 'cry') {
+      return '<path d="M44 54 q7 7 14 0" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M62 54 q7 7 14 0" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path class="h3-tear" d="M49 62 c-2.6 3.8 -2.2 6.6 0 7.6 c2.2 -1 2.6 -3.8 0 -7.6 z" fill="#8ecae6" stroke="#5a9ec9" stroke-width="1.8"/>' +
+        '<path class="h3-tear t2" d="M67 62 c-2.6 3.8 -2.2 6.6 0 7.6 c2.2 -1 2.6 -3.8 0 -7.6 z" fill="#8ecae6" stroke="#5a9ec9" stroke-width="1.8"/>' +
+        '<ellipse cx="60" cy="78" rx="10" ry="12" fill="#c94a48" stroke="#a83a3e" stroke-width="2.4"/>' +
+        '<ellipse cx="60" cy="84" rx="5.5" ry="4" fill="#ff8fa3"/>' +
+        '<circle cx="42" cy="72" r="5" fill="#ffb9b9" opacity=".6"/>' +
+        '<circle cx="78" cy="72" r="5" fill="#ffb9b9" opacity=".6"/>';
+    }
+    if (st === 'happy') {
+      return '<path d="M44 56 q7 -7 14 0" fill="none" stroke="' + ink + '" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M62 56 q7 -7 14 0" fill="none" stroke="' + ink + '" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M49 72 q11 12 22 0" fill="none" stroke="' + ink + '" stroke-width="3.4" stroke-linecap="round"/>' +
+        '<circle cx="41" cy="71" r="5.4" fill="#ffb9b9" opacity=".65"/>' +
+        '<circle cx="79" cy="71" r="5.4" fill="#ffb9b9" opacity=".65"/>';
+    }
+    /* sad */
+    return '<path d="M44 58 L58 52" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M76 58 L62 52" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>' +
+      '<circle cx="51" cy="62" r="5.4" fill="#ffffff" stroke="' + ink + '" stroke-width="2.4"/>' +
+      '<circle cx="51" cy="63" r="2.6" fill="#433a36"/>' +
+      '<circle cx="69" cy="62" r="5.4" fill="#ffffff" stroke="' + ink + '" stroke-width="2.4"/>' +
+      '<circle cx="69" cy="63" r="2.6" fill="#433a36"/>' +
+      '<path d="M50 80 q10 -9 20 0" fill="none" stroke="' + ink + '" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<circle cx="42" cy="72" r="4.6" fill="#ffb9b9" opacity=".55"/>' +
+      '<circle cx="78" cy="72" r="4.6" fill="#ffb9b9" opacity=".55"/>';
+  }
+
+  function h3BabyInner(st) {
+    var shadow = '<ellipse cx="60" cy="146" rx="33" ry="5" fill="#d8b08c" opacity=".22"/>';
+    var legs = '<rect x="47" y="132" width="11" height="14" rx="5.5" fill="' + H3_BODY + '" stroke="' + H3_BODY_S + '" stroke-width="2.4"/>' +
+      '<rect x="62" y="132" width="11" height="14" rx="5.5" fill="' + H3_BODY + '" stroke="' + H3_BODY_S + '" stroke-width="2.4"/>' +
+      '<ellipse cx="52" cy="146" rx="7" ry="3.6" fill="#ffddc4" stroke="#e8b895" stroke-width="2"/>' +
+      '<ellipse cx="68" cy="146" rx="7" ry="3.6" fill="#ffddc4" stroke="#e8b895" stroke-width="2"/>';
+    var onesie = '<path d="M39 102 q0 -8 21 -8 q21 0 21 8 l4 32 q0 8 -9 8 H44 q-9 0 -9 -8 z" fill="' + H3_BODY + '" stroke="' + H3_BODY_S + '" stroke-width="3"/>' +
+      '<path d="M44 122 q16 5 32 0" fill="none" stroke="' + H3_BODY_S + '" stroke-width="2.2" opacity=".8"/>' +
+      '<circle cx="60" cy="112" r="3" fill="' + H3_BODY_S + '" opacity=".7"/>';
+    var head = '<circle cx="60" cy="58" r="34" fill="' + H3_SKIN + '" stroke="' + H3_SKIN_S + '" stroke-width="3.2"/>';
+    var hair = '<path d="M52 26 q3 -9 9 -9 q-2 5 0 9" fill="' + H3_HAIR + '"/>' +
+      '<path d="M64 24 q4 -7 10 -6 q-3 5 -3 9" fill="' + H3_HAIR + '"/>';
+    return shadow + legs + onesie + head + hair + h3Face(st) + h3Arms(st);
+  }
+
+  /* ---- 手写 SVG：物品（玩具摇铃 / 糖果 / 辣椒 / 书 / 石头） ---- */
+  function h3ItemInner(item) {
+    if (item === 'toy') {
+      return '<rect x="45" y="50" width="10" height="30" rx="5" fill="#f6a8b8" stroke="#e0869a" stroke-width="3"/>' +
+        '<rect x="38" y="74" width="24" height="9" rx="4.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="2.4"/>' +
+        '<circle cx="50" cy="36" r="21" fill="#9fd0f5" stroke="#6fa8d8" stroke-width="3"/>' +
+        '<circle cx="43" cy="30" r="4" fill="#ffffff" opacity=".85"/>' +
+        '<circle cx="58" cy="42" r="3.2" fill="#ffffff" opacity=".7"/>' +
+        '<circle cx="56" cy="30" r="3.4" fill="#ffd66b"/>' +
+        '<circle cx="50" cy="44" r="3.4" fill="#ffb3c1"/>';
+    }
+    if (item === 'candy') {
+      return '<ellipse cx="50" cy="50" rx="19" ry="14" fill="#ff9ec4" stroke="#e57aa6" stroke-width="3"/>' +
+        '<path d="M31 50 L15 37 L15 63 Z" fill="#ffd0e2" stroke="#e57aa6" stroke-width="2.6" stroke-linejoin="round"/>' +
+        '<path d="M69 50 L85 37 L85 63 Z" fill="#ffd0e2" stroke="#e57aa6" stroke-width="2.6" stroke-linejoin="round"/>' +
+        '<path d="M42 44 q8 -6 16 0" fill="none" stroke="#ffffff" stroke-width="2.6" opacity=".75" stroke-linecap="round"/>' +
+        '<circle cx="45" cy="53" r="2.4" fill="#ffffff" opacity=".8"/>';
+    }
+    if (item === 'pepper') {
+      return '<path d="M40 22 q26 8 30 32 q3 18 -15 24 q-16 5 -22 -10 q-6 -18 7 -46 z" fill="#e24b4b" stroke="#c23a3a" stroke-width="3" stroke-linejoin="round"/>' +
+        '<path d="M40 24 q-9 -8 -5 -16 q11 2 9 15" fill="#5fa84a" stroke="#4a8a3a" stroke-width="3" stroke-linejoin="round"/>' +
+        '<path d="M46 40 q6 14 4 26" fill="none" stroke="#ffffff" stroke-width="2.4" opacity=".4" stroke-linecap="round"/>';
+    }
+    if (item === 'book') {
+      return '<path d="M22 24 h24 q6 0 6 6 v50 q0 -6 -6 -6 H22 z" fill="#8fd0a8" stroke="#5fa87a" stroke-width="3" stroke-linejoin="round"/>' +
+        '<path d="M78 24 H54 q-6 0 -6 6 v50 q0 -6 6 -6 h24 z" fill="#b6e2c8" stroke="#5fa87a" stroke-width="3" stroke-linejoin="round"/>' +
+        '<path d="M50 30 v50" stroke="#5fa87a" stroke-width="2.4"/>' +
+        '<path d="M30 40 h14 M30 50 h14" stroke="#5fa87a" stroke-width="2.2" opacity=".7" stroke-linecap="round"/>';
+    }
+    /* rock */
+    return '<path d="M22 64 q-5 -22 16 -30 q18 -8 32 4 q12 10 6 26 q-4 14 -26 14 q-24 0 -28 -14 z" fill="#b9b9c2" stroke="#93939e" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M34 50 q10 -6 20 0" fill="none" stroke="#93939e" stroke-width="2.4" opacity=".7" stroke-linecap="round"/>' +
+      '<ellipse cx="58" cy="66" rx="9" ry="4" fill="#ffffff" opacity=".25"/>';
+  }
+
+  function h3BabySvg(st) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 120 152');
+    s.setAttribute('class', 'h3-baby-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = h3BabyInner(st);
+    return s;
+  }
+
+  function h3ItemSvg(item) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 100 100');
+    s.setAttribute('class', 'h3-item-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = h3ItemInner(item);
+    return s;
+  }
+
+  function h3SceneSvg(st, item) {
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 150 152');
+    s.setAttribute('class', 'h3-scene-svg');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = h3BabyInner(st) +
+      '<g transform="translate(98 78) scale(0.42)">' + h3ItemInner(item) + '</g>';
+    return s;
+  }
+
+  /** 婴儿内层（卡片 / 场景复用） */
+  function h3BabyNode(st) {
+    var wrap = document.createElement('div');
+    wrap.className = 'h3-baby-in';
+    wrap.appendChild(h3BabySvg(st));
+    return wrap;
+  }
+
+  /** 把婴儿换成另一种状态（安抚成功 → 变开心） */
+  function h3SetBaby(container, st) {
+    if (!container) return;
+    var svg = container.querySelector('.h3-baby-svg');
+    if (svg) svg.innerHTML = h3BabyInner(st);
+  }
+
+  /** 把物品贴到婴儿身上（答对后视觉反馈） */
+  function h3AttachItem(babyIn, item) {
+    if (!babyIn) return;
+    var d = document.createElement('div');
+    d.className = 'h3-gift h3-attached';
+    d.setAttribute('aria-hidden', 'true');
+    d.appendChild(h3ItemSvg(item));
+    babyIn.appendChild(d);
+  }
+
+  /* ---- 巨大👍按钮（§三.12：唯一、≥44vw、正下方） ---- */
+  function h3ThumbSvg() {
+    return '<svg viewBox="0 0 100 100" class="h3-thumb-svg" aria-hidden="true">' +
+      '<rect x="39" y="12" width="17" height="40" rx="8.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="17" y="45" width="48" height="35" rx="13.5" fill="#ffd66b" stroke="#e0a93b" stroke-width="3.4"/>' +
+      '<rect x="22" y="75" width="39" height="13" rx="6.5" fill="#7fb3d5" stroke="#4f9fd6" stroke-width="3"/>' +
+      '</svg>';
+  }
+
+  /* ---- 装饰：爱心（拥抱）/ 闪光 ---- */
+  function h3Heart(x, y, size, cls) {
+    var d = document.createElement('div');
+    d.className = 'h3-deco h3-heart ' + (cls || '');
+    d.style.left = x; d.style.top = y; d.style.width = size; d.style.height = size;
+    d.setAttribute('aria-hidden', 'true');
+    d.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M50 84 C18 58 12 38 26 28 C38 19 50 30 50 40 C50 30 62 19 74 28 C88 38 82 58 50 84 Z" ' +
+      'fill="#ff9ec4" stroke="#e5788f" stroke-width="3.4" stroke-linejoin="round"/></svg>';
+    return d;
+  }
+  function h3Sparkle(x, y, size, cls) {
+    var d = document.createElement('div');
+    d.className = 'h3-deco h3-spark ' + (cls || '');
+    d.style.left = x; d.style.top = y; d.style.width = size; d.style.height = size;
+    d.setAttribute('aria-hidden', 'true');
+    d.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path d="M12 1 L14.6 9.4 L23 12 L14.6 14.6 L12 23 L9.4 14.6 L1 12 L9.4 9.4 Z" ' +
+      'fill="#ffd66b" stroke="#e8b54a" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+    return d;
+  }
+
+  function ensureH3Css() {
+    if (document.getElementById('h3-style')) return;
+    var s = document.createElement('style');
+    s.id = 'h3-style';
+    s.textContent =
+      '.h3-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'width:100%;gap:1.6vh;padding-bottom:6vh;box-sizing:border-box}' +
+      '.h3-bstage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'width:100%;gap:1.6vh;padding-bottom:6vh;box-sizing:border-box}' +
+      /* 婴儿：外层只负责投放热区，内层负责视觉（热区比图形大一圈 §三.15） */
+      '.h3-baby{position:relative;width:min(56vw,232px);aspect-ratio:120/152;padding:6%;box-sizing:border-box;' +
+      'border-radius:28px;display:flex;align-items:center;justify-content:center}' +
+      '.h3-baby.h3-drop{cursor:pointer}' +
+      '.h3-baby.drop-hot,.h3-baby.h3-hot{outline:4px dashed #ffb74d;outline-offset:2px}' +
+      '.h3-baby.right{box-shadow:0 0 0 4px rgba(127,209,138,.45);border-radius:28px}' +
+      '.h3-baby-in{position:relative;width:100%;height:100%}' +
+      '.h3-baby-svg{position:absolute;inset:0;width:100%;height:100%;display:block}' +
+      '.h3-scene-svg{width:100%;height:100%;display:block}' +
+      /* 飞来的物品 / 贴上的物品 */
+      '.h3-gift{position:absolute;right:4%;bottom:6%;width:min(24vw,92px);aspect-ratio:1/1;' +
+      'animation:h3flyin .8s cubic-bezier(.2,1.4,.5,1) both}' +
+      '.h3-gift.h3-attached{bottom:12%;right:2%;animation:h3pop .5s cubic-bezier(.2,1.5,.5,1) both}' +
+      '.h3-gift svg{width:100%;height:100%;display:block}' +
+      /* 三物品宫格（教学互动 1·2 的给物品） */
+      '.h3-items{display:flex;gap:min(3.4vw,14px);justify-content:center;align-items:center;width:100%;margin:1vh auto}' +
+      '.h3-item{position:relative;width:min(24vw,110px);aspect-ratio:1/1;background:rgba(255,255,255,.82);' +
+      'border:3px solid #ffd9a0;border-radius:20px;padding:9%;cursor:pointer;display:block;' +
+      'box-sizing:border-box;box-shadow:0 6px 14px rgba(214,164,110,.18);transition:transform .15s ease}' +
+      '.h3-item:active{transform:scale(.96)}' +
+      '.h3-item svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      '.h3-item.right{border-color:#7FD18A;background:#eafaf0}' +
+      '.h3-item.wrong{animation:h3shake .5s;border-color:#f0a0a0}' +
+      '.h3-item.h3-glow{animation:h3glow 1.1s ease-in-out infinite}' +
+      /* 巨大👍按钮 */
+      '.h3-thumb{display:flex;align-items:center;justify-content:center;width:min(52vw,240px);aspect-ratio:1/1;' +
+      'background:rgba(255,255,255,.82);border:4px solid #ffd66b;border-radius:34px;' +
+      'box-shadow:0 10px 22px rgba(224,169,59,.3);cursor:pointer;transition:transform .15s ease;' +
+      'animation:h3thump 1.5s ease-in-out infinite}' +
+      '.h3-thumb:active{transform:scale(.95)}' +
+      '.h3-thumb.right{box-shadow:0 0 0 5px rgba(127,209,138,.55)}' +
+      '.h3-thumb-svg{width:60%;height:60%;display:block}' +
+      '@keyframes h3thump{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}' +
+      /* 答题容器 */
+      '.h3-ask{display:flex;flex-direction:column;align-items:center;width:100%;gap:1.2vh}' +
+      /* 答题 C：场景卡 */
+      '.h3-scene-card{position:relative;width:min(62vw,252px);aspect-ratio:150/152;background:rgba(255,255,255,.75);' +
+      'border:3px solid #ffd9a0;border-radius:24px;padding:5%;box-sizing:border-box;display:flex;' +
+      'align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(214,164,110,.18)}' +
+      '.h3-scene-card.right{border-color:#7FD18A;background:#eafaf0;box-shadow:0 0 0 4px rgba(127,209,138,.5)}' +
+      '.h3-scene-card svg{width:100%;height:100%;display:block}' +
+      /* 选项栏里的物品 */
+      '.option.h3-opt .slot{padding:8%}' +
+      '.option.h3-opt .slot svg{width:88%;max-width:120px;height:auto;display:block;' +
+      'filter:drop-shadow(0 4px 6px rgba(150,90,40,.28))}' +
+      /* 装饰 */
+      '.h3-deco{position:absolute;pointer-events:none}' +
+      '.h3-heart{animation:h3heart .9s cubic-bezier(.2,1.5,.5,1) both}' +
+      '.h3-heart svg{width:100%;height:100%;display:block}' +
+      '.h3-spark{width:min(9vw,38px);animation:h3twinkle 1.1s ease-in-out infinite}' +
+      '.h3-spark.s2{animation-delay:.35s}.h3-spark.s3{animation-delay:.7s}' +
+      '.h3-spark svg{width:100%;height:auto;display:block}' +
+      '.h3-tear{animation:h3fade 1.1s ease-in-out infinite}' +
+      '.h3-tear.t2{animation-delay:.4s}' +
+      '@keyframes h3flyin{0%{opacity:0;transform:translate(70px,34px) scale(.5)}' +
+      '70%{opacity:1;transform:translate(0,0) scale(1.12)}100%{transform:translate(0,0) scale(1)}}' +
+      '@keyframes h3pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}' +
+      '@keyframes h3heart{0%{transform:scale(.2);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1);opacity:1}}' +
+      '@keyframes h3shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}' +
+      '40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      '@keyframes h3glow{0%,100%{filter:drop-shadow(0 0 3px rgba(255,205,110,.5))}' +
+      '50%{filter:drop-shadow(0 0 14px rgba(255,190,80,.95))}}' +
+      '@keyframes h3twinkle{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}' +
+      '@keyframes h3fade{0%,100%{opacity:.35}50%{opacity:1}}' +
+      /* 横屏矮屏：所有可点目标必须留在视口内（§三.15） */
+      '@media (max-height:560px){' +
+      '.h3-stage{gap:.6vh;padding-bottom:1.5vh}' +
+      '.h3-baby{width:min(26vw,124px)}' +
+      '.h3-items{margin:.4vh auto}' +
+      '.h3-item{width:min(15vw,86px)}' +
+      '.h3-thumb{width:min(24vw,110px);border-radius:26px}' +
+      '.h3-scene-card{width:min(34vw,150px)}' +
+      '.h3-gift{width:min(14vw,60px)}}';
+    document.head.appendChild(s);
+  }
+
+  /* ---------------- 出题：A 听音送物品 / B TPR 拥抱 / C 听情景纠错 ---------------- */
+  function makeQuestionH3(type, prev) {
+    ensureH3Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：中央哭泣婴儿 + 3 件物品，听 "Give him a toy/some candy." 送对的 */
+        var target = pick(H3_COMFORT);
+        var pool = H3_DISTRACT.slice();
+        shuffle(pool);
+        var items = shuffle([target, pool[0], pool[1]]);
+        q = {
+          type: 'H3A', sig: 'A:' + target + ':' + items.join(','), target: target, items: items,
+          options: items.map(function (it) { return { kind: 'h3item', item: it }; }),
+          answer: items.indexOf(target), correct: items.indexOf(target),
+          audio: ['h3_a_' + target]
+        };
+      } else if (type === 1) {
+        /* B：中央难过婴儿 + 巨大👍按钮（TPR，永远判对 §三.12） */
+        state.h3bFlip = !state.h3bFlip;
+        var hkey = state.h3bFlip ? 'h3_b_hug' : 'h3_b_hug2';
+        q = {
+          type: 'H3B', sig: 'B:' + hkey, state: 'sad', hug: hkey,
+          options: [], correct: 0, audio: [hkey]
+        };
+      } else {
+        /* C：中央一个完整小场景（哭婴 + 一件物品）+ ✅/❌。
+           claim 与画面物品 50/50 相同 / 不同，只有听懂语音才能判断（无视觉作弊 §三.16）。 */
+        var sceneItem = pick(H3_COMFORT);
+        state.h3Flip = !state.h3Flip;
+        var truth = state.h3Flip;
+        var claim = truth ? sceneItem : (sceneItem === 'toy' ? 'candy' : 'toy');
+        var optsC = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
+        q = {
+          type: 'H3C', sig: 'C:' + sceneItem + ':' + claim + ':' + truth,
+          state: 'cry', item: sceneItem, claim: claim, truth: truth,
+          options: optsC, correct: optsC[0].val === truth ? 0 : 1,
+          audio: ['h3_c_' + claim, 'yesno']
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：中央哭泣婴儿（投放目标）+ 选项栏 3 件物品（拖 / 点） */
+  function renderH3A(q) {
+    ensureH3Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'h3-ask';
+    var baby = document.createElement('div');
+    baby.className = 'h3-baby h3-drop';
+    baby.dataset.drop = 'baby';
+    baby.setAttribute('aria-label', '小婴儿');
+    baby.appendChild(h3BabyNode('cry'));
+    baby.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      if (state.pickedFruit === null) return;
+      resolveH3A(state.pickedFruit, baby);
+    });
+    box.appendChild(baby);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 A 判定：把物品拖 / 点到婴儿身上（§二.11 两条路径都走这里） */
+  function resolveH3A(itemIdx, target) {
+    var q = state.question;
+    if (!q || q.type !== 'H3A') return;
+    var drop = (typeof target === 'string') ? target
+      : (target && target.dataset ? target.dataset.drop : null);
+    var opt = q.options[itemIdx];
+    var ok = (drop === 'baby') && !!opt && opt.item === q.target;
+    if (ok) {
+      var babyEl = (typeof target === 'string')
+        ? askDisplay.querySelector('.h3-baby[data-drop="baby"]') : target;
+      var inner = babyEl && babyEl.querySelector('.h3-baby-in');
+      if (inner) { h3SetBaby(inner, 'happy'); h3AttachItem(inner, q.target); }
+      if (babyEl) babyEl.classList.add('right');
+      judge(true, babyEl);
+    } else {
+      judge(false, optionEls[itemIdx] || target);
+    }
+  }
+
+  /** 题型 B：中央难过婴儿 + 巨大👍按钮（TPR，永远判对） */
+  function renderH3B(q) {
+    ensureH3Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'h3-bstage';
+    w.setAttribute('aria-label', '小婴儿');
+    var baby = document.createElement('div');
+    baby.className = 'h3-baby';
+    baby.setAttribute('aria-label', '小婴儿');
+    baby.appendChild(h3BabyNode('sad'));
+    w.appendChild(baby);
+    var thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'h3-thumb';
+    thumb.setAttribute('aria-label', '我做到啦');
+    thumb.innerHTML = h3ThumbSvg();
+    thumb.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      h3SetBaby(baby, 'happy');
+      judge(true, thumb);
+    });
+    w.appendChild(thumb);
+    askDisplay.appendChild(w);
+  }
+
+  /** 题型 C：中央一个完整小场景（哭婴 + 物品），✅/❌ 在选项栏 */
+  function renderH3C(q) {
+    ensureH3Css();
+    askDisplay.innerHTML = '';
+    var card = document.createElement('div');
+    card.className = 'h3-scene-card';
+    card.setAttribute('aria-label', '小婴儿');
+    card.appendChild(h3SceneSvg(q.state, q.item));
+    askDisplay.appendChild(card);
+  }
+
+  /* 教学：13 环节（3 个安抚动作 × 2 演示 + 2 互动 + 过渡）。
+     §三.10 双倍量 + §三.14 点按推进 + §二.12 四秒小手 + §三.12 拥抱👍永远判对。 */
+  var runH3Tutorial = (function () {
+    var ACTS = [
+      /* Give him a toy */
+      { t: 'demo',  sid: 'toy1',      word: 'h3_t_toy1',       state: 'cry',   gift: 'toy' },
+      { t: 'demo',  sid: 'toy2',      word: 'h3_t_toy2',       state: 'happy' },
+      { t: 'give',  sid: 'toyGive',   word: 'h3_t_toy_give',   state: 'cry',  target: 'toy',   items: ['toy', 'pepper'] },
+      { t: 'give',  sid: 'toyFind',   word: 'h3_t_toy_find',   state: 'cry',  target: 'toy',   items: ['toy', 'pepper', 'rock'] },
+      /* Give him a hug */
+      { t: 'demo',  sid: 'hug1',      word: 'h3_t_hug1',       state: 'cry',   gift: 'hug' },
+      { t: 'demo',  sid: 'hug2',      word: 'h3_t_hug2',       state: 'happy', heart: true },
+      { t: 'mimic', sid: 'hugSelf',   word: 'h3_t_hug_self',   state: 'sad' },
+      { t: 'mimic', sid: 'hugBaby',   word: 'h3_t_hug_baby',   state: 'cry' },
+      /* Give him candy */
+      { t: 'demo',  sid: 'candy1',    word: 'h3_t_candy1',     state: 'cry',   gift: 'candy' },
+      { t: 'demo',  sid: 'candy2',    word: 'h3_t_candy2',     state: 'happy' },
+      { t: 'give',  sid: 'candyGive', word: 'h3_t_candy_give', state: 'cry',  target: 'candy', items: ['candy', 'rock'] },
+      { t: 'give',  sid: 'candyFind', word: 'h3_t_candy_find', state: 'cry',  target: 'candy', items: ['candy', 'book', 'rock'] },
+      /* 过渡 */
+      { t: 'out',   sid: 'out',       word: 'h3_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null; me._advance = null;
+      me.canDrag = false; me.customMode = null;
+      me.giveOn = false; me.mimicOn = false; me.askLock = false;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid) {
+      blank(me);
+      ensureH3Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'h3-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', '小婴儿');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /* 演示定格：等用户点屏幕任意位置才 next()（禁止定时器自动前进；不吞顶栏点击 §三.18） */
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    function babyBox(st) {
+      var b = document.createElement('div');
+      b.className = 'h3-baby';
+      b.setAttribute('aria-label', '小婴儿');
+      b.appendChild(h3BabyNode(st));
+      return b;
+    }
+    /* 演示 2 的氛围装饰（与演示 1 不同的视觉） */
+    function decoFor(w) {
+      w.appendChild(h3Sparkle('6%', '12%', 'min(9vw,38px)', ''));
+      w.appendChild(h3Sparkle('82%', '8%', 'min(8vw,32px)', 's2'));
+      w.appendChild(h3Sparkle('84%', '58%', 'min(9vw,34px)', 's3'));
+    }
+    /* 演示 1：婴儿哭 + 语音 + 安抚物飞过去 → 婴儿变开心 → 定格等点按 */
+    function playDemo(me, act, next) {
+      var w = stage(me, act.sid);
+      var baby = babyBox(act.state);
+      w.appendChild(baby);
+      var inner = baby.querySelector('.h3-baby-in');
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        if (act.gift === 'hug') {
+          w.appendChild(h3Heart('30%', '6%', 'min(30vw,116px)', ''));
+          h3SetBaby(inner, 'happy');
+          decoFor(w);
+        } else if (act.gift) {
+          var gift = document.createElement('div');
+          gift.className = 'h3-gift';
+          gift.setAttribute('aria-hidden', 'true');
+          gift.appendChild(h3ItemSvg(act.gift));
+          w.appendChild(gift);
+          h3SetBaby(inner, 'happy');
+        } else {
+          if (act.heart) w.appendChild(h3Heart('66%', '4%', 'min(22vw,86px)', ''));
+          decoFor(w);
+        }
+        gate(me, next);
+      });
+    }
+    /* 互动：给物品（二选一 / 三选一，点对物品飞到婴儿身上） */
+    function playGive(me, act, next) {
+      var w = stage(me, act.sid);
+      var baby = babyBox(act.state);
+      baby.classList.add('h3-drop');
+      w.appendChild(baby);
+      var line = document.createElement('div');
+      line.className = 'h3-items';
+      line.setAttribute('aria-label', '东西');
+      var ansEl = null;
+      act.items.forEach(function (it) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'h3-item';
+        btn.dataset.item = it;
+        btn.setAttribute('aria-label', '东西');
+        btn.appendChild(h3ItemSvg(it));
+        btn.addEventListener('click', function () {
+          if (state.tut !== me || !me.giveOn) return;
+          if (it === act.target) {
+            me.giveOn = false;
+            clearHint(); coin(); ting();
+            btn.classList.add('right');
+            var inner = baby.querySelector('.h3-baby-in');
+            if (inner) { h3SetBaby(inner, 'happy'); h3AttachItem(inner, act.target); }
+            baby.classList.add('right');
+            setTimeout(function () { if (state.tut === me) next(); }, 900);
+          } else {
+            btn.classList.add('wrong');
+            setTimeout(function () { btn.classList.remove('wrong'); }, 520);
+            say(['again']);
+            armHint();
+          }
+        });
+        if (it === act.target) ansEl = btn;
+        line.appendChild(btn);
+      });
+      w.appendChild(line);
+      me.giveOn = false;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.giveOn = true;
+        me.hintTarget = ansEl;
+        armHint();
+      });
+    }
+    /* 互动：拥抱（巨大👍确认，§三.12 永远判对） */
+    function playMimic(me, act, next) {
+      var w = stage(me, act.sid);
+      var baby = babyBox(act.state);
+      w.appendChild(baby);
+      var thumb = document.createElement('button');
+      thumb.type = 'button';
+      thumb.className = 'h3-thumb';
+      thumb.setAttribute('aria-label', '我做到啦');
+      thumb.innerHTML = h3ThumbSvg();
+      w.appendChild(thumb);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.mimicOn = true;
+        me.hintTarget = thumb;
+        armHint();
+        thumb.addEventListener('click', function () {
+          if (state.tut !== me || me.askLock) return;
+          me.askLock = true;
+          clearHint(); coin(); ting();
+          thumb.classList.add('right');
+          h3SetBaby(baby, 'happy');
+          w.appendChild(h3Heart('66%', '4%', 'min(22vw,86px)', ''));
+          me.replay = function () { say(['g2_t_great']); };
+          say(['g2_t_great'], function () {
+            if (state.tut !== me) return;
+            me.askLock = false;
+            next();
+          });
+        });
+      });
+    }
+    /* 过渡：三颗爱心 + "You are so kind! Let's play!" → 答题 */
+    function playOut(me, act) {
+      var w = stage(me, act.sid);
+      var baby = babyBox('happy');
+      w.appendChild(baby);
+      w.appendChild(h3Sparkle('6%', '14%', 'min(9vw,38px)', ''));
+      w.appendChild(h3Sparkle('82%', '10%', 'min(8vw,32px)', 's2'));
+      w.appendChild(h3Sparkle('84%', '56%', 'min(9vw,34px)', 's3'));
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        tutFinish(me, false);
+      });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'out') { playOut(me, act); return; }
+      if (act.t === 'give') { playGive(me, act, next); return; }
+      playMimic(me, act, next);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
+
   /* 第 3 岛第 4 关教学：重量感知（Heavy / Light）。7 环节，演示严格「语音播完定格 + 点屏幕才推进」（RULES §三.14），
      互动 4 秒无反应出小手指（§二.12）。 */
   var runB4Tutorial = (function () {
@@ -19294,6 +19937,10 @@
     if (q.type === 'H2A') { optionsBar.classList.add('gone'); renderH2A(q); return; }
     if (q.type === 'H2B') { renderH2B(q); return; }
     if (q.type === 'H2C') { renderH2C(q); return; }
+    /* ---- 第 8 岛第 3 关：安慰别人（A 中央哭泣婴儿 + 选项栏物品；B 中央难过婴儿 + 👍；C 中央场景 + ✅/❌） ---- */
+    if (q.type === 'H3A') { renderH3A(q); return; }
+    if (q.type === 'H3B') { optionsBar.classList.add('gone'); renderH3B(q); return; }
+    if (q.type === 'H3C') { renderH3C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -19720,7 +20367,8 @@
     if (q.type === 'G1B' || q.type === 'G1C' || q.type === 'G2B' || q.type === 'G2C' ||
         q.type === 'G3A' || q.type === 'G4A' || q.type === 'G4B' || q.type === 'G4C' ||
         q.type === 'G5A' || q.type === 'G5B' || q.type === 'G5C' ||
-        q.type === 'H1A' || q.type === 'H1B' || q.type === 'H2A') {
+        q.type === 'H1A' || q.type === 'H1B' || q.type === 'H2A' ||
+        q.type === 'H3B') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -20003,6 +20651,10 @@
         // 第 8 岛第 2 关题型 B：可拖/点到小人身上的物品（面包 / 水 / 枕头）
         btn.classList.add('h2-opt');
         slot.appendChild(h2ItemSvg(opt.item));
+      } else if (opt.kind === 'h3item') {
+        // 第 8 岛第 3 关题型 A：可拖/点到婴儿身上的物品（玩具 / 糖果 / 辣椒 / 书 / 石头）
+        btn.classList.add('h3-opt');
+        slot.appendChild(h3ItemSvg(opt.item));
       } else {
         btn.classList.add('pile-opt');
         slot.appendChild(pileNode(opt.fruit, opt.count, 'opt'));
@@ -20087,6 +20739,11 @@
         btn.classList.add('draggable');
       } else if (q.type === 'H2B') {
         // 第 8 岛第 2 关题型 B：物品可拖到小人身上
+        btn.dataset.drag = 'item';
+        btn.dataset.idx = String(i);
+        btn.classList.add('draggable');
+      } else if (q.type === 'H3A') {
+        // 第 8 岛第 3 关题型 A：物品可拖到婴儿身上
         btn.dataset.drag = 'item';
         btn.dataset.idx = String(i);
         btn.classList.add('draggable');
@@ -20327,7 +20984,7 @@
             qt !== 'G1B' && qt !== 'G1C' && qt !== 'G2B' && qt !== 'G2C' && qt !== 'G3A' &&
             qt !== 'G4A' && qt !== 'G4B' && qt !== 'G4C' &&
             qt !== 'G5A' && qt !== 'G5B' && qt !== 'G5C' &&
-            qt !== 'H1A' && qt !== 'H1B' && qt !== 'H2A') {
+            qt !== 'H1A' && qt !== 'H1B' && qt !== 'H2A' && qt !== 'H3B') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -20504,6 +21161,8 @@
         resolveH1C(d.idx, target);
       } else if (d.mode === 'H2B') {
         resolveH2B(d.idx, target);
+      } else if (d.mode === 'H3A') {
+        resolveH3A(d.idx, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -21534,6 +22193,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '8-3': {
+      // 安慰别人（Give him a toy / a hug / candy）：手写婴儿三状态 + 玩具/糖果/辣椒/书/石头 + 爱心；13 环节
+      // （3 个安抚动作 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）；
+      // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、拥抱👍永远判对（§三.12）
+      custom: runH3Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -21787,7 +22455,7 @@
         q.type === 'F14A' || q.type === 'F14C' || q.type === 'F15A' || q.type === 'F15C' ||
         q.type === 'G1A' ||
         q.type === 'G2A' ||
-        q.type === 'G3B' || q.type === 'H1C' || q.type === 'H2B' ||
+        q.type === 'G3B' || q.type === 'H1C' || q.type === 'H2B' || q.type === 'H3A' ||
         q.type === 'B4C') return q.type;
     return null;
   }
@@ -22077,6 +22745,12 @@
 
       // 第 8 岛第 2 关题型 B：点物品选中，再点小人送给他（拖拽的等价路径）
       if (q.type === 'H2B') {
+        tapFruit(idx, btn);
+        return;
+      }
+
+      // 第 8 岛第 3 关题型 A：点物品选中，再点婴儿送给他（拖拽的等价路径）
+      if (q.type === 'H3A') {
         tapFruit(idx, btn);
         return;
       }
@@ -22503,6 +23177,7 @@
             if (o.kind === 'g2body') return 's:' + o.hl;
             if (o.kind === 'h1mouth') return 'm:' + o.mood;
             if (o.kind === 'h2item') return 'i:' + o.item;
+            if (o.kind === 'h3item') return 'i:' + o.item;
             if (o.kind === 'g3act') return 'i:' + o.act;
             if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
@@ -22548,7 +23223,13 @@
           h2item: q.item || null,
           h2claim: q.claim || null,
           h2truth: (typeof q.truth === 'boolean') ? q.truth : null,
-          h2answer: (typeof q.answer === 'number') ? q.answer : null
+          h2answer: (typeof q.answer === 'number') ? q.answer : null,
+          h3target: q.target || null,
+          h3items: q.items ? q.items.slice() : null,
+          h3item: q.item || null,
+          h3claim: q.claim || null,
+          h3truth: (typeof q.truth === 'boolean') ? q.truth : null,
+          h3answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },
