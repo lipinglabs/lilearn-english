@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**993** 条（英文 987 + 中文 6）
+总条目：**1007** 条（英文 1001 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -972,25 +972,39 @@
 | `l93_b_rain` | en | Find the boy in the rain. He has an umbrella. | 已存在 |
 | `l93_c_hot` | en | Show me hot! | 已存在 |
 | `l93_c_cold` | en | Show me cold! | 已存在 |
-| `l94_t_shoes1` | en | Look! Let's be silly! Put the shoes on his head! | 待生成 |
-| `l94_t_shoes2` | en | Oh! The shoes are on his head! So funny! | 待生成 |
-| `l94_t_shoes_your` | en | Your turn! Put the shoes on his head! | 待生成 |
-| `l94_t_shoes_again` | en | Now again! Put the shoes on his head! | 待生成 |
-| `l94_t_pants1` | en | Oh no! Pants on his arms! So funny! | 待生成 |
-| `l94_t_pants2` | en | Look! His pants are on his arms! | 待生成 |
-| `l94_t_pants_put` | en | Your turn! Put the pants on his arms! | 待生成 |
-| `l94_t_pants_again` | en | Again! Put the pants on his arms! | 待生成 |
-| `l94_t_out` | en | You are a silly master! Let's play! | 待生成 |
-| `l94_laugh` | en | Ha! Ha! Ha! | 待生成 |
-| `l94_a_hat` | en | Put the hat on his foot! | 待生成 |
-| `l94_a_shoes` | en | Put the shoes on his head! | 待生成 |
-| `l94_a_pants` | en | Put the pants on his arms! | 待生成 |
-| `l94_b_shoes` | en | He is wearing shoes on his head! | 待生成 |
-| `l94_b_pants` | en | He is wearing pants on his arms! | 待生成 |
-| `l94_b_hat` | en | He is wearing a hat on his foot! | 待生成 |
-| `l94_c_hand` | en | Show me silly! Put your hand on your head! | 待生成 |
-| `l94_c_nose` | en | Show me silly! Put your finger on your nose! | 待生成 |
-| `l94_c_jump` | en | Show me silly! Jump like a frog! | 待生成 |
+| `l94_t_shoes1` | en | Look! Let's be silly! Put the shoes on his head! | 已存在 |
+| `l94_t_shoes2` | en | Oh! The shoes are on his head! So funny! | 已存在 |
+| `l94_t_shoes_your` | en | Your turn! Put the shoes on his head! | 已存在 |
+| `l94_t_shoes_again` | en | Now again! Put the shoes on his head! | 已存在 |
+| `l94_t_pants1` | en | Oh no! Pants on his arms! So funny! | 已存在 |
+| `l94_t_pants2` | en | Look! His pants are on his arms! | 已存在 |
+| `l94_t_pants_put` | en | Your turn! Put the pants on his arms! | 已存在 |
+| `l94_t_pants_again` | en | Again! Put the pants on his arms! | 已存在 |
+| `l94_t_out` | en | You are a silly master! Let's play! | 已存在 |
+| `l94_laugh` | en | Ha! Ha! Ha! | 已存在 |
+| `l94_a_hat` | en | Put the hat on his foot! | 已存在 |
+| `l94_a_shoes` | en | Put the shoes on his head! | 已存在 |
+| `l94_a_pants` | en | Put the pants on his arms! | 已存在 |
+| `l94_b_shoes` | en | He is wearing shoes on his head! | 已存在 |
+| `l94_b_pants` | en | He is wearing pants on his arms! | 已存在 |
+| `l94_b_hat` | en | He is wearing a hat on his foot! | 已存在 |
+| `l94_c_hand` | en | Show me silly! Put your hand on your head! | 已存在 |
+| `l94_c_nose` | en | Show me silly! Put your finger on your nose! | 已存在 |
+| `l94_c_jump` | en | Show me silly! Jump like a frog! | 已存在 |
+| `l95_t_welcome` | en | Welcome to the fashion show! It's cold. Put on the shoes and the coat. | 待生成 |
+| `l95_t_welcome2` | en | Look! The shoes and the coat are on! So stylish! | 待生成 |
+| `l95_t_coat` | en | Brrr! It's cold. Put on the coat. | 待生成 |
+| `l95_t_hot1` | en | Now it's hot. Take off the coat. | 待生成 |
+| `l95_t_hot2` | en | The coat is off! So cool! | 待生成 |
+| `l95_t_hat` | en | Take off the hat. | 待生成 |
+| `l95_t_out` | en | You are a fashion superstar! Let's play! | 待生成 |
+| `l95_b_shoes` | en | Let's be silly! Put the shoes on his head! | 待生成 |
+| `l95_b_pants` | en | Let's be silly! Put the pants on his arms! | 待生成 |
+| `l95_b_hat` | en | Let's be silly! Put the hat on his foot! | 待生成 |
+| `l95_c_pants_hat` | en | First, put on the pants. Then, take off the hat. | 待生成 |
+| `l95_c_shoes_coat` | en | First, put on the shoes. Then, take off the coat. | 待生成 |
+| `l95_c_coat_hat` | en | First, put on the coat. Then, take off the hat. | 待生成 |
+| `l95_d_find` | en | Find the silly boy! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

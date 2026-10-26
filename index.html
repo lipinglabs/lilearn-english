@@ -3880,7 +3880,8 @@
     '9-1': { numbers: null, make: 'makeL9', title: '第 1 关', tutorial: true },
     '9-2': { numbers: null, make: 'makeL92', title: '第 2 关', tutorial: true },
     '9-3': { numbers: null, make: 'makeL93', title: '第 3 关', tutorial: true },
-    '9-4': { numbers: null, make: 'makeL94', title: '第 4 关', tutorial: true }
+    '9-4': { numbers: null, make: 'makeL94', title: '第 4 关', tutorial: true },
+    '9-5': { numbers: null, make: 'makeL95', title: '第 5 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4113,6 +4114,7 @@
     if (def && def.make === 'makeL92') return makeQuestionL92(typeIdx, prev);
     if (def && def.make === 'makeL93') return makeQuestionL93(typeIdx, prev);
     if (def && def.make === 'makeL94') return makeQuestionL94(typeIdx, prev);
+    if (def && def.make === 'makeL95') return makeQuestionL95(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -4164,9 +4166,14 @@
     return shuffle([answer].concat(others));
   }
 
-  function makePlan() {
+  /** 生成 12 轮题型序列。默认 3 种题型轮转；第 9 岛第 5 关（L95）有 A/B/C/D 四种题型，需传 typeCount=4。 */
+  function makePlan(typeCount) {
+    if (!typeCount) {
+      var _def = levelDef(currentIsland, state.level);
+      typeCount = (_def && _def.make === 'makeL95') ? 4 : 3;
+    }
     var plan = [];
-    for (var i = 0; i < TOTAL_ROUNDS; i++) plan.push(i % 3);
+    for (var i = 0; i < TOTAL_ROUNDS; i++) plan.push(i % typeCount);
     shuffle(plan);
     for (var k = 1; k < plan.length; k++) {
       if (plan[k] === plan[k - 1]) {
@@ -21104,7 +21111,7 @@
      TPR 用巨大 👍 且永远判对（§三.12）；拖拽热区 = 整个小人 + 14% 外扩（§二.11，绝不让孩子瞄准）。
      ====================================================================== */
   var L9_ITEMS = ['shirt', 'pants', 'shoes', 'hat'];
-  var L9_PART = { shirt: 'body', pants: 'legs', shoes: 'feet', hat: 'head' };
+  var L9_PART = { shirt: 'body', pants: 'legs', shoes: 'feet', hat: 'head', tshirt: 'body', coat: 'body' };
   var L9_A_KEY = { shirt: 'l9_t_shirt_put', pants: 'l9_t_pants_put', shoes: 'l9_t_shoes', hat: 'l9_t_hat' };
   var L9_B_KEY = { shirt: 'l9_b_shirt', pants: 'l9_b_pants', shoes: 'l9_b_shoes', hat: 'l9_b_hat' };
   var L9_C_KEY = { shirt: 'l9_c_shirt', pants: 'l9_c_pants', shoes: 'l9_c_shoes', hat: 'l9_c_hat' };
@@ -21843,9 +21850,12 @@
       '.l92-kidcard::after{content:"";position:absolute;inset:-12%;border-radius:28px;z-index:0}' +
       '.l92-kid-wrap{position:relative;z-index:1;width:100%;height:100%;display:flex;align-items:center;justify-content:center}' +
       '.l92-kid-wrap > svg{width:100%;height:100%;display:block;pointer-events:none}' +
-      /* 穿在身上的衣物（可拖） */
-      '.l92-on{position:absolute;inset:0;z-index:2;cursor:grab;touch-action:none}' +
-      '.l92-on svg{width:100%;height:100%;display:block;pointer-events:none}' +
+      /* 穿在身上的衣物（可拖）：div 不拦截指针；SVG 根也不拦截，仅内层 <g>（已绘制衣物）可抓取，
+         使叠穿多件各抓各的、互不遮挡（修复：SVG 根设 visiblePainted 会被当成整框可抓，
+         导致最上层衣物抢走下面衣物的命中） */
+      '.l92-on{position:absolute;inset:0;z-index:2;pointer-events:none}' +
+      '.l92-on svg{width:100%;height:100%;display:block;pointer-events:none;touch-action:none}' +
+      '.l92-on svg g{pointer-events:visiblePainted;cursor:grab}' +
       '.l92-on.picked{filter:drop-shadow(0 0 6px rgba(255,190,90,.95))}' +
       '.l92-on.dragging{opacity:.35}' +
       /* 底部物品栏 */
@@ -22875,6 +22885,9 @@
     if (slot === 'head' && item === 'shoes') return L94_FIT.shoesHead;
     if (slot === 'foot' && item === 'hat') return L94_FIT.hatFoot;
     if (slot === 'arms' && item === 'pants') return L94_FIT.pantsArms;
+    /* —— 以下为 9-5「找捣蛋」新增：裤子套头上 / 手里拎着鞋（不影響 9-4） —— */
+    if (slot === 'head' && item === 'pants') return 'translate(6,-6) scale(0.9,0.6)';
+    if (slot === 'hand' && item === 'shoes') return 'translate(67,93) scale(0.4)';
     return null;
   }
 
@@ -23365,6 +23378,500 @@
     return api;
   })();
 
+  /* ======================================================================
+     第 9 岛第 5 关（L9-W5）：游乐场 · 变装大秀综合考验
+     —— 综合 9-1~9-4：舞台灯光下的「穿 / 脱 / 捣蛋 / 多步 / 找捣蛋」。
+        · 题型 A 听天气穿搭：太阳=热→穿 T 恤；雪花=冷→穿外套（拖到小人身上任意处=穿对部位，
+          大热区 §二.11；拿错温柔鼓励 + 平滑弹回）。
+        · 题型 B 听长句搞破坏：延续 9-4，把指定衣物「穿到错的部位」（鞋子戴头上等），任意落点=成功，
+          Boing + 扭动 + 星星（答题阶段禁人声）。
+        · 题型 C 多步指令：先穿上 X、再脱下 Y（双向拖拽：穿=栏→人，脱=人→栏，宽容判定）。
+        · 题型 D 听音找捣蛋：三个小人（正常 / 裤子套头上 / 手里拎着鞋），点出捣蛋的那个。
+        教学（超模变装秀）：2 演示穿上 + 1 互动穿上 / 2 演示脱下 + 1 互动脱下 / 过渡。
+        演示严格「语音播完定格 + 点屏才推进」（§三.14），互动 4 秒小手（§二.12），
+        拖到空白处 / 方向不对 → 平滑弹回、绝不消失（§二.11）。
+     ====================================================================== */
+  var L95_ITEMS = ['hat', 'coat', 'pants', 'shoes', 'tshirt'];
+  var L95_C_COMBOS = [
+    { key: 'l95_c_pants_hat',  steps: [{ op: 'put', item: 'pants', slot: 'legs' }, { op: 'take', item: 'hat',  slot: 'head' }] },
+    { key: 'l95_c_shoes_coat', steps: [{ op: 'put', item: 'shoes', slot: 'feet' }, { op: 'take', item: 'coat', slot: 'body' }] },
+    { key: 'l95_c_coat_hat',   steps: [{ op: 'put', item: 'coat',  slot: 'body' }, { op: 'take', item: 'hat',  slot: 'head' }] }
+  ];
+  var L95_SILLY_SET = ['pants@head', 'shoes@hand'];
+
+  /* 阳光 / 雪花（极轻量 SVG，无动画，靠 CSS 渐变背景营造舞台灯光） */
+  var L95_SUN_SVG = '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+    '<circle cx="50" cy="50" r="19" fill="#ffd23f" stroke="#f4b400" stroke-width="3"/>' +
+    '<g stroke="#ffd23f" stroke-width="5" stroke-linecap="round">' +
+    '<line x1="50" y1="8" x2="50" y2="22"/><line x1="50" y1="78" x2="50" y2="92"/>' +
+    '<line x1="8" y1="50" x2="22" y2="50"/><line x1="78" y1="50" x2="92" y2="50"/>' +
+    '<line x1="20" y1="20" x2="30" y2="30"/><line x1="70" y1="70" x2="80" y2="80"/>' +
+    '<line x1="80" y1="20" x2="70" y2="30"/><line x1="30" y1="70" x2="20" y2="80"/></g></svg>';
+  var L95_SNOW_SVG = '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+    '<path d="M30 40 a16 16 0 0 1 32 0 a14 14 0 0 1 -4 22 H34 a14 14 0 0 1 -4 -22 Z" fill="#eaf4ff" stroke="#bcd8f0" stroke-width="2.4"/>' +
+    '<g fill="#dcefff"><circle cx="26" cy="74" r="3.6"/><circle cx="44" cy="82" r="3"/><circle cx="62" cy="76" r="3.4"/>' +
+    '<circle cx="78" cy="84" r="3"/><circle cx="54" cy="64" r="2.6"/></g></svg>';
+
+  /* ---- 舞台灯光样式（复用 L92/L94 的小人卡骨架，叠加聚光背景） ---- */
+  function ensureL95Css() {
+    ensureL94Css();
+    if (document.getElementById('l95-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l95-style';
+    s.textContent =
+      '.l95-stage{position:relative;display:flex;flex-direction:column;align-items:center;' +
+      'justify-content:center;width:100%;max-width:100%;min-width:0;gap:1.2vh;padding:1.5vh 2vw 3vh;' +
+      'box-sizing:border-box}' +
+      /* 舞台：暖色渐变 + 两束聚光（纯 CSS，不旋转、不卡顿） */
+      '.l95-stage::before{content:"";position:absolute;inset:0;z-index:0;border-radius:20px;' +
+      'background:radial-gradient(55% 45% at 22% 0%,rgba(255,247,214,.98),rgba(255,247,214,0) 72%),' +
+      'radial-gradient(55% 45% at 78% 0%,rgba(255,236,250,.95),rgba(255,236,250,0) 72%),' +
+      'linear-gradient(180deg,#fff7ef 0%,#ffe9f3 60%,#ffd9ea 100%)}' +
+      /* 舞台地板光带 */
+      '.l95-stage::after{content:"";position:absolute;left:8%;right:8%;bottom:1.5vh;height:2.2vh;z-index:0;' +
+      'border-radius:50%;background:radial-gradient(50% 100% at 50% 0%,rgba(255,255,255,.85),rgba(255,255,255,0) 70%)}' +
+      '.l95-stage > *{position:relative;z-index:1}' +
+      '.l95-stage .l92-kidcard{background:rgba(255,255,255,.95);border-color:#ffd9a0}' +
+      '.l95-stage .l92-tray{background:rgba(255,255,255,.82)}' +
+      /* 天气图标 */
+      '.l95-weather{width:min(34vw,150px);height:min(15vh,76px);margin-bottom:.4vh;' +
+      'filter:drop-shadow(0 2px 3px rgba(180,140,90,.25))}' +
+      '.l95-weather svg{width:100%;height:100%;display:block}' +
+      '@media (max-height:560px){' +
+      '.l95-stage{gap:.5vh;padding:.6vh 2vw 1vh}' +
+      '.l95-weather{height:min(10vh,52px)}}';
+    document.head.appendChild(s);
+  }
+
+  /* ---- 脱 / 穿 的方向校验（栏里的衣物只能穿到身上，身上的衣物只能脱回栏里） ---- */
+  function l95DirOk(from, target) {
+    var drop = target && target.dataset ? target.dataset.drop : null;
+    if (from === 'tray') return drop === 'kid';
+    if (from === 'body') return drop === 'tray';
+    return false;
+  }
+
+  /** 当前该拿 / 该脱哪一件（答题 = 题目；教学 = 本步目标；C 多步按当前步） */
+  function l95Need() {
+    if (state.phase === 'tutorial' && state.tut) {
+      return { op: state.tut.l95Op, item: state.tut.l95Item };
+    }
+    var q = state.question;
+    if (!q) return null;
+    if (q.type === 'L95A') return { op: 'put', item: q.need, slot: L9_PART[q.need] };
+    if (q.type === 'L95B') return { op: 'put', item: q.item, slot: q.slot, silly: true, look: q.item + '@' + q.slot };
+    if (q.type === 'L95C') {
+      var st = q.steps[state.l95step || 0];
+      return st ? { op: st.op, item: st.item, slot: st.slot, step: state.l95step || 0 } : null;
+    }
+    return null;
+  }
+
+  function l95Bounce(el) {
+    if (!el) return;
+    el.classList.add('l92-nudge');
+    setTimeout(function () { el.classList.remove('l92-nudge'); }, 470);
+    if (state.phase === 'tutorial') armHint();
+  }
+
+  function l95ClearPick() {
+    state.l92Pick = null;
+    if (!askDisplay) return;
+    Array.prototype.forEach.call(askDisplay.querySelectorAll('.l92-card, .l92-on'), function (n) {
+      n.classList.remove('picked');
+    });
+  }
+
+  /** 把衣物「正确地」穿到小人身上（用 L9_FIT 正确位置），仅画视觉、更新 worn 列表 */
+  function l95WearCorrect(card, item) {
+    if (!card) return;
+    var wrap = card.querySelector('.l92-kid-wrap');
+    if (!wrap) return;
+    wrap.appendChild(l92WearNode(item));
+    var list = (card.dataset.worn ? card.dataset.worn.split(',') : []).filter(function (x) { return x !== item; });
+    list.push(item);
+    card.dataset.worn = list.join(',');
+  }
+
+  /** 把衣物「捣蛋地」穿到错误部位（用 l94SillyFit），仅画视觉 */
+  function l95WearSilly(card, item, slot) {
+    if (!card) return;
+    var wrap = card.querySelector('.l92-kid-wrap');
+    if (!wrap) return;
+    var d = document.createElement('div');
+    d.className = 'l92-on';
+    d.dataset.item = item;
+    d.dataset.from = 'body';
+    d.dataset.drag = 'item';
+    var s = svgEl('svg');
+    s.setAttribute('viewBox', '0 0 120 175');
+    s.setAttribute('aria-hidden', 'true');
+    var fit = l94SillyFit(item, slot) || L9_FIT[item];
+    s.innerHTML = '<g transform="' + fit + '">' + l9ItemInner(item) + '</g>';
+    d.appendChild(s);
+    wrap.appendChild(d);
+  }
+
+  /** 把身上的衣物脱下来（移除对应可拖层 + 更新 worn 列表 + 回到物品栏，与 L92 一致） */
+  function l95TakeOff(card, item) {
+    if (!card) return;
+    var wrap = card.querySelector('.l92-kid-wrap');
+    if (wrap) {
+      var node = wrap.querySelector('.l92-on[data-item="' + item + '"]');
+      if (node && node.parentNode) node.parentNode.removeChild(node);
+    }
+    if (card.dataset.worn) {
+      card.dataset.worn = card.dataset.worn.split(',').filter(function (x) { return x !== item; }).join(',');
+    }
+    /* 脱下的衣物回到底部物品栏（§二.11：脱 = 人→栏，拖回下方物品栏） */
+    var tray = askDisplay.querySelector('#l92-tray');
+    if (tray && !tray.querySelector('.l92-card[data-item="' + item + '"]')) {
+      var b = document.createElement('div');
+      b.className = 'l92-card';
+      b.dataset.item = item;
+      b.dataset.from = 'tray';
+      b.setAttribute('aria-label', '衣物');
+      b.appendChild(l9ItemSvg(item));
+      tray.appendChild(b);
+    }
+  }
+
+  /* ---------------- 判定：穿 = 栏→人（大热区、任意落点算中）+ 脱 = 人→栏 ---------------- */
+  function resolveL95(el, target) {
+    if (!el) return false;
+    var item = el.dataset.item, from = el.dataset.from;
+    var need = l95Need();
+    if (!need) { l95Bounce(el); return false; }
+    var drop = target && target.dataset ? target.dataset.drop : null;
+    var tutorial = state.phase === 'tutorial';
+    var kid = askDisplay.querySelector('.l92-kidcard');
+
+    function ok() {
+      l95ClearPick();
+      var me = state.tut;
+      if (need.op === 'put') {
+        if (need.silly) l95WearSilly(kid, item, need.slot);
+        else l95WearCorrect(kid, item);
+      } else {
+        l95TakeOff(kid, item);
+      }
+      if (tutorial) {
+        if (need.silly) { boing(); l94Celebrate(kid); }
+        kid.classList.add('l92-right');
+        if (me) {
+          me.l95On = false; me.canDrag = false;
+          var nx = me._l95Next;
+          setTimeout(function () { if (state.tut === me && nx) nx(); }, 850);
+        }
+        return true;
+      }
+      if (need.silly) { boing(); l94Celebrate(kid); }
+      /* 题型 C 多步：完成当前步后再看是不是最后一步 */
+      if (need.step !== undefined && state.question && state.question.type === 'L95C') {
+        if ((state.l95step || 0) < state.question.steps.length - 1) {
+          state.l95step = (state.l95step || 0) + 1;
+          ting();
+          kid.classList.add('l92-right');
+          setTimeout(function () { if (kid) kid.classList.remove('l92-right'); }, 480);
+          return true; /* 还没到最后一关，留在本题继续下一步 */
+        }
+      }
+      judge(true, kid);
+      return true;
+    }
+
+    if (need.op === 'put') {
+      if (!(from === 'tray' && drop === 'kid')) { l95Bounce(el); return false; }
+      if (item !== need.item) { if (!tutorial) say(['again']); l95Bounce(el); if (tutorial) armHint(); return false; }
+      return ok();
+    }
+    /* take */
+    /* __l95r：脱下动作的同步留痕（测试钩子）。探针据此读到「脱下后」的权威穿着状态，
+       避免在下一题重建瞬间读 DOM 造成的竞态误判。不影响游戏逻辑。 */
+    (window.__l95r = window.__l95r || []).push({ stage: 'take-pre', item: item, from: from, drop: drop, need: need, worn0: kid ? kid.dataset.worn : null });
+    if (!(from === 'body' && drop === 'tray')) { l95Bounce(el); return false; }
+    if (item !== need.item) { if (!tutorial) say(['again']); l95Bounce(el); if (tutorial) armHint(); return false; }
+    var r = ok();
+    (window.__l95r = window.__l95r || []).push({ stage: 'take-post', item: item, wornAfter: kid ? kid.dataset.worn : null, onNodes: kid ? kid.querySelectorAll('.l92-on').length : -1 });
+    return r;
+  }
+
+  /* ---------------- 出题：A 天气穿搭 / B 搞破坏 / C 多步 / D 找捣蛋 ---------------- */
+  function makeQuestionL95(type, prev) {
+    ensureL95Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：屏幕出现太阳/雪花，下方 3 件衣物，听指令把对的拖到身上 */
+        var w = pick(['hot', 'cold']);
+        var need = (w === 'hot') ? 'tshirt' : 'coat';
+        var pool = ['coat', 'tshirt', 'pants', 'hat'].filter(function (x) { return x !== need; });
+        shuffle(pool);
+        var tray = shuffle([need, pool[0], pool[1]]);
+        q = {
+          type: 'L95A', sig: 'A:' + w + ':' + tray.join(','), weather: w, need: need, items: tray,
+          options: tray.map(function (it) { return { kind: 'l95item', item: it }; }),
+          answer: tray.indexOf(need), correct: tray.indexOf(need),
+          audio: [w === 'hot' ? 'l93_t_hot_put' : 'l92_b_coat']
+        };
+      } else if (type === 1) {
+        /* B：听长句，把指定衣物「穿到错的部位」（任意落点都算中，触发搞笑音效） */
+        var B = pick(['shoes', 'pants', 'hat']);
+        var slot = { shoes: 'head', pants: 'arms', hat: 'foot' }[B];
+        var restB = ['shoes', 'pants', 'hat'].filter(function (x) { return x !== B; });
+        shuffle(restB);
+        var itemsB = shuffle([B, restB[0], restB[1]]);
+        q = {
+          type: 'L95B', sig: 'B:' + B + ':' + itemsB.join(','), item: B, slot: slot, look: B + '@' + slot, items: itemsB,
+          options: itemsB.map(function (it) { return { kind: 'l95item', item: it }; }),
+          answer: itemsB.indexOf(B), correct: itemsB.indexOf(B),
+          audio: ['l95_b_' + B]
+        };
+      } else if (type === 2) {
+        /* C：多步指令（先穿 X 再脱 Y），双向拖拽 */
+        var C = pick(L95_C_COMBOS);
+        q = {
+          type: 'L95C', sig: 'C:' + C.key, steps: C.steps.slice(), audio: [C.key]
+        };
+      } else {
+        /* D：听音找捣蛋（正常 + 裤子套头上 + 手里拎鞋；任一个捣蛋都算对） */
+        var normalLook = pick(['shirt@body,pants@legs,shoes@feet', 'pants@legs,shoes@feet,hat@head', 'shirt@body,pants@legs']);
+        var looksD = shuffle([normalLook, 'pants@head', 'shoes@hand']);
+        var firstSilly = looksD.findIndex(function (l) { return L95_SILLY_SET.indexOf(l) >= 0; });
+        q = {
+          type: 'L95D', sig: 'D:' + looksD.join('|'), looks: looksD, sillySet: L95_SILLY_SET.slice(),
+          options: [], answer: firstSilly, correct: firstSilly, audio: ['l95_d_find']
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：天气图标 + 光脚小人（拖放目标）+ 底部 3 件衣物 */
+  function renderL95A(q) {
+    ensureL95Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l92-ask l95-stage';
+    var wx = document.createElement('div');
+    wx.className = 'l95-weather';
+    wx.setAttribute('aria-hidden', 'true');
+    wx.innerHTML = (q.weather === 'hot') ? L95_SUN_SVG : L95_SNOW_SVG;
+    box.appendChild(wx);
+    var kid = l92KidCard([]);
+    box.appendChild(kid);
+    var tray = l92Tray(q.items, true);
+    box.appendChild(tray);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 B：光脚小人 + 底部 3 件衣物（把指定那件「穿到错的部位」） */
+  function renderL95B(q) {
+    ensureL95Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l92-ask l95-stage';
+    var kid = l92KidCard([]);
+    box.appendChild(kid);
+    var tray = l92Tray(q.items, true);
+    box.appendChild(tray);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 C：小人先穿着「待脱」的那件 + 底部只有「待穿」那件（双向拖拽） */
+  function renderL95C(q) {
+    ensureL95Css();
+    state.l95step = 0;
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l92-ask l95-stage';
+    var takeItem = q.steps[q.steps.length - 1].item;
+    var putItem = q.steps[0].item;
+    var kid = l92KidCard([takeItem]);
+    box.appendChild(kid);
+    var tray = l92Tray([putItem], true);
+    box.appendChild(tray);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 D：三个小人一排，点出「捣蛋」的那一个（正常 / 裤子套头 / 拎鞋） */
+  function renderL95D(q) {
+    ensureL95Css();
+    askDisplay.innerHTML = '';
+    var row = document.createElement('div');
+    row.className = 'l94-kidrow';
+    row.dataset.n = '3';
+    row.setAttribute('aria-label', '小朋友');
+    q.looks.forEach(function (lk, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l94-kidbtn';
+      b.dataset.look = lk;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', '小朋友');
+      var s = svgEl('svg');
+      s.setAttribute('viewBox', '0 0 120 175');
+      s.setAttribute('aria-hidden', 'true');
+      s.innerHTML = l94KidInner([lk]);
+      b.appendChild(s);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        var ok = (q.sillySet || []).indexOf(lk) >= 0;
+        if (ok) { b.classList.add('right'); l94Celebrate(b); boing(); }
+        else { b.classList.add('l94-bad'); say(['again']); }
+        judge(ok, b);
+      });
+      row.appendChild(b);
+    });
+    askDisplay.appendChild(row);
+  }
+
+  /* 教学：超模变装秀（2 穿上演示 + 1 穿上互动 / 2 脱下演示 + 1 脱下互动 / 过渡） */
+  var runL95Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'welcome1', word: 'l95_t_welcome', before: [], put: ['shoes', 'coat'], tray: ['shoes', 'coat'], glow: true },
+      { t: 'demo', sid: 'welcome2', word: 'l95_t_welcome2', before: ['shoes', 'coat'], tray: [], review: true },
+      { t: 'drag', sid: 'coatPut',  word: 'l95_t_coat', op: 'put',  item: 'coat', before: [],   tray: ['shoes', 'coat'] },
+      { t: 'demo', sid: 'hot1',     word: 'l95_t_hot1', before: ['shoes', 'coat'], take: 'coat', tray: [] },
+      { t: 'demo', sid: 'hot2',     word: 'l95_t_hot2', before: ['shoes'],         tray: [], review: true },
+      { t: 'drag', sid: 'hatTake',  word: 'l95_t_hat',  op: 'take', item: 'hat',  before: ['hat', 'shoes'], tray: [] },
+      { t: 'out',  sid: 'out',      word: 'l95_t_out',  before: ['shoes'],         tray: [] }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null; me._advance = null;
+      me.canDrag = false; me.l95On = false; me.l95Op = null; me.l95Item = null; me._l95Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL95Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l92-stage l94-stage l95-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '情景');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /* 演示定格：等用户点屏幕任意位置才 next()（禁止定时器自动前进） */
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示：语音 → 衣物飞上身/飞回栏（复用 L92 的 l92Apply）→ 定格等点按 */
+    function playDemo(me, act, next) {
+      var w = stage(me, act);
+      var kid = l92KidCard(act.before || []);
+      kid.removeAttribute('data-drop');
+      w.appendChild(kid);
+      var tray = l92Tray(act.tray || [], false);
+      if (act.glow) (act.put || []).forEach(function (it) {
+        var g = tray.querySelector('.l92-card[data-item="' + it + '"]');
+        if (g) g.classList.add('l92-glow');
+      });
+      w.appendChild(tray);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        var seq = [];
+        (act.put || []).forEach(function (it) { seq.push(['on', it]); });
+        if (act.take) seq.push(['off', act.take]);
+        (function run(i) {
+          if (i >= seq.length) { gate(me, next); return; }
+          l92Apply(seq[i][1], seq[i][0], function () { run(i + 1); });
+        })(0);
+      });
+    }
+    /* 互动（穿上）：下方衣物可拖，点语音后开放拖拽 + 4 秒小手 */
+    function playDrag(me, act, next) {
+      var w = stage(me, act);
+      var kid = l92KidCard(act.before || []);
+      me.l95Op = act.op; me.l95Item = act.item; me._l95Next = next;
+      w.appendChild(kid);
+      var tray = l92Tray(act.tray || [], true);
+      w.appendChild(tray);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l95On = true; me.canDrag = true; me.customMode = 'L95';
+        me.hintFrom = tray.querySelector('.l92-card[data-item="' + act.item + '"]');
+        me.hintTo = kid; me.hintTarget = me.hintFrom; me.hintToY = 0.5;
+        armHint();
+      });
+    }
+    /* 互动（脱下）：身上的衣物可拖回底部栏，点语音后开放 + 4 秒小手 */
+    function playTakeOff(me, act, next) {
+      var w = stage(me, act);
+      var kid = l92KidCard(act.before || []);
+      me.l95Op = act.op; me.l95Item = act.item; me._l95Next = next;
+      w.appendChild(kid);
+      var tray = l92Tray(act.tray || [], false);
+      w.appendChild(tray);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l95On = true; me.canDrag = true; me.customMode = 'L95';
+        me.hintFrom = kid.querySelector('.l92-on[data-item="' + act.item + '"]');
+        me.hintTo = tray; me.hintTarget = me.hintFrom; me.hintToY = 0.5;
+        armHint();
+      });
+    }
+    function playOutro(me, act) {
+      var w = stage(me, act);
+      var kid = l92KidCard(act.before || []);
+      kid.removeAttribute('data-drop');
+      w.appendChild(kid);
+      w.appendChild(l92Tray([], false));
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'drag') {
+        if (act.op === 'take') playTakeOff(me, act, next);
+        else playDrag(me, act, next);
+        return;
+      }
+      playOutro(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -23683,6 +24190,11 @@
     if (q.type === 'L94A') { optionsBar.classList.add('gone'); renderL94A(q); return; }
     if (q.type === 'L94B') { optionsBar.classList.add('gone'); renderL94B(q); return; }
     if (q.type === 'L94C') { optionsBar.classList.add('gone'); renderL94C(q); return; }
+    /* ---- 第 9 岛第 5 关：游乐场·变装大秀综合考验（A 天气穿搭 / B 搞笑错位 / C 多步 / D 找捣蛋） ---- */
+    if (q.type === 'L95A') { optionsBar.classList.add('gone'); renderL95A(q); return; }
+    if (q.type === 'L95B') { optionsBar.classList.add('gone'); renderL95B(q); return; }
+    if (q.type === 'L95C') { optionsBar.classList.add('gone'); renderL95C(q); return; }
+    if (q.type === 'L95D') { optionsBar.classList.add('gone'); renderL95D(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -24105,6 +24617,11 @@
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
+    // 第 9 岛第 5 关 A/B/C/D：作答用「小人 + 物品栏」拖拽舞台（renderDisplay 已渲染），不用选项栏
+    if (q.type === 'L95A' || q.type === 'L95B' || q.type === 'L95C' || q.type === 'L95D') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
     // 第 7 岛第 1 关 B/C：题目画在中央宫格，选项栏收起
     if (q.type === 'G1B' || q.type === 'G1C' || q.type === 'G2B' || q.type === 'G2C' ||
         q.type === 'G3A' || q.type === 'G4A' || q.type === 'G4B' || q.type === 'G4C' ||
@@ -24419,6 +24936,10 @@
         slot.appendChild(l9ItemSvg(opt.item));
       } else if (opt.kind === 'l94item') {
         // 第 9 岛第 4 关：衣物（画在底部物品栏，仅兜底渲染）
+        btn.classList.add('l9-opt');
+        slot.appendChild(l9ItemSvg(opt.item));
+      } else if (opt.kind === 'l95item') {
+        // 第 9 岛第 5 关：衣物（画在底部物品栏，仅兜底渲染）
         btn.classList.add('l9-opt');
         slot.appendChild(l9ItemSvg(opt.item));
       } else {
@@ -24766,7 +25287,8 @@
             qt !== 'L9B' && qt !== 'L9C' &&
             qt !== 'L92A' && qt !== 'L92C' &&
             qt !== 'L93A' && qt !== 'L93B' && qt !== 'L93C' &&
-            qt !== 'L94A' && qt !== 'L94B' && qt !== 'L94C') {
+            qt !== 'L94A' && qt !== 'L94B' && qt !== 'L94C' &&
+            qt !== 'L95A' && qt !== 'L95B' && qt !== 'L95C' && qt !== 'L95D') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -24855,23 +25377,29 @@
     if (!d.moved) return;
     d.ghost.style.left = (e.clientX - d.ghost.offsetWidth / 2) + 'px';
     d.ghost.style.top = (e.clientY - d.ghost.offsetHeight / 2) + 'px';
-    highlightDrop(e.clientX, e.clientY);
+    highlightDrop(e.clientX, e.clientY, d.el ? d.el.dataset.from : null);
   }
 
-  function highlightDrop(x, y) {
-    var hit = dropAt(x, y);
+  function highlightDrop(x, y, fromMode) {
+    var hit = dropAt(x, y, fromMode);
     Array.prototype.forEach.call(document.querySelectorAll('[data-drop]'), function (n) {
       n.classList.toggle('drop-hot', n === hit);
     });
   }
 
-  function dropAt(x, y) {
+  function dropAt(x, y, fromMode) {
     var nodes = document.elementsFromPoint ? document.elementsFromPoint(x, y) : [];
+    var found = null;
     for (var i = 0; i < nodes.length; i++) {
       var t = nodes[i].closest ? nodes[i].closest('[data-drop]') : null;
-      if (t) return t;
+      if (!t) continue;
+      if (!found) found = t;
+      /* 双向拖拽（穿/脱）方向偏好：避免「小人热区」与「物品栏」重叠时抢错目标。
+         脱（身上→栏，from=body）优先认 tray；穿（栏→身，from=tray）优先认 kid。 */
+      if (fromMode === 'body' && t.dataset.drop === 'tray') return t;
+      if (fromMode === 'tray' && t.dataset.drop === 'kid') return t;
     }
-    return null;
+    return found;
   }
 
   function endDrag(e) {
@@ -24884,7 +25412,7 @@
     });
 
     var q = state.question;
-    var target = d.moved ? dropAt(e.clientX, e.clientY) : null;
+    var target = d.moved ? dropAt(e.clientX, e.clientY, d.el ? d.el.dataset.from : null) : null;
 
     /* 第 9 岛第 2 关（双向拖拽）：方向不对（身上的衣服拖到小人身上 / 栏里的衣服拖回栏里）
        → 只把幽灵平滑送回原位 + 元素抖一下，绝不判错、绝不消失（§二.11 宽容判定）。 */
@@ -24914,7 +25442,7 @@
       d.ghost.remove();
       state.lastPointerAt = Date.now();
       /* 第 9 岛第 2 关：轻点由元素自己的 click（l92Pick / resolveL92）处理 */
-      if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94') return;
+      if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95') return;
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
       else if (d.mode === 'F14T') tutPickF14(d.el);
@@ -24980,6 +25508,8 @@
         resolveL93(d.el, target);
       } else if (d.mode === 'L94') {
         resolveL94(d.el, target);
+      } else if (d.mode === 'L95') {
+        resolveL95(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -25013,7 +25543,7 @@
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
-    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94') {
+    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -25021,7 +25551,7 @@
       d.ghost.style.top = sr1.top + 'px';
       d.ghost.style.transform = 'scale(1)';
       setTimeout(function () { if (d.ghost.parentNode) d.ghost.remove(); }, 240);
-      if (d.mode === 'L94') l94Bounce(d.el); else l92Bounce(d.el);
+      if (d.mode === 'L94') l94Bounce(d.el); else if (d.mode === 'L95') l95Bounce(d.el); else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
       d.ghost.style.transition = 'transform .18s, opacity .18s';
@@ -26084,6 +26614,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '9-5': {
+      // 游乐场·变装大秀综合考验：超模变装秀（2 穿上演示 + 1 穿上互动 / 2 脱下演示 + 1 脱下互动 / 过渡）；
+      // 答题 4 题型（A 天气穿搭 / B 搞笑错位 / C 多步穿脱 / D 找捣蛋）；演示点按推进（§三.14）、
+      // 互动 4 秒小手（§二.12）、双向拖拽（穿上落点大、脱下可拖回栏里）、空白处平滑弹回（§二.11）
+      custom: runL95Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -26310,7 +26849,8 @@
   function beginRounds() {
     clearHint();
     usedPairs = {};
-    state.plan = makePlan();
+    var _ldef = levelDef(currentIsland, state.level);
+    state.plan = makePlan(_ldef && _ldef.make === 'makeL95' ? 4 : 3);
     state.roundIndex = 0;
     state.stars = 0;
     state.vFlip = Math.random() < 0.5;
@@ -26332,6 +26872,7 @@
     if (q.type === 'L92A' || q.type === 'L92B') return 'L92';
     if (q.type === 'L93A') return 'L93';
     if (q.type === 'L94A') return 'L94';
+    if (q.type === 'L95A' || q.type === 'L95B' || q.type === 'L95C') return 'L95';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -26548,7 +27089,8 @@
     confettiBox.hidden = true;
     confettiBox.innerHTML = '';
     usedPairs = {};
-    state.plan = makePlan();
+    var _rdef = levelDef(currentIsland, state.level);
+    state.plan = makePlan(_rdef && _rdef.make === 'makeL95' ? 4 : 3);
     state.roundIndex = 0;
     state.stars = 0;
     state.busy = false;
@@ -27028,7 +27570,7 @@
           audios: q.audio.slice(),
           tray: q.tray ? q.tray.map(function (t) { return t.color.id + ':' + t.fruit.id; }) : null,
           correctFruit: (typeof q.correctFruit === 'number') ? q.correctFruit : null,
-          options: q.options.map(function (o) {
+          options: (q.options || []).map(function (o) {
             if (o.kind === 'sign' || o.kind === 'num' || o.kind === 'sign2' || o.kind === 'slab') return o.value;
             if (o.kind === 'fruit') return o.fruit.id;
             if (o.kind === 'comboCard') return o.count + ':' + o.color.id;
@@ -27082,6 +27624,7 @@
             if (o.kind === 'l92item') return 'i:' + o.item;
             if (o.kind === 'l93item') return 'i:' + o.item;
             if (o.kind === 'l94item') return 'i:' + o.item;
+            if (o.kind === 'l95item') return 'i:' + o.item;
             if (o.kind === 'g3act') return 'i:' + o.act;
             if (o.kind === 'f14scene') return 's:' + o.target;
             if (o.kind === 'yesNo') return o.val ? 'yes' : 'no';
@@ -27166,7 +27709,15 @@
           l94looks: q.l94Looks ? q.l94Looks.slice() : null,
           l94silly: q.l94Silly || null,
           l94c: (typeof q.l94Look === 'string') ? q.l94Look : null,
-          l94answer: (typeof q.answer === 'number') ? q.answer : null
+          l94answer: (typeof q.answer === 'number') ? q.answer : null,
+          l95type: q.type || null,
+          l95weather: q.weather || null,
+          l95need: q.need || null,
+          l95item: q.item || null,
+          l95slot: q.slot || null,
+          l95looks: q.looks ? q.looks.slice() : null,
+          l95steps: q.steps ? q.steps.slice() : null,
+          l95answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },

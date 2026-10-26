@@ -1478,6 +1478,25 @@ add("l94_c_hand",        "Show me silly! Put your hand on your head!", "en", -15
 add("l94_c_nose",        "Show me silly! Put your finger on your nose!", "en", -15, EN_ASK)
 add("l94_c_jump",        "Show me silly! Jump like a frog!", "en", -15, EN_ASK)
 
+# 第 9 岛第 5 关（L9-W5：游乐场 · 变装大秀综合考验）：综合 9-1~9-4。
+# 超模变装秀教学（2 演示穿上 + 1 互动穿上 / 2 演示脱下 + 1 互动脱下 / 过渡）+ 4 题型（A 天气穿搭 / B 搞破坏 / C 多步 / D 找捣蛋）。
+# 全部英文 Allison，长句统一 rate -15（≈0.85x），过渡用 EN_PRAISE。
+# 注：「It's cold. Put on the coat.」复用 l92_b_coat（§1.12 禁止重复文本），答题 A 冷天直接引用该 key。
+add("l95_t_welcome",   "Welcome to the fashion show! It's cold. Put on the shoes and the coat.", "en", -15, EN_ASK)
+add("l95_t_welcome2",  "Look! The shoes and the coat are on! So stylish!", "en", -15, EN_ASK)
+add("l95_t_coat",      "Brrr! It's cold. Put on the coat.", "en", -15, EN_ASK)
+add("l95_t_hot1",      "Now it's hot. Take off the coat.", "en", -15, EN_ASK)
+add("l95_t_hot2",      "The coat is off! So cool!", "en", -15, EN_ASK)
+add("l95_t_hat",       "Take off the hat.", "en", -15, EN_ASK)
+add("l95_t_out",       "You are a fashion superstar! Let's play!", "en", -12, EN_PRAISE)
+add("l95_b_shoes",     "Let's be silly! Put the shoes on his head!", "en", -15, EN_ASK)
+add("l95_b_pants",     "Let's be silly! Put the pants on his arms!", "en", -15, EN_ASK)
+add("l95_b_hat",       "Let's be silly! Put the hat on his foot!", "en", -15, EN_ASK)
+add("l95_c_pants_hat", "First, put on the pants. Then, take off the hat.", "en", -15, EN_ASK)
+add("l95_c_shoes_coat","First, put on the shoes. Then, take off the coat.", "en", -15, EN_ASK)
+add("l95_c_coat_hat",  "First, put on the coat. Then, take off the hat.", "en", -15, EN_ASK)
+add("l95_d_find",      "Find the silly boy!", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
