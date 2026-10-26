@@ -103,7 +103,9 @@ const finish = code => {
 
   await send('Page.navigate', { url: URL_ }, sessionId);
   const boot = async () => {
-    for (let i = 0; i < 1400; i++) {
+    // 线上站点要拉 33MB 的 voice.js（弱网下可能上百秒），启动窗口可用 L95_BOOT_TRIES 放宽
+    const tries = parseInt(process.env.L95_BOOT_TRIES || '1400', 10);
+    for (let i = 0; i < tries; i++) {
       const r = await send('Runtime.evaluate', { expression: 'typeof window.Game !== "undefined"', returnByValue: true }, sessionId);
       if (r.result.value) break;
       await sleep(150);
