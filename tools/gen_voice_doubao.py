@@ -1708,6 +1708,27 @@ add("l113_b_just",  "This chair is just right for the girl. Find it.", "en", -15
 # C 拖拽金发姑娘坐上「刚好」的椅子
 add("l113_c_chair", "Help Goldilocks sit on the just right chair.", "en", -15, EN_ASK)
 
+# ---- 第 11 岛第 4 关：故事排序（L11-W4） ----
+# 教学 4 条：三只小猪完整故事 / 顺序复述 / 排序指令 / 过渡
+add("l114_t_story",  "First, the pig built a straw house. Then, the wolf came and blew it down. Finally, the pig built a brick house.", "en", -15, EN_ASK)
+add("l114_t_story2", "First the straw house. Then the wolf. Finally the brick house.", "en", -15, EN_ASK)
+add("l114_t_order",  "Put the pictures in order. First, second, third.", "en", -15, EN_ASK)
+add("l114_t_out",    "You are a great storyteller! Let's play!", "en", -15, EN_ASK)
+
+# 剧情台词：排对了先播完这句再给星星（§三.26）
+add("l114_line_order", "First, then, finally!", "en", -8, EN_ASK)
+
+# A 另外两个故事的完整三句
+add("l114_a_red",   "First, Little Red Riding Hood picked flowers. Then, she met the big bad wolf. Finally, she went to Grandma's house.", "en", -15, EN_ASK)
+add("l114_a_goldi", "First, the porridge was too hot. Then, it was too cold. Finally, it was just right.", "en", -15, EN_ASK)
+
+# B 找首尾
+add("l114_b_first", "Which one is first?", "en", -15, EN_ASK)
+add("l114_b_last",  "Which one is last?", "en", -15, EN_ASK)
+
+# C 判断排序对不对
+add("l114_c_check", "Look at the pictures. Is this correct?", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

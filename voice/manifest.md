@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1142** 条（英文 1136 + 中文 6）
+总条目：**1152** 条（英文 1146 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1125,21 +1125,31 @@
 | `l112_b_hunter` | en | The hunter is in the forest. Find the hunter. | 已存在 |
 | `l112_b_grandma` | en | Grandma is in the house. Find Grandma. | 已存在 |
 | `l112_c_go` | en | Help Little Red Riding Hood go to Grandma's house. | 已存在 |
-| `l113_t_hot` | en | Look! This porridge is too hot! | 待生成 |
-| `l113_t_cold` | en | This one is too cold! | 待生成 |
-| `l113_t_hot_where` | en | Where is the hot porridge? Touch it. | 待生成 |
-| `l113_t_taste` | en | Goldilocks tastes the porridge. | 待生成 |
-| `l113_t_just` | en | Ah! This porridge is just right! | 待生成 |
-| `l113_t_chair` | en | Which chair is just right for her? Find the just right chair. | 待生成 |
-| `l113_t_out` | en | Goldilocks found the right one! Let's play! | 待生成 |
-| `l113_line_just` | en | Just right! | 待生成 |
-| `l113_a_hot` | en | Find the porridge that is too hot. | 待生成 |
-| `l113_a_cold` | en | Find the porridge that is too cold. | 待生成 |
-| `l113_a_just` | en | Find the porridge that is just right. | 待生成 |
-| `l113_b_big` | en | This chair is too big for the girl. Find it. | 待生成 |
-| `l113_b_small` | en | This chair is too small for the girl. Find it. | 待生成 |
-| `l113_b_just` | en | This chair is just right for the girl. Find it. | 待生成 |
-| `l113_c_chair` | en | Help Goldilocks sit on the just right chair. | 待生成 |
+| `l113_t_hot` | en | Look! This porridge is too hot! | 已存在 |
+| `l113_t_cold` | en | This one is too cold! | 已存在 |
+| `l113_t_hot_where` | en | Where is the hot porridge? Touch it. | 已存在 |
+| `l113_t_taste` | en | Goldilocks tastes the porridge. | 已存在 |
+| `l113_t_just` | en | Ah! This porridge is just right! | 已存在 |
+| `l113_t_chair` | en | Which chair is just right for her? Find the just right chair. | 已存在 |
+| `l113_t_out` | en | Goldilocks found the right one! Let's play! | 已存在 |
+| `l113_line_just` | en | Just right! | 已存在 |
+| `l113_a_hot` | en | Find the porridge that is too hot. | 已存在 |
+| `l113_a_cold` | en | Find the porridge that is too cold. | 已存在 |
+| `l113_a_just` | en | Find the porridge that is just right. | 已存在 |
+| `l113_b_big` | en | This chair is too big for the girl. Find it. | 已存在 |
+| `l113_b_small` | en | This chair is too small for the girl. Find it. | 已存在 |
+| `l113_b_just` | en | This chair is just right for the girl. Find it. | 已存在 |
+| `l113_c_chair` | en | Help Goldilocks sit on the just right chair. | 已存在 |
+| `l114_t_story` | en | First, the pig built a straw house. Then, the wolf came and blew it down. Finally, the pig built a brick house. | 待生成 |
+| `l114_t_story2` | en | First the straw house. Then the wolf. Finally the brick house. | 待生成 |
+| `l114_t_order` | en | Put the pictures in order. First, second, third. | 待生成 |
+| `l114_t_out` | en | You are a great storyteller! Let's play! | 待生成 |
+| `l114_line_order` | en | First, then, finally! | 待生成 |
+| `l114_a_red` | en | First, Little Red Riding Hood picked flowers. Then, she met the big bad wolf. Finally, she went to Grandma's house. | 待生成 |
+| `l114_a_goldi` | en | First, the porridge was too hot. Then, it was too cold. Finally, it was just right. | 待生成 |
+| `l114_b_first` | en | Which one is first? | 待生成 |
+| `l114_b_last` | en | Which one is last? | 待生成 |
+| `l114_c_check` | en | Look at the pictures. Is this correct? | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

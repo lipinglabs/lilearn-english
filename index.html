@@ -3982,7 +3982,8 @@
     '10-5': { numbers: null, make: 'makeL105', title: '第 5 关', tutorial: true },
     '11-1': { numbers: null, make: 'makeL111', title: '第 1 关', tutorial: true },
     '11-2': { numbers: null, make: 'makeL112', title: '第 2 关', tutorial: true },
-    '11-3': { numbers: null, make: 'makeL113', title: '第 3 关', tutorial: true }
+    '11-3': { numbers: null, make: 'makeL113', title: '第 3 关', tutorial: true },
+    '11-4': { numbers: null, make: 'makeL114', title: '第 4 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4258,6 +4259,7 @@
     if (def && def.make === 'makeL111') return makeQuestionL111(typeIdx, prev);
     if (def && def.make === 'makeL112') return makeQuestionL112(typeIdx, prev);
     if (def && def.make === 'makeL113') return makeQuestionL113(typeIdx, prev);
+    if (def && def.make === 'makeL114') return makeQuestionL114(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -28791,6 +28793,606 @@
     return api;
   })();
 
+  /* ================= 第 11 岛第 4 关：故事排序（童话故事） =================
+     三个故事各三步：三只小猪 / 小红帽 / 金发姑娘。
+     角色与场景全部沿用前几关的手写 SVG（猪、狼、小红帽、奶奶家小屋、三碗粥），不新增位图。
+     防背题：1/2/3 三个框每轮随机左右排列，下方三张图也每轮打乱（§三.28）。 */
+
+  var L114_LINE = 'l114_line_order';   // 剧情台词：First, then, finally!
+  var L114_STORY_IDS = ['pigs', 'red', 'goldi'];
+  var L114_STORY_LABEL = { pigs: '三只小猪', red: '小红帽', goldi: '金发姑娘' };
+
+  function l114Flower(cx, cy, r, color) {
+    var out = '';
+    for (var i = 0; i < 5; i++) {
+      var a = (i / 5) * Math.PI * 2 - Math.PI / 2;
+      out += '<circle cx="' + (cx + Math.cos(a) * r * 0.82).toFixed(1) + '" cy="' +
+        (cy + Math.sin(a) * r * 0.82).toFixed(1) + '" r="' + (r * 0.6).toFixed(1) + '" fill="' + color + '"/>';
+    }
+    return out + '<circle cx="' + cx + '" cy="' + cy + '" r="' + (r * 0.46).toFixed(1) + '" fill="#ffd166"/>';
+  }
+
+  var L114_FLOWERS =
+    '<svg viewBox="0 0 100 110" aria-hidden="true">' +
+    '<path d="M50 104 V54" stroke="#5f8a4f" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M50 82 q-18 -8 -22 -24" fill="none" stroke="#5f8a4f" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M50 90 q18 -8 22 -24" fill="none" stroke="#5f8a4f" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M50 70 q-12 -4 -14 -14" fill="none" stroke="#5f8a4f" stroke-width="4.4" stroke-linecap="round"/>' +
+    l114Flower(28, 42, 14, '#ff8fae') +
+    l114Flower(50, 30, 16, '#ffd166') +
+    l114Flower(72, 44, 13, '#b48ce8') +
+    '</svg>';
+
+  /* 大灰狼吹气（三条风线） */
+  var L114_WIND =
+    '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+    '<g fill="none" stroke="#9fb6cc" stroke-width="5" stroke-linecap="round" opacity=".95">' +
+    '<path d="M6 32 q22 -8 44 0"/><path d="M4 52 q26 -8 52 0"/><path d="M8 72 q20 -8 40 0"/>' +
+    '</g></svg>';
+
+  /** 三张故事图用的角色 / 场景（全部复用手写 SVG，零位图） */
+  var L114_ART = {
+    strawhouse: L111_HOUSE_SVG.straw,
+    brickhouse: L111_HOUSE_SVG.brick,
+    wolf: L111_WOLF_SVG,
+    pig: l111PigSvg(1),
+    red: L112_RED_SVG,
+    cottage: L112_COTTAGE_SVG,
+    flowers: L114_FLOWERS,
+    bowlHot: l113BowlSvg('hot'),
+    bowlCold: l113BowlSvg('cold'),
+    bowlJust: l113BowlSvg('just')
+  };
+  var L114_BG = { meadow: L111_MEADOW, room: L113_ROOM, woods: L112_WOODS_BG };
+
+  /* 三个故事 × 三步。x/y/w 是角色在卡片里的百分比位置与宽度 */
+  var L114_STORIES = {
+    pigs: {
+      audio: 'l114_t_story',
+      steps: [
+        { bg: 'meadow', cast: [{ art: 'strawhouse', x: 50, y: 66, w: 66 }] },
+        { bg: 'meadow', cast: [{ art: 'wolf', x: 24, y: 62, w: 40, wind: true },
+          { art: 'strawhouse', x: 72, y: 66, w: 46 }] },
+        { bg: 'meadow', cast: [{ art: 'brickhouse', x: 50, y: 66, w: 66 }] }
+      ]
+    },
+    red: {
+      audio: 'l114_a_red',
+      steps: [
+        { bg: 'woods', cast: [{ art: 'red', x: 62, y: 62, w: 28 },
+          { art: 'flowers', x: 24, y: 74, w: 26 }] },
+        { bg: 'woods', cast: [{ art: 'red', x: 32, y: 62, w: 26 },
+          { art: 'wolf', x: 72, y: 66, w: 40 }] },
+        { bg: 'meadow', cast: [{ art: 'cottage', x: 50, y: 62, w: 62 }] }
+      ]
+    },
+    goldi: {
+      audio: 'l114_a_goldi',
+      steps: [
+        { bg: 'room', cast: [{ art: 'bowlHot', x: 50, y: 60, w: 44 }] },
+        { bg: 'room', cast: [{ art: 'bowlCold', x: 50, y: 60, w: 44 }] },
+        { bg: 'room', cast: [{ art: 'bowlJust', x: 50, y: 60, w: 44 }] }
+      ]
+    }
+  };
+
+  function ensureL114Css() {
+    if (document.getElementById('l114-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l114-style';
+    s.textContent = [
+      '.l114-ask{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.4vh;width:100%}',
+      /* 三个编号框：位置每轮随机（由 JS 决定左右顺序） */
+      '.l114-slots{display:flex;justify-content:center;align-items:flex-end;gap:2.6vw;width:min(88vw,520px);max-width:100%}',
+      '.l114-slot{position:relative;height:min(20vh,142px);aspect-ratio:3/4;border:3px dashed #c9b79a;' +
+        'border-radius:16px;background:rgba(255,255,255,.55);display:grid;place-items:center;' +
+        'box-sizing:border-box;transition:box-shadow .18s,transform .18s,border-color .18s}',
+      '.l114-slot.drop-hot{box-shadow:0 0 0 4px #7fd18a;border-color:transparent;transform:translateY(-3px)}',
+      '.l114-slot.l114-right{box-shadow:0 0 0 4px #7fd18a;border-color:transparent}',
+      '.l114-slotnum{position:absolute;left:-7px;top:-9px;width:27px;height:27px;border-radius:50%;' +
+        'background:#ffb84d;color:#fff;font-size:15px;font-weight:700;line-height:27px;text-align:center;' +
+        'box-shadow:0 2px 6px rgba(200,150,60,.4);z-index:2}',
+      /* 图片卡：热区就是整块卡（含 3px 描边），比画面大一圈 */
+      '.l114-pic{position:relative;height:min(20vh,142px);aspect-ratio:3/4;border-radius:16px;overflow:hidden;' +
+        'background:#fff;box-shadow:0 2px 8px rgba(150,120,90,.18);cursor:grab;touch-action:none;' +
+        'transition:box-shadow .18s,transform .18s}',
+      '.l114-tray{display:flex;justify-content:center;align-items:flex-end;gap:2.6vw;width:min(88vw,520px);max-width:100%}',
+      '.l114-tray .l114-pic{flex:0 0 auto}',
+      '.l114-pic.l114-filled{cursor:default;box-shadow:0 0 0 3px #7fd18a}',
+      '.l114-pic.l114-wrong{animation:l114shake .4s}',
+      '.l114-pic.l114-hi{box-shadow:0 0 0 4px #ffb84d;transform:translateY(-4px)}',
+      '@keyframes l114shake{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-3deg)}' +
+        '60%{transform:translateX(5px) rotate(3deg)}}',
+      '.l114-pic.l114-pop{animation:l114pop .34s cubic-bezier(.3,1.4,.5,1)}',
+      '@keyframes l114pop{0%{transform:scale(.86)}100%{transform:scale(1)}}',
+      /* 幽灵：图片卡被 clone 时保持拖拽样式（§三.25） */
+      '.drag-ghost.l114-pic{position:fixed;height:auto;transform:scale(1.06);border-radius:16px;' +
+        'filter:drop-shadow(0 10px 14px rgba(140,110,80,.28))}',
+      /* 一张故事画面的内部构图 */
+      '.l114-scene{position:absolute;inset:0;overflow:hidden;border-radius:13px}',
+      '.l114-scenebg{position:absolute;inset:0}',
+      '.l114-scenebg svg{width:100%;height:100%;display:block}',
+      '.l114-cast{position:absolute;transform:translate(-50%,-50%)}',
+      '.l114-cast svg{width:100%;height:auto;display:block}',
+      '.l114-cast .l114-windart{position:absolute;left:78%;top:12%;width:62%}',
+      '.l114-cast .l114-windart svg{width:100%;height:auto;display:block}',
+      /* 题型 B 的大卡 */
+      '.l114-cards{display:flex;justify-content:center;align-items:flex-end;gap:2.6vw;width:min(88vw,560px);max-width:100%}',
+      '.l114-card{position:relative;flex:1;min-width:0;max-width:170px;height:min(30vh,210px);aspect-ratio:3/4;' +
+        'padding:0;border:3px solid transparent;border-radius:18px;overflow:hidden;background:#fff;cursor:pointer;' +
+        'box-shadow:0 2px 10px rgba(150,120,90,.18);transition:transform .16s,border-color .16s}',
+      '.l114-card.right{border-color:#7fd18a;transform:translateY(-3px)}',
+      '.l114-card.l114-wrong{animation:l114shake .38s}',
+      /* 题型 C 的对错按钮 */
+      '.l114-ynrow{display:flex;justify-content:center;align-items:center;gap:6vw;width:min(80vw,420px)}',
+      '.l114-yn{width:min(24vw,104px);aspect-ratio:1/1;border:none;border-radius:50%;cursor:pointer;' +
+        'background:#ffffff;box-shadow:0 4px 0 #d9cbb6,0 8px 18px rgba(150,120,90,.22);' +
+        'display:grid;place-items:center;transition:transform .12s,box-shadow .12s}',
+      '.l114-yn:active{transform:translateY(3px);box-shadow:0 1px 0 #d9cbb6}',
+      '.l114-yn svg{width:62%;height:62%;display:block;pointer-events:none}',
+      '.l114-yn.right{box-shadow:0 4px 0 #7fb06a,0 8px 18px rgba(120,180,110,.3)}',
+      '.l114-yn.l114-wrong{animation:l114shake .38s}',
+      /* 矮屏压缩 */
+      '@media (max-height:600px){.l114-slot,.l114-pic{height:min(19vh,110px)}' +
+      '.l114-card{height:min(26vh,150px);max-width:120px}.l114-yn{width:min(16vw,76px)}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  /** 一张故事画面（bg + 角色），返回 .l114-scene */
+  function l114SceneEl(storyId, step) {
+    var st = L114_STORIES[storyId].steps[step];
+    var d = document.createElement('div');
+    d.className = 'l114-scene';
+    var bg = document.createElement('div');
+    bg.className = 'l114-scenebg';
+    bg.innerHTML = L114_BG[st.bg] || L111_MEADOW;
+    d.appendChild(bg);
+    st.cast.forEach(function (c) {
+      var e = document.createElement('div');
+      e.className = 'l114-cast';
+      e.style.left = c.x + '%';
+      e.style.top = c.y + '%';
+      e.style.width = c.w + '%';
+      e.innerHTML = L114_ART[c.art] || '';
+      if (c.wind) {
+        var w = document.createElement('div');
+        w.className = 'l114-windart';
+        w.innerHTML = L114_WIND;
+        e.appendChild(w);
+      }
+      d.appendChild(e);
+    });
+    return d;
+  }
+
+  /** 图片卡。draggable=true 时可拖（底部栏），false 时只用于展示（C 型已排好的框） */
+  function l114MakePic(storyId, step, draggable) {
+    var p = document.createElement('div');
+    p.className = 'l114-pic';
+    p.dataset.step = String(step);
+    p.setAttribute('aria-label', L114_STORY_LABEL[storyId] + '，第 ' + (step + 1) + ' 张');
+    if (draggable) {
+      p.dataset.drag = 'item';
+      p.dataset.from = 'tray';
+    }
+    p.appendChild(l114SceneEl(storyId, step));
+    return p;
+  }
+
+  /** 三个编号框（左右顺序由 slotOrder 决定 —— 防背题的关键） */
+  function l114SlotsRow(slotOrder) {
+    var row = document.createElement('div');
+    row.className = 'l114-slots';
+    slotOrder.forEach(function (n) {
+      var d = document.createElement('div');
+      d.className = 'l114-slot';
+      d.dataset.slot = String(n);
+      d.dataset.drop = 'slot';          /* 没这个属性 dropAt 找不到落点，拖拽永远弹回 */
+      d.setAttribute('aria-label', '第 ' + n + ' 个位置');
+      var num = document.createElement('span');
+      num.className = 'l114-slotnum';
+      num.textContent = String(n);
+      d.appendChild(num);
+      row.appendChild(d);
+    });
+    return row;
+  }
+
+  /** 把图片放进框里（教学与答题共用） */
+  function l114Fill(pic, slotEl) {
+    if (!pic || !slotEl) return;
+    slotEl.appendChild(pic);
+    pic.classList.add('l114-filled');
+    pic.classList.remove('l114-pop');
+    void pic.offsetWidth;
+    pic.classList.add('l114-pop');
+    pic.dataset.drag = '';
+    pic.removeAttribute('data-drag');
+  }
+
+  function l114AllFilled() {
+    var slots = askDisplay.querySelectorAll('.l114-slot');
+    if (slots.length !== 3) return false;
+    for (var i = 0; i < slots.length; i++) if (!slots[i].querySelector('.l114-pic')) return false;
+    return true;
+  }
+
+  function l114Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l114-wrong');
+    void el.offsetWidth;
+    el.classList.add('l114-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l114-wrong'); }, 440);
+  }
+
+  var L114_TICK =
+    '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="38" fill="#eafaea" ' +
+    'stroke="#5fbf6a" stroke-width="5"/>' +
+    '<path d="M30 52 L44 66 L72 36" fill="none" stroke="#3f9f4a" stroke-width="9" stroke-linecap="round" ' +
+    'stroke-linejoin="round"/></svg>';
+  var L114_CROSS =
+    '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="38" fill="#fdeceb" ' +
+    'stroke="#e07a72" stroke-width="5"/>' +
+    '<path d="M34 34 L66 66 M66 34 L34 66" fill="none" stroke="#c85a52" stroke-width="9" ' +
+    'stroke-linecap="round"/></svg>';
+
+  /* ---------------- 渲染 ---------------- */
+
+  /** 题型 A：三张图 + 三个随机排列的编号框 */
+  function renderL114A(q) {
+    ensureL114Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l114-ask l114-stage';
+    w.dataset.l114story = q.story;
+    w.appendChild(l114SlotsRow(q.slots));
+    var tray = document.createElement('div');
+    tray.className = 'l114-tray';
+    tray.dataset.drop = 'tray';
+    q.items.forEach(function (step) {
+      tray.appendChild(l114MakePic(q.story, step, true));
+    });
+    w.appendChild(tray);
+    askDisplay.appendChild(w);
+  }
+
+  /** 题型 B：三张图里点出第一 / 最后一张 */
+  function renderL114B(q) {
+    ensureL114Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l114-ask l114-stage';
+    w.dataset.l114story = q.story;
+    var row = document.createElement('div');
+    row.className = 'l114-cards';
+    q.items.forEach(function (step, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l114-card';
+      b.dataset.step = String(step);
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', L114_STORY_LABEL[q.story] + '，第 ' + (step + 1) + ' 张');
+      b.appendChild(l114SceneEl(q.story, step));
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    w.appendChild(row);
+    askDisplay.appendChild(w);
+  }
+
+  /** 题型 C：给一个已排好的顺序（对或错），孩子判断 */
+  function renderL114C(q) {
+    ensureL114Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l114-ask l114-stage';
+    w.dataset.l114story = q.story;
+    var row = l114SlotsRow(q.slots);
+    w.appendChild(row);
+    /* 按「框上的编号」放图：q.arr[slot-1] = step */
+    row.querySelectorAll('.l114-slot').forEach(function (slotEl) {
+      var n = Number(slotEl.dataset.slot);
+      slotEl.appendChild(l114MakePic(q.story, q.arr[n - 1], false));
+    });
+    var yn = document.createElement('div');
+    yn.className = 'l114-ynrow';
+    [['yes', L114_TICK, '对的'], ['no', L114_CROSS, '不对']].forEach(function (spec, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l114-yn';
+      b.dataset.yn = spec[0];
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', spec[2]);
+      b.innerHTML = spec[1];
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      yn.appendChild(b);
+    });
+    w.appendChild(yn);
+    askDisplay.appendChild(w);
+  }
+
+  /* ---------------- 判定 ---------------- */
+
+  function resolveL114(el, target) {
+    if (!el) return false;
+    var slot = target && target.dataset ? target.dataset.slot : null;
+    var tut = (state.phase === 'tutorial') ? state.tut : null;
+    if (!slot) { l114Bounce(el); return false; }
+    var slotEl = target;
+    if (slotEl.querySelector('.l114-pic')) { l114Bounce(el); return false; }   /* 框已占用 */
+    var step = Number(el.dataset.step);
+    var want = Number(slot) - 1;
+
+    if (tut) {
+      if (!tut.l114On) { l114Bounce(el); return false; }
+      if (step !== want) { l114Bounce(el); armHint(); return false; }
+      l114Fill(el, slotEl);
+      if (l114AllFilled()) {
+        tut.l114On = false; tut.hintTarget = null;
+        clearHint();
+        var nx = tut._l114Next;
+        setTimeout(function () { if (state.tut === tut && nx) nx(); }, 720);
+      }
+      return true;
+    }
+
+    var q = state.question;
+    if (!q || q.type !== 'L114A') { l114Bounce(el); return false; }
+    if (step !== want) { judge(false, el); return false; }
+    l114Fill(el, slotEl);
+    if (l114AllFilled()) {
+      /* 三张全部排对：先播「First, then, finally!」再给星星（§三.26） */
+      slotEl.classList.add('l114-right');
+      l114SayThenJudge(L114_LINE, slotEl);
+    }
+    return true;
+  }
+
+  function l114SayThenJudge(key, btn) {
+    if (state.busy) return;
+    state.busy = true;
+    say([key], function () {
+      setTimeout(function () {
+        if (state.phase !== 'asking') return;
+        state.busy = false;
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(true, btn);
+      }, 320);
+    });
+  }
+
+  /* ---------------- 出题：A 排三张 / B 找首尾 / C 判断对错 ---------------- */
+  /* 与上一题不同的洗牌：连续两轮绝不会给出同一排列，避免「随机了但看起来没变」 */
+  var L114_PREV = { items: null, slots: null };
+  function l114ShuffleDiff(prevOrder) {
+    var a = shuffle([0, 1, 2]);
+    for (var k = 0; k < 4 && prevOrder && a.join('') === prevOrder.join(''); k++) a = shuffle([0, 1, 2]);
+    return a;
+  }
+  function l114SlotsDiff(prevOrder) {
+    var a = shuffle([1, 2, 3]);
+    for (var k = 0; k < 4 && prevOrder && a.join('') === prevOrder.join(''); k++) a = shuffle([1, 2, 3]);
+    return a;
+  }
+  function makeQuestionL114(type, prev) {
+    var q, guard = 0;
+    do {
+      var story = pick(L114_STORY_IDS);
+      if (type === 0) {
+        var itemsA = l114ShuffleDiff(L114_PREV.items);
+        var slotsA = l114SlotsDiff(L114_PREV.slots);
+        L114_PREV.items = itemsA.slice();
+        L114_PREV.slots = slotsA.slice();
+        q = {
+          type: 'L114A', sig: 'A:' + story, story: story,
+          items: itemsA,                      /* 底部三张图的顺序每轮打乱（且不与上一轮相同） */
+          slots: slotsA,                      /* 1/2/3 三个框的左右位置每轮随机 */
+          options: [], answer: 0, audio: [L114_STORIES[story].audio]
+        };
+      } else if (type === 1) {
+        var ask = Math.random() < 0.5 ? 'first' : 'last';
+        var itemsB = shuffle([0, 1, 2]);
+        var wantStep = ask === 'first' ? 0 : 2;
+        q = {
+          type: 'L114B', sig: 'B:' + story + ':' + ask, story: story, ask: ask,
+          items: itemsB, slots: [1, 2, 3],
+          options: [], answer: itemsB.indexOf(wantStep),
+          audio: [ask === 'first' ? 'l114_b_first' : 'l114_b_last']
+        };
+      } else {
+        /* C：一半概率给正确的顺序，一半给「对调两张」的错误顺序 */
+        var isRight = Math.random() < 0.5;
+        var arr = [0, 1, 2];
+        if (!isRight) {
+          var i1 = Math.floor(Math.random() * 3), i2 = (i1 + 1 + Math.floor(Math.random() * 2)) % 3;
+          var tmp = arr[i1]; arr[i1] = arr[i2]; arr[i2] = tmp;
+        }
+        q = {
+          type: 'L114C', sig: 'C:' + story + ':' + (isRight ? 1 : 0), story: story,
+          arr: arr, correct: isRight, slots: (function () {
+            var sl = l114SlotsDiff(L114_PREV.slots);
+            L114_PREV.slots = sl.slice();
+            return sl;
+          })(),
+          options: [], answer: isRight ? 0 : 1, audio: ['l114_c_check']
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 教学：讲三只小猪 2 演示 → 动手排 3 张 → 过渡 ----------------
+     演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），放错只弹回不判错。 */
+  var runL114Tutorial = (function () {
+    var STORY = 'pigs';
+    var ACTS = [
+      { t: 'demo', sid: 'story1', word: 'l114_t_story' },        /* 讲故事：三张图按顺序高亮 */
+      { t: 'demo', sid: 'order2', word: 'l114_t_story2' },       /* 演示排序：图自己飞进 1/2/3 */
+      { t: 'drag', sid: 'sortPut', word: 'l114_t_order' },       /* 动手排序 */
+      { t: 'out', sid: 'out', word: 'l114_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null;
+      me.canDrag = false; me.l114On = false; me._l114Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL114Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l114-ask l114-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '故事排序');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示 1：三张图按故事顺序依次高亮 */
+    function playStory(me, act, next) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l114-tray';
+      var pics = {};
+      [0, 1, 2].forEach(function (step) {
+        var p = l114MakePic(STORY, step, false);
+        pics[step] = p;
+        row.appendChild(p);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        [0, 1, 2].forEach(function (step) {
+          setTimeout(function () {
+            if (state.tut !== me) return;
+            Object.keys(pics).forEach(function (k) { pics[k].classList.remove('l114-hi'); });
+            pics[step].classList.add('l114-hi');
+          }, 320 + step * 2100);
+        });
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 2200);
+      });
+    }
+    /* 演示 2：三张图自己飞进 1/2/3（框的左右位置也是随机的） */
+    function playOrder(me, act, next) {
+      var w = stage(me, act);
+      var slotOrder = shuffle([1, 2, 3]);
+      var slotsRow = l114SlotsRow(slotOrder);
+      w.appendChild(slotsRow);
+      var tray = document.createElement('div');
+      tray.className = 'l114-tray';
+      [0, 1, 2].forEach(function (step) {
+        tray.appendChild(l114MakePic(STORY, step, false));
+      });
+      w.appendChild(tray);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        [0, 1, 2].forEach(function (step) {
+          setTimeout(function () {
+            if (state.tut !== me) return;
+            var slotEl = slotsRow.querySelector('.l114-slot[data-slot="' + (step + 1) + '"]');
+            var pic = tray.querySelector('.l114-pic[data-step="' + step + '"]');
+            if (slotEl && pic) l114Fill(pic, slotEl);
+          }, 520 + step * 700);
+        });
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 2100);
+      });
+    }
+    /* 互动：把三张图拖进 1/2/3（4 秒小手） */
+    function playDrag(me, act, next) {
+      var w = stage(me, act);
+      var slotOrder = shuffle([1, 2, 3]);
+      var slotsRow = l114SlotsRow(slotOrder);
+      w.appendChild(slotsRow);
+      var tray = document.createElement('div');
+      tray.className = 'l114-tray';
+      tray.dataset.drop = 'tray';
+      var items = shuffle([0, 1, 2]);
+      var firstPic = null;
+      items.forEach(function (step) {
+        var p = l114MakePic(STORY, step, true);
+        if (step === 0) firstPic = p;
+        tray.appendChild(p);
+      });
+      w.appendChild(tray);
+      me._l114Next = next;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l114On = true; me.canDrag = true; me.customMode = 'L114';
+        me.hintFrom = firstPic;
+        me.hintTo = slotsRow.querySelector('.l114-slot[data-slot="1"]');
+        me.hintTarget = me.hintFrom;
+        me.hintToY = 0.5;
+        armHint();
+      });
+    }
+    function playOut(me, act) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l114-tray';
+      [0, 1, 2].forEach(function (step) {
+        row.appendChild(l114MakePic(STORY, step, false));
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') {
+        if (act.sid === 'story1') { playStory(me, act, next); return; }
+        playOrder(me, act, next); return;
+      }
+      if (act.t === 'drag') { playDrag(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -29148,6 +29750,11 @@
     /* ---- 第 11 岛第 3 关：金发姑娘与三只小熊（A 找状态 / B 找椅子 / C 拖她坐下） ---- */
     if (q.type === 'L113A' || q.type === 'L113B') { optionsBar.classList.add('gone'); renderL113Pick(q); return; }
     if (q.type === 'L113C') { optionsBar.classList.add('gone'); renderL113C(q); return; }
+
+    /* ---- 第 11 岛第 4 关：故事排序（A 排三张 / B 找首尾 / C 判断对错） ---- */
+    if (q.type === 'L114A') { optionsBar.classList.add('gone'); renderL114A(q); return; }
+    if (q.type === 'L114B') { optionsBar.classList.add('gone'); renderL114B(q); return; }
+    if (q.type === 'L114C') { optionsBar.classList.add('gone'); renderL114C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -29612,6 +30219,11 @@
     }
     // 第 11 岛第 3 关：三题型都自带舞台
     if (q.type === 'L113A' || q.type === 'L113B' || q.type === 'L113C') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 11 岛第 4 关：三题型都自带舞台
+    if (q.type === 'L114A' || q.type === 'L114B' || q.type === 'L114C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -30289,7 +30901,8 @@
             qt !== 'L105A' && qt !== 'L105B' && qt !== 'L105C' &&
             qt !== 'L111A' && qt !== 'L111B' && qt !== 'L111C' &&
             qt !== 'L112A' && qt !== 'L112B' && qt !== 'L112C' &&
-            qt !== 'L113A' && qt !== 'L113B' && qt !== 'L113C') {
+            qt !== 'L113A' && qt !== 'L113B' && qt !== 'L113C' &&
+            qt !== 'L114A' && qt !== 'L114B' && qt !== 'L114C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -30444,7 +31057,7 @@
       state.lastPointerAt = Date.now();
       /* 第 9 岛第 2 关：轻点由元素自己的 click（l92Pick / resolveL92）处理 */
       if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L105' ||
-          d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113') return;
+          d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114') return;
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
       else if (d.mode === 'F14T') tutPickF14(d.el);
@@ -30528,6 +31141,8 @@
         resolveL112(d.el, target);
       } else if (d.mode === 'L113') {
         resolveL113(d.el, target);
+      } else if (d.mode === 'L114') {
+        resolveL114(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -30562,7 +31177,7 @@
         tutDropOn(target, e.clientX, e.clientY);
       }
     } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102' || d.mode === 'L103' || d.mode === 'L104' || d.mode === 'L105' ||
-        d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113') {
+        d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -30580,6 +31195,7 @@
       else if (d.mode === 'L111') l111Bounce(d.el);
       else if (d.mode === 'L112') l112Bounce(d.el);
       else if (d.mode === 'L113') l113Bounce(d.el);
+      else if (d.mode === 'L114') l114Bounce(d.el);
       else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
@@ -31725,6 +32341,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '11-4': {
+      // 故事排序（童话故事）：4 环节
+      // 讲三只小猪（三张图按序高亮）→ 演示图自己飞进 1/2/3 → 动手把三张图拖进框 → 过渡；
+      // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、放错只弹回不判错（§二.11）
+      custom: runL114Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -31981,6 +32606,7 @@
     if (q.type === 'L105A') return 'L105';
     if (q.type === 'L112C') return 'L112';
     if (q.type === 'L113C') return 'L113';
+    if (q.type === 'L114A') return 'L114';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -32868,7 +33494,14 @@
           l113kind: q.kind || null,
           l113items: q.items ? q.items.slice() : null,
           l113answer: (typeof q.answer === 'number') ? q.answer : null,
-          l113side: q.justSide || null
+          l113side: q.justSide || null,
+          l114story: q.story || null,
+          l114items: q.items ? q.items.slice() : null,
+          l114slots: q.slots ? q.slots.slice() : null,
+          l114arr: q.arr ? q.arr.slice() : null,
+          l114correct: (typeof q.correct === 'boolean') ? q.correct : null,
+          l114ask: q.ask || null,
+          l114answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },

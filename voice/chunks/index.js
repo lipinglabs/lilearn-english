@@ -1142,6 +1142,16 @@ window.VOICE_CHUNK_FOR = {
 "l113_t_just":"island_11",
 "l113_t_out":"island_11",
 "l113_t_taste":"island_11",
+"l114_a_goldi":"island_11",
+"l114_a_red":"island_11",
+"l114_b_first":"island_11",
+"l114_b_last":"island_11",
+"l114_c_check":"island_11",
+"l114_line_order":"island_11",
+"l114_t_order":"island_11",
+"l114_t_out":"island_11",
+"l114_t_story":"island_11",
+"l114_t_story2":"island_11",
 };
 window.VOICE_CHUNK_OF_ISLAND = {
 1:["island_1_1","island_1_2"],
