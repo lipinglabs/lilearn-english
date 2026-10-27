@@ -1657,6 +1657,31 @@ add("l111_c_wolf",    "The wolf is here! The pigs say, go away!", "en", -15, EN_
 add("l111_c_knock",   "Knock knock! The big bad wolf is at the door. The pigs say, go away!", "en", -15, EN_ASK)
 add("l111_c_go_away", "Go away!", "en", -5, EN_ASK)
 
+# ---- 第 11 岛第 2 关：小红帽（L11-W2） ----
+# 教学 7 条
+add("l112_t_red",         "Look! Little Red Riding Hood.", "en", -15, EN_ASK)
+add("l112_t_ask",         "The hunter asks, where are you going? She says, to Grandma's house.", "en", -15, EN_ASK)
+add("l112_t_help",        "Where is she going? Help her go to Grandma's house.", "en", -15, EN_ASK)
+add("l112_t_wolf_coming", "The big bad wolf is coming!", "en", -15, EN_ASK)
+add("l112_t_who",         "Who is it? It is the wolf!", "en", -15, EN_ASK)
+add("l112_t_find",        "Who is in the forest? Find the wolf.", "en", -15, EN_ASK)
+add("l112_t_out",         "Let's follow Little Red Riding Hood!", "en", -15, EN_ASK)
+
+# 剧情台词：答对后播完这句再给星星（§三.26）
+add("l112_line_grandma",  "To Grandma's house!", "en", -8, EN_ASK)
+
+# A 听台词选回答（猎人问路 → 选去奶奶家的画面）
+add("l112_a_where", "Where are you going? Find Grandma's house.", "en", -15, EN_ASK)
+add("l112_a_who",   "Who is she going to see? Find Grandma's house.", "en", -15, EN_ASK)
+
+# B 听音找角色（狼 / 猎人 / 奶奶）
+add("l112_b_wolf",    "The big bad wolf is here. Find the wolf.", "en", -15, EN_ASK)
+add("l112_b_hunter",  "The hunter is in the forest. Find the hunter.", "en", -15, EN_ASK)
+add("l112_b_grandma", "Grandma is in the house. Find Grandma.", "en", -15, EN_ASK)
+
+# C 听指令拖拽（把小红帽拖到去奶奶家的小路）
+add("l112_c_go", "Help Little Red Riding Hood go to Grandma's house.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

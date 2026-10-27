@@ -3980,7 +3980,8 @@
     '10-3': { numbers: null, make: 'makeL103', title: '第 3 关', tutorial: true },
     '10-4': { numbers: null, make: 'makeL104', title: '第 4 关', tutorial: true },
     '10-5': { numbers: null, make: 'makeL105', title: '第 5 关', tutorial: true },
-    '11-1': { numbers: null, make: 'makeL111', title: '第 1 关', tutorial: true }
+    '11-1': { numbers: null, make: 'makeL111', title: '第 1 关', tutorial: true },
+    '11-2': { numbers: null, make: 'makeL112', title: '第 2 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4254,6 +4255,7 @@
     if (def && def.make === 'makeL104') return makeQuestionL104(typeIdx, prev);
     if (def && def.make === 'makeL105') return makeQuestionL105(typeIdx, prev);
     if (def && def.make === 'makeL111') return makeQuestionL111(typeIdx, prev);
+    if (def && def.make === 'makeL112') return makeQuestionL112(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -27551,6 +27553,637 @@
     return api;
   })();
 
+  /* ================= 第 11 岛第 2 关：小红帽（童话故事） =================
+     问路 → 送她去奶奶家 → 大灰狼出现。美术全部手写 SVG，零位图、零 emoji。
+     大灰狼与猎人复用 11-1 的造型（同一岛的画风要一致）。 */
+
+  var L112_CHARS = ['wolf', 'hunter', 'grandma'];
+  var L112_CHAR_LABEL = { wolf: '大灰狼', hunter: '猎人', grandma: '奶奶' };
+  var L112_SCENES = ['grandma', 'school', 'park'];
+  var L112_SCENE_LABEL = { grandma: '奶奶家的小屋', school: '学校', park: '公园' };
+  var L112_A_KEY = ['l112_a_where', 'l112_a_who'];
+  var L112_B_KEY = { wolf: 'l112_b_wolf', hunter: 'l112_b_hunter', grandma: 'l112_b_grandma' };
+  var L112_LINE = 'l112_line_grandma';   // 剧情台词：To Grandma's house!
+
+  /* ---- 手写 SVG 美术（零位图、零 emoji） ---- */
+
+  var L112_RED_SVG =
+    '<svg viewBox="0 0 100 132" aria-hidden="true">' +
+    /* 腿 + 靴子 */
+    '<path d="M43 104 L41 122" stroke="#f0c9a4" stroke-width="7" stroke-linecap="round"/>' +
+    '<path d="M57 104 L59 122" stroke="#f0c9a4" stroke-width="7" stroke-linecap="round"/>' +
+    '<path d="M41 124 H32" stroke="#7a4b2a" stroke-width="8" stroke-linecap="round"/>' +
+    '<path d="M59 124 H68" stroke="#7a4b2a" stroke-width="8" stroke-linecap="round"/>' +
+    /* 裙子 + 围裙 */
+    '<path d="M36 68 H64 L73 106 H27 Z" fill="#f7f3e8" stroke="#d9cfbc" stroke-width="3" stroke-linejoin="round"/>' +
+    '<path d="M43 78 H57 L59 100 H41 Z" fill="#ffffff" stroke="#e5dcc9" stroke-width="2.2" stroke-linejoin="round"/>' +
+    /* 胳膊 */
+    '<path d="M35 72 L21 90" stroke="#ffe0c2" stroke-width="6.5" stroke-linecap="round"/>' +
+    '<path d="M65 72 L79 86" stroke="#ffe0c2" stroke-width="6.5" stroke-linecap="round"/>' +
+    /* 篮子 */
+    '<path d="M73 82 h23 l-3.5 15 h-16 Z" fill="#c98f57" stroke="#96683a" stroke-width="2.8" stroke-linejoin="round"/>' +
+    '<path d="M77 82 q7.5 -11 15 0" fill="none" stroke="#96683a" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="M78 88 H91" stroke="#96683a" stroke-width="1.8" opacity=".8"/>' +
+    /* 披风（在头后面） */
+    '<path d="M27 60 q23 -9 46 0 l7 22 q-30 9 -60 0 Z" fill="#e8453c" stroke="#c22f28" stroke-width="3.2" ' +
+    'stroke-linejoin="round"/>' +
+    /* 兜帽外轮廓 */
+    '<path d="M50 4 C74 4 84 22 84 42 C84 50 75 54 69 47 C64 41 60 37 50 37 C40 37 36 41 31 47 ' +
+    'C25 54 16 50 16 42 C16 22 26 4 50 4 Z" fill="#e8453c" stroke="#c22f28" stroke-width="3.4" ' +
+    'stroke-linejoin="round"/>' +
+    /* 脸 */
+    '<circle cx="50" cy="43" r="19" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3"/>' +
+    /* 兜帽前沿（压住额头） */
+    '<path d="M31 34 q19 -14 38 0 q-8 -5 -19 -5 q-11 0 -19 5 Z" fill="#d8352d"/>' +
+    /* 露出的发丝 */
+    '<path d="M33 40 q-3 10 1 16" fill="none" stroke="#7a4b2a" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<path d="M67 40 q3 10 -1 16" fill="none" stroke="#7a4b2a" stroke-width="3.4" stroke-linecap="round"/>' +
+    /* 五官 */
+    '<circle cx="43" cy="44" r="2.6" fill="#3b2b30"/><circle cx="57" cy="44" r="2.6" fill="#3b2b30"/>' +
+    '<path d="M45 52 q5 4 10 0" fill="none" stroke="#c4736a" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<ellipse cx="36" cy="49" rx="3.6" ry="2.4" fill="#ff9fae" opacity=".6"/>' +
+    '<ellipse cx="64" cy="49" rx="3.6" ry="2.4" fill="#ff9fae" opacity=".6"/>' +
+    '</svg>';
+
+  var L112_GRANDMA_SVG =
+    '<svg viewBox="0 0 100 132" aria-hidden="true">' +
+    '<path d="M43 106 L41 123" stroke="#f0c9a4" stroke-width="7" stroke-linecap="round"/>' +
+    '<path d="M57 106 L59 123" stroke="#f0c9a4" stroke-width="7" stroke-linecap="round"/>' +
+    '<path d="M41 126 H32" stroke="#6b4a2a" stroke-width="8" stroke-linecap="round"/>' +
+    '<path d="M59 126 H68" stroke="#6b4a2a" stroke-width="8" stroke-linecap="round"/>' +
+    '<path d="M34 70 H66 L75 108 H25 Z" fill="#a98fd0" stroke="#8a6fb5" stroke-width="3" stroke-linejoin="round"/>' +
+    '<path d="M31 60 q19 -8 38 0 l5 15 q-24 7 -48 0 Z" fill="#c9b6e6" stroke="#a98fd0" stroke-width="3" ' +
+    'stroke-linejoin="round"/>' +
+    '<path d="M67 74 L80 90" stroke="#ffe0c2" stroke-width="6.5" stroke-linecap="round"/>' +
+    '<path d="M86 66 V110" stroke="#96683a" stroke-width="4.4" stroke-linecap="round"/>' +
+    '<path d="M86 66 q-9 0 -9 8" fill="none" stroke="#96683a" stroke-width="4.4" stroke-linecap="round"/>' +
+    '<circle cx="50" cy="43" r="19" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3"/>' +
+    '<path d="M31 36 q19 -19 38 0 q-4 -17 -19 -17 q-15 0 -19 17 Z" fill="#e2e2e8" stroke="#bfbfc6" stroke-width="2.8"/>' +
+    '<circle cx="50" cy="15" r="9" fill="#ececf0" stroke="#bfbfc6" stroke-width="2.8"/>' +
+    '<circle cx="42" cy="44" r="7.4" fill="none" stroke="#6b5b4a" stroke-width="2.6"/>' +
+    '<circle cx="58" cy="44" r="7.4" fill="none" stroke="#6b5b4a" stroke-width="2.6"/>' +
+    '<path d="M49.4 44 H50.6" stroke="#6b5b4a" stroke-width="2.4"/>' +
+    '<circle cx="42" cy="44" r="2.2" fill="#3b2b30"/><circle cx="58" cy="44" r="2.2" fill="#3b2b30"/>' +
+    '<path d="M45 55 q5 4 10 0" fill="none" stroke="#c4736a" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<path d="M34 40 q-2 6 0 10" fill="none" stroke="#d8b08a" stroke-width="1.8" stroke-linecap="round"/>' +
+    '<path d="M66 40 q2 6 0 10" fill="none" stroke="#d8b08a" stroke-width="1.8" stroke-linecap="round"/>' +
+    '</svg>';
+
+  /** 奶奶家的小屋 */
+  var L112_COTTAGE_SVG =
+    '<svg viewBox="0 0 120 112" aria-hidden="true">' +
+    '<rect y="94" width="120" height="18" fill="#a8dc9a"/>' +
+    '<rect x="22" y="52" width="76" height="44" fill="#fff2d8" stroke="#dcc9a4" stroke-width="3.4"/>' +
+    '<path d="M16 54 L60 16 L104 54 Z" fill="#e8453c" stroke="#c22f28" stroke-width="3.6" stroke-linejoin="round"/>' +
+    '<rect x="80" y="22" width="12" height="18" rx="2" fill="#c98f57" stroke="#96683a" stroke-width="2.6"/>' +
+    '<circle cx="86" cy="18" r="5" fill="#e6e6ea" opacity=".9"/>' +
+    '<circle cx="92" cy="12" r="3.6" fill="#e6e6ea" opacity=".7"/>' +
+    '<rect x="30" y="62" width="20" height="16" rx="3" fill="#bfe6ff" stroke="#8fc0e6" stroke-width="2.6"/>' +
+    '<path d="M40 62 V78 M30 70 H50" stroke="#8fc0e6" stroke-width="2"/>' +
+    '<rect x="62" y="70" width="22" height="26" rx="3" fill="#b87a48" stroke="#8a5a30" stroke-width="2.8"/>' +
+    '<circle cx="79" cy="84" r="2.2" fill="#5a4018"/>' +
+    '<path d="M22 96 H98" stroke="#c9a884" stroke-width="3"/>' +
+    '</svg>';
+
+  /** 学校 */
+  var L112_SCHOOL_SVG =
+    '<svg viewBox="0 0 120 112" aria-hidden="true">' +
+    '<rect y="94" width="120" height="18" fill="#a8dc9a"/>' +
+    '<rect x="20" y="44" width="80" height="52" fill="#f2e6cf" stroke="#d6c3a1" stroke-width="3.4"/>' +
+    '<path d="M14 46 L60 20 L106 46 Z" fill="#7fa8d8" stroke="#5d87bb" stroke-width="3.4" stroke-linejoin="round"/>' +
+    '<rect x="54" y="8" width="3.4" height="14" fill="#96683a"/>' +
+    '<path d="M57 8 L76 14 L57 20 Z" fill="#e8453c" stroke="#c22f28" stroke-width="2"/>' +
+    '<circle cx="60" cy="40" r="6" fill="#ffd166" stroke="#e0a92e" stroke-width="2.4"/>' +
+    '<rect x="28" y="56" width="16" height="14" rx="2" fill="#bfe6ff" stroke="#8fc0e6" stroke-width="2.4"/>' +
+    '<rect x="52" y="56" width="16" height="14" rx="2" fill="#bfe6ff" stroke="#8fc0e6" stroke-width="2.4"/>' +
+    '<rect x="76" y="56" width="16" height="14" rx="2" fill="#bfe6ff" stroke="#8fc0e6" stroke-width="2.4"/>' +
+    '<rect x="50" y="76" width="20" height="20" rx="3" fill="#b87a48" stroke="#8a5a30" stroke-width="2.6"/>' +
+    '</svg>';
+
+  /** 公园 */
+  var L112_PARK_SVG =
+    '<svg viewBox="0 0 120 112" aria-hidden="true">' +
+    '<rect width="120" height="112" fill="#dcf1ff"/>' +
+    '<circle cx="98" cy="20" r="12" fill="#ffd166" stroke="#e0a92e" stroke-width="2.6"/>' +
+    '<rect y="82" width="120" height="30" fill="#a8dc9a"/>' +
+    '<rect x="20" y="62" width="8" height="24" fill="#96683a"/>' +
+    '<circle cx="24" cy="50" r="20" fill="#7fc97f" stroke="#5da85d" stroke-width="3"/>' +
+    '<rect x="88" y="64" width="7" height="22" fill="#96683a"/>' +
+    '<circle cx="91" cy="54" r="16" fill="#8ed08e" stroke="#5da85d" stroke-width="3"/>' +
+    '<rect x="40" y="74" width="42" height="7" rx="3" fill="#c98f57" stroke="#96683a" stroke-width="2.4"/>' +
+    '<rect x="44" y="81" width="5" height="10" fill="#96683a"/>' +
+    '<rect x="73" y="81" width="5" height="10" fill="#96683a"/>' +
+    '<path d="M40 74 V66" stroke="#96683a" stroke-width="3.4"/>' +
+    '</svg>';
+
+  /** 岔路背景（右 = 奶奶家小屋，左 = 阴森树林）；flip 时镜像 */
+  var L112_FORK_BG =
+    '<svg viewBox="0 0 200 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+    '<rect width="200" height="140" fill="#dcf1ff"/>' +
+    '<circle cx="30" cy="20" r="12" fill="#ffd166"/>' +
+    '<path d="M0 86 q40 -14 80 -2 q30 9 60 0 q30 -9 60 2 V140 H0 Z" fill="#a8dc9a"/>' +
+    /* 左侧：阴森树林 */
+    '<g fill="#5f8a4f">' +
+    '<path d="M28 88 L44 46 L60 88 Z"/><path d="M14 88 L30 54 L46 88 Z"/>' +
+    '<path d="M48 88 L64 56 L80 88 Z"/></g>' +
+    '<g fill="#4a6f3d">' +
+    '<path d="M22 88 L34 58 L46 88 Z"/><path d="M40 88 L52 60 L64 88 Z"/></g>' +
+    /* 右侧：奶奶家小屋 */
+    '<g transform="translate(138,52) scale(.42)">' +
+    '<rect x="22" y="52" width="76" height="44" fill="#fff2d8" stroke="#dcc9a4" stroke-width="5"/>' +
+    '<path d="M16 54 L60 16 L104 54 Z" fill="#e8453c" stroke="#c22f28" stroke-width="5" ' +
+    'stroke-linejoin="round"/>' +
+    '<rect x="62" y="70" width="22" height="26" rx="3" fill="#b87a48" stroke="#8a5a30" stroke-width="4"/>' +
+    '<rect x="30" y="62" width="20" height="16" rx="3" fill="#bfe6ff" stroke="#8fc0e6" stroke-width="4"/>' +
+    '</g>' +
+    /* 两条小路：右宽左窄，右亮左暗 */
+    '<path d="M100 140 Q106 104 132 84 L156 62" fill="none" stroke="#f0e0c0" stroke-width="24" ' +
+    'stroke-linecap="round"/>' +
+    '<path d="M100 140 Q94 104 68 84 L44 62" fill="none" stroke="#c9bd9c" stroke-width="22" ' +
+    'stroke-linecap="round"/>' +
+    '<path d="M100 140 Q106 104 132 84" fill="none" stroke="#fff6e2" stroke-width="10" ' +
+    'stroke-dasharray="8 9" stroke-linecap="round" opacity=".9"/>' +
+    '</svg>';
+
+  /** 树林（狼出场的场景） */
+  var L112_WOODS_BG =
+    '<svg viewBox="0 0 200 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+    '<rect width="200" height="140" fill="#cfe6f7"/>' +
+    '<path d="M0 92 q50 -12 100 0 q50 12 100 -4 V140 H0 Z" fill="#9ed48e"/>' +
+    '<g fill="#5f8a4f">' +
+    '<path d="M18 96 L34 42 L50 96 Z"/><path d="M52 96 L68 30 L84 96 Z"/>' +
+    '<path d="M120 96 L136 38 L152 96 Z"/><path d="M156 96 L172 46 L188 96 Z"/></g>' +
+    '<g fill="#476b3b">' +
+    '<path d="M34 96 L46 54 L58 96 Z"/><path d="M68 96 L80 46 L92 96 Z"/>' +
+    '<path d="M136 96 L148 50 L160 96 Z"/><path d="M172 96 L182 56 L192 96 Z"/></g>' +
+    '<path d="M0 118 q50 -10 100 2 q50 12 100 -2 V140 H0 Z" fill="#e8d7b0"/>' +
+    '</svg>';
+
+  function l112CharSvg(k) {
+    if (k === 'wolf') return L111_WOLF_SVG;
+    if (k === 'hunter') return L111_HUNTER_SVG;
+    return L112_GRANDMA_SVG;
+  }
+  function l112SceneSvg(k) {
+    if (k === 'school') return L112_SCHOOL_SVG;
+    if (k === 'park') return L112_PARK_SVG;
+    return L112_COTTAGE_SVG;
+  }
+
+  function ensureL112Css() {
+    if (document.getElementById('l112-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l112-style';
+    s.textContent = [
+      '.l112-ask{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.1vh;width:100%}',
+      /* 岔路舞台 */
+      '.l112-fork{position:relative;width:min(90vw,520px);max-width:100%;height:min(40vh,300px);' +
+        'border-radius:18px;overflow:hidden;box-shadow:0 3px 12px rgba(90,120,150,.16)}',
+      '.l112-forkbg{position:absolute;inset:0;transform-origin:center;' +
+        'transition:transform .3s ease-out}',
+      '.l112-forkbg svg{width:100%;height:100%;display:block}',
+      /* 两条路各自是一整块热区（比画面里的路宽一圈） */
+      '.l112-path{position:absolute;top:6%;height:64%;width:47%;border-radius:18px;' +
+        'transition:box-shadow .18s,transform .18s}',
+      /* 左右位置一律由 JS 行内 left/right 决定（flip 时互换），这里不钉边 */
+      '.l112-path.drop-hot{box-shadow:0 0 0 4px #7fd18a,0 4px 16px rgba(90,180,120,.3);' +
+        'background:rgba(255,255,255,.14)}',
+      '.l112-path.l112-right{box-shadow:0 0 0 4px #7fd18a,0 4px 18px rgba(90,180,120,.4)}',
+      /* 小红帽：热区是整块，只改 left/bottom 让她沿路走 */
+      '.l112-red{position:absolute;left:50%;bottom:4%;width:17%;transform:translate(-50%,0);' +
+        'cursor:grab;touch-action:none;z-index:3;' +
+        'transition:left .95s ease-in-out,bottom .95s ease-in-out}',
+      '.l112-red svg{width:100%;height:auto;display:block;pointer-events:none}',
+      '.l112-red.dragging{opacity:.35}',
+      '.l112-red.l112-pop{animation:l112pop .5s cubic-bezier(.3,1.4,.5,1)}',
+      '.l112-red.l112-wrong{animation:l112shake .4s}',
+      '@keyframes l112pop{0%{transform:translate(-50%,0) scale(.8)}100%{transform:translate(-50%,0) scale(1)}}',
+      '@keyframes l112shake{0%,100%{transform:translate(-50%,0)}' +
+        '28%{transform:translate(calc(-50% - 6px),0) rotate(-4deg)}' +
+        '62%{transform:translate(calc(-50% + 6px),0) rotate(4deg)}}',
+      /* 幽灵是 .l112-red 的克隆：必须把绝对定位 / 居中位移改回拖拽样式（§三.25） */
+      '.drag-ghost.l112-red{position:fixed;width:auto;transform:scale(1.06);border-radius:12px;' +
+        'filter:drop-shadow(0 10px 14px rgba(120,90,60,.28))}',
+      /* 岔路舞台上的猎人 */
+      '.l112-hunter{position:absolute;left:4%;bottom:6%;width:19%;z-index:2}',
+      '.l112-hunter svg{width:100%;height:auto;display:block}',
+      /* 狼出场舞台 */
+      '.l112-woods{position:relative;width:min(90vw,520px);max-width:100%;height:min(40vh,300px);' +
+        'border-radius:18px;overflow:hidden;box-shadow:0 3px 12px rgba(90,120,150,.16)}',
+      '.l112-woods > svg{position:absolute;inset:0;width:100%;height:100%;display:block}',
+      '.l112-wolf{position:absolute;left:-30%;bottom:8%;width:30%;z-index:3;' +
+        'transition:left .7s cubic-bezier(.3,1,.5,1)}',
+      '.l112-wolf svg{width:100%;height:auto;display:block}',
+      '.l112-wolf.l112-in{left:8%}',
+      '.l112-wolf.l112-big{animation:l112zoom .62s cubic-bezier(.3,1.4,.5,1)}',
+      '@keyframes l112zoom{0%{transform:scale(1)}45%{transform:scale(1.18)}100%{transform:scale(1)}}',
+      '.l112-woods .l112-red{width:15%;left:64%;bottom:10%}',
+      /* 三选一卡片 */
+      '.l112-cards{display:flex;justify-content:center;align-items:flex-end;gap:2.6vw;width:min(88vw,560px);max-width:100%}',
+      '.l112-card{flex:1;min-width:0;max-width:170px;padding:8px;border-radius:18px;border:3px solid transparent;' +
+        'background:rgba(255,255,255,.88);box-shadow:0 2px 10px rgba(90,120,150,.16);cursor:pointer;' +
+        'transition:transform .16s,border-color .16s}',
+      '.l112-card svg{width:100%;height:auto;display:block;pointer-events:none;border-radius:10px}',
+      '.l112-card.right{border-color:#7fd18a;transform:translateY(-3px)}',
+      '.l112-card.l112-wrong{animation:l112shake2 .38s}',
+      '@keyframes l112shake2{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-3deg)}' +
+        '60%{transform:translateX(5px) rotate(3deg)}}',
+      /* 猎人问路的小标牌（问句气泡，纯图形不含文字） */
+      '.l112-bubble{position:absolute;left:16%;bottom:34%;width:15%;z-index:4;opacity:0;' +
+        'transition:opacity .3s}',
+      '.l112-bubble.l112-on{opacity:1}',
+      '.l112-bubble svg{width:100%;height:auto;display:block}',
+      /* 矮屏压缩 */
+      '@media (max-height:600px){.l112-fork{height:min(34vh,200px)}.l112-woods{height:min(34vh,200px)}' +
+      '.l112-card{max-width:126px}.l112-red{width:15%}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  function l112Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l112-wrong');
+    void el.offsetWidth;
+    el.classList.add('l112-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l112-wrong'); }, 440);
+  }
+
+  /** 岔路舞台：opt.flip 把「奶奶家」换到左边；opt.hunter 出现猎人；opt.droppable 两条路可投放 */
+  function l112ForkStage(host, opt) {
+    opt = opt || {};
+    var w = document.createElement('div');
+    w.className = 'l112-fork';
+    var bg = document.createElement('div');
+    bg.className = 'l112-forkbg';
+    bg.innerHTML = L112_FORK_BG;
+    if (opt.flip) bg.style.transform = 'scaleX(-1)';
+    w.appendChild(bg);
+    var gSide = opt.flip ? 'left' : 'right';
+    var fSide = opt.flip ? 'right' : 'left';
+    var paths = {};
+    ['grandma', 'forest'].forEach(function (k) {
+      var d = document.createElement('div');
+      d.className = 'l112-path';
+      var side = (k === 'grandma') ? gSide : fSide;
+      d.dataset.path = k;
+      d.dataset.side = side;
+      if (opt.droppable) d.dataset.drop = 'path';
+      d.setAttribute('aria-label', k === 'grandma' ? '去奶奶家的小路' : '去树林的小路');
+      /* 用行内 left/right 定位，flip 时跟着换边 */
+      if (side === 'right') { d.style.right = '0'; d.style.left = 'auto'; }
+      else { d.style.left = '0'; d.style.right = 'auto'; }
+      w.appendChild(d);
+      paths[k] = d;
+    });
+    if (opt.hunter) {
+      var h = document.createElement('div');
+      h.className = 'l112-hunter';
+      h.setAttribute('aria-label', '猎人');
+      h.innerHTML = L111_HUNTER_SVG;
+      w.appendChild(h);
+    }
+    var red = document.createElement('div');
+    red.className = 'l112-red';
+    red.dataset.drag = 'item';
+    red.dataset.from = 'stage';
+    red.dataset.item = 'red';
+    red.setAttribute('aria-label', '小红帽');
+    red.innerHTML = L112_RED_SVG;
+    w.appendChild(red);
+    host.appendChild(w);
+    return { root: w, bg: bg, red: red, paths: paths, side: gSide };
+  }
+
+  /** 让小红帽沿路走到终点（grandma / forest） */
+  function l112Walk(red, path, side) {
+    if (!red) return;
+    var toGrandma = path === 'grandma';
+    var onRight = (side || 'right') === 'right';
+    var x = toGrandma === onRight ? 74 : 26;
+    red.style.left = x + '%';
+    red.style.bottom = '52%';
+  }
+
+  /** 答对后先播剧情台词，再给星星（§三.26） */
+  function l112SayThenJudge(key, btn) {
+    if (state.busy) return;
+    state.busy = true;
+    say([key], function () {
+      setTimeout(function () {
+        if (state.phase !== 'asking') return;
+        state.busy = false;
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(true, btn);
+      }, 320);
+    });
+  }
+
+  /* ---------------- 渲染 ---------------- */
+
+  /** 题型 A（三张场景图）/ 题型 B（三个角色） */
+  function renderL112Pick(q) {
+    ensureL112Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l112-ask l112-stage';
+    if (q.type === 'L112A') {
+      var hb = document.createElement('div');
+      hb.className = 'l112-hunter l112-hunter-ask';
+      hb.setAttribute('aria-label', '猎人问路');
+      hb.innerHTML = L111_HUNTER_SVG;
+      hb.style.position = 'relative';
+      hb.style.left = '0';
+      hb.style.bottom = '0';
+      hb.style.width = 'min(26vw,110px)';
+      box.appendChild(hb);
+    }
+    var row = document.createElement('div');
+    row.className = 'l112-cards';
+    var label = q.type === 'L112A' ? L112_SCENE_LABEL : L112_CHAR_LABEL;
+    q.items.forEach(function (k, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l112-card';
+      b.dataset.item = k;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', label[k]);
+      b.innerHTML = q.type === 'L112A' ? l112SceneSvg(k) : l112CharSvg(k);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        if (i !== q.answer) { judge(false, b); return; }
+        b.classList.add('right');
+        /* 只有 A 型（猎人问路）的答案才是「To Grandma's house!」；
+           B 型是「找出听到的那个角色」，答对直接给星星，绝不硬塞剧情台词。 */
+        if (q.type === 'L112A') l112SayThenJudge(L112_LINE, b);
+        else judge(true, b);
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 C：把小红帽拖到去奶奶家的小路 */
+  function renderL112C(q) {
+    ensureL112Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l112-ask l112-stage';
+    box.dataset.l112flip = String(q.flip);
+    var sc = l112ForkStage(box, { droppable: true, hunter: true, flip: !!q.flip });
+    askDisplay.appendChild(box);
+  }
+
+  /* ---------------- 判定 ---------------- */
+
+  function resolveL112(el, target) {
+    if (!el) return false;
+    var path = target && target.dataset ? target.dataset.path : null;
+    var side = target && target.dataset ? target.dataset.side : null;
+    var tut = (state.phase === 'tutorial') ? state.tut : null;
+
+    if (tut) {
+      var need = tut.l112Need;
+      if (!need) { l112Bounce(el); return false; }
+      if (path !== need.path) { l112Bounce(el); if (tut.canDrag) armHint(); return false; }
+      l112Walk(el, path, side);
+      tut.canDrag = false; tut.l112On = false;
+      tut.hintTarget = null;
+      clearHint();
+      var nx = tut._l112Next;
+      setTimeout(function () { if (state.tut === tut && nx) nx(); }, 1180);
+      return true;
+    }
+
+    var q = state.question;
+    if (!q || q.type !== 'L112C') { l112Bounce(el); return false; }
+    if (!path) { l112Bounce(el); return false; }
+    if (path !== 'grandma') { judge(false, el); return false; }
+    /* 走对路：先让她走到奶奶家、播完剧情台词，再给星星 */
+    l112Walk(el, 'grandma', side);
+    target.classList.add('l112-right');
+    l112SayThenJudge(L112_LINE, target);
+    return true;
+  }
+
+  /* ---------------- 出题：A 选回答 / B 找角色 / C 拖路 ---------------- */
+  function makeQuestionL112(type, prev) {
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：猎人问路，三张场景里选出「去奶奶家」 */
+        var ai = Math.floor(Math.random() * 2);
+        var itemsA = shuffle(L112_SCENES.slice());
+        q = {
+          type: 'L112A', sig: 'A:' + ai, kind: 'grandma', items: itemsA,
+          options: [], answer: itemsA.indexOf('grandma'), audio: [L112_A_KEY[ai]]
+        };
+      } else if (type === 1) {
+        /* B：三个角色里找出听到的那个 */
+        var kB = pick(L112_CHARS);
+        var itemsB = shuffle(L112_CHARS.slice());
+        q = {
+          type: 'L112B', sig: 'B:' + kB, kind: kB, items: itemsB,
+          options: [], answer: itemsB.indexOf(kB), audio: [L112_B_KEY[kB]]
+        };
+      } else {
+        /* C：岔路（奶奶家可能被翻到左边，防止背位置） */
+        var flip = Math.random() < 0.5 ? 1 : 0;
+        q = {
+          type: 'L112C', sig: 'C:' + flip, kind: 'grandma', flip: flip, items: [],
+          options: [], answer: 0, audio: ['l112_c_go']
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 教学：问路 2 演示 → 送她去奶奶家 → 狼出现 2 演示 → 找狼 → 过渡 ----------------
+     7 环节；演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），拖错只弹回不判错（§二.11）。 */
+  var runL112Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'red1', word: 'l112_t_red' },
+      { t: 'demo', sid: 'ask2', word: 'l112_t_ask', walk: true },
+      { t: 'drag', sid: 'helpPut', word: 'l112_t_help', need: { path: 'grandma' } },
+      { t: 'demo', sid: 'wolf1', word: 'l112_t_wolf_coming', enter: true },
+      { t: 'demo', sid: 'wolf2', word: 'l112_t_who', big: true },
+      { t: 'pick', sid: 'findWolf', word: 'l112_t_find', kind: 'wolf' },
+      { t: 'out', sid: 'out', word: 'l112_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null;
+      me.canDrag = false; me.l112On = false; me.l112Need = null; me._l112Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL112Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l112-ask l112-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '小红帽');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示 1：小红帽和猎人出场 */
+    function playRed(me, act, next) {
+      var w = stage(me, act);
+      var sc = l112ForkStage(w, { hunter: true });
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        sc.red.classList.add('l112-pop');
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 760);
+      });
+    }
+    /* 演示 2：猎人的问句 → 她沿去奶奶家的路走 */
+    function playAsk(me, act, next) {
+      var w = stage(me, act);
+      var sc = l112ForkStage(w, { hunter: true });
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        l112Walk(sc.red, 'grandma', 'right');
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 1250);
+      });
+    }
+    /* 互动：把小红帽拖到去奶奶家的小路（4 秒小手） */
+    function playDrag(me, act, next) {
+      var w = stage(me, act);
+      var sc = l112ForkStage(w, { droppable: true, hunter: true });
+      me.l112Need = act.need;
+      me._l112Next = next;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l112On = true; me.canDrag = true; me.customMode = 'L112';
+        me.hintFrom = sc.red;
+        me.hintTo = sc.paths.grandma;
+        me.hintTarget = me.hintFrom;
+        me.hintToY = 0.42;
+        armHint();
+      });
+    }
+    /* 演示 3 / 4：大灰狼进树林 → 特写 */
+    function playWolf(me, act, next) {
+      var w = stage(me, act);
+      var wd = document.createElement('div');
+      wd.className = 'l112-woods';
+      wd.innerHTML = L112_WOODS_BG;
+      var red = document.createElement('div');
+      red.className = 'l112-red';
+      red.setAttribute('aria-label', '小红帽');
+      red.innerHTML = L112_RED_SVG;
+      wd.appendChild(red);
+      var wolf = document.createElement('div');
+      wolf.className = 'l112-wolf';
+      wolf.setAttribute('aria-label', '大灰狼');
+      wolf.innerHTML = L111_WOLF_SVG;
+      wd.appendChild(wolf);
+      if (act.big) wolf.classList.add('l112-in');
+      w.appendChild(wd);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        if (act.enter) {
+          wolf.classList.add('l112-in');
+        } else {
+          wolf.classList.add('l112-big');
+        }
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 900);
+      });
+    }
+    /* 互动：三个角色里点出大灰狼 */
+    function playPick(me, act, next) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l112-cards';
+      var items = shuffle(L112_CHARS.slice());
+      var hit = null;
+      items.forEach(function (k, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'l112-card';
+        b.dataset.item = k;
+        b.dataset.idx = String(i);
+        b.setAttribute('aria-label', L112_CHAR_LABEL[k]);
+        b.innerHTML = l112CharSvg(k);
+        if (k === act.kind) hit = b;
+        b.addEventListener('click', function () {
+          if (state.tut !== me) return;
+          if (k !== act.kind) { l112Bounce(b); armHint(); return; }
+          b.classList.add('right');
+          me.hintTarget = null; clearHint();
+          setTimeout(function () { if (state.tut === me) next(); }, 560);
+        });
+        row.appendChild(b);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.hintTarget = hit; me.hintFrom = null; me.hintTo = null;
+        armHint();
+      });
+    }
+    function playOut(me, act) {
+      var w = stage(me, act);
+      var sc = l112ForkStage(w, {});
+      l112Walk(sc.red, 'grandma', 'right');
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') {
+        if (act.enter || act.big) { playWolf(me, act, next); return; }
+        if (act.walk) { playAsk(me, act, next); return; }
+        playRed(me, act, next); return;
+      }
+      if (act.t === 'drag') { playDrag(me, act, next); return; }
+      if (act.t === 'pick') { playPick(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -27900,6 +28533,10 @@
     /* ---- 第 11 岛第 1 关：三只小猪（A 找角色 / B 找材料 / C 喊走狼） ---- */
     if (q.type === 'L111A' || q.type === 'L111B') { optionsBar.classList.add('gone'); renderL111Pick(q); return; }
     if (q.type === 'L111C') { optionsBar.classList.add('gone'); renderL111C(q); return; }
+
+    /* ---- 第 11 岛第 2 关：小红帽（A 选回答 / B 找角色 / C 拖小路） ---- */
+    if (q.type === 'L112A' || q.type === 'L112B') { optionsBar.classList.add('gone'); renderL112Pick(q); return; }
+    if (q.type === 'L112C') { optionsBar.classList.add('gone'); renderL112C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -28354,6 +28991,11 @@
     }
     // 第 11 岛第 1 关：三题型都自带舞台
     if (q.type === 'L111A' || q.type === 'L111B' || q.type === 'L111C') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 11 岛第 2 关：三题型都自带舞台
+    if (q.type === 'L112A' || q.type === 'L112B' || q.type === 'L112C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -29029,7 +29671,8 @@
             qt !== 'L103A' && qt !== 'L103B' && qt !== 'L103C' &&
             qt !== 'L104A' && qt !== 'L104B' && qt !== 'L104C' &&
             qt !== 'L105A' && qt !== 'L105B' && qt !== 'L105C' &&
-            qt !== 'L111A' && qt !== 'L111B' && qt !== 'L111C') {
+            qt !== 'L111A' && qt !== 'L111B' && qt !== 'L111C' &&
+            qt !== 'L112A' && qt !== 'L112B' && qt !== 'L112C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -29184,7 +29827,7 @@
       state.lastPointerAt = Date.now();
       /* 第 9 岛第 2 关：轻点由元素自己的 click（l92Pick / resolveL92）处理 */
       if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L105' ||
-          d.mode === 'L111') return;
+          d.mode === 'L111' || d.mode === 'L112') return;
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
       else if (d.mode === 'F14T') tutPickF14(d.el);
@@ -29264,6 +29907,8 @@
         resolveL105(d.el, target);
       } else if (d.mode === 'L111') {
         resolveL111(d.el, target);
+      } else if (d.mode === 'L112') {
+        resolveL112(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -29298,7 +29943,7 @@
         tutDropOn(target, e.clientX, e.clientY);
       }
     } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102' || d.mode === 'L103' || d.mode === 'L104' || d.mode === 'L105' ||
-        d.mode === 'L111') {
+        d.mode === 'L111' || d.mode === 'L112') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -29314,6 +29959,7 @@
       else if (d.mode === 'L104') l104Bounce(d.el);
       else if (d.mode === 'L105') l105Bounce(d.el);
       else if (d.mode === 'L111') l111Bounce(d.el);
+      else if (d.mode === 'L112') l112Bounce(d.el);
       else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
@@ -30441,6 +31087,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '11-2': {
+      // 小红帽（童话故事）：7 环节
+      // 小红帽+猎人出场 → 猎人问路（她沿去奶奶家的路走）→ 拖她去奶奶家 → 狼进树林 → 狼特写 → 找狼 → 过渡；
+      // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错路只弹回不判错（§二.11）
+      custom: runL112Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -30695,6 +31350,7 @@
     if (q.type === 'L103A') return 'L103';
     if (q.type === 'L104B') return 'L104';
     if (q.type === 'L105A') return 'L105';
+    if (q.type === 'L112C') return 'L112';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -31574,7 +32230,11 @@
           l111kind: q.kind || null,
           l111items: q.items ? q.items.slice() : null,
           l111answer: (typeof q.answer === 'number') ? q.answer : null,
-          l111cv: (typeof q.cv === 'number') ? q.cv : null
+          l111cv: (typeof q.cv === 'number') ? q.cv : null,
+          l112kind: q.kind || null,
+          l112items: q.items ? q.items.slice() : null,
+          l112answer: (typeof q.answer === 'number') ? q.answer : null,
+          l112flip: (typeof q.flip === 'number') ? q.flip : null
         } : null
       };
     },

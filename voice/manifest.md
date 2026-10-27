@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1113** 条（英文 1107 + 中文 6）
+总条目：**1127** 条（英文 1121 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1096,21 +1096,35 @@
 | `l105_b_rain` | en | The boy has an umbrella in the rain. Find the picture. | 已存在 |
 | `l105_c_stop` | en | Find the sign that means stop. | 已存在 |
 | `l105_c_umbrella` | en | Find the umbrella for the rain. | 已存在 |
-| `l111_t_pigs` | en | Look! Three little pigs. | 待生成 |
-| `l111_t_straw_house` | en | The first pig builds a straw house. | 待生成 |
-| `l111_t_bricks_put` | en | The third pig wants a strong house. Put the bricks here. | 待生成 |
-| `l111_t_knock` | en | Knock knock! Who is knocking at the door? | 待生成 |
-| `l111_t_wolf` | en | It's the big bad wolf! | 待生成 |
-| `l111_t_out` | en | The wolf is here! Let's play! | 待生成 |
-| `l111_a_wolf` | en | Who is knocking at the door? Find the big bad wolf. | 待生成 |
-| `l111_a_pig` | en | Who is building the house? Find the little pig. | 待生成 |
-| `l111_a_hunter` | en | Who can help the pigs? Find the hunter. | 待生成 |
-| `l111_b_straw` | en | The first pig builds a straw house. Find the straw. | 待生成 |
-| `l111_b_wood` | en | The second pig builds a wood house. Find the wood. | 待生成 |
-| `l111_b_brick` | en | The third pig builds a brick house. Find the bricks. | 待生成 |
-| `l111_c_wolf` | en | The wolf is here! The pigs say, go away! | 待生成 |
-| `l111_c_knock` | en | Knock knock! The big bad wolf is at the door. The pigs say, go away! | 待生成 |
-| `l111_c_go_away` | en | Go away! | 待生成 |
+| `l111_t_pigs` | en | Look! Three little pigs. | 已存在 |
+| `l111_t_straw_house` | en | The first pig builds a straw house. | 已存在 |
+| `l111_t_bricks_put` | en | The third pig wants a strong house. Put the bricks here. | 已存在 |
+| `l111_t_knock` | en | Knock knock! Who is knocking at the door? | 已存在 |
+| `l111_t_wolf` | en | It's the big bad wolf! | 已存在 |
+| `l111_t_out` | en | The wolf is here! Let's play! | 已存在 |
+| `l111_a_wolf` | en | Who is knocking at the door? Find the big bad wolf. | 已存在 |
+| `l111_a_pig` | en | Who is building the house? Find the little pig. | 已存在 |
+| `l111_a_hunter` | en | Who can help the pigs? Find the hunter. | 已存在 |
+| `l111_b_straw` | en | The first pig builds a straw house. Find the straw. | 已存在 |
+| `l111_b_wood` | en | The second pig builds a wood house. Find the wood. | 已存在 |
+| `l111_b_brick` | en | The third pig builds a brick house. Find the bricks. | 已存在 |
+| `l111_c_wolf` | en | The wolf is here! The pigs say, go away! | 已存在 |
+| `l111_c_knock` | en | Knock knock! The big bad wolf is at the door. The pigs say, go away! | 已存在 |
+| `l111_c_go_away` | en | Go away! | 已存在 |
+| `l112_t_red` | en | Look! Little Red Riding Hood. | 待生成 |
+| `l112_t_ask` | en | The hunter asks, where are you going? She says, to Grandma's house. | 待生成 |
+| `l112_t_help` | en | Where is she going? Help her go to Grandma's house. | 待生成 |
+| `l112_t_wolf_coming` | en | The big bad wolf is coming! | 待生成 |
+| `l112_t_who` | en | Who is it? It is the wolf! | 待生成 |
+| `l112_t_find` | en | Who is in the forest? Find the wolf. | 待生成 |
+| `l112_t_out` | en | Let's follow Little Red Riding Hood! | 待生成 |
+| `l112_line_grandma` | en | To Grandma's house! | 待生成 |
+| `l112_a_where` | en | Where are you going? Find Grandma's house. | 待生成 |
+| `l112_a_who` | en | Who is she going to see? Find Grandma's house. | 待生成 |
+| `l112_b_wolf` | en | The big bad wolf is here. Find the wolf. | 待生成 |
+| `l112_b_hunter` | en | The hunter is in the forest. Find the hunter. | 待生成 |
+| `l112_b_grandma` | en | Grandma is in the house. Find Grandma. | 待生成 |
+| `l112_c_go` | en | Help Little Red Riding Hood go to Grandma's house. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
