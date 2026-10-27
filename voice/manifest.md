@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1184** 条（英文 1178 + 中文 6）
+总条目：**1202** 条（英文 1196 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1165,23 +1165,41 @@
 | `l115_b_basket` | en | I am going to Grandma's house. Who says this in the story? | 已存在 |
 | `l115_c_red_pig` | en | Help Little Red Riding Hood go to Grandma's house. And help the pig go to the brick house. | 已存在 |
 | `l115_c_pig_red` | en | Help the pig go to the brick house. And help Little Red Riding Hood go to Grandma's house. | 已存在 |
-| `l121_t_friends` | en | Look! A new friend. | 待生成 |
-| `l121_t_ask_q` | en | The boy asks, what's your name? | 待生成 |
-| `l121_t_ask_a` | en | The girl says, my name is Lily. | 待生成 |
-| `l121_t_find_lily` | en | Who is Lily? Find Lily. | 待生成 |
-| `l121_t_leo` | en | The boy says, my name is Leo. | 待生成 |
-| `l121_t_out` | en | Let's meet more friends! Let's play! | 待生成 |
-| `l121_a_leo` | en | What's your name? My name is Leo. | 待生成 |
-| `l121_a_lily` | en | What's your name? My name is Lily. | 待生成 |
-| `l121_a_tom` | en | What's your name? My name is Tom. | 待生成 |
-| `l121_b_ask` | en | What's your name? | 待生成 |
-| `l121_b_yes` | en | My name is Lily. | 待生成 |
-| `l121_b_no` | en | I am fine. | 待生成 |
-| `l121_c_leo` | en | Find Leo's name. Put it on him. | 待生成 |
-| `l121_c_lily` | en | Find Lily's name. Put it on her. | 待生成 |
-| `l121_c_tom` | en | Find Tom's name. Put it on him. | 待生成 |
-| `l121_line_leo` | en | My name is Leo. | 待生成 |
-| `l121_line_tom` | en | My name is Tom. | 待生成 |
+| `l121_t_friends` | en | Look! A new friend. | 已存在 |
+| `l121_t_ask_q` | en | The boy asks, what's your name? | 已存在 |
+| `l121_t_ask_a` | en | The girl says, my name is Lily. | 已存在 |
+| `l121_t_find_lily` | en | Who is Lily? Find Lily. | 已存在 |
+| `l121_t_leo` | en | The boy says, my name is Leo. | 已存在 |
+| `l121_t_out` | en | Let's meet more friends! Let's play! | 已存在 |
+| `l121_a_leo` | en | What's your name? My name is Leo. | 已存在 |
+| `l121_a_lily` | en | What's your name? My name is Lily. | 已存在 |
+| `l121_a_tom` | en | What's your name? My name is Tom. | 已存在 |
+| `l121_b_ask` | en | What's your name? | 已存在 |
+| `l121_b_yes` | en | My name is Lily. | 已存在 |
+| `l121_b_no` | en | I am fine. | 已存在 |
+| `l121_c_leo` | en | Find Leo's name. Put it on him. | 已存在 |
+| `l121_c_lily` | en | Find Lily's name. Put it on her. | 已存在 |
+| `l121_c_tom` | en | Find Tom's name. Put it on him. | 已存在 |
+| `l121_line_leo` | en | My name is Leo. | 已存在 |
+| `l121_line_tom` | en | My name is Tom. | 已存在 |
+| `l122_t_a_name` | en | Look! The letter A. | 待生成 |
+| `l122_t_a_say` | en | A says at, at, apple. | 待生成 |
+| `l122_t_find` | en | Which letter says at? Touch it. | 待生成 |
+| `l122_t_b` | en | B says buh, buh, ball. | 待生成 |
+| `l122_t_c` | en | C says kuh, kuh, cat. | 待生成 |
+| `l122_t_out` | en | You know the letter sounds! Let's play! | 待生成 |
+| `l122_a_a` | en | A says at. | 待生成 |
+| `l122_a_b` | en | B says buh. | 待生成 |
+| `l122_a_c` | en | C says kuh. | 待生成 |
+| `l122_b_a` | en | Which one starts with at? | 待生成 |
+| `l122_b_b` | en | Which one starts with buh? | 待生成 |
+| `l122_b_c` | en | Which one starts with kuh? | 待生成 |
+| `l122_c_apple` | en | Put the apple next to the letter A. | 待生成 |
+| `l122_c_ball` | en | Put the ball next to the letter B. | 待生成 |
+| `l122_c_cat` | en | Put the cat next to the letter C. | 待生成 |
+| `l122_line_apple` | en | Apple starts with A! | 待生成 |
+| `l122_line_ball` | en | Ball starts with B! | 待生成 |
+| `l122_line_cat` | en | Cat starts with C! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

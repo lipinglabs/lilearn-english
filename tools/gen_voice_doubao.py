@@ -1783,6 +1783,38 @@ add("l121_c_tom",  "Find Tom's name. Put it on him.", "en", -15, EN_ASK)
 add("l121_line_leo", "My name is Leo.", "en", -10, EN_ASK)
 add("l121_line_tom", "My name is Tom.", "en", -10, EN_ASK)
 
+# ---- 第 12 岛第 2 关：字母音觉醒 A B C（L12-W2） ----
+# ⚠ 音素发音（RULES §三.33）：TTS 没有音素标注，直接把字母喂进去会读成字母名 /eɪ/。
+#   实测：单独 "a" → F1 609/F2 1594（/ə/，错）；"at" → F1 1031/F2 1641（/æ/，对）；
+#        "b" → 1.17s（bee，错）；"buh" → F1 797（/b/，对）；"kuh" 同理。
+#   所以 /æ/ 用 "at" 当锚、/b/ 用 "buh"、/k/ 用 "kuh"。字母名出现处（"the letter A"）保留原样。
+add("l122_t_a_name", "Look! The letter A.", "en", -15, EN_ASK)
+add("l122_t_a_say",  "A says at, at, apple.", "en", -15, EN_ASK)
+add("l122_t_find",   "Which letter says at? Touch it.", "en", -15, EN_ASK)
+add("l122_t_b",      "B says buh, buh, ball.", "en", -15, EN_ASK)
+add("l122_t_c",      "C says kuh, kuh, cat.", "en", -15, EN_ASK)
+add("l122_t_out",    "You know the letter sounds! Let's play!", "en", -15, EN_ASK)
+
+# A 听音找字母（三个字母卡）
+add("l122_a_a", "A says at.", "en", -15, EN_ASK)
+add("l122_a_b", "B says buh.", "en", -15, EN_ASK)
+add("l122_a_c", "C says kuh.", "en", -15, EN_ASK)
+
+# B 听音找物品（三个物品）
+add("l122_b_a", "Which one starts with at?", "en", -15, EN_ASK)
+add("l122_b_b", "Which one starts with buh?", "en", -15, EN_ASK)
+add("l122_b_c", "Which one starts with kuh?", "en", -15, EN_ASK)
+
+# C 拖拽配对（把物品放到它开头的字母旁）
+add("l122_c_apple", "Put the apple next to the letter A.", "en", -15, EN_ASK)
+add("l122_c_ball",  "Put the ball next to the letter B.", "en", -15, EN_ASK)
+add("l122_c_cat",   "Put the cat next to the letter C.", "en", -15, EN_ASK)
+
+# 剧情台词：放对后播完再给星星（§三.26）
+add("l122_line_apple", "Apple starts with A!", "en", -10, EN_ASK)
+add("l122_line_ball",  "Ball starts with B!", "en", -10, EN_ASK)
+add("l122_line_cat",   "Cat starts with C!", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
