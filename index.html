@@ -31867,7 +31867,14 @@
       if (act.t === 'ask') { playAsk(me, act, next); return; }
       playOut(me, act);
     }
-    var api = function (me) { playAct(me, 0); };
+    /* 过渡句复用了第 10 岛的 l105_t_out（RULES §一.12：同句复用同 key），
+       它住在 island_10_5 分块里，而 12-3 只预取第 12 岛的分块 —— 线上实测第 6 步
+       才现下载要 1.1 秒，过渡台词会晚一拍（弱网直接被 say() 的 2.5 秒兜底跳过）。
+       所以进关就把那一块预取回来；延后 5 秒发起，别和第 1 步的 island_12_3 抢带宽。 */
+    var api = function (me) {
+      setTimeout(function () { loadVoiceChunk('island_10_5'); }, 5000);
+      playAct(me, 0);
+    };
     api.check = function () { return false; };
     return api;
   })();

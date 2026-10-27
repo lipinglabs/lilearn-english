@@ -123,6 +123,18 @@ const finish = code => { if (finished) return; finished = true; try { proc.kill(
     for (var k in window.VOICE_BANK) if (window.VOICE_BANK[k] === p.src) return k;
     return 'unknown';
   })`);
+  /* 等某一句真的开播再断言：跨岛复用 key（l105_t_out 在 island_10_5）要现补分块，
+     固定只看舞台出现后 240ms 会把「一秒后才响」误判成「没声音」。 */
+  const awaitAudio = async (key, fromT, ms) => {
+    const end = Date.now() + ms;
+    let list = [];
+    while (Date.now() < end) {
+      list = (await keysBetween(fromT, Date.now() + 300)).filter(k => k !== 'unknown');
+      if (list.indexOf(key) >= 0) return list;
+      await sleep(120);
+    }
+    return list;
+  };
   const overflow = () => ev(`(function(){
     var d=document.documentElement, cut=[], zero=[];
     var iw=window.innerWidth, ih=window.innerHeight;
@@ -204,7 +216,7 @@ const finish = code => { if (finished) return; finished = true; try { proc.kill(
     if (!row.reached) { fail('教学第 ' + (i + 1) + ' 步（' + st.n + '）没到'); rep.tutorial.push(row); continue; }
 
     await sleep(240);
-    row.audio = (await keysBetween(entry.t - 900, entry.t + 3600)).filter(k => k !== 'unknown');
+    row.audio = await awaitAudio(st.word, entry.t - 900, st.demo || st.out ? 6000 : 3200);
     row.audioOk = row.audio.indexOf(st.word) >= 0;
     if (!row.audioOk) fail('教学第 ' + (i + 1) + ' 步（' + st.n + '）语音不符：期望 ' + st.word + '，实际 ' + row.audio.join(','));
 
