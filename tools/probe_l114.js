@@ -377,8 +377,10 @@ const finish = code => { if (finished) return; finished = true; try { proc.kill(
       if (!row.lineOk) rep.errors.push('第 ' + r + ' 轮 L114A 排对后没播剧情台词：' + row.voicesAll.join(','));
       row.praise = row.voicesAll.filter(k => k.indexOf('praise') === 0);
       /* 最后一轮之后的 praise_* 是「通关 playRandomPraise」，是要求的行为；
-         其余轮次出现才是「答对禁人声」被破坏 */
-      if (row.praise.length && r < 12) rep.errors.push('第 ' + r + ' 轮 L114A 排对后播了夸奖人声：' + row.praise.join(','));
+         其余轮次出现才是「答对禁人声」被破坏。这里把「违规项」单独记下来，
+         让汇总判据与报错判据用同一套口径（否则通关庆祝会让 quietOk 恒为假）。 */
+      row.praiseBad = (r < 12) ? row.praise : [];
+      if (row.praiseBad.length) rep.errors.push('第 ' + r + ' 轮 L114A 排对后播了夸奖人声：' + row.praiseBad.join(','));
     }
     row.starsDelta = (await ev('Game.stars')) - starsBefore;
     if (!advanced) rep.errors.push('第 ' + r + ' 轮没有推进（' + q.type + '）');
@@ -432,7 +434,7 @@ const finish = code => { if (finished) return; finished = true; try { proc.kill(
   const semOk = rep.rounds.every(s => s.audioOk === true);
   const orderOk = rep.rounds.every(s => s.type !== 'L114A' || s.filled === 3);
   const quietOk = rep.rounds.every(s => s.type === 'L114A'
-    ? (s.lineOk === true && (s.praise || []).length === 0)
+    ? (s.lineOk === true && (s.praiseBad || []).length === 0)
     : (s.voiceOnCorrect || []).length === 0);
   const noOv = o => !o || (o.sw <= o.iw + 1 && o.sh <= o.ih + 1 && o.cut.length === 0 && o.zero.length === 0);
   const noOverflow = rep.tutorial.every(s => noOv(s.overflow)) && rep.rounds.every(s => noOv(s.overflow));
