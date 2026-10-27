@@ -482,6 +482,21 @@ window.VOICE_CHUNK_FOR = {
 "l114_t_out":"island_11_4",
 "l114_t_story":"island_11_4",
 "l114_t_story2":"island_11_4",
+"l115_a_grandma":"island_11_5",
+"l115_a_house":"island_11_5",
+"l115_a_porridge":"island_11_5",
+"l115_b_basket":"island_11_5",
+"l115_b_blow":"island_11_5",
+"l115_b_knock":"island_11_5",
+"l115_c_pig_red":"island_11_5",
+"l115_c_red_pig":"island_11_5",
+"l115_line_party":"island_11_5",
+"l115_t_find_red":"island_11_5",
+"l115_t_forest":"island_11_5",
+"l115_t_friends":"island_11_5",
+"l115_t_names":"island_11_5",
+"l115_t_out":"island_11_5",
+"l115_t_wolf_q":"island_11_5",
 "l3_cat_big":"island_3_1",
 "l3_cat_small":"island_3_1",
 "l3_dog_big":"island_3_1",
@@ -1165,7 +1180,7 @@ window.VOICE_CHUNK_OF_ISLAND = {
 8:["island_8_1","island_8_2"],
 9:["island_9_1","island_9_2","island_9_3","island_9_4","island_9_5"],
 10:["island_10_1","island_10_2","island_10_3","island_10_4","island_10_5"],
-11:["island_11_1","island_11_2","island_11_3","island_11_4"],
+11:["island_11_1","island_11_2","island_11_3","island_11_4","island_11_5"],
 };
 window.VOICE_CHUNK_OF_LEVEL = {
 "4-1":["island_4_1"],
@@ -1202,5 +1217,6 @@ window.VOICE_CHUNK_OF_LEVEL = {
 "11-2":["island_11_2"],
 "11-3":["island_11_3"],
 "11-4":["island_11_4"],
+"11-5":["island_11_5"],
 };
 window.VOICE_CORE_CHUNK = "core";

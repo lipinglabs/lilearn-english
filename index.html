@@ -4020,7 +4020,8 @@
     '11-1': { numbers: null, make: 'makeL111', title: '第 1 关', tutorial: true },
     '11-2': { numbers: null, make: 'makeL112', title: '第 2 关', tutorial: true },
     '11-3': { numbers: null, make: 'makeL113', title: '第 3 关', tutorial: true },
-    '11-4': { numbers: null, make: 'makeL114', title: '第 4 关', tutorial: true }
+    '11-4': { numbers: null, make: 'makeL114', title: '第 4 关', tutorial: true },
+    '11-5': { numbers: null, make: 'makeL115', title: '第 5 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4297,6 +4298,7 @@
     if (def && def.make === 'makeL112') return makeQuestionL112(typeIdx, prev);
     if (def && def.make === 'makeL113') return makeQuestionL113(typeIdx, prev);
     if (def && def.make === 'makeL114') return makeQuestionL114(typeIdx, prev);
+    if (def && def.make === 'makeL115') return makeQuestionL115(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -29430,6 +29432,589 @@
     return api;
   })();
 
+  /* ================= 第 11 岛第 5 关：童话故事游乐场大结局（L11-W5，岛末综合关） =================
+     美术**全部复用**前四关的手写 SVG：小猪 / 小红帽 / 金发姑娘 / 大灰狼 /
+     草房 / 砖房 / 奶奶家小屋 / 一碗粥。本关零新增图形，只做组合。
+     三题型：A 听故事找细节（点选）/ B 听台词找角色（点选）/ C 两个角色各回各家（两步拖拽）。
+     岛末关：state.level===5 自动走 grand 结业演出，地图第 11 岛小旗由 isIslandCleared(11) 点亮。 */
+
+  var L115_CAST = {
+    pig: l111PigSvg(1),
+    red: L112_RED_SVG,
+    goldi: L113_GIRL_SVG,
+    wolf: L111_WOLF_SVG
+  };
+  var L115_BG = { meadow: L111_MEADOW, room: L113_ROOM, woods: L112_WOODS_BG };
+
+  /* 三个「故事细节」画面：草房 / 提篮的小红帽 / 一碗粥 */
+  var L115_PICS = {
+    house: { bg: 'meadow', cast: [{ art: 'straw', x: 50, y: 60, w: 80 }] },
+    red: { bg: 'woods', cast: [{ art: 'red', x: 50, y: 54, w: 46 }] },
+    porridge: { bg: 'room', cast: [{ art: 'bowl', x: 50, y: 56, w: 66 }] }
+  };
+  var L115_PIC_LABEL = { house: '草房子', red: '小红帽', porridge: '一碗粥' };
+
+  /* 三个角色：小猪 / 小红帽 / 大灰狼 */
+  var L115_ROLES = {
+    pig: { bg: 'meadow', cast: [{ art: 'pig', x: 50, y: 58, w: 76 }] },
+    red: { bg: 'woods', cast: [{ art: 'red', x: 50, y: 54, w: 46 }] },
+    wolf: { bg: 'woods', cast: [{ art: 'wolf', x: 50, y: 60, w: 78 }] }
+  };
+  var L115_ROLE_LABEL = { pig: '小猪', red: '小红帽', wolf: '大灰狼', goldi: '金发姑娘' };
+  var L115_DEST_LABEL = { grandma: '奶奶家', brick: '砖房子' };
+  /* 谁该回哪家 —— 语义唯一，不存在歧义 */
+  var L115_DEST_WHO = { grandma: 'red', brick: 'pig' };
+
+  var L115_ART = {
+    pig: L115_CAST.pig, red: L115_CAST.red, goldi: L115_CAST.goldi, wolf: L115_CAST.wolf,
+    straw: L111_HOUSE_SVG.straw, brick: L111_HOUSE_SVG.brick,
+    cottage: L112_COTTAGE_SVG, bowl: l113BowlSvg('just')
+  };
+
+  function ensureL115Css() {
+    if (document.getElementById('l115-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l115-style';
+    s.textContent = [
+      '.l115-ask{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.6vh;width:100%}',
+      /* 三选一的卡片：热区是整块卡（含边框），比画面大一圈 */
+      '.l115-cards{display:flex;justify-content:center;align-items:flex-end;gap:2.6vw;width:min(88vw,560px);max-width:100%}',
+      '.l115-card{position:relative;flex:1;min-width:0;max-width:170px;height:min(30vh,210px);aspect-ratio:3/4;' +
+        'padding:0;border:3px solid transparent;border-radius:18px;overflow:hidden;background:#fff;cursor:pointer;' +
+        'box-shadow:0 2px 10px rgba(150,120,90,.18);transition:transform .16s,border-color .16s,box-shadow .16s}',
+      '.l115-card.right{border-color:#7fd18a;transform:translateY(-3px)}',
+      '.l115-card.l115-wrong{animation:l115shake .38s}',
+      '.l115-card.l115-hi{box-shadow:0 0 0 4px #ffb84d;transform:translateY(-5px)}',
+      '@keyframes l115shake{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-3deg)}' +
+        '60%{transform:translateX(5px) rotate(3deg)}}',
+      /* 一张画面：背景 SVG 铺满 + 角色按百分比定位 */
+      '.l115-scene{position:absolute;inset:0;overflow:hidden;border-radius:14px}',
+      '.l115-scenebg{position:absolute;inset:0}',
+      '.l115-scenebg svg{width:100%;height:100%;display:block}',
+      '.l115-cast{position:absolute;transform:translate(-50%,-50%)}',
+      '.l115-cast svg{width:100%;height:auto;display:block}',
+
+      /* 题型 C：两个目的地 + 底部两个角色 */
+      '.l115-run{display:flex;flex-direction:column;align-items:center;gap:2vh;width:100%}',
+      '.l115-goals{display:flex;justify-content:center;align-items:flex-end;gap:3vw;width:min(88vw,540px);max-width:100%}',
+      '.l115-goal{position:relative;flex:1;min-width:0;max-width:190px;height:min(24vh,168px);' +
+        'border:3px dashed #c9b79a;border-radius:18px;background:rgba(255,255,255,.55);box-sizing:border-box;' +
+        'display:grid;place-items:end center;padding:6px;transition:box-shadow .18s,transform .18s,border-color .18s}',
+      '.l115-goal.drop-hot{box-shadow:0 0 0 4px #7fd18a;border-color:transparent;transform:translateY(-3px)}',
+      '.l115-goal.l115-done{box-shadow:0 0 0 4px #7fd18a;border-color:transparent}',
+      '.l115-goalart{position:absolute;inset:6px;display:grid;place-items:end center}',
+      '.l115-goalart svg{width:100%;height:100%;display:block}',
+      '.l115-resident{position:absolute;left:50%;bottom:3%;width:38%;transform:translateX(-50%);' +
+        'filter:drop-shadow(0 3px 5px rgba(90,70,50,.25));animation:l115land .34s cubic-bezier(.3,1.4,.5,1)}',
+      '.l115-resident svg{width:100%;height:auto;display:block}',
+      '@keyframes l115land{0%{transform:translateX(-50%) translateY(-16px) scale(1.16)}' +
+        '100%{transform:translateX(-50%) translateY(0) scale(1)}}',
+      '.l115-tray2{display:flex;justify-content:center;align-items:flex-end;gap:6vw;' +
+        'width:min(78vw,400px);max-width:100%;padding:8px 3vw;border-radius:18px;background:rgba(255,255,255,.6)}',
+      '.l115-tray2 .l115-runner{flex:0 0 auto}',
+      '.l115-runner{width:min(20vw,94px);cursor:grab;touch-action:none}',
+      '.l115-runner svg{width:100%;height:auto;display:block}',
+      '.l115-runner.l115-wrong{animation:l115shake .4s}',
+      /* 幽灵：角色是纯 div（无定位/变换），仍用双类把它锁成拖拽样式（§三.25） */
+      '.drag-ghost.l115-runner{position:fixed;width:min(20vw,94px);height:auto;transform:scale(1.08);' +
+        'filter:drop-shadow(0 10px 14px rgba(140,110,80,.28))}',
+
+      /* 教学用的大画面（狼 / 森林 / 群星） */
+      '.l115-big{position:relative;width:min(88vw,560px);max-width:100%;height:min(42vh,320px);' +
+        'border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 3px 12px rgba(150,120,90,.2)}',
+      '.l115-bigbg{position:absolute;inset:0}',
+      '.l115-bigbg svg{width:100%;height:100%;display:block}',
+      '.l115-bigart{position:absolute;left:50%;top:58%;width:44%;transform:translate(-50%,-50%)}',
+      '.l115-bigart svg{width:100%;height:auto;display:block}',
+      '.l115-bigart.l115-pop{animation:l115pop .4s cubic-bezier(.3,1.4,.5,1)}',
+      '@keyframes l115pop{0%{transform:translate(-50%,-50%) scale(.7);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}',
+      /* 矮屏压缩：连底部角色栏一起压，避免被挤出可视区（§三.11） */
+      '@media (max-height:600px){.l115-card{height:min(26vh,150px);max-width:126px}' +
+      '.l115-goal{height:min(20vh,120px)}.l115-runner{width:min(15vw,70px)}' +
+      '.l115-big{height:min(34vh,200px)}.l115-tray2{padding:5px 3vw}.l115-cards{gap:2vw}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  /** 一张「背景 + 角色」画面 */
+  function l115SceneEl(spec) {
+    var d = document.createElement('div');
+    d.className = 'l115-scene';
+    var bg = document.createElement('div');
+    bg.className = 'l115-scenebg';
+    bg.innerHTML = L115_BG[spec.bg] || L111_MEADOW;
+    d.appendChild(bg);
+    (spec.cast || []).forEach(function (c) {
+      var e = document.createElement('div');
+      e.className = 'l115-cast';
+      e.style.left = c.x + '%';
+      e.style.top = c.y + '%';
+      e.style.width = c.w + '%';
+      e.innerHTML = L115_ART[c.art] || '';
+      d.appendChild(e);
+    });
+    return d;
+  }
+
+  /** 三选一的卡片。group='pic' 故事细节 / group='role' 角色 */
+  function l115CardEl(group, kind, idx) {
+    var spec = (group === 'pic' ? L115_PICS : L115_ROLES)[kind];
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'l115-card';
+    b.dataset.kind = kind;
+    b.dataset.group = group;
+    if (idx != null) b.dataset.idx = String(idx);
+    b.setAttribute('aria-label', (group === 'pic' ? L115_PIC_LABEL : L115_ROLE_LABEL)[kind] || '图');
+    if (spec) b.appendChild(l115SceneEl(spec));
+    return b;
+  }
+
+  function l115Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l115-wrong');
+    void el.offsetWidth;
+    el.classList.add('l115-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l115-wrong'); }, 440);
+  }
+
+  /* ---------------- 渲染 ---------------- */
+
+  /** 题型 A / B：三张卡里点出听到的那一张 */
+  function renderL115Pick(q) {
+    ensureL115Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l115-ask l115-stage';
+    w.dataset.l115ask = q.ask;
+    w.dataset.l115items = q.items.join(',');
+    var row = document.createElement('div');
+    row.className = 'l115-cards';
+    q.items.forEach(function (kind, i) {
+      var b = l115CardEl(q.kind, kind, i);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    w.appendChild(row);
+    askDisplay.appendChild(w);
+  }
+
+  /** 题型 C：两处房子（每轮左右随机）+ 底部两个角色 */
+  function renderL115C(q) {
+    ensureL115Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l115-ask l115-stage';
+    w.dataset.l115ask = 'L115C';
+    w.dataset.l115dest = q.destOrder.join(',');
+    w.dataset.l115who = q.whoOrder.join(',');
+
+    var goals = document.createElement('div');
+    goals.className = 'l115-goals';
+    q.destOrder.forEach(function (dest) {
+      var g = document.createElement('div');
+      g.className = 'l115-goal';
+      g.dataset.drop = 'dest';
+      g.dataset.dest = dest;
+      g.setAttribute('aria-label', L115_DEST_LABEL[dest]);
+      var art = document.createElement('div');
+      art.className = 'l115-goalart';
+      art.innerHTML = (dest === 'grandma') ? L112_COTTAGE_SVG : L111_HOUSE_SVG.brick;
+      g.appendChild(art);
+      goals.appendChild(g);
+    });
+    w.appendChild(goals);
+
+    var tray = document.createElement('div');
+    tray.className = 'l115-tray2';
+    tray.dataset.drop = 'tray';
+    q.whoOrder.forEach(function (who) {
+      var r = document.createElement('div');
+      r.className = 'l115-runner';
+      r.dataset.drag = 'item';
+      r.dataset.from = 'tray';
+      r.dataset.who = who;
+      r.setAttribute('aria-label', L115_ROLE_LABEL[who]);
+      r.innerHTML = L115_CAST[who] || '';
+      tray.appendChild(r);
+    });
+    w.appendChild(tray);
+    askDisplay.appendChild(w);
+  }
+
+  /* ---------------- 判定 ---------------- */
+
+  function l115Place(el, goal, who) {
+    var res = document.createElement('div');
+    res.className = 'l115-resident';
+    res.dataset.who = who;
+    res.innerHTML = L115_CAST[who] || '';
+    goal.appendChild(res);
+    goal.classList.add('l115-filled');
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+  }
+
+  function l115RunDone() {
+    var goals = askDisplay.querySelectorAll('.l115-goal');
+    if (goals.length !== 2) return false;
+    for (var i = 0; i < goals.length; i++) if (!goals[i].querySelector('.l115-resident')) return false;
+    return true;
+  }
+
+  function resolveL115(el, target) {
+    if (!el) return false;
+    var dest = target && target.dataset ? target.dataset.dest : null;
+    var who = el.dataset.who;
+    var tut = (state.phase === 'tutorial') ? state.tut : null;
+    if (!dest || !who) { l115Bounce(el); return false; }
+    if (target.querySelector('.l115-resident')) { l115Bounce(el); return false; }   /* 已经有人了 */
+
+    if (tut) {
+      if (!tut.l115On) { l115Bounce(el); return false; }
+      if (L115_DEST_WHO[dest] !== who) { l115Bounce(el); armHint(); return false; }
+      l115Place(el, target, who);
+      if (l115RunDone()) {
+        tut.l115On = false;
+        tut.hintTarget = null; tut.hintFrom = null; tut.hintTo = null;
+        clearHint();
+        var nx = tut._l115Next;
+        setTimeout(function () { if (state.tut === tut && nx) nx(); }, 720);
+      }
+      return true;
+    }
+
+    var q = state.question;
+    if (!q || q.type !== 'L115C') { l115Bounce(el); return false; }
+    if (L115_DEST_WHO[dest] !== who) { judge(false, el); return false; }
+    l115Place(el, target, who);
+    if (l115RunDone()) {
+      target.classList.add('l115-done');
+      /* 两个都送到：先播「What a party!」再给星星（§三.26） */
+      l115SayThenJudge('l115_line_party', target);
+    }
+    return true;
+  }
+
+  function l115SayThenJudge(key, btn) {
+    if (state.busy) return;
+    state.busy = true;
+    say([key], function () {
+      setTimeout(function () {
+        if (state.phase !== 'asking') return;
+        state.busy = false;
+        judge(true, btn);
+      }, 320);
+    });
+  }
+
+  /* ---------------- 出题：A 找细节 / B 找角色 / C 两个角色各回各家 ---------------- */
+  var L115_A_SETS = [
+    { sig: 'A:grandma', audio: 'l115_a_grandma', want: 'red' },
+    { sig: 'A:house', audio: 'l115_a_house', want: 'house' },
+    { sig: 'A:porridge', audio: 'l115_a_porridge', want: 'porridge' }
+  ];
+  var L115_B_SETS = [
+    { sig: 'B:knock', audio: 'l115_b_knock', want: 'pig' },
+    { sig: 'B:blow', audio: 'l115_b_blow', want: 'wolf' },
+    { sig: 'B:basket', audio: 'l115_b_basket', want: 'red' }
+  ];
+  var L115_C_AUDIO = ['l115_c_red_pig', 'l115_c_pig_red'];
+
+  /* 防背题（用户重点要求）：位置随机 + 「不许连续重复」
+     — A/B 的答案位不能与上一轮相同；
+     — C 的奶奶家不能连续三轮在同一侧（任意四轮必然左右都出现）；
+     — C 底部两个角色的先后不能与上一轮相同。
+     这样「正确位置/正确排列」永远在变，且探针能稳定验证（不靠概率碰运气）。 */
+  var L115_LAST_ANS = { L115A: -1, L115B: -1 };
+  var L115_SIDE_HIST = [];
+  var L115_WHO_LAST = null;
+
+  function l115ShuffleAvoid(kinds, want, prevAns) {
+    var a = shuffle(kinds.slice());
+    for (var k = 0; k < 8 && a.indexOf(want) === prevAns; k++) a = shuffle(kinds.slice());
+    return a;
+  }
+  function l115PickSide() {
+    var n = L115_SIDE_HIST.length;
+    var s;
+    if (n >= 2 && L115_SIDE_HIST[n - 1] === L115_SIDE_HIST[n - 2]) {
+      s = (L115_SIDE_HIST[n - 1] === 'left') ? 'right' : 'left';
+    } else {
+      s = Math.random() < 0.5 ? 'left' : 'right';
+    }
+    L115_SIDE_HIST.push(s);
+    if (L115_SIDE_HIST.length > 6) L115_SIDE_HIST.shift();
+    return s;
+  }
+  function l115PickWho() {
+    var a = shuffle(['red', 'pig']);
+    if (L115_WHO_LAST && a.join('') === L115_WHO_LAST) a.reverse();
+    L115_WHO_LAST = a.join('');
+    return a;
+  }
+
+  function makeQuestionL115(type, prev) {
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var a = pick(L115_A_SETS);
+        var wantA = a.want;
+        var kindsA = ['house', 'red', 'porridge'];
+        var itemsA = l115ShuffleAvoid(kindsA, wantA, L115_LAST_ANS.L115A);
+        var ansA = itemsA.indexOf(wantA);
+        L115_LAST_ANS.L115A = ansA;
+        q = {
+          type: 'L115A', ask: 'L115A', kind: 'pic', sig: a.sig,
+          items: itemsA, options: [], answer: ansA,
+          audio: [a.audio]
+        };
+      } else if (type === 1) {
+        var b = pick(L115_B_SETS);
+        var wantB = b.want;
+        var kindsB = ['pig', 'red', 'wolf'];
+        var itemsB = l115ShuffleAvoid(kindsB, wantB, L115_LAST_ANS.L115B);
+        var ansB = itemsB.indexOf(wantB);
+        L115_LAST_ANS.L115B = ansB;
+        q = {
+          type: 'L115B', ask: 'L115B', kind: 'role', sig: b.sig,
+          items: itemsB, options: [], answer: ansB,
+          audio: [b.audio]
+        };
+      } else {
+        var side = l115PickSide();
+        var destOrder = (side === 'left') ? ['grandma', 'brick'] : ['brick', 'grandma'];
+        var whoOrder = l115PickWho();
+        q = {
+          type: 'L115C', ask: 'L115C', sig: 'C:' + side + ':' + whoOrder.join(''),
+          destOrder: destOrder, whoOrder: whoOrder,
+          options: [], answer: 0,
+          audio: [Math.random() < 0.5 ? L115_C_AUDIO[0] : L115_C_AUDIO[1]]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 教学：群星聚会 4 演示 + 1 互动 + 过渡 ----------------
+     演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），拖错只弹回不判错。 */
+  var runL115Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'meet', word: 'l115_t_friends' },      /* 三个主角入场 */
+      { t: 'demo', sid: 'names', word: 'l115_t_names' },       /* 逐个点名（依次高亮） */
+      { t: 'ask', sid: 'findRed', word: 'l115_t_find_red', want: 'red' }, /* 互动：点出小红帽 */
+      { t: 'demo', sid: 'wolf', word: 'l115_t_wolf_q' },       /* 大灰狼出场 */
+      { t: 'demo', sid: 'forest', word: 'l115_t_forest' },     /* 狼在森林里 */
+      { t: 'out', sid: 'out', word: 'l115_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null;
+      me.canDrag = false; me.l115On = false; me._l115Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL115Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l115-ask l115-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '童话故事聚会');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+
+    /* 演示 1：三个主角依次入场 */
+    function playMeet(me, act, next) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l115-cards';
+      var cards = [];
+      ['pig', 'red', 'goldi'].forEach(function (kind) {
+        var b = l115CardEl('role', kind);
+        b.style.opacity = '0';
+        row.appendChild(b);
+        cards.push(b);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        cards.forEach(function (c, i) {
+          setTimeout(function () {
+            if (state.tut !== me) return;
+            c.style.transition = 'opacity .28s, transform .28s';
+            c.style.opacity = '1';
+            c.classList.add('l115-hi');
+            setTimeout(function () { if (c.classList) c.classList.remove('l115-hi'); }, 420);
+          }, 200 + i * 900);
+        });
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 3200);
+      });
+    }
+
+    /* 演示 2：逐个点名，点到的亮一下 */
+    function playNames(me, act, next) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l115-cards';
+      var cards = {};
+      ['pig', 'red', 'goldi'].forEach(function (kind) {
+        var b = l115CardEl('role', kind);
+        cards[kind] = b;
+        row.appendChild(b);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        ['pig', 'red', 'goldi'].forEach(function (kind, i) {
+          setTimeout(function () {
+            if (state.tut !== me) return;
+            Object.keys(cards).forEach(function (k) { cards[k].classList.remove('l115-hi'); });
+            cards[kind].classList.add('l115-hi');
+          }, 260 + i * 1150);
+        });
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 4200);
+      });
+    }
+
+    /* 互动 1：打乱三个主角，点出小红帽（4 秒小手） */
+    function playAsk(me, act, next) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l115-cards';
+      var order = shuffle(['pig', 'red', 'goldi']);
+      var right = null;
+      order.forEach(function (kind) {
+        var b = l115CardEl('role', kind);
+        if (kind === act.want) right = b;
+        b.addEventListener('click', function () {
+          if (state.phase !== 'tutorial' || state.tut !== me || !me.l115On) return;
+          if (kind !== act.want) { l115Bounce(b); armHint(); return; }
+          me.l115On = false; me.hintTarget = null;
+          clearHint();
+          b.classList.add('right');
+          setTimeout(function () { if (state.tut === me) next(); }, 620);
+        });
+        row.appendChild(b);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l115On = true;
+        me.hintTarget = right;
+        armHint();
+      });
+    }
+
+    /* 演示 3：大灰狼出场 */
+    function playWolf(me, act, next) {
+      var w = stage(me, act);
+      var big = document.createElement('div');
+      big.className = 'l115-big';
+      var bg = document.createElement('div');
+      bg.className = 'l115-bigbg';
+      bg.innerHTML = L111_MEADOW;
+      big.appendChild(bg);
+      var art = document.createElement('div');
+      art.className = 'l115-bigart l115-pop';
+      art.innerHTML = L111_WOLF_SVG;
+      big.appendChild(art);
+      w.appendChild(big);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 900);
+      });
+    }
+
+    /* 演示 4：狼在森林里 */
+    function playForest(me, act, next) {
+      var w = stage(me, act);
+      var big = document.createElement('div');
+      big.className = 'l115-big';
+      var bg = document.createElement('div');
+      bg.className = 'l115-bigbg';
+      bg.innerHTML = L112_WOODS_BG;
+      big.appendChild(bg);
+      var art = document.createElement('div');
+      art.className = 'l115-bigart';
+      art.innerHTML = L111_WOLF_SVG;
+      big.appendChild(art);
+      w.appendChild(big);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 700);
+      });
+    }
+
+    function playOut(me, act) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l115-cards';
+      ['pig', 'red', 'goldi'].forEach(function (kind) {
+        row.appendChild(l115CardEl('role', kind));
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') {
+        if (act.sid === 'meet') { playMeet(me, act, next); return; }
+        if (act.sid === 'names') { playNames(me, act, next); return; }
+        if (act.sid === 'wolf') { playWolf(me, act, next); return; }
+        playForest(me, act, next); return;
+      }
+      if (act.t === 'ask') { playAsk(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -29792,6 +30377,10 @@
     if (q.type === 'L114A') { optionsBar.classList.add('gone'); renderL114A(q); return; }
     if (q.type === 'L114B') { optionsBar.classList.add('gone'); renderL114B(q); return; }
     if (q.type === 'L114C') { optionsBar.classList.add('gone'); renderL114C(q); return; }
+
+    /* ---- 第 11 岛第 5 关：童话故事游乐场大结局（A 找细节 / B 找角色 / C 两个角色各回各家） ---- */
+    if (q.type === 'L115A' || q.type === 'L115B') { optionsBar.classList.add('gone'); renderL115Pick(q); return; }
+    if (q.type === 'L115C') { optionsBar.classList.add('gone'); renderL115C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -30261,6 +30850,11 @@
     }
     // 第 11 岛第 4 关：三题型都自带舞台
     if (q.type === 'L114A' || q.type === 'L114B' || q.type === 'L114C') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 11 岛第 5 关：三题型都自带舞台
+    if (q.type === 'L115A' || q.type === 'L115B' || q.type === 'L115C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -30939,7 +31533,8 @@
             qt !== 'L111A' && qt !== 'L111B' && qt !== 'L111C' &&
             qt !== 'L112A' && qt !== 'L112B' && qt !== 'L112C' &&
             qt !== 'L113A' && qt !== 'L113B' && qt !== 'L113C' &&
-            qt !== 'L114A' && qt !== 'L114B' && qt !== 'L114C') {
+            qt !== 'L114A' && qt !== 'L114B' && qt !== 'L114C' &&
+            qt !== 'L115A' && qt !== 'L115B' && qt !== 'L115C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -31094,7 +31689,7 @@
       state.lastPointerAt = Date.now();
       /* 第 9 岛第 2 关：轻点由元素自己的 click（l92Pick / resolveL92）处理 */
       if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L105' ||
-          d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114') return;
+          d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114' || d.mode === 'L115') return;
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
       else if (d.mode === 'F14T') tutPickF14(d.el);
@@ -31180,6 +31775,8 @@
         resolveL113(d.el, target);
       } else if (d.mode === 'L114') {
         resolveL114(d.el, target);
+      } else if (d.mode === 'L115') {
+        resolveL115(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -31214,7 +31811,7 @@
         tutDropOn(target, e.clientX, e.clientY);
       }
     } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102' || d.mode === 'L103' || d.mode === 'L104' || d.mode === 'L105' ||
-        d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114') {
+        d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114' || d.mode === 'L115') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -31233,6 +31830,7 @@
       else if (d.mode === 'L112') l112Bounce(d.el);
       else if (d.mode === 'L113') l113Bounce(d.el);
       else if (d.mode === 'L114') l114Bounce(d.el);
+      else if (d.mode === 'L115') l115Bounce(d.el);
       else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
@@ -32387,6 +32985,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '11-5': {
+      // 童话故事游乐场大结局（岛末综合关）：6 环节
+      // 三个主角入场 → 逐个点名 → 点出小红帽 → 大灰狼出场 → 狼在森林 → 过渡；
+      // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
+      custom: runL115Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -32644,6 +33251,7 @@
     if (q.type === 'L112C') return 'L112';
     if (q.type === 'L113C') return 'L113';
     if (q.type === 'L114A') return 'L114';
+    if (q.type === 'L115C') return 'L115';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -33540,7 +34148,13 @@
           l114arr: q.arr ? q.arr.slice() : null,
           l114correct: (typeof q.correct === 'boolean') ? q.correct : null,
           l114ask: q.ask || null,
-          l114answer: (typeof q.answer === 'number') ? q.answer : null
+          l114answer: (typeof q.answer === 'number') ? q.answer : null,
+          l115ask: q.ask || null,
+          l115kind: q.kind || null,
+          l115items: q.items ? q.items.slice() : null,
+          l115answer: (typeof q.answer === 'number') ? q.answer : null,
+          l115dest: q.destOrder ? q.destOrder.slice() : null,
+          l115who: q.whoOrder ? q.whoOrder.slice() : null
         } : null
       };
     },

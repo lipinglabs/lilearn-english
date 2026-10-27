@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1152** 条（英文 1146 + 中文 6）
+总条目：**1167** 条（英文 1161 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1140,16 +1140,31 @@
 | `l113_b_small` | en | This chair is too small for the girl. Find it. | 已存在 |
 | `l113_b_just` | en | This chair is just right for the girl. Find it. | 已存在 |
 | `l113_c_chair` | en | Help Goldilocks sit on the just right chair. | 已存在 |
-| `l114_t_story` | en | First, the pig built a straw house. Then, the wolf came and blew it down. Finally, the pig built a brick house. | 待生成 |
-| `l114_t_story2` | en | First the straw house. Then the wolf. Finally the brick house. | 待生成 |
-| `l114_t_order` | en | Put the pictures in order. First, second, third. | 待生成 |
-| `l114_t_out` | en | You are a great storyteller! Let's play! | 待生成 |
-| `l114_line_order` | en | First, then, finally! | 待生成 |
-| `l114_a_red` | en | First, Little Red Riding Hood picked flowers. Then, she met the big bad wolf. Finally, she went to Grandma's house. | 待生成 |
-| `l114_a_goldi` | en | First, the porridge was too hot. Then, it was too cold. Finally, it was just right. | 待生成 |
-| `l114_b_first` | en | Which one is first? | 待生成 |
-| `l114_b_last` | en | Which one is last? | 待生成 |
-| `l114_c_check` | en | Look at the pictures. Is this correct? | 待生成 |
+| `l114_t_story` | en | First, the pig built a straw house. Then, the wolf came and blew it down. Finally, the pig built a brick house. | 已存在 |
+| `l114_t_story2` | en | First the straw house. Then the wolf. Finally the brick house. | 已存在 |
+| `l114_t_order` | en | Put the pictures in order. First, second, third. | 已存在 |
+| `l114_t_out` | en | You are a great storyteller! Let's play! | 已存在 |
+| `l114_line_order` | en | First, then, finally! | 已存在 |
+| `l114_a_red` | en | First, Little Red Riding Hood picked flowers. Then, she met the big bad wolf. Finally, she went to Grandma's house. | 已存在 |
+| `l114_a_goldi` | en | First, the porridge was too hot. Then, it was too cold. Finally, it was just right. | 已存在 |
+| `l114_b_first` | en | Which one is first? | 已存在 |
+| `l114_b_last` | en | Which one is last? | 已存在 |
+| `l114_c_check` | en | Look at the pictures. Is this correct? | 已存在 |
+| `l115_t_friends` | en | Look! All our friends are here! | 待生成 |
+| `l115_t_names` | en | The pig, Little Red Riding Hood, and Goldilocks. | 待生成 |
+| `l115_t_find_red` | en | Who is Little Red Riding Hood? Touch her. | 待生成 |
+| `l115_t_wolf_q` | en | Do you remember? Who is the bad wolf? | 待生成 |
+| `l115_t_forest` | en | He is in the forest! | 待生成 |
+| `l115_t_out` | en | What a big party! Let's play the final game! | 待生成 |
+| `l115_line_party` | en | What a party! | 待生成 |
+| `l115_a_grandma` | en | In this story, a little girl visits her grandma. Which picture is it? | 待生成 |
+| `l115_a_house` | en | In this story, a pig builds a house. Which picture is it? | 待生成 |
+| `l115_a_porridge` | en | In this story, a girl tastes some porridge. Which picture is it? | 待生成 |
+| `l115_b_knock` | en | Who is knocking at the door? Who says this in the story? | 待生成 |
+| `l115_b_blow` | en | I will blow your house down! Who says this in the story? | 待生成 |
+| `l115_b_basket` | en | I am going to Grandma's house. Who says this in the story? | 待生成 |
+| `l115_c_red_pig` | en | Help Little Red Riding Hood go to Grandma's house. And help the pig go to the brick house. | 待生成 |
+| `l115_c_pig_red` | en | Help the pig go to the brick house. And help Little Red Riding Hood go to Grandma's house. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

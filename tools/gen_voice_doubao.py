@@ -1729,6 +1729,32 @@ add("l114_b_last",  "Which one is last?", "en", -15, EN_ASK)
 # C 判断排序对不对
 add("l114_c_check", "Look at the pictures. Is this correct?", "en", -15, EN_ASK)
 
+# ---- 第 11 岛第 5 关：童话故事游乐场大结局（L11-W5，岛末综合关） ----
+# 教学 6 条：朋友都来了 / 逐个点名 / 找小红帽 / 狼是谁 / 狼在森林 / 过渡
+add("l115_t_friends",   "Look! All our friends are here!", "en", -15, EN_ASK)
+add("l115_t_names",     "The pig, Little Red Riding Hood, and Goldilocks.", "en", -15, EN_ASK)
+add("l115_t_find_red",  "Who is Little Red Riding Hood? Touch her.", "en", -15, EN_ASK)
+add("l115_t_wolf_q",    "Do you remember? Who is the bad wolf?", "en", -15, EN_ASK)
+add("l115_t_forest",    "He is in the forest!", "en", -15, EN_ASK)
+add("l115_t_out",       "What a big party! Let's play the final game!", "en", -15, EN_ASK)
+
+# 剧情台词：答对后播完再给星星（§三.26）
+add("l115_line_party", "What a party!", "en", -8, EN_ASK)
+
+# A 听故事找细节（草房 / 小红帽 / 粥碗）
+add("l115_a_grandma",   "In this story, a little girl visits her grandma. Which picture is it?", "en", -15, EN_ASK)
+add("l115_a_house",     "In this story, a pig builds a house. Which picture is it?", "en", -15, EN_ASK)
+add("l115_a_porridge",  "In this story, a girl tastes some porridge. Which picture is it?", "en", -15, EN_ASK)
+
+# B 听台词找角色（小猪 / 小红帽 / 大灰狼）
+add("l115_b_knock",  "Who is knocking at the door? Who says this in the story?", "en", -15, EN_ASK)
+add("l115_b_blow",   "I will blow your house down! Who says this in the story?", "en", -15, EN_ASK)
+add("l115_b_basket", "I am going to Grandma's house. Who says this in the story?", "en", -15, EN_ASK)
+
+# C 综合拖拽：两个角色各回各家（两种语序，任务相同）
+add("l115_c_red_pig", "Help Little Red Riding Hood go to Grandma's house. And help the pig go to the brick house.", "en", -15, EN_ASK)
+add("l115_c_pig_red", "Help the pig go to the brick house. And help Little Red Riding Hood go to Grandma's house.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
