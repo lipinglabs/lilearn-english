@@ -63,11 +63,11 @@
 ### 2.1 四文件结构（2026-10-27 语音分块后的最终形态）
 
 ```
-index.html 1,575,945 B / 33,524 行   ← 结构 + 样式 + 全部游戏逻辑 + 语音分块加载器
-voice/chunks/*.js   23 个分块 / 约 37.4 MB（base64）  ← window.VOICE_BANK，按岛拆分、按需加载
+index.html 1,577,007 B / 33,544 行   ← 结构 + 样式 + 全部游戏逻辑 + 语音分块加载器
+voice/chunks/*.js   43 个分块 / 约 36.9 MB（base64）—— 新岛按「关」分块（一关 ≈0.5MB）  ← window.VOICE_BANK，按岛拆分、按需加载
   ├─ core.js            0.68 MB  公共语音（开场 / 再试一次 / 通关夸奖 / 中文鼓励），启动即预取
   ├─ island_N(_k).js   1.0–2.2 MB 第 N 岛语音；大岛按体积再切成 2–3 块（单块上限 2.3 MB）
-  └─ index.js           31.5 KB   key → 分块 索引（同步加载，必须先于其它脚本）
+  └─ index.js           35.8 KB   key → 分块 / 岛 → 分块 / 关 → 分块 三层索引（同步加载）
 assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
 voice/<key>.mp3     1152 个          ← 音频唯一真源（全部入库）
 ```
@@ -514,7 +514,14 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   探针断言 DOM 顺序与题面完全一致，并统计 `slotVariants ≥ 2`、`trayVariants ≥ 2`（实测 5–6 / 3–4）；
   教学 4 环节：讲三只小猪（三张图按故事顺序依次高亮）→ 演示三张图自己飞进 1/2/3（框同样是随机顺序）→ 动手排三张 → 过渡；
   语音 1152 条（本关新生成 10 条 l114_ 系列：t_ 4 / line_ 1 / a_ 2 / b_ 2 / c_ 1）；
-  **生成后立刻跑了 `tools/split_voice.py`**，第 11 岛分块增至 54 条 / 2.13 MB；
+  **生成后立刻跑了 `tools/split_voice.py`**；这一关顺手把分块粒度从「按岛」改成「按关」：
+  整座岛都能按「# ---- 第 N 岛第 M 关」小节归类时，每关独立成块（第 11 岛 → island_11_1..4，各 0.5 MB 左右），
+  否则维持按岛分块（第 1–8 岛行为与字节完全不变）。同时新增 `waitLevelVoice()`：
+  开始游戏前只等**当前这一关**的分块（0.5 MB），而不是整座岛的 2 MB+；
+  起因是线上探针实测：本机到 Pages 约 130 KB/s，2.23 MB 的分块 20 秒都下不完，
+  教学第一句被 2.5 秒兜底跳过（表现为第一步没声音）。改按关分块后 `island_11_4.js` 只有 0.50 MB。
+  分块文件名沿用但**含义变了**（`island_9_1` 以前是「第 9 岛第 1 块」，现在是「第 9 岛第 1 关」），
+  所以 `sw.js` 的 CACHE 从 v5 升到 **v6**，否则老用户会命中旧内容的同名文件。
   探针 `tools/probe_l114.js` 双视口逐项断言：解锁链（u11 3→4）/ 4 教学步 sigOk+audioOk / demoOk / **fillOk**（演示后 1/2/3 全填上）/ dragOk（放错弹回且不填框、图不消失、幽灵回收；三张全排对才推进）/ 12 轮 L114A/B/C 各 4 / A 型三框填的图必须对号（`1:0,2:1,3:2`）/ C 型框里图与 `q.arr` 一致且 `q.correct` 与 arr 自洽 / **lineOk**（A 排对先播「First, then, finally!」再给星星，不得有 praise_*；B/C 答对 400ms 内必须完全静音）/ 无英文 / 双视口无溢出 / 通关 stars=12 / grand=false / cleared['11-4'] / unlockedLevel[11]=4。
 - **第 7 岛主题**：`ISLANDS[6]` 由原来的「天气与季节」改为**「身体与五官」**（本岛第 1 关就是五官 eye / nose / mouth / ear）；
   地图图标为手写笑脸 SVG（`islandIconNode` index===7），不用 emoji 字符（RULES §二.5 / §二.17）。

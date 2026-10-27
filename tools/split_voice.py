@@ -41,43 +41,57 @@ CORE_KEYS = {
 ISLAND_NAMES = {
     1: "数字与水果", 2: "形状与空间", 3: "比较与分类", 4: "动物与动作",
     5: "食物与饮料", 6: "温馨家居", 7: "身体与五官", 8: "情绪与感受",
-    9: "衣物穿戴", 10: "交通工具", 11: "动作运动", 12: "节日庆祝",
+    9: "衣物穿戴", 10: "交通工具", 11: "童话故事", 12: "节日庆祝",
 }
 
 
-def parse_key_island() -> tuple[dict[str, int], dict[str, int]]:
-    """从生成脚本按**源码顺序**解析 key → 岛号。
+def parse_key_island() -> tuple[dict[str, int], dict[str, int], dict[str, tuple[int, int]]]:
+    """从生成脚本按**源码顺序**解析 key → 岛号（能解析到「第几关」时也一并带出）。
 
-    返回 (key_map, prefix_map)：
+    返回 (key_map, prefix_map, key_level)：
       · key_map      —— add("key", …) 与 PHRASES["key"] = … 这种字面量 key；
-      · prefix_map   —— PHRASES[f"q_{_n}_{_f}"] 这种循环生成的 key 前缀（含结尾下划线）。
-    循环生成的那批（第 1/2 岛大量使用）只能靠前缀归属，但前缀是在各自章节里出现的，顺序可信。
+      · prefix_map   —— PHRASES[f"q_{_n}_{_f}"] 这种循环生成的 key 前缀（含结尾下划线）；
+      · key_level    —— key → (岛, 关)，只对写了「# ---- 第 N 岛第 M 关 …」小节注释的新关卡有效。
+    按关分块的意义：进某一关时只需要下这一关那几十条语音（约 0.5MB），
+    而不是整座岛的几 MB —— 弱网下这是「第一句能不能出声」的分水岭。
     """
     key_map: dict[str, int] = {}
     prefix_map: dict[str, int] = {}
+    key_level: dict[str, tuple[int, int]] = {}
     cur = 1                      # 文件开头是第 1 岛的关卡（第 2/3/4/5 关）
+    cur_lv: int | None = None
     add_re = re.compile(r'^\s*add\(\s*"([A-Za-z0-9_]+)"')
     lit_re = re.compile(r'^\s*PHRASES\[\s*"([A-Za-z0-9_]+)"\s*\]')
     f_re = re.compile(r'^\s*PHRASES\[\s*f"([A-Za-z0-9_]+?)\{')
     island_re = re.compile(r"第\s*(\d+)\s*岛")
+    level_re = re.compile(r"第\s*(\d+)\s*岛第\s*(\d+)\s*关")
     for line in GEN.read_text(encoding="utf-8").splitlines():
         if line.lstrip().startswith("#"):
+            m = level_re.search(line)
+            if m:
+                cur, cur_lv = int(m.group(1)), int(m.group(2))
+                continue
             m = island_re.search(line)
             if m:
                 cur = int(m.group(1))
+                cur_lv = None
             continue
         m = add_re.match(line)
         if m:
             key_map[m.group(1)] = cur
+            if cur_lv is not None:
+                key_level[m.group(1)] = (cur, cur_lv)
             continue
         m = lit_re.match(line)
         if m:
             key_map[m.group(1)] = cur
+            if cur_lv is not None:
+                key_level[m.group(1)] = (cur, cur_lv)
             continue
         m = f_re.match(line)
         if m:
             prefix_map[m.group(1)] = cur
-    return key_map, prefix_map
+    return key_map, prefix_map, key_level
 
 
 def island_for(key: str, key_map: dict[str, int], prefix_map: dict[str, int]) -> int:
@@ -97,15 +111,20 @@ def island_for(key: str, key_map: dict[str, int], prefix_map: dict[str, int]) ->
     return best[1] if best else 0
 
 
-def collect() -> tuple[dict[str, str], dict[str, int]]:
-    key_map, prefix_map = parse_key_island()
+def collect() -> tuple[dict[str, str], dict[str, int], dict[str, tuple[int, int]]]:
+    key_map, prefix_map, key_level = parse_key_island()
     audio: dict[str, str] = {}
     island_of: dict[str, int] = {}
+    level_of: dict[str, tuple[int, int]] = {}
     for mp3 in sorted(VOICE_DIR.glob("*.mp3")):
         key = mp3.stem
         audio[key] = base64.b64encode(mp3.read_bytes()).decode("ascii")
-        island_of[key] = island_for(key, key_map, prefix_map)
-    return audio, island_of
+        isl = island_for(key, key_map, prefix_map)
+        island_of[key] = isl
+        lv = key_level.get(key)
+        if lv and lv[0] == isl:
+            level_of[key] = lv
+    return audio, island_of, level_of
 
 
 def write_chunk(name: str, keys: list[str], audio: dict[str, str], comment: str) -> int:
@@ -128,7 +147,7 @@ def main() -> int:
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
 
-    audio, island_of = collect()
+    audio, island_of, level_of = collect()
     if not audio:
         print("✗ 没找到任何 voice/*.mp3", file=sys.stderr)
         return 2
@@ -183,45 +202,70 @@ def main() -> int:
     total = 0
     report: list[tuple[str, int, int]] = []
     island_chunks: dict[int, list[str]] = {}
-    for isl in sorted(groups):
-        keys = groups[isl]
+    level_chunks: dict[str, list[str]] = {}
+    chunk_of_key: dict[str, str] = {}
+
+    # 分块单位：整座岛都能按「关」归类时**按关分块**（进一关只下这一关的语音，约 0.5MB），
+    # 否则维持按岛分块——老关卡没有分关注释，行为与之前完全一致（分块字节不变）。
+    island_keys: dict[int, list[str]] = {}
+    for k, isl in island_of.items():
+        island_keys.setdefault(isl, []).append(k)
+    units: dict[tuple[int, int | None], list[str]] = {}
+    for isl, keys in island_keys.items():
+        if isl != 0 and all(k in level_of for k in keys):
+            for k in keys:
+                units.setdefault((isl, level_of[k][1]), []).append(k)
+        else:
+            units[(isl, None)] = list(keys)
+    for uk in units:
+        units[uk].sort()
+
+    order = sorted(units, key=lambda uk: (uk[0], 99 if uk[1] is None else uk[1]))
+    for isl, lvl in order:
+        keys = units[(isl, lvl)]
         if isl == 0:
             name = "core"
             size = write_chunk(name, keys, audio,
                                "公共语音：开场 / 再试一次 / 通关夸奖 / 中文鼓励 / 敬请期待")
             total += size
             report.append((name, len(keys), size))
+            island_chunks.setdefault(0, []).append(name)
+            for k in keys:
+                chunk_of_key[k] = name
             continue
+        base = f"island_{isl}" if lvl is None else f"island_{isl}_{lvl}"
         parts = pack(keys)
-        names = []
+        names: list[str] = []
         for idx, part in enumerate(parts, 1):
-            name = f"island_{isl}" if len(parts) == 1 else f"island_{isl}_{idx}"
+            name = base if len(parts) == 1 else f"{base}_{idx}"
+            label = f"第 {isl} 岛" if lvl is None else f"第 {isl} 岛第 {lvl} 关"
             size = write_chunk(name, part, audio,
-                               f"第 {isl} 岛 · {ISLAND_NAMES.get(isl, '')}"
+                               label + f" · {ISLAND_NAMES.get(isl, '')}"
                                + (f"（{idx}/{len(parts)}）" if len(parts) > 1 else ""))
             total += size
             report.append((name, len(part), size))
             names.append(name)
-        island_chunks[isl] = names
+            for k in part:
+                chunk_of_key[k] = name
+        island_chunks.setdefault(isl, []).extend(names)
+        if lvl is not None:
+            level_chunks[f"{isl}-{lvl}"] = names
 
-    # 索引：key → 分块；岛 → 该岛的分块（可能多个）
+    # 索引三层：key → 分块；岛 → 该岛全部分块（进岛后台预取）；关 → 该关的分块（开始前只等这个）
     idx = [
         "/* 自动生成，请勿手改 —— key → 语音分块 的索引 */",
         "window.VOICE_CHUNK_FOR = {",
     ]
-    for isl in sorted(groups):
-        if isl == 0:
-            names = ["core"]
-        else:
-            names = island_chunks[isl]
-        for idx_i, part in enumerate(pack(groups[isl]), 1):
-            nm = names[idx_i - 1]
-            for k in part:
-                idx.append('"%s":"%s",' % (k, nm))
+    for k in sorted(chunk_of_key):
+        idx.append('"%s":"%s",' % (k, chunk_of_key[k]))
     idx.append("};")
     idx.append("window.VOICE_CHUNK_OF_ISLAND = {")
     for isl in sorted(island_chunks):
         idx.append('%d:[%s],' % (isl, ",".join('"%s"' % n for n in island_chunks[isl])))
+    idx.append("};")
+    idx.append("window.VOICE_CHUNK_OF_LEVEL = {")
+    for lk in sorted(level_chunks, key=lambda x: (int(x.split("-")[0]), int(x.split("-")[1]))):
+        idx.append('"%s":[%s],' % (lk, ",".join('"%s"' % n for n in level_chunks[lk])))
     idx.append("};")
     idx.append('window.VOICE_CORE_CHUNK = "core";')
     idx_text = "\n".join(idx) + "\n"

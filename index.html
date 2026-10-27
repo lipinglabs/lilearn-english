@@ -2787,6 +2787,26 @@
     setTimeout(fire, maxMs);   // 网络太差也别把孩子卡在空白页
   }
 
+  /** 只等「当前这一关」需要的语音分块。
+      按关分块后一关只有约 0.5MB，弱网下 4–8 秒就能到位；整座岛 2MB+ 要 15 秒以上，
+      第一句就会被 2.5 秒兜底跳过（表现为教学第一步没声音）。老关卡没有分关索引时回退按岛等待。 */
+  function waitLevelVoice(island, level, maxMs, onReady) {
+    var lm = window.VOICE_CHUNK_OF_LEVEL;
+    var list = (lm && lm[island + '-' + level]) || null;
+    if (!list || !list.length) { waitIslandVoice(island, maxMs, onReady); return; }
+    var pending = [];
+    for (var i = 0; i < list.length; i++) {
+      if (voiceChunkState[list[i]] !== 'done') pending.push(list[i]);
+    }
+    if (!pending.length) { onReady(); return; }
+    var fired = false, left = pending.length;
+    var fire = function () { if (fired) return; fired = true; onReady(); };
+    for (var j = 0; j < pending.length; j++) {
+      loadVoiceChunk(pending[j], function () { if (--left <= 0) fire(); });
+    }
+    setTimeout(fire, maxMs);
+  }
+
   /* 启动即预取公共语音（开场 / 再试一次 / 通关夸奖），不等用户操作 */
   loadVoiceChunk(window.VOICE_CORE_CHUNK || 'core');
 
@@ -32731,7 +32751,7 @@
     /* 语音分块可能还在路上（尤其弱网）：先等它就绪，最多 12 秒。
        否则教学第一句会因为 key 还没到而哑掉——兜底虽然会补播，但孩子已经看完了定格动画。
        等待期间**不隐藏开始按钮**：屏幕保持原样，不会出现「点了没反应」的空白页。 */
-    waitIslandVoice(currentIsland, 20000, function () {
+    waitLevelVoice(currentIsland, state.level, 20000, function () {
       if (state.phase !== 'intro') return;   // 等待期间被返回键取消了
       btnStart.hidden = true;
       // 带教学环节的关卡（第 2 岛第 2 关起）：先进教学模式，不放开场白
