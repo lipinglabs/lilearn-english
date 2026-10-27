@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1029** 条（英文 1023 + 中文 6）
+总条目：**1045** 条（英文 1039 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1005,28 +1005,44 @@
 | `l95_c_shoes_coat` | en | First, put on the shoes. Then, take off the coat. | 已存在 |
 | `l95_c_coat_hat` | en | First, put on the coat. Then, take off the hat. | 已存在 |
 | `l95_d_find` | en | Find the silly boy! | 已存在 |
-| `l10_t_car1` | en | Look! A car. The car goes on the road. | 待生成 |
-| `l10_t_car2` | en | The car is on the road. Beep beep! | 待生成 |
-| `l10_t_car_put` | en | Put the car on the road. | 待生成 |
-| `l10_t_plane1` | en | Look! A plane. The plane flies in the sky. | 待生成 |
-| `l10_t_plane2` | en | The plane is in the sky. Up high! | 待生成 |
-| `l10_t_plane_put` | en | Put the plane in the sky. | 待生成 |
-| `l10_t_train` | en | Look! A train. The train goes on the tracks. | 待生成 |
-| `l10_t_bus` | en | And a bus! The bus goes on the road. | 待生成 |
-| `l10_t_train_put` | en | Put the train on the tracks. | 待生成 |
-| `l10_t_out` | en | You know the vehicles! Let's play! | 待生成 |
-| `l10_a_car_road` | en | The car goes on the road. Where does it go? | 待生成 |
-| `l10_a_bus_road` | en | The bus goes on the road. Where does it go? | 待生成 |
-| `l10_a_train_tracks` | en | The train goes on the tracks. Where does it go? | 待生成 |
-| `l10_a_plane_sky` | en | The plane flies in the sky. Where does it go? | 待生成 |
-| `l10_b_car` | en | Find the car. | 待生成 |
-| `l10_b_bus` | en | Find the bus. | 待生成 |
-| `l10_b_train` | en | Find the train. | 待生成 |
-| `l10_b_plane` | en | Find the plane. | 待生成 |
-| `l10_c_car` | en | Drive the car! | 待生成 |
-| `l10_c_bus` | en | Drive the bus! | 待生成 |
-| `l10_c_train` | en | Drive the train! | 待生成 |
-| `l10_c_plane` | en | Fly the plane! | 待生成 |
+| `l10_t_car1` | en | Look! A car. The car goes on the road. | 已存在 |
+| `l10_t_car2` | en | The car is on the road. Beep beep! | 已存在 |
+| `l10_t_car_put` | en | Put the car on the road. | 已存在 |
+| `l10_t_plane1` | en | Look! A plane. The plane flies in the sky. | 已存在 |
+| `l10_t_plane2` | en | The plane is in the sky. Up high! | 已存在 |
+| `l10_t_plane_put` | en | Put the plane in the sky. | 已存在 |
+| `l10_t_train` | en | Look! A train. The train goes on the tracks. | 已存在 |
+| `l10_t_bus` | en | And a bus! The bus goes on the road. | 已存在 |
+| `l10_t_train_put` | en | Put the train on the tracks. | 已存在 |
+| `l10_t_out` | en | You know the vehicles! Let's play! | 已存在 |
+| `l10_a_car_road` | en | The car goes on the road. Where does it go? | 已存在 |
+| `l10_a_bus_road` | en | The bus goes on the road. Where does it go? | 已存在 |
+| `l10_a_train_tracks` | en | The train goes on the tracks. Where does it go? | 已存在 |
+| `l10_a_plane_sky` | en | The plane flies in the sky. Where does it go? | 已存在 |
+| `l10_b_car` | en | Find the car. | 已存在 |
+| `l10_b_bus` | en | Find the bus. | 已存在 |
+| `l10_b_train` | en | Find the train. | 已存在 |
+| `l10_b_plane` | en | Find the plane. | 已存在 |
+| `l10_c_car` | en | Drive the car! | 已存在 |
+| `l10_c_bus` | en | Drive the bus! | 已存在 |
+| `l10_c_train` | en | Drive the train! | 已存在 |
+| `l10_c_plane` | en | Fly the plane! | 已存在 |
+| `l102_t_race_car` | en | Look at the race! The car is fast. | 待生成 |
+| `l102_t_race_turtle` | en | The turtle is slow. | 待生成 |
+| `l102_t_drive_fast` | en | Drive fast! | 待生成 |
+| `l102_t_drive_slow` | en | Drive slow! | 待生成 |
+| `l102_t_left` | en | Turn left! Move to the blue road. | 待生成 |
+| `l102_t_right` | en | Turn right! Move to the yellow road. | 待生成 |
+| `l102_t_right_drag` | en | Turn right! Move the car to the yellow road. | 待生成 |
+| `l102_t_police_left` | en | The police says turn left. | 待生成 |
+| `l102_t_police_right` | en | The police says turn right. | 待生成 |
+| `l102_t_out` | en | You are a great driver! Let's play! | 待生成 |
+| `l102_b_fast` | en | Find the fast one. | 待生成 |
+| `l102_b_slow` | en | Find the slow one. | 待生成 |
+| `l102_d_rocket` | en | Put the rocket in the fast box. | 待生成 |
+| `l102_d_snail` | en | Put the snail in the slow box. | 待生成 |
+| `l102_d_car` | en | Put the car in the fast box. | 待生成 |
+| `l102_d_turtle` | en | Put the turtle in the slow box. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

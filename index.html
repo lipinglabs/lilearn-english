@@ -3881,8 +3881,9 @@
     '9-2': { numbers: null, make: 'makeL92', title: '第 2 关', tutorial: true },
     '9-3': { numbers: null, make: 'makeL93', title: '第 3 关', tutorial: true },
     '9-4': { numbers: null, make: 'makeL94', title: '第 4 关', tutorial: true },
-    '9-5': { numbers: null, make: 'makeL95', title: '第 5 关', tutorial: true },
-    '10-1': { numbers: null, make: 'makeL10', title: '第 1 关', tutorial: true }
+    '9-5': { numbers: null, make: 'makeL95', title: '第 5 关', tutorial: true, types: 4 },
+    '10-1': { numbers: null, make: 'makeL10', title: '第 1 关', tutorial: true },
+    '10-2': { numbers: null, make: 'makeL102', title: '第 2 关', tutorial: true, types: 4 }
   };
 
   function levelDef(island, level) {
@@ -4135,6 +4136,7 @@
     if (def && def.make === 'makeL94') return makeQuestionL94(typeIdx, prev);
     if (def && def.make === 'makeL95') return makeQuestionL95(typeIdx, prev);
     if (def && def.make === 'makeL10') return makeQuestionL10(typeIdx, prev);
+    if (def && def.make === 'makeL102') return makeQuestionL102(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -4186,12 +4188,17 @@
     return shuffle([answer].concat(others));
   }
 
-  /** 生成 12 轮题型序列。默认 3 种题型轮转；第 9 岛第 5 关（L95）有 A/B/C/D 四种题型，需传 typeCount=4。 */
+  /** 本关实际题型数量（§三.20：题型轮转表必须与关卡实际题型数一致，禁止写死） */
+  function planTypeCount(island, level) {
+    var def = levelDef(island, level);
+    if (!def) return 3;
+    if (def.types) return def.types;
+    return def.make === 'makeL95' ? 4 : 3;   // 历史关卡：9-5 有 A/B/C/D 四种
+  }
+
+  /** 生成 12 轮题型序列。默认 3 种题型轮转；四种题型的关卡由 planTypeCount 决定。 */
   function makePlan(typeCount) {
-    if (!typeCount) {
-      var _def = levelDef(currentIsland, state.level);
-      typeCount = (_def && _def.make === 'makeL95') ? 4 : 3;
-    }
+    if (!typeCount) typeCount = planTypeCount(currentIsland, state.level);
     var plan = [];
     for (var i = 0; i < TOTAL_ROUNDS; i++) plan.push(i % typeCount);
     shuffle(plan);
@@ -24413,6 +24420,746 @@
     return api;
   })();
 
+  /* ================= 第 10 岛第 2 关：快慢与方向（Fast / Slow / Left / Right） ================= */
+
+  var L102_LANES = ['left', 'mid', 'right'];
+  var L102_LANE_LABEL = { left: '蓝色车道', mid: '中间车道', right: '黄色车道' };
+  /* 快 / 慢 物品表：fast 组与 slow 组各取一个做对比 */
+  var L102_FAST = ['racecar', 'rocket', 'train'];
+  var L102_SLOW = ['turtle', 'snail', 'bicycle'];
+  var L102_SPEED_OF = {
+    racecar: 'fast', rocket: 'fast', train: 'fast', car: 'fast',
+    turtle: 'slow', snail: 'slow', bicycle: 'slow'
+  };
+  var L102_NAME = {
+    racecar: '赛车', rocket: '火箭', train: '火车', car: '小汽车',
+    turtle: '乌龟', snail: '蜗牛', bicycle: '自行车'
+  };
+  /* 题型 D 的两组配对（每项都配好了语音 key） */
+  var L102_D_PAIRS = [
+    { fast: 'rocket', slow: 'snail',  fKey: 'l102_d_rocket', sKey: 'l102_d_snail' },
+    { fast: 'car',    slow: 'turtle', fKey: 'l102_d_car',    sKey: 'l102_d_turtle' }
+  ];
+
+  /* ---- 手写 SVG 美术（零位图、零渐变 defs、零 emoji） ---- */
+  var L102_ART = {
+    /* 侧视赛车：赛跑演示用 */
+    racecar:
+      '<svg viewBox="0 0 140 80" aria-hidden="true">' +
+      '<rect x="8" y="42" width="126" height="20" rx="10" fill="#ff6b6b" stroke="#d94b4b" stroke-width="3.4"/>' +
+      '<path d="M34 43 L46 24 Q49 20 56 20 H88 Q95 20 98 26 L108 43 Z" fill="#ff6b6b" stroke="#d94b4b" ' +
+      'stroke-width="3.4" stroke-linejoin="round"/>' +
+      '<path d="M48 40 L55 27 Q57 25 61 25 H70 V40 Z" fill="#bfe6ff"/>' +
+      '<path d="M76 40 V25 H86 Q90 25 92 28 L99 40 Z" fill="#bfe6ff"/>' +
+      '<rect x="120" y="30" width="9" height="12" rx="3" fill="#ffd166" stroke="#e0a92e" stroke-width="2.4"/>' +
+      '<circle cx="36" cy="62" r="10" fill="#4a4a52" stroke="#2f2f36" stroke-width="3"/>' +
+      '<circle cx="36" cy="62" r="3.4" fill="#c9ced6"/>' +
+      '<circle cx="106" cy="62" r="10" fill="#4a4a52" stroke="#2f2f36" stroke-width="3"/>' +
+      '<circle cx="106" cy="62" r="3.4" fill="#c9ced6"/>' +
+      '<path d="M4 34 H26" stroke="#ffd166" stroke-width="4" stroke-linecap="round" opacity=".9"/>' +
+      '<path d="M0 44 H16" stroke="#ffd166" stroke-width="4" stroke-linecap="round" opacity=".6"/>' +
+      '</svg>',
+    /* 俯视小汽车：车道变道用（车头朝上，符合纵向车道） */
+    topcar:
+      '<svg viewBox="0 0 60 100" aria-hidden="true">' +
+      '<rect x="9" y="8" width="42" height="84" rx="15" fill="#ff8f6b" stroke="#e06a45" stroke-width="3.2"/>' +
+      '<rect x="16" y="20" width="28" height="19" rx="6" fill="#bfe6ff"/>' +
+      '<rect x="16" y="62" width="28" height="15" rx="6" fill="#bfe6ff"/>' +
+      '<rect x="6" y="30" width="4" height="12" rx="2" fill="#4a4a52"/>' +
+      '<rect x="50" y="30" width="4" height="12" rx="2" fill="#4a4a52"/>' +
+      '<rect x="6" y="60" width="4" height="12" rx="2" fill="#4a4a52"/>' +
+      '<rect x="50" y="60" width="4" height="12" rx="2" fill="#4a4a52"/>' +
+      '<circle cx="17" cy="14" r="3.4" fill="#fff2b8"/>' +
+      '<circle cx="43" cy="14" r="3.4" fill="#fff2b8"/>' +
+      '</svg>',
+    turtle:
+      '<svg viewBox="0 0 120 80" aria-hidden="true">' +
+      '<ellipse cx="60" cy="46" rx="34" ry="21" fill="#7ec98a" stroke="#4f9e5f" stroke-width="3.4"/>' +
+      '<ellipse cx="60" cy="46" rx="20" ry="12" fill="#a8e0b0"/>' +
+      '<circle cx="60" cy="46" r="5" fill="#7ec98a"/>' +
+      '<circle cx="95" cy="36" r="11" fill="#8fd49a" stroke="#4f9e5f" stroke-width="3.2"/>' +
+      '<circle cx="99" cy="33" r="2.2" fill="#2f2f36"/>' +
+      '<path d="M104 40 q4 3 0 6" fill="none" stroke="#4f9e5f" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<rect x="26" y="60" width="12" height="9" rx="4" fill="#8fd49a" stroke="#4f9e5f" stroke-width="2.6"/>' +
+      '<rect x="50" y="62" width="12" height="9" rx="4" fill="#8fd49a" stroke="#4f9e5f" stroke-width="2.6"/>' +
+      '<rect x="74" y="60" width="12" height="9" rx="4" fill="#8fd49a" stroke="#4f9e5f" stroke-width="2.6"/>' +
+      '<path d="M27 44 L20 40" stroke="#4f9e5f" stroke-width="2.6" stroke-linecap="round"/>' +
+      '</svg>',
+    rocket:
+      '<svg viewBox="0 0 80 110" aria-hidden="true">' +
+      '<path d="M40 6 Q58 30 58 62 V78 H22 V62 Q22 30 40 6 Z" fill="#eef3f8" stroke="#8fa6bd" stroke-width="3.2" ' +
+      'stroke-linejoin="round"/>' +
+      '<circle cx="40" cy="40" r="9" fill="#bfe6ff" stroke="#4f9fd6" stroke-width="3"/>' +
+      '<path d="M22 60 L8 82 L22 78 Z" fill="#ff6b6b" stroke="#d94b4b" stroke-width="2.8" stroke-linejoin="round"/>' +
+      '<path d="M58 60 L72 82 L58 78 Z" fill="#ff6b6b" stroke="#d94b4b" stroke-width="2.8" stroke-linejoin="round"/>' +
+      '<path d="M34 78 H46 L40 98 Z" fill="#ffb347" stroke="#e08f2e" stroke-width="2.6" stroke-linejoin="round"/>' +
+      '</svg>',
+    bicycle:
+      '<svg viewBox="0 0 120 80" aria-hidden="true">' +
+      '<circle cx="30" cy="56" r="17" fill="none" stroke="#4a4a52" stroke-width="4"/>' +
+      '<circle cx="90" cy="56" r="17" fill="none" stroke="#4a4a52" stroke-width="4"/>' +
+      '<path d="M30 56 L48 30 H74 L90 56" fill="none" stroke="#4f9fd6" stroke-width="4" stroke-linejoin="round"/>' +
+      '<path d="M48 30 L58 56" fill="none" stroke="#4f9fd6" stroke-width="3.4"/>' +
+      '<path d="M44 26 H56" stroke="#4a4a52" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M70 26 H82" stroke="#4a4a52" stroke-width="4" stroke-linecap="round"/>' +
+      '<circle cx="58" cy="56" r="4" fill="#4a4a52"/>' +
+      '</svg>',
+    snail:
+      '<svg viewBox="0 0 120 80" aria-hidden="true">' +
+      '<path d="M14 62 q0 -12 14 -12 h66 q12 0 12 8 t-12 8 H22 q-8 0 -8 -4 Z" fill="#ffe3b8" stroke="#d0a26c" ' +
+      'stroke-width="3" stroke-linejoin="round"/>' +
+      '<circle cx="58" cy="40" r="22" fill="#c9a0e8" stroke="#9b6fd0" stroke-width="3.4"/>' +
+      '<path d="M58 40 m-13 0 a13 13 0 1 1 13 13" fill="none" stroke="#9b6fd0" stroke-width="3"/>' +
+      '<circle cx="92" cy="52" r="10" fill="#ffe3b8" stroke="#d0a26c" stroke-width="3"/>' +
+      '<circle cx="96" cy="49" r="2" fill="#2f2f36"/>' +
+      '<path d="M96 40 L100 28" stroke="#d0a26c" stroke-width="2.6" stroke-linecap="round"/>' +
+      '<path d="M88 40 L84 28" stroke="#d0a26c" stroke-width="2.6" stroke-linecap="round"/>' +
+      '<circle cx="101" cy="26" r="3" fill="#2f2f36"/>' +
+      '<circle cx="83" cy="26" r="3" fill="#2f2f36"/>' +
+      '</svg>',
+    /* 闪电（Fast 框图标） */
+    bolt:
+      '<svg viewBox="0 0 80 80" aria-hidden="true">' +
+      '<path d="M44 6 L18 44 H36 L32 74 L60 34 H42 Z" fill="#ffd166" stroke="#e0a92e" stroke-width="3.4" ' +
+      'stroke-linejoin="round"/></svg>',
+    /* 乌龟（Slow 框图标）—— 与 turtle 同形但更小，直接复用 */
+    wheel:
+      '<svg viewBox="0 0 120 120" aria-hidden="true">' +
+      '<circle cx="60" cy="60" r="52" fill="#4a4a52" stroke="#2f2f36" stroke-width="4"/>' +
+      '<circle cx="60" cy="60" r="40" fill="#6a6f78"/>' +
+      '<circle cx="60" cy="60" r="15" fill="#c9ced6" stroke="#2f2f36" stroke-width="3"/>' +
+      '<path d="M60 20 V44 M60 76 V100 M20 60 H44 M76 60 H100" stroke="#c9ced6" stroke-width="8" ' +
+      'stroke-linecap="round"/>' +
+      '<path d="M32 32 L48 48 M88 32 L72 48 M32 88 L48 72 M88 88 L72 72" stroke="#c9ced6" stroke-width="7" ' +
+      'stroke-linecap="round"/></svg>',
+    /* 交通警察（举左手 = 屏幕左侧那只手） */
+    policeL:
+      '<svg viewBox="0 0 120 140" aria-hidden="true">' +
+      '<rect x="42" y="96" width="36" height="40" rx="10" fill="#4a5b8c" stroke="#33436b" stroke-width="3.2"/>' +
+      '<rect x="40" y="60" width="40" height="42" rx="12" fill="#5b74b8" stroke="#3d5490" stroke-width="3.2"/>' +
+      '<circle cx="60" cy="42" r="19" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.2"/>' +
+      '<path d="M41 36 q19 -16 38 0 q0 -20 -19 -20 q-19 0 -19 20 Z" fill="#2f3b5c"/>' +
+      '<rect x="48" y="22" width="24" height="7" rx="3" fill="#2f3b5c"/>' +
+      '<circle cx="53" cy="42" r="2.4" fill="#2f2f36"/><circle cx="67" cy="42" r="2.4" fill="#2f2f36"/>' +
+      '<path d="M54 50 q6 4 12 0" fill="none" stroke="#c4736a" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<path d="M42 74 L18 52 L14 44" fill="none" stroke="#5b74b8" stroke-width="9" stroke-linecap="round"/>' +
+      '<circle cx="12" cy="40" r="7" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.8"/>' +
+      '<path d="M78 74 L94 88" fill="none" stroke="#5b74b8" stroke-width="9" stroke-linecap="round"/>' +
+      '<circle cx="96" cy="91" r="6.5" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.6"/>' +
+      '</svg>',
+    /* 交通警察（举右手） */
+    policeR:
+      '<svg viewBox="0 0 120 140" aria-hidden="true">' +
+      '<rect x="42" y="96" width="36" height="40" rx="10" fill="#4a5b8c" stroke="#33436b" stroke-width="3.2"/>' +
+      '<rect x="40" y="60" width="40" height="42" rx="12" fill="#5b74b8" stroke="#3d5490" stroke-width="3.2"/>' +
+      '<circle cx="60" cy="42" r="19" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.2"/>' +
+      '<path d="M41 36 q19 -16 38 0 q0 -20 -19 -20 q-19 0 -19 20 Z" fill="#2f3b5c"/>' +
+      '<rect x="48" y="22" width="24" height="7" rx="3" fill="#2f3b5c"/>' +
+      '<circle cx="53" cy="42" r="2.4" fill="#2f2f36"/><circle cx="67" cy="42" r="2.4" fill="#2f2f36"/>' +
+      '<path d="M54 50 q6 4 12 0" fill="none" stroke="#c4736a" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<path d="M78 74 L102 52 L106 44" fill="none" stroke="#5b74b8" stroke-width="9" stroke-linecap="round"/>' +
+      '<circle cx="108" cy="40" r="7" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.8"/>' +
+      '<path d="M42 74 L26 88" fill="none" stroke="#5b74b8" stroke-width="9" stroke-linecap="round"/>' +
+      '<circle cx="24" cy="91" r="6.5" fill="#ffe0c2" stroke="#e8b98d" stroke-width="2.6"/>' +
+      '</svg>'
+  };
+
+  /** 车道底色（左浅蓝 / 中灰 / 右浅黄，作为左右视觉锚点，防止左右混淆） */
+  var L102_LANE_BG = { left: '#bfe0ff', mid: '#cfd4da', right: '#fff2b8' };
+
+  function l102LaneArt(lane) {
+    /* 虚线 + 顶部底色，纯 SVG，随容器拉伸 */
+    var dash = lane === 'mid'
+      ? '<path d="M50 6 V94" stroke="#f7f3e8" stroke-width="5" stroke-dasharray="14 12" opacity=".85"/>'
+      : '<path d="M50 6 V94" stroke="#ffffff" stroke-width="4" stroke-dasharray="13 12" opacity=".6"/>';
+    return '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+      '<rect width="100" height="100" fill="' + L102_LANE_BG[lane] + '"/>' + dash + '</svg>';
+  }
+
+  function ensureL102Css() {
+    if (document.getElementById('l102-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l102-style';
+    s.textContent = [
+      '.l102-ask{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.1vh;width:100%}',
+      /* 三条纵向车道：左浅蓝 / 中灰 / 右浅黄（视觉锚点） */
+      '.l102-race{display:flex;gap:1.5vw;width:min(94vw,560px);height:min(45vh,330px)}',
+      '.l102-lane{position:relative;flex:1;padding:6px;border-radius:16px;background:rgba(255,255,255,.72);' +
+        'box-sizing:border-box;box-shadow:0 2px 8px rgba(90,120,150,.12);transition:box-shadow .18s,transform .18s}',
+      '.l102-lane-art{position:relative;width:100%;height:100%;border-radius:12px;overflow:hidden}',
+      /* 左右锚点色同时写在 CSS 上：不依赖 SVG 渲染，也便于自动化校验 */
+      '.l102-lane[data-lane="left"] .l102-lane-art{background:#bfe0ff}',
+      '.l102-lane[data-lane="mid"] .l102-lane-art{background:#cfd4da}',
+      '.l102-lane[data-lane="right"] .l102-lane-art{background:#fff2b8}',
+      '.l102-lane-art svg.l102-bg{position:absolute;inset:0;width:100%;height:100%;display:block}',
+      '.l102-lane.drop-hot{box-shadow:0 0 0 4px #7fd18a,0 4px 14px rgba(90,180,120,.3);transform:scale(1.03)}',
+      '.l102-lane.l102-right{box-shadow:0 0 0 4px #7fd18a,0 4px 16px rgba(90,180,120,.36)}',
+      /* 车道里的车（热区就是整条车道，车只是视觉） */
+      '.l102-car{position:absolute;left:50%;top:56%;width:62%;transform:translate(-50%,-50%);' +
+        'cursor:grab;touch-action:none;transition:left .4s cubic-bezier(.3,1.2,.4,1),top .4s}',
+      '.l102-car svg{width:100%;height:100%;display:block;pointer-events:none}',
+      '.l102-car.dragging{opacity:.4}',
+      '.l102-car.parked{cursor:default;animation:l102pop .34s cubic-bezier(.3,1.4,.5,1)}',
+      '@keyframes l102pop{0%{transform:translate(-50%,-50%) scale(.72)}100%{transform:translate(-50%,-50%) scale(1)}}',
+      /* 赛跑演示：赛车 + 乌龟两条跑道 */
+      '.l102-track{position:relative;width:min(94vw,560px);height:min(26vh,190px);border-radius:16px;' +
+        'background:linear-gradient(#f4f9ff,#e6f1fb);box-shadow:inset 0 0 0 2px #dfeaf5;overflow:hidden}',
+      '.l102-track .l102-runner{position:absolute;left:4%;width:34%;transition:left 2.1s linear}',
+      '.l102-track .l102-runner.fast{top:12%;transition-duration:.85s}',
+      '.l102-track .l102-runner.slow{bottom:8%;width:28%;transition-duration:2.4s}',
+      '.l102-track .l102-runner svg{width:100%;height:100%;display:block}',
+      '.l102-laneish{position:absolute;left:6%;right:6%;height:3px;background:#cfe0ee;border-radius:2px}',
+      /* TPR：大方向盘 + 巨大👍 */
+      '.l102-tpr{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.6vh}',
+      '.l102-wheel{width:min(48vw,210px);aspect-ratio:1}',
+      '.l102-wheel svg{width:100%;height:100%;display:block}',
+      '.l102-police{width:min(34vw,140px);margin-bottom:-1vh}',
+      '.l102-police svg{width:100%;height:100%;display:block}',
+      '.l102-thumb{width:min(44vw,190px);aspect-ratio:1;border:none;background:none;padding:0;cursor:pointer;' +
+        'filter:drop-shadow(0 6px 12px rgba(90,150,90,.28));transition:transform .12s}',
+      '.l102-thumb:active{transform:scale(.94)}',
+      '.l102-thumb.right{transform:scale(1.08)}',
+      '.l102-thumb svg{width:100%;height:100%;display:block}',
+      /* 题型 B：两两对比 */
+      '.l102-pair{display:flex;justify-content:center;align-items:center;gap:4vw;width:min(94vw,560px)}',
+      '.l102-pickcard{width:min(38vw,180px);aspect-ratio:1/1;padding:9px;border:3px solid #d9e7f2;border-radius:22px;' +
+        'background:#fff;box-shadow:0 3px 10px rgba(90,120,150,.12);box-sizing:border-box;cursor:pointer}',
+      '.l102-pickcard svg{width:100%;height:100%;display:block;pointer-events:none}',
+      '.l102-pickcard.right{border-color:#7fd18a;background:#eafaf0}',
+      '.l102-pickcard.wrong{border-color:#f3b0a8;animation:l102shake .38s}',
+      /* 题型 D：快 / 慢 两个大框 */
+      '.l102-boxes{display:flex;justify-content:center;gap:3vw;width:min(94vw,560px)}',
+      '.l102-box{position:relative;flex:1;max-width:240px;height:min(24vh,175px);padding:7px;border-radius:20px;' +
+        'background:rgba(255,255,255,.78);box-sizing:border-box;box-shadow:0 3px 10px rgba(90,120,150,.12);' +
+        'transition:box-shadow .18s,transform .18s}',
+      '.l102-box-art{position:relative;width:100%;height:100%;border-radius:14px;overflow:hidden;' +
+        'display:flex;align-items:center;justify-content:center}',
+      '.l102-box[data-box="fast"] .l102-box-art{background:#fff6d9}',
+      '.l102-box[data-box="slow"] .l102-box-art{background:#e8f6ea}',
+      '.l102-box-icon{width:46%;height:auto;opacity:.92}',
+      '.l102-box-icon svg{width:100%;height:100%;display:block}',
+      '.l102-box.drop-hot{box-shadow:0 0 0 4px #7fd18a,0 4px 14px rgba(90,180,120,.3);transform:scale(1.03)}',
+      '.l102-box.l102-right{box-shadow:0 0 0 4px #7fd18a}',
+      '.l102-box .l102-in{position:absolute;left:50%;top:50%;width:52%;transform:translate(-50%,-50%) scale(.6);' +
+        'opacity:0;transition:transform .38s cubic-bezier(.3,1.3,.5,1),opacity .28s}',
+      '.l102-box .l102-in.in{transform:translate(-50%,-50%) scale(1);opacity:1}',
+      '.l102-box .l102-in svg{width:100%;height:100%;display:block}',
+      '.l102-tray{display:flex;justify-content:center;align-items:center;gap:4vw;width:min(92vw,560px);' +
+        'padding:1vh 2vw;border-radius:18px;background:rgba(255,255,255,.82);box-shadow:inset 0 0 0 2px #e4eef7}',
+      '.l102-card{width:min(22vw,96px);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;' +
+        'border-radius:14px;background:#fff;box-shadow:0 2px 6px rgba(90,120,150,.14);cursor:grab;touch-action:none}',
+      '.l102-card svg{width:88%;height:88%;display:block;pointer-events:none}',
+      '.l102-card.dragging{opacity:.4}',
+      '.l102-card.l102-wrong{animation:l102shake .38s}',
+      '.l102-box.l102-wrong{animation:l102shake .38s}',
+      '@keyframes l102shake{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-3deg)}' +
+        '75%{transform:translateX(5px) rotate(3deg)}}',
+      '@media (max-height:600px){.l102-race{height:min(40vh,260px)}.l102-track{height:min(22vh,140px)}' +
+        '.l102-wheel{width:min(30vw,130px)}.l102-thumb{width:min(44vw,150px)}' +
+        '.l102-box{height:min(21vh,130px)}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  function l102Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l102-wrong');
+    void el.offsetWidth;
+    el.classList.add('l102-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l102-wrong'); }, 430);
+  }
+
+  /** 换道：把车停进指定车道（带弹出动画） */
+  function l102PlaceCar(laneEl) {
+    if (!laneEl) return;
+    var old = document.querySelectorAll('#askDisplay .l102-car');
+    Array.prototype.forEach.call(old, function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
+    var art = laneEl.querySelector('.l102-lane-art') || laneEl;
+    var car = document.createElement('div');
+    car.className = 'l102-car parked';
+    car.setAttribute('aria-label', '小汽车');
+    car.innerHTML = L102_ART.topcar;
+    art.appendChild(car);
+  }
+
+  function l102LaneEl(lane) {
+    return document.querySelector('#askDisplay .l102-lane[data-lane="' + lane + '"]');
+  }
+
+  /** 演示用：车从中间车道滑到目标车道 */
+  function l102SlideCar(lane, done) {
+    var car = document.querySelector('#askDisplay .l102-car');
+    var target = l102LaneEl(lane);
+    if (!car || !target) { if (done) done(); return; }
+    var a = car.getBoundingClientRect(), b = target.getBoundingClientRect();
+    car.style.left = (b.left + b.width / 2 - a.left) + 'px';
+    setTimeout(function () { if (done) done(); }, 460);
+  }
+
+  function l102BuildLanes(host, droppable) {
+    var race = document.createElement('div');
+    race.className = 'l102-race';
+    L102_LANES.forEach(function (ln) {
+      var lane = document.createElement('div');
+      lane.className = 'l102-lane';
+      lane.dataset.lane = ln;
+      if (droppable && ln !== 'mid') lane.dataset.drop = 'lane';
+      lane.setAttribute('aria-label', L102_LANE_LABEL[ln]);
+      var art = document.createElement('div');
+      art.className = 'l102-lane-art';
+      art.innerHTML = l102LaneArt(ln);
+      lane.appendChild(art);
+      race.appendChild(lane);
+    });
+    host.appendChild(race);
+    return race;
+  }
+
+  function l102BuildCar(race, draggable) {
+    var midArt = race.querySelector('.l102-lane[data-lane="mid"] .l102-lane-art');
+    var car = document.createElement(draggable ? 'div' : 'div');
+    car.className = 'l102-car';
+    car.setAttribute('aria-label', '小汽车');
+    if (draggable) { car.dataset.drag = 'car'; car.dataset.from = 'lane'; }
+    car.innerHTML = L102_ART.topcar;
+    midArt.appendChild(car);
+    return car;
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：三车道 + 中间一辆车，听指令拖到蓝 / 黄车道 */
+  function renderL102A(q) {
+    ensureL102Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l102-ask l102-stage';
+    var race = l102BuildLanes(box, true);
+    l102BuildCar(race, true);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 B：一快一慢两件物品，点出听到的那个 */
+  function renderL102B(q) {
+    ensureL102Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l102-ask l102-stage';
+    var pair = document.createElement('div');
+    pair.className = 'l102-pair';
+    q.items.forEach(function (it, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l102-pickcard';
+      b.dataset.item = it;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', L102_NAME[it]);
+      b.innerHTML = L102_ART[it];
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      pair.appendChild(b);
+    });
+    box.appendChild(pair);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 C：TPR 动作反应（大方向盘 + 巨大👍，永远判对） */
+  function renderL102C(q) {
+    ensureL102Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l102-ask l102-tpr l102-stage';
+    var wheel = document.createElement('div');
+    wheel.className = 'l102-wheel';
+    wheel.setAttribute('aria-hidden', 'true');
+    wheel.innerHTML = L102_ART.wheel;
+    box.appendChild(wheel);
+    var thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'l102-thumb';
+    thumb.setAttribute('aria-label', '我做到了');
+    thumb.innerHTML = L10_THUMB_SVG;
+    thumb.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      l10Engine();
+      thumb.classList.add('right');
+      judge(true, thumb);
+    });
+    box.appendChild(thumb);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 D：快 / 慢 两个大框 + 底部两件物品 */
+  function renderL102D(q) {
+    ensureL102Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l102-ask l102-stage';
+    var boxes = document.createElement('div');
+    boxes.className = 'l102-boxes';
+    [['fast', L102_ART.bolt], ['slow', L102_ART.turtle]].forEach(function (p) {
+      var b = document.createElement('div');
+      b.className = 'l102-box';
+      b.dataset.box = p[0];
+      b.dataset.drop = 'box';
+      b.setAttribute('aria-label', p[0] === 'fast' ? '快框' : '慢框');
+      var art = document.createElement('div');
+      art.className = 'l102-box-art';
+      var ic = document.createElement('div');
+      ic.className = 'l102-box-icon';
+      ic.setAttribute('aria-hidden', 'true');
+      ic.innerHTML = p[1];
+      art.appendChild(ic);
+      b.appendChild(art);
+      boxes.appendChild(b);
+    });
+    box.appendChild(boxes);
+    var tray = document.createElement('div');
+    tray.className = 'l102-tray';
+    tray.dataset.drop = 'tray';
+    q.items.forEach(function (it) {
+      var c = document.createElement('div');
+      c.className = 'l102-card';
+      c.dataset.item = it;
+      c.dataset.drag = 'item';
+      c.dataset.from = 'tray';
+      c.setAttribute('aria-label', L102_NAME[it]);
+      c.innerHTML = L102_ART[it];
+      tray.appendChild(c);
+    });
+    box.appendChild(tray);
+    askDisplay.appendChild(box);
+  }
+
+  /** 把物品放进快/慢框 */
+  function l102PlaceInBox(boxEl, item) {
+    if (!boxEl || !item) return;
+    var art = boxEl.querySelector('.l102-box-art') || boxEl;
+    var ic = art.querySelector('.l102-box-icon');
+    if (ic) ic.style.display = 'none';
+    var old = art.querySelector('.l102-in');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    var v = document.createElement('div');
+    v.className = 'l102-in';
+    v.setAttribute('aria-hidden', 'true');
+    v.innerHTML = L102_ART[item] || '';
+    art.appendChild(v);
+    void v.offsetWidth;
+    v.classList.add('in');
+  }
+
+  /* ---------------- 判定 ---------------- */
+  function resolveL102(el, target) {
+    if (!el) return false;
+    var item = el.dataset ? el.dataset.item : null;
+    var lane = target && target.dataset ? target.dataset.lane : null;
+    var box = target && target.dataset ? target.dataset.box : null;
+    var tut = (state.phase === 'tutorial') ? state.tut : null;
+
+    if (tut) {
+      var need = tut.l102Need;
+      if (!need) { l102Bounce(el); return false; }
+      var okTut = (need.lane && lane === need.lane) || (need.item && item === need.item && box === need.box);
+      if (!okTut) { l102Bounce(el); if (tut.canDrag) armHint(); return false; }
+      if (need.lane) l102PlaceCar(target);
+      else l102PlaceInBox(target, item);
+      tut.canDrag = false; tut.l102On = false;
+      clearHint();
+      var nx = tut._l102Next;
+      setTimeout(function () { if (state.tut === tut && nx) nx(); }, 720);
+      return true;
+    }
+
+    var q = state.question;
+    if (!q) return false;
+
+    if (q.type === 'L102A') {
+      if (!lane) { l102Bounce(el); return false; }
+      if (lane !== q.lane) { judge(false, el); return false; }
+      l102PlaceCar(target);
+      target.classList.add('l102-right');
+      judge(true, target);
+      return true;
+    }
+    if (q.type === 'L102D') {
+      if (!box) { l102Bounce(el); return false; }
+      if (item !== q.item || box !== q.box) { judge(false, el); return false; }
+      l102PlaceInBox(target, item);
+      target.classList.add('l102-right');
+      judge(true, target);
+      return true;
+    }
+    l102Bounce(el);
+    return false;
+  }
+
+  /* ---------------- 出题：A 变道 / B 快慢对比 / C TPR / D 快慢分类 ---------------- */
+  function makeQuestionL102(type, prev) {
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：听指令变道（左 = 蓝，右 = 黄） */
+        var lane = pick(['left', 'right']);
+        q = {
+          type: 'L102A', sig: 'A:' + lane, lane: lane, item: null,
+          options: [], answer: 0,
+          audio: [lane === 'left' ? 'l102_t_left' : 'l102_t_right']
+        };
+      } else if (type === 1) {
+        /* B：一快一慢，听 fast / slow 点选 */
+        var wantFast = Math.random() < 0.5;
+        var f = pick(L102_FAST), s = pick(L102_SLOW);
+        var items = shuffle([f, s]);
+        q = {
+          type: 'L102B', sig: 'B:' + (wantFast ? 'f:' : 's:') + f + '|' + s,
+          want: wantFast ? 'fast' : 'slow',
+          item: wantFast ? f : s,
+          items: items, options: [],
+          answer: items.indexOf(wantFast ? f : s),
+          audio: [wantFast ? 'l102_b_fast' : 'l102_b_slow']
+        };
+      } else if (type === 2) {
+        /* C：TPR 快慢驾驶（永远判对） */
+        var fastC = Math.random() < 0.5;
+        q = {
+          type: 'L102C', sig: 'C:' + (fastC ? 'fast' : 'slow'),
+          want: fastC ? 'fast' : 'slow', item: null, options: [], answer: 0,
+          audio: [fastC ? 'l102_t_drive_fast' : 'l102_t_drive_slow']
+        };
+      } else {
+        /* D：快慢分类拖拽（把指定物品拖进快 / 慢框） */
+        var pair = pick(L102_D_PAIRS);
+        var askedFast = Math.random() < 0.5;
+        var askedItem = askedFast ? pair.fast : pair.slow;
+        q = {
+          type: 'L102D', sig: 'D:' + pair.fast + '|' + pair.slow + ':' + (askedFast ? 'f' : 's'),
+          item: askedItem, box: askedFast ? 'fast' : 'slow',
+          items: shuffle([pair.fast, pair.slow]),
+          options: [], answer: 0,
+          audio: [askedFast ? pair.fKey : pair.sKey]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 教学：赛跑 2 演示 → TPR 快慢 2 互动 → 变道 2 演示 → 变道 1 互动 → 交警 2 演示 → 交警 1 互动 → 过渡 ---------------- */
+  var runL102Tutorial = (function () {
+    var ACTS = [
+      { t: 'race',   sid: 'race1',      word: 'l102_t_race_car',     who: 'car' },
+      { t: 'race2',  sid: 'race2',      word: 'l102_t_race_turtle' },
+      { t: 'tpr',    sid: 'fastTpr',    word: 'l102_t_drive_fast' },
+      { t: 'tpr',    sid: 'slowTpr',    word: 'l102_t_drive_slow' },
+      { t: 'lane',   sid: 'leftDemo',   word: 'l102_t_left',         lane: 'left' },
+      { t: 'lane',   sid: 'rightDemo',  word: 'l102_t_right',        lane: 'right' },
+      { t: 'drag',   sid: 'rightDrag',  word: 'l102_t_right_drag',   lane: 'right' },
+      { t: 'police', sid: 'policeLeft', word: 'l102_t_police_left',  hand: 'L', lane: 'left' },
+      { t: 'police', sid: 'policeRight', word: 'l102_t_police_right', hand: 'R', lane: 'right' },
+      { t: 'drag',   sid: 'policeDrag', word: 'l102_t_police_left',  lane: 'left', police: true },
+      { t: 'out',    sid: 'out',        word: 'l102_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null;
+      me.canDrag = false; me.l102On = false; me.l102Need = null; me._l102Next = null; me._l102Advance = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL102Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l102-ask l102-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '情景');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示 1：赛车 vs 乌龟赛跑 */
+    function playRace(me, act, next) {
+      var w = stage(me, act);
+      var track = document.createElement('div');
+      track.className = 'l102-track';
+      track.innerHTML = '<div class="l102-laneish" style="top:57%"></div>';
+      var car = document.createElement('div');
+      car.className = 'l102-runner fast';
+      car.setAttribute('aria-hidden', 'true');
+      car.innerHTML = L102_ART.racecar;
+      var tur = document.createElement('div');
+      tur.className = 'l102-runner slow';
+      tur.setAttribute('aria-hidden', 'true');
+      tur.innerHTML = L102_ART.turtle;
+      track.appendChild(car);
+      track.appendChild(tur);
+      w.appendChild(track);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        car.style.left = '62%';
+        tur.style.left = '16%';
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 2500);
+      });
+    }
+    /* 演示 2：乌龟慢慢爬（强调 slow） */
+    function playRace2(me, act, next) {
+      var w = stage(me, act);
+      var track = document.createElement('div');
+      track.className = 'l102-track';
+      track.innerHTML = '<div class="l102-laneish" style="top:57%"></div>';
+      var car = document.createElement('div');
+      car.className = 'l102-runner fast';
+      car.style.left = '62%';
+      car.setAttribute('aria-hidden', 'true');
+      car.innerHTML = L102_ART.racecar;
+      var tur = document.createElement('div');
+      tur.className = 'l102-runner slow';
+      tur.setAttribute('aria-hidden', 'true');
+      tur.innerHTML = L102_ART.turtle;
+      track.appendChild(car);
+      track.appendChild(tur);
+      w.appendChild(track);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        tur.style.left = '26%';
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 2600);
+      });
+    }
+    /* 互动 1/2：TPR 快 / 慢（方向盘 + 巨大👍，点按钮推进） */
+    function playTpr(me, act, next) {
+      var w = stage(me, act);
+      var wheel = document.createElement('div');
+      wheel.className = 'l102-wheel';
+      wheel.setAttribute('aria-hidden', 'true');
+      wheel.innerHTML = L102_ART.wheel;
+      w.appendChild(wheel);
+      var thumb = document.createElement('button');
+      thumb.type = 'button';
+      thumb.className = 'l102-thumb';
+      thumb.setAttribute('aria-label', '我做到了');
+      thumb.innerHTML = L10_THUMB_SVG;
+      w.appendChild(thumb);
+      me.replay = function () { say([act.word]); };
+      var armed = false;
+      thumb.addEventListener('click', function () {
+        if (state.tut !== me || !armed) return;
+        armed = false;
+        thumb.classList.add('right');
+        l10Engine();
+        setTimeout(function () { if (state.tut === me) next(); }, 420);
+      });
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        armed = true;
+        me.hintTarget = thumb; me.hintFrom = null; me.hintTo = null;
+        armHint();
+      });
+    }
+    /* 演示 3/4：变道（车从中间滑到目标车道） */
+    function playLaneDemo(me, act, next) {
+      var w = stage(me, act);
+      var race = l102BuildLanes(w, false);
+      l102BuildCar(race, false);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        l102SlideCar(act.lane, function () {
+          if (state.tut === me) gate(me, next);
+        });
+      });
+    }
+    /* 互动 3/4：拖车变道 */
+    function playLaneDrag(me, act, next) {
+      var w = stage(me, act);
+      var race = l102BuildLanes(w, true);
+      var car = l102BuildCar(race, true);
+      me.l102Need = { lane: act.lane };
+      me._l102Next = next;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l102On = true; me.canDrag = true; me.customMode = 'L102';
+        me.hintFrom = car;
+        me.hintTo = race.querySelector('.l102-lane[data-lane="' + act.lane + '"]');
+        me.hintTarget = me.hintFrom; me.hintToY = 0.5;
+        armHint();
+      });
+    }
+    /* 演示 5/6：交通警察举左手 / 右手指挥 */
+    function playPolice(me, act, next) {
+      var w = stage(me, act);
+      var wrap = document.createElement('div');
+      wrap.className = 'l102-police';
+      wrap.setAttribute('aria-hidden', 'true');
+      wrap.innerHTML = act.hand === 'L' ? L102_ART.policeL : L102_ART.policeR;
+      w.appendChild(wrap);
+      var race = l102BuildLanes(w, false);
+      l102BuildCar(race, false);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        l102SlideCar(act.lane, function () {
+          if (state.tut === me) gate(me, next);
+        });
+      });
+    }
+    function playOut(me, act) {
+      var w = stage(me, act);
+      var race = l102BuildLanes(w, false);
+      l102BuildCar(race, false);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'race') { playRace(me, act, next); return; }
+      if (act.t === 'race2') { playRace2(me, act, next); return; }
+      if (act.t === 'tpr') { playTpr(me, act, next); return; }
+      if (act.t === 'lane') { playLaneDemo(me, act, next); return; }
+      if (act.t === 'drag') { playLaneDrag(me, act, next); return; }
+      if (act.t === 'police') { playPolice(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -24740,6 +25487,11 @@
     if (q.type === 'L10A') { optionsBar.classList.add('gone'); renderL10A(q); return; }
     if (q.type === 'L10B') { optionsBar.classList.add('gone'); renderL10B(q); return; }
     if (q.type === 'L10C') { optionsBar.classList.add('gone'); renderL10C(q); return; }
+    /* ---- 第 10 岛第 2 关：快慢与方向（A 变道拖拽 / B 快慢对比点选 / C TPR / D 快慢分类拖拽） ---- */
+    if (q.type === 'L102A') { optionsBar.classList.add('gone'); renderL102A(q); return; }
+    if (q.type === 'L102B') { optionsBar.classList.add('gone'); renderL102B(q); return; }
+    if (q.type === 'L102C') { optionsBar.classList.add('gone'); renderL102C(q); return; }
+    if (q.type === 'L102D') { optionsBar.classList.add('gone'); renderL102D(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -25169,6 +25921,11 @@
     }
     // 第 10 岛第 1 关：A 拖拽舞台 / B 三选一 / C TPR，全部不用选项栏
     if (q.type === 'L10A' || q.type === 'L10B' || q.type === 'L10C') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 10 岛第 2 关：四题型都自带舞台，不用选项栏
+    if (q.type === 'L102A' || q.type === 'L102B' || q.type === 'L102C' || q.type === 'L102D') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -25839,7 +26596,8 @@
             qt !== 'L93A' && qt !== 'L93B' && qt !== 'L93C' &&
             qt !== 'L94A' && qt !== 'L94B' && qt !== 'L94C' &&
             qt !== 'L95A' && qt !== 'L95B' && qt !== 'L95C' && qt !== 'L95D' &&
-            qt !== 'L10A' && qt !== 'L10B' && qt !== 'L10C') {
+            qt !== 'L10A' && qt !== 'L10B' && qt !== 'L10C' &&
+            qt !== 'L102A' && qt !== 'L102B' && qt !== 'L102C' && qt !== 'L102D') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -26063,6 +26821,8 @@
         resolveL95(d.el, target);
       } else if (d.mode === 'L10') {
         resolveL10(d.el, target);
+      } else if (d.mode === 'L102') {
+        resolveL102(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -26096,7 +26856,7 @@
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
-    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10') {
+    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -26107,6 +26867,7 @@
       if (d.mode === 'L94') l94Bounce(d.el);
       else if (d.mode === 'L95') l95Bounce(d.el);
       else if (d.mode === 'L10') l10Bounce(d.el);
+      else if (d.mode === 'L102') l102Bounce(d.el);
       else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
@@ -27188,6 +27949,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '10-2': {
+      // 快慢与方向（Fast / Slow / Left / Right）：11 环节
+      // 赛跑 2 演示 → TPR 快/慢 2 互动 → 变道 2 演示 → 变道 1 互动 → 交警 2 演示 → 交警 1 互动 → 过渡；
+      // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错车道只弹回不判错（§二.11）
+      custom: runL102Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -27414,8 +28184,7 @@
   function beginRounds() {
     clearHint();
     usedPairs = {};
-    var _ldef = levelDef(currentIsland, state.level);
-    state.plan = makePlan(_ldef && _ldef.make === 'makeL95' ? 4 : 3);
+    state.plan = makePlan(planTypeCount(currentIsland, state.level));
     state.roundIndex = 0;
     state.stars = 0;
     state.vFlip = Math.random() < 0.5;
@@ -27439,6 +28208,7 @@
     if (q.type === 'L94A') return 'L94';
     if (q.type === 'L95A' || q.type === 'L95B' || q.type === 'L95C') return 'L95';
     if (q.type === 'L10A') return 'L10';
+    if (q.type === 'L102A' || q.type === 'L102D') return 'L102';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -27655,8 +28425,7 @@
     confettiBox.hidden = true;
     confettiBox.innerHTML = '';
     usedPairs = {};
-    var _rdef = levelDef(currentIsland, state.level);
-    state.plan = makePlan(_rdef && _rdef.make === 'makeL95' ? 4 : 3);
+    state.plan = makePlan(planTypeCount(currentIsland, state.level));
     state.roundIndex = 0;
     state.stars = 0;
     state.busy = false;
@@ -28287,7 +29056,13 @@
           l10item: q.item || null,
           l10scene: q.scene || null,
           l10items: q.items ? q.items.slice() : null,
-          l10answer: (typeof q.answer === 'number') ? q.answer : null
+          l10answer: (typeof q.answer === 'number') ? q.answer : null,
+          l102lane: q.lane || null,
+          l102item: q.item || null,
+          l102want: q.want || null,
+          l102box: q.box || null,
+          l102items: q.items ? q.items.slice() : null,
+          l102answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },

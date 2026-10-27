@@ -1527,6 +1527,30 @@ add("l10_c_bus",   "Drive the bus!", "en", -15, EN_ASK)
 add("l10_c_train", "Drive the train!", "en", -15, EN_ASK)
 add("l10_c_plane", "Fly the plane!", "en", -15, EN_ASK)
 
+# ---------------- 第 10 岛第 2 关：快慢与方向（Fast / Slow / Left / Right） ----------------
+# 全部 rate -15（≈0.85x）。教学 11 环节：赛跑 2 演示 → TPR 快/慢 2 互动 → 变道 2 演示 →
+# 变道 1 互动 → 交警 2 演示 → 交警 1 互动 → 过渡。
+# 去重（§一.12）：答题 A 的「Turn left / Turn right」与教学同句，直接复用同 key，不另建；
+# 答题 C 的「Drive fast / slow」同样复用教学的 key。
+add("l102_t_race_car",     "Look at the race! The car is fast.", "en", -15, EN_ASK)
+add("l102_t_race_turtle",  "The turtle is slow.", "en", -15, EN_ASK)
+add("l102_t_drive_fast",   "Drive fast!", "en", -15, EN_ASK)
+add("l102_t_drive_slow",   "Drive slow!", "en", -15, EN_ASK)
+add("l102_t_left",         "Turn left! Move to the blue road.", "en", -15, EN_ASK)
+add("l102_t_right",        "Turn right! Move to the yellow road.", "en", -15, EN_ASK)
+add("l102_t_right_drag",   "Turn right! Move the car to the yellow road.", "en", -15, EN_ASK)
+add("l102_t_police_left",  "The police says turn left.", "en", -15, EN_ASK)
+add("l102_t_police_right", "The police says turn right.", "en", -15, EN_ASK)
+add("l102_t_out",          "You are a great driver! Let's play!", "en", -12, EN_PRAISE)
+# 题型 B：听音对比快慢（同句复用，不按物品区分）
+add("l102_b_fast", "Find the fast one.", "en", -15, EN_ASK)
+add("l102_b_slow", "Find the slow one.", "en", -15, EN_ASK)
+# 题型 D：快慢分类拖拽（按被拖的物品说，句子不同故各建 key）
+add("l102_d_rocket", "Put the rocket in the fast box.", "en", -15, EN_ASK)
+add("l102_d_snail",  "Put the snail in the slow box.", "en", -15, EN_ASK)
+add("l102_d_car",    "Put the car in the fast box.", "en", -15, EN_ASK)
+add("l102_d_turtle", "Put the turtle in the slow box.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
