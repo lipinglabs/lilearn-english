@@ -1098,6 +1098,21 @@ window.VOICE_CHUNK_FOR = {
 "l10_t_plane_put":"island_10_2",
 "l10_t_train":"island_10_2",
 "l10_t_train_put":"island_10_2",
+"l111_a_hunter":"island_11",
+"l111_a_pig":"island_11",
+"l111_a_wolf":"island_11",
+"l111_b_brick":"island_11",
+"l111_b_straw":"island_11",
+"l111_b_wood":"island_11",
+"l111_c_go_away":"island_11",
+"l111_c_knock":"island_11",
+"l111_c_wolf":"island_11",
+"l111_t_bricks_put":"island_11",
+"l111_t_knock":"island_11",
+"l111_t_out":"island_11",
+"l111_t_pigs":"island_11",
+"l111_t_straw_house":"island_11",
+"l111_t_wolf":"island_11",
 };
 window.VOICE_CHUNK_OF_ISLAND = {
 1:["island_1_1","island_1_2"],
@@ -1110,5 +1125,6 @@ window.VOICE_CHUNK_OF_ISLAND = {
 8:["island_8_1","island_8_2"],
 9:["island_9_1","island_9_2"],
 10:["island_10_1","island_10_2"],
+11:["island_11"],
 };
 window.VOICE_CORE_CHUNK = "core";

@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1098** 条（英文 1092 + 中文 6）
+总条目：**1113** 条（英文 1107 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1078,24 +1078,39 @@
 | `l104_c_sun` | en | The boy is wearing sunglasses. Find the picture. | 已存在 |
 | `l104_c_rain` | en | The boy has an umbrella. Find the picture. | 已存在 |
 | `l104_c_cloud` | en | The boy is looking at the clouds. Find the picture. | 已存在 |
-| `l105_t_fast` | en | Look! The car is fast. | 待生成 |
-| `l105_t_left` | en | Turn left! The car turns left. | 待生成 |
-| `l105_t_right_put` | en | Turn right! Move the car to the right. | 待生成 |
-| `l105_t_red` | en | The red light is on. | 待生成 |
-| `l105_t_stop` | en | Stop! | 待生成 |
-| `l105_t_go` | en | Now it's green. Go! | 待生成 |
-| `l105_t_rain` | en | Oh no! It's rainy. | 待生成 |
-| `l105_t_rain2` | en | We need an umbrella. | 待生成 |
-| `l105_t_out` | en | You know everything! Let's play the final game! | 待生成 |
-| `l105_a_sunny_left` | en | It's sunny. Turn left. | 待生成 |
-| `l105_a_sunny_right` | en | It's sunny. Turn right. | 待生成 |
-| `l105_a_rainy_left` | en | It's rainy. Turn left. | 待生成 |
-| `l105_a_rainy_right` | en | It's rainy. Turn right. | 待生成 |
-| `l105_a_cloudy_left` | en | It's cloudy. Turn left. | 待生成 |
-| `l105_a_cloudy_right` | en | It's cloudy. Turn right. | 待生成 |
-| `l105_b_rain` | en | The boy has an umbrella in the rain. Find the picture. | 待生成 |
-| `l105_c_stop` | en | Find the sign that means stop. | 待生成 |
-| `l105_c_umbrella` | en | Find the umbrella for the rain. | 待生成 |
+| `l105_t_fast` | en | Look! The car is fast. | 已存在 |
+| `l105_t_left` | en | Turn left! The car turns left. | 已存在 |
+| `l105_t_right_put` | en | Turn right! Move the car to the right. | 已存在 |
+| `l105_t_red` | en | The red light is on. | 已存在 |
+| `l105_t_stop` | en | Stop! | 已存在 |
+| `l105_t_go` | en | Now it's green. Go! | 已存在 |
+| `l105_t_rain` | en | Oh no! It's rainy. | 已存在 |
+| `l105_t_rain2` | en | We need an umbrella. | 已存在 |
+| `l105_t_out` | en | You know everything! Let's play the final game! | 已存在 |
+| `l105_a_sunny_left` | en | It's sunny. Turn left. | 已存在 |
+| `l105_a_sunny_right` | en | It's sunny. Turn right. | 已存在 |
+| `l105_a_rainy_left` | en | It's rainy. Turn left. | 已存在 |
+| `l105_a_rainy_right` | en | It's rainy. Turn right. | 已存在 |
+| `l105_a_cloudy_left` | en | It's cloudy. Turn left. | 已存在 |
+| `l105_a_cloudy_right` | en | It's cloudy. Turn right. | 已存在 |
+| `l105_b_rain` | en | The boy has an umbrella in the rain. Find the picture. | 已存在 |
+| `l105_c_stop` | en | Find the sign that means stop. | 已存在 |
+| `l105_c_umbrella` | en | Find the umbrella for the rain. | 已存在 |
+| `l111_t_pigs` | en | Look! Three little pigs. | 待生成 |
+| `l111_t_straw_house` | en | The first pig builds a straw house. | 待生成 |
+| `l111_t_bricks_put` | en | The third pig wants a strong house. Put the bricks here. | 待生成 |
+| `l111_t_knock` | en | Knock knock! Who is knocking at the door? | 待生成 |
+| `l111_t_wolf` | en | It's the big bad wolf! | 待生成 |
+| `l111_t_out` | en | The wolf is here! Let's play! | 待生成 |
+| `l111_a_wolf` | en | Who is knocking at the door? Find the big bad wolf. | 待生成 |
+| `l111_a_pig` | en | Who is building the house? Find the little pig. | 待生成 |
+| `l111_a_hunter` | en | Who can help the pigs? Find the hunter. | 待生成 |
+| `l111_b_straw` | en | The first pig builds a straw house. Find the straw. | 待生成 |
+| `l111_b_wood` | en | The second pig builds a wood house. Find the wood. | 待生成 |
+| `l111_b_brick` | en | The third pig builds a brick house. Find the bricks. | 待生成 |
+| `l111_c_wolf` | en | The wolf is here! The pigs say, go away! | 待生成 |
+| `l111_c_knock` | en | Knock knock! The big bad wolf is at the door. The pigs say, go away! | 待生成 |
+| `l111_c_go_away` | en | Go away! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

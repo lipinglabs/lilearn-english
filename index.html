@@ -2966,7 +2966,7 @@
     { icon: '🙂', name: '情绪与感受' },
     { icon: '👕', name: '衣物穿戴' },
     { icon: '🚗', name: '交通工具' },
-    { icon: '⚽', name: '动作运动' },
+    { icon: '🐷', name: '童话故事' },
     { icon: '🎉', name: '节日庆祝' }
   ];
 
@@ -3979,7 +3979,8 @@
     '10-2': { numbers: null, make: 'makeL102', title: '第 2 关', tutorial: true, types: 4 },
     '10-3': { numbers: null, make: 'makeL103', title: '第 3 关', tutorial: true },
     '10-4': { numbers: null, make: 'makeL104', title: '第 4 关', tutorial: true },
-    '10-5': { numbers: null, make: 'makeL105', title: '第 5 关', tutorial: true }
+    '10-5': { numbers: null, make: 'makeL105', title: '第 5 关', tutorial: true },
+    '11-1': { numbers: null, make: 'makeL111', title: '第 1 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4090,6 +4091,22 @@
         '<circle cx="72" cy="68" r="3" fill="#c9ced6"/>' +
         '<circle cx="13" cy="55" r="3.4" fill="#fff2b8" stroke="#e0a92e" stroke-width="1.6"/>';
       return carIcon;
+    }
+    // 第 11 岛是「童话故事」，地图图标用手写小猪脸 SVG（免费 SVG，RULES §二.17，不用 emoji 字符）
+    if (index === 11) {
+      var pigIcon = document.createElementNS(SVG_NS, 'svg');
+      pigIcon.setAttribute('viewBox', '0 0 100 100');
+      pigIcon.setAttribute('class', 'mini-shapes');
+      pigIcon.innerHTML =
+        '<circle cx="50" cy="54" r="35" fill="#ffb3c7" stroke="#d97e99" stroke-width="4"/>' +
+        '<path d="M31 27 L25 8 L46 21 Z" fill="#ff9fba" stroke="#d97e99" stroke-width="3.4" stroke-linejoin="round"/>' +
+        '<path d="M69 27 L75 8 L54 21 Z" fill="#ff9fba" stroke="#d97e99" stroke-width="3.4" stroke-linejoin="round"/>' +
+        '<ellipse cx="50" cy="62" rx="16" ry="12" fill="#ff9fba" stroke="#d97e99" stroke-width="3.2"/>' +
+        '<circle cx="44" cy="62" r="2.6" fill="#a8627a"/><circle cx="56" cy="62" r="2.6" fill="#a8627a"/>' +
+        '<circle cx="38" cy="43" r="3.2" fill="#3b2b30"/><circle cx="62" cy="43" r="3.2" fill="#3b2b30"/>' +
+        '<ellipse cx="26" cy="55" rx="5" ry="3.2" fill="#ff8fae" opacity=".6"/>' +
+        '<ellipse cx="74" cy="55" rx="5" ry="3.2" fill="#ff8fae" opacity=".6"/>';
+      return pigIcon;
     }
     if (index === 2) {
       var box = document.createElementNS(SVG_NS, 'svg');
@@ -4236,6 +4253,7 @@
     if (def && def.make === 'makeL103') return makeQuestionL103(typeIdx, prev);
     if (def && def.make === 'makeL104') return makeQuestionL104(typeIdx, prev);
     if (def && def.make === 'makeL105') return makeQuestionL105(typeIdx, prev);
+    if (def && def.make === 'makeL111') return makeQuestionL111(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -26808,6 +26826,731 @@
     return api;
   })();
 
+  /* ================= 第 11 岛第 1 关：三只小猪（童话故事 · 岛开篇） =================
+     讲故事 + 建房子 + 大灰狼敲门。美术全部手写 SVG，零位图、零 emoji。
+     敲门动画只做 CSS（门的抖动 + 三圈波纹），敲门声用 WebAudio 合成，不占音频文件。 */
+
+  var L111_CHARS = ['wolf', 'pig', 'hunter'];
+  var L111_CHAR_LABEL = { wolf: '大灰狼', pig: '小猪', hunter: '猎人' };
+  var L111_MATS = ['straw', 'wood', 'brick'];
+  var L111_MAT_LABEL = { straw: '稻草', wood: '木头', brick: '砖头' };
+  var L111_HOUSE_LABEL = { straw: '草房子', wood: '木头房子', brick: '砖头房子' };
+  /* A / B / C 的语音 */
+  var L111_A_KEY = { wolf: 'l111_a_wolf', pig: 'l111_a_pig', hunter: 'l111_a_hunter' };
+  var L111_B_KEY = { straw: 'l111_b_straw', wood: 'l111_b_wood', brick: 'l111_b_brick' };
+  var L111_C_KEY = ['l111_c_wolf', 'l111_c_knock'];
+
+  /* ---- 手写 SVG 美术（零位图、零 emoji） ---- */
+
+  /** 小猪（第 n 只，三种深浅不同，孩子能分清「第一 / 第二 / 第三只」） */
+  function l111PigSvg(n) {
+    var tone = [
+      { body: '#ffc2d1', snout: '#ffa8bf', line: '#e58aa4' },
+      { body: '#ffb3c7', snout: '#ff9fba', line: '#d97e99' },
+      { body: '#ffa3ba', snout: '#f991ad', line: '#cc708c' }
+    ][(n || 1) - 1] || { body: '#ffb3c7', snout: '#ff9fba', line: '#d97e99' };
+    return '<svg viewBox="0 0 100 90" aria-hidden="true">' +
+      '<path d="M84 52 q11 -6 6 -15 q-4 -8 -12 -4" fill="none" stroke="' + tone.line + '" ' +
+      'stroke-width="3.4" stroke-linecap="round"/>' +
+      '<ellipse cx="50" cy="60" rx="32" ry="23" fill="' + tone.body + '" stroke="' + tone.line + '" stroke-width="3"/>' +
+      '<rect x="27" y="73" width="10" height="13" rx="5" fill="' + tone.body + '" stroke="' + tone.line + '" stroke-width="2.6"/>' +
+      '<rect x="45" y="75" width="10" height="13" rx="5" fill="' + tone.body + '" stroke="' + tone.line + '" stroke-width="2.6"/>' +
+      '<rect x="63" y="73" width="10" height="13" rx="5" fill="' + tone.body + '" stroke="' + tone.line + '" stroke-width="2.6"/>' +
+      '<path d="M30 24 L25 9 L45 18 Z" fill="' + tone.snout + '" stroke="' + tone.line + '" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M70 24 L75 9 L55 18 Z" fill="' + tone.snout + '" stroke="' + tone.line + '" stroke-width="3" stroke-linejoin="round"/>' +
+      '<circle cx="50" cy="35" r="22" fill="' + tone.body + '" stroke="' + tone.line + '" stroke-width="3"/>' +
+      '<ellipse cx="50" cy="43" rx="11" ry="8" fill="' + tone.snout + '" stroke="' + tone.line + '" stroke-width="2.6"/>' +
+      '<circle cx="46" cy="43" r="2" fill="#a8627a"/><circle cx="54" cy="43" r="2" fill="#a8627a"/>' +
+      '<circle cx="41" cy="29" r="2.8" fill="#3b2b30"/><circle cx="59" cy="29" r="2.8" fill="#3b2b30"/>' +
+      '<ellipse cx="33" cy="38" rx="4" ry="2.6" fill="#ff8fae" opacity=".55"/>' +
+      '<ellipse cx="67" cy="38" rx="4" ry="2.6" fill="#ff8fae" opacity=".55"/>' +
+      '</svg>';
+  }
+
+  var L111_WOLF_SVG =
+    '<svg viewBox="0 0 112 96" aria-hidden="true">' +
+    '<path d="M14 64 q-13 -3 -11 -17 q7 9 14 6" fill="#9aa3ad" stroke="#6f7883" stroke-width="3" stroke-linejoin="round"/>' +
+    '<ellipse cx="52" cy="64" rx="31" ry="20" fill="#9aa3ad" stroke="#6f7883" stroke-width="3"/>' +
+    '<rect x="30" y="77" width="9" height="14" rx="4.5" fill="#9aa3ad" stroke="#6f7883" stroke-width="2.4"/>' +
+    '<rect x="48" y="79" width="9" height="14" rx="4.5" fill="#9aa3ad" stroke="#6f7883" stroke-width="2.4"/>' +
+    '<path d="M58 22 L54 3 L72 16 Z" fill="#8b949f" stroke="#6f7883" stroke-width="3" stroke-linejoin="round"/>' +
+    '<path d="M88 22 L94 3 L74 12 Z" fill="#8b949f" stroke="#6f7883" stroke-width="3" stroke-linejoin="round"/>' +
+    '<circle cx="73" cy="39" r="21" fill="#9aa3ad" stroke="#6f7883" stroke-width="3"/>' +
+    '<path d="M87 45 q17 3 12 11 q-5 6 -15 1 Z" fill="#b7bfc8" stroke="#6f7883" stroke-width="2.8" stroke-linejoin="round"/>' +
+    '<circle cx="96" cy="52" r="2.6" fill="#3b4249"/>' +
+    '<circle cx="74" cy="34" r="3" fill="#2b323a"/>' +
+    '<path d="M84 56 l3 7 l3 -7 Z" fill="#fff" stroke="#6f7883" stroke-width="1.8"/>' +
+    '<path d="M64 46 q6 -5 13 -2" fill="none" stroke="#4f5862" stroke-width="2.6" stroke-linecap="round"/>' +
+    '</svg>';
+
+  var L111_HUNTER_SVG =
+    '<svg viewBox="0 0 100 112" aria-hidden="true">' +
+    '<rect x="33" y="78" width="12" height="28" rx="6" fill="#4a5b8c"/>' +
+    '<rect x="55" y="78" width="12" height="28" rx="6" fill="#4a5b8c"/>' +
+    '<rect x="29" y="42" width="42" height="40" rx="11" fill="#c98f57" stroke="#a06f3f" stroke-width="3"/>' +
+    '<path d="M31 52 L14 70" stroke="#c98f57" stroke-width="9" stroke-linecap="round"/>' +
+    '<path d="M69 52 L86 66" stroke="#c98f57" stroke-width="9" stroke-linecap="round"/>' +
+    '<circle cx="50" cy="26" r="17" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3"/>' +
+    '<path d="M31 21 q19 -17 38 0 q0 -19 -19 -19 q-19 0 -19 19 Z" fill="#5f8a4f"/>' +
+    '<rect x="23" y="19" width="54" height="7" rx="3.5" fill="#4f7a42"/>' +
+    '<circle cx="43" cy="27" r="2.2" fill="#2f2f36"/><circle cx="57" cy="27" r="2.2" fill="#2f2f36"/>' +
+    '<path d="M44 34 q6 4 12 0" fill="none" stroke="#c4736a" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<path d="M71 60 L86 52" stroke="#8a6142" stroke-width="5" stroke-linecap="round"/>' +
+    '</svg>';
+
+  /** 材料：草 / 木头 / 砖头 */
+  var L111_MAT_SVG = {
+    straw:
+      '<svg viewBox="0 0 100 80" aria-hidden="true">' +
+      '<g stroke="#e8c34a" stroke-width="5" stroke-linecap="round">' +
+      '<path d="M22 64 L34 18"/><path d="M34 66 L44 16"/><path d="M46 66 L54 18"/>' +
+      '<path d="M60 64 L66 20"/><path d="M72 62 L78 24"/>' +
+      '</g>' +
+      '<rect x="24" y="40" width="54" height="11" rx="5.5" fill="#b8862e" stroke="#8f6620" stroke-width="2.4"/>' +
+      '</svg>',
+    wood:
+      '<svg viewBox="0 0 100 80" aria-hidden="true">' +
+      '<rect x="10" y="22" width="78" height="21" rx="10" fill="#c98f57" stroke="#96683a" stroke-width="3"/>' +
+      '<ellipse cx="17" cy="32.5" rx="7" ry="10.5" fill="#e0b183" stroke="#96683a" stroke-width="2.4"/>' +
+      '<circle cx="17" cy="32.5" r="3" fill="none" stroke="#96683a" stroke-width="2"/>' +
+      '<rect x="20" y="50" width="70" height="19" rx="9" fill="#b87a48" stroke="#96683a" stroke-width="3"/>' +
+      '<ellipse cx="26" cy="59.5" rx="6.5" ry="9.5" fill="#d8a271" stroke="#96683a" stroke-width="2.4"/>' +
+      '<circle cx="26" cy="59.5" r="2.6" fill="none" stroke="#96683a" stroke-width="1.8"/>' +
+      '</svg>',
+    brick:
+      '<svg viewBox="0 0 100 80" aria-hidden="true">' +
+      '<g fill="#c8563f" stroke="#9c3f2c" stroke-width="2.4">' +
+      '<rect x="12" y="14" width="34" height="16" rx="3"/><rect x="52" y="14" width="34" height="16" rx="3"/>' +
+      '<rect x="6" y="34" width="34" height="16" rx="3"/><rect x="46" y="34" width="40" height="16" rx="3"/>' +
+      '<rect x="12" y="54" width="34" height="16" rx="3"/><rect x="52" y="54" width="34" height="16" rx="3"/>' +
+      '</g></svg>'
+  };
+
+  /** 房子：草 / 木头 / 砖头（viewBox 0 0 120 116） */
+  var L111_HOUSE_SVG = {
+    straw:
+      '<svg viewBox="0 0 120 116" aria-hidden="true">' +
+      '<rect x="24" y="52" width="72" height="56" fill="#f0d98a" stroke="#c9a844" stroke-width="3.4"/>' +
+      '<g stroke="#c9a844" stroke-width="2.4" opacity=".7">' +
+      '<path d="M32 60 V104"/><path d="M48 58 V104"/><path d="M64 60 V104"/><path d="M80 58 V104"/></g>' +
+      '<path d="M60 10 L114 54 H6 Z" fill="#e8c34a" stroke="#bd9a2f" stroke-width="3.6" stroke-linejoin="round"/>' +
+      '<path d="M60 10 L114 54" stroke="#f5e3a0" stroke-width="2.4"/>' +
+      '<rect x="50" y="74" width="22" height="34" rx="3" fill="#b8862e" stroke="#8f6620" stroke-width="2.6"/>' +
+      '<circle cx="67" cy="92" r="2.2" fill="#5a4018"/>' +
+      '</svg>',
+    wood:
+      '<svg viewBox="0 0 120 116" aria-hidden="true">' +
+      '<rect x="24" y="52" width="72" height="56" fill="#c98f57" stroke="#96683a" stroke-width="3.4"/>' +
+      '<g stroke="#96683a" stroke-width="2.6" opacity=".8">' +
+      '<path d="M24 68 H96"/><path d="M24 86 H96"/><path d="M42 52 V108"/><path d="M78 52 V108"/></g>' +
+      '<path d="M60 14 L113 54 H7 Z" fill="#b87a48" stroke="#8a5a30" stroke-width="3.6" stroke-linejoin="round"/>' +
+      '<rect x="50" y="74" width="22" height="34" rx="3" fill="#8a5a30" stroke="#6b4522" stroke-width="2.6"/>' +
+      '<circle cx="67" cy="92" r="2.2" fill="#3d2814"/>' +
+      '</svg>',
+    brick:
+      '<svg viewBox="0 0 120 116" aria-hidden="true">' +
+      '<rect x="24" y="52" width="72" height="56" fill="#c8563f" stroke="#9c3f2c" stroke-width="3.4"/>' +
+      '<g fill="none" stroke="#9c3f2c" stroke-width="2.2" opacity=".85">' +
+      '<path d="M24 70 H96"/><path d="M24 88 H96"/><path d="M48 52 V70"/><path d="M72 52 V70"/>' +
+      '<path d="M36 70 V88"/><path d="M60 70 V88"/><path d="M84 70 V88"/>' +
+      '<path d="M48 88 V108"/><path d="M72 88 V108"/></g>' +
+      '<path d="M60 12 L114 54 H6 Z" fill="#a9452f" stroke="#7c2f1e" stroke-width="3.6" stroke-linejoin="round"/>' +
+      '<rect x="50" y="74" width="22" height="34" rx="3" fill="#8a3b28" stroke="#6b2a1a" stroke-width="2.6"/>' +
+      '<circle cx="67" cy="92" r="2.2" fill="#f7f3e8"/>' +
+      '</svg>'
+  };
+
+  /** 草甸背景（讲故事舞台底） */
+  var L111_MEADOW =
+    '<svg viewBox="0 0 200 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+    '<rect width="200" height="140" fill="#dcf1ff"/>' +
+    '<circle cx="26" cy="24" r="14" fill="#ffd166"/>' +
+    '<ellipse cx="152" cy="26" rx="26" ry="11" fill="#fff" opacity=".9"/>' +
+    '<ellipse cx="176" cy="34" rx="18" ry="9" fill="#fff" opacity=".8"/>' +
+    '<rect y="92" width="200" height="48" fill="#a8dc9a"/>' +
+    '<path d="M0 92 q40 -10 80 0 q40 10 120 -4 V140 H0 Z" fill="#98d189" opacity=".85"/>' +
+    '</svg>';
+
+  /** 房子正面（C 型：狼在门口） */
+  var L111_DOOR_HOUSE =
+    '<svg viewBox="0 0 200 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+    '<rect width="200" height="140" fill="#dcf1ff"/>' +
+    '<rect y="104" width="200" height="36" fill="#a8dc9a"/>' +
+    '<rect x="46" y="52" width="108" height="62" fill="#f3d9b1" stroke="#d9b98a" stroke-width="3"/>' +
+    '<g stroke="#e3c79f" stroke-width="2" opacity=".9">' +
+    '<path d="M46 70 H154"/><path d="M46 88 H154"/><path d="M74 52 V70"/><path d="M116 52 V70"/>' +
+    '<path d="M60 70 V88"/><path d="M98 70 V88"/><path d="M138 70 V88"/></g>' +
+    '<path d="M40 54 L100 18 L160 54 Z" fill="#e8743f" stroke="#c85f30" stroke-width="3.6" stroke-linejoin="round"/>' +
+    '<rect x="88" y="76" width="30" height="46" rx="4" fill="#b87a48" stroke="#8a5a30" stroke-width="3.2"/>' +
+    '<circle cx="112" cy="100" r="2.6" fill="#5a4018"/>' +
+    '<rect x="54" y="62" width="20" height="16" rx="3" fill="#bfe6ff" stroke="#8fc0e6" stroke-width="2.6"/>' +
+    '</svg>';
+
+  function l111HornSvg() {
+    return '<svg viewBox="0 0 100 80" aria-hidden="true">' +
+      '<path d="M12 28 H32 L62 10 V70 L32 52 H12 Z" fill="#ffd166" stroke="#e0a92e" ' +
+      'stroke-width="4" stroke-linejoin="round"/>' +
+      '<rect x="6" y="28" width="12" height="24" rx="6" fill="#ff8f6b" stroke="#d94b4b" stroke-width="3"/>' +
+      '<path d="M70 24 q9 8 0 16" fill="none" stroke="#e0a92e" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M80 16 q16 14 0 28" fill="none" stroke="#e0a92e" stroke-width="4" stroke-linecap="round" opacity=".75"/>' +
+      '</svg>';
+  }
+
+  function l111CharSvg(k) {
+    if (k === 'wolf') return L111_WOLF_SVG;
+    if (k === 'hunter') return L111_HUNTER_SVG;
+    return l111PigSvg(1);
+  }
+  function l111MatSvg(k) { return L111_MAT_SVG[k] || L111_MAT_SVG.brick; }
+
+  function ensureL111Css() {
+    if (document.getElementById('l111-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l111-style';
+    s.textContent = [
+      '.l111-ask{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.1vh;width:100%}',
+      /* 讲故事舞台：草甸 + 三只小猪 + 盖房子的空地 */
+      '.l111-story{position:relative;width:min(90vw,520px);max-width:100%;height:min(40vh,300px);' +
+        'border-radius:18px;overflow:hidden;box-shadow:0 3px 12px rgba(90,120,150,.16)}',
+      '.l111-story > svg{position:absolute;inset:0;width:100%;height:100%;display:block}',
+      '.l111-pigs{position:absolute;left:2%;bottom:4%;display:flex;align-items:flex-end;gap:1.4%;width:50%}',
+      '.l111-pig{position:relative;flex:1;min-width:0;padding:5px;border-radius:14px;box-sizing:border-box;' +
+        'background:rgba(255,255,255,.55);transition:box-shadow .18s,transform .18s}',
+      '.l111-pig svg{width:100%;height:auto;display:block;pointer-events:none}',
+      '.l111-pig.drop-hot{box-shadow:0 0 0 4px #7fd18a;transform:translateY(-3px) scale(1.03)}',
+      '.l111-pig.l111-wrong{animation:l111shake .38s}',
+      '.l111-pig.l111-hi{animation:l111hop .5s cubic-bezier(.3,1.4,.5,1)}',
+      /* 盖房子的空地：房子从地里长出来 */
+      '.l111-plot{position:absolute;right:2%;bottom:2%;width:42%;padding:4px;box-sizing:border-box}',
+      '.l111-plot svg{width:100%;height:auto;display:block;opacity:0;transform:translateY(12%) scale(.72);' +
+        'transition:opacity .34s ease-out,transform .42s cubic-bezier(.3,1.3,.5,1)}',
+      '.l111-plot.l111-built svg{opacity:1;transform:none}',
+      /* 飞过来的稻草 */
+      '.l111-fly{position:absolute;width:20%;left:28%;bottom:28%;opacity:0;pointer-events:none}',
+      '.l111-fly svg{width:100%;height:auto;display:block}',
+      '.l111-fly.l111-go{animation:l111fly .78s cubic-bezier(.35,0,.6,1) forwards}',
+      '@keyframes l111fly{0%{opacity:0;transform:translate(0,0) scale(.7)}' +
+        '20%{opacity:1}82%{opacity:1;transform:translate(155%,-18%) scale(1)}' +
+        '100%{opacity:0;transform:translate(165%,-22%) scale(.7)}}',
+      /* 材料栏 */
+      '.l111-tray{display:flex;justify-content:center;align-items:center;gap:2.6vw;width:min(88vw,520px);max-width:100%}',
+      '.l111-mat{flex:1;min-width:0;max-width:110px;padding:7px;border-radius:16px;box-sizing:border-box;' +
+        'background:rgba(255,255,255,.9);box-shadow:0 2px 8px rgba(90,120,150,.16);cursor:grab;touch-action:none}',
+      '.l111-mat svg{width:100%;height:auto;display:block;pointer-events:none}',
+      '.l111-mat.dragging{opacity:.35}',
+      '.l111-mat.l111-wrong{animation:l111shake .38s}',
+      /* 选角 / 选材料卡 */
+      '.l111-cards{display:flex;justify-content:center;align-items:flex-end;gap:2.6vw;width:min(88vw,540px);max-width:100%}',
+      '.l111-card{flex:1;min-width:0;max-width:160px;padding:8px;border-radius:18px;border:3px solid transparent;' +
+        'background:rgba(255,255,255,.88);box-shadow:0 2px 10px rgba(90,120,150,.16);cursor:pointer;' +
+        'transition:transform .16s,border-color .16s}',
+      '.l111-card svg{width:100%;height:auto;display:block;pointer-events:none}',
+      '.l111-card.right{border-color:#7fd18a;transform:translateY(-3px)}',
+      '.l111-card.l111-wrong{animation:l111shake .38s}',
+      '@keyframes l111shake{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-3deg)}' +
+        '60%{transform:translateX(5px) rotate(3deg)}}',
+      '@keyframes l111hop{0%,100%{transform:none}45%{transform:translateY(-10%) scale(1.04)}}',
+      /* 门口舞台（敲门 + 狼） */
+      '.l111-doorstage{position:relative;width:min(90vw,520px);max-width:100%;height:min(38vh,290px);' +
+        'border-radius:18px;overflow:hidden;box-shadow:0 3px 12px rgba(90,120,150,.16)}',
+      '.l111-doorstage > svg{position:absolute;inset:0;width:100%;height:100%;display:block}',
+      '.l111-door{position:absolute;left:44%;top:54%;width:15%;height:33%;transform-origin:left center}',
+      '.l111-door.l111-knock{animation:l111knock .42s ease-in-out 3}',
+      '@keyframes l111knock{0%,100%{transform:none}30%{transform:rotate(-4deg)}70%{transform:rotate(3deg)}}',
+      /* 三圈敲门波纹 */
+      '.l111-knockfx{position:absolute;left:52%;top:56%;width:9%;height:9%;pointer-events:none;opacity:0}',
+      '.l111-knockfx.l111-on{opacity:1}',
+      '.l111-knockfx i{position:absolute;inset:0;border:3px solid rgba(255,255,255,.95);border-radius:50%;' +
+        'animation:l111ring 1.05s ease-out 3}',
+      '.l111-knockfx i:nth-child(2){animation-delay:.18s}',
+      '.l111-knockfx i:nth-child(3){animation-delay:.36s}',
+      '@keyframes l111ring{0%{transform:scale(.5);opacity:.95}100%{transform:scale(2.4);opacity:0}}',
+      '.l111-wolf{position:absolute;left:4%;bottom:6%;width:28%;transition:transform .6s cubic-bezier(.4,0,.8,1),opacity .6s}',
+      '.l111-wolf svg{width:100%;height:auto;display:block}',
+      '.l111-wolf.l111-pop{animation:l111hop .5s cubic-bezier(.3,1.4,.5,1)}',
+      '.l111-wolf.l111-flee{transform:translateX(210%) scale(.72);opacity:0}',
+      /* 大喇叭按钮：整块都是热区，比视觉大一圈 */
+      '.l111-horn{display:block;width:min(56vw,240px);max-width:100%;padding:10px 14px;border:none;' +
+        'border-radius:26px;background:linear-gradient(180deg,#fff6d8,#ffe6a3);cursor:pointer;' +
+        'box-shadow:0 4px 0 #e0a92e,0 8px 18px rgba(200,150,40,.28);transition:transform .12s,box-shadow .12s}',
+      '.l111-horn svg{width:100%;height:auto;display:block;pointer-events:none}',
+      '.l111-horn:active,.l111-horn.l111-blast{transform:translateY(3px);box-shadow:0 1px 0 #e0a92e}',
+      '.l111-horn.l111-blast{animation:l111blast .34s ease-out}',
+      '@keyframes l111blast{0%,100%{transform:translateY(0) scale(1)}45%{transform:translateY(3px) scale(1.06)}}',
+      '.l111-horn.right{box-shadow:0 4px 0 #7fb06a,0 8px 18px rgba(120,180,110,.3)}',
+      /* 幽灵：材料卡被 clone 时保持拖拽样式（§三.25 幽灵克隆陷阱） */
+      '.drag-ghost.l111-mat{position:fixed;width:auto;transform:scale(1.06);border-radius:16px;' +
+        'filter:drop-shadow(0 10px 14px rgba(120,90,60,.28))}',
+      /* 矮屏压缩 */
+      '@media (max-height:600px){.l111-story{height:min(34vh,200px)}.l111-doorstage{height:min(32vh,190px)}' +
+      '.l111-card{max-width:120px}.l111-mat{max-width:84px}.l111-horn{width:min(44vw,180px)}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  /** 敲门声：两声闷响（WebAudio 合成，零音频文件） */
+  function l111Knock() {
+    try {
+      var ctx = ensureCtx();
+      if (!ctx) return;
+      for (var i = 0; i < 2; i++) {
+        var t0 = ctx.currentTime + i * 0.19;
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(190, t0);
+        osc.frequency.exponentialRampToValueAtTime(72, t0 + 0.09);
+        gain.gain.setValueAtTime(0.0001, t0);
+        gain.gain.exponentialRampToValueAtTime(0.22, t0 + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.14);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.16);
+      }
+    } catch (e) { /* 音效失败绝不影响流程 */ }
+  }
+
+  /** 喇叭声：一记短促的「叭」 */
+  function l111HornSound() {
+    try {
+      var ctx = ensureCtx();
+      if (!ctx) return;
+      var t0 = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(420, t0);
+      osc.frequency.linearRampToValueAtTime(300, t0 + 0.22);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.12, t0 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.3);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.32);
+    } catch (e) { /* 音效失败不阻断 */ }
+  }
+
+  /** 讲故事舞台：三只小猪 + 空地（opt.house 已建好的房子 / opt.tray 材料栏 / opt.droppable 猪可投放） */
+  function l111PigStage(host, opt) {
+    opt = opt || {};
+    var w = document.createElement('div');
+    w.className = 'l111-story';
+    w.innerHTML = L111_MEADOW;
+    var row = document.createElement('div');
+    row.className = 'l111-pigs';
+    var pigs = [];
+    for (var i = 1; i <= 3; i++) {
+      var p = document.createElement('div');
+      p.className = 'l111-pig';
+      p.dataset.pig = String(i);
+      p.setAttribute('aria-label', '第 ' + ['一', '二', '三'][i - 1] + '只小猪');
+      p.innerHTML = l111PigSvg(i);
+      if (opt.droppable) p.dataset.drop = 'pig';
+      row.appendChild(p);
+      pigs.push(p);
+    }
+    w.appendChild(row);
+    var plot = document.createElement('div');
+    plot.className = 'l111-plot';
+    plot.setAttribute('aria-label', '盖房子的空地');
+    plot.innerHTML = L111_HOUSE_SVG[opt.house || 'straw'];
+    if (opt.house) plot.classList.add('l111-built');
+    w.appendChild(plot);
+    host.appendChild(w);
+    return { root: w, pigs: pigs, plot: plot };
+  }
+
+  function l111BuildHouse(plot) {
+    if (!plot) return;
+    plot.classList.add('l111-built');
+  }
+
+  function l111ThrowStraw(root) {
+    if (!root) return;
+    var f = document.createElement('div');
+    f.className = 'l111-fly';
+    f.innerHTML = L111_MAT_SVG.straw;
+    root.appendChild(f);
+    void f.offsetWidth;
+    f.classList.add('l111-go');
+    setTimeout(function () { if (f.parentNode) f.parentNode.removeChild(f); }, 820);
+  }
+
+  /** 门口舞台：房子正面 + 狼（opt.wolf 是否出现） */
+  function l111DoorStage(host, opt) {
+    opt = opt || {};
+    var w = document.createElement('div');
+    w.className = 'l111-doorstage';
+    w.innerHTML = L111_DOOR_HOUSE;
+    var door = document.createElement('div');
+    door.className = 'l111-door';
+    w.appendChild(door);
+    var fx = document.createElement('div');
+    fx.className = 'l111-knockfx';
+    fx.innerHTML = '<i></i><i></i><i></i>';
+    w.appendChild(fx);
+    var wolf = document.createElement('div');
+    wolf.className = 'l111-wolf';
+    wolf.setAttribute('aria-label', '大灰狼');
+    wolf.innerHTML = L111_WOLF_SVG;
+    w.appendChild(wolf);
+    host.appendChild(w);
+    return { root: w, door: door, fx: fx, wolf: wolf };
+  }
+
+  function l111KnockFx(sc) {
+    if (!sc) return;
+    l111Knock();
+    sc.door.classList.remove('l111-knock');
+    sc.fx.classList.remove('l111-on');
+    void sc.door.offsetWidth;
+    sc.door.classList.add('l111-knock');
+    sc.fx.classList.add('l111-on');
+    setTimeout(function () {
+      if (sc.door) sc.door.classList.remove('l111-knock');
+      if (sc.fx) sc.fx.classList.remove('l111-on');
+    }, 2400);
+  }
+
+  function l111WolfFlee(wolf) {
+    if (!wolf) return;
+    wolf.classList.add('l111-flee');
+  }
+
+  function l111Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l111-wrong');
+    void el.offsetWidth;
+    el.classList.add('l111-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l111-wrong'); }, 440);
+  }
+
+  function l111MatCard(k) {
+    var d = document.createElement('div');
+    d.className = 'l111-mat';
+    d.dataset.item = k;
+    d.dataset.from = 'tray';
+    d.dataset.drag = 'item';
+    d.setAttribute('aria-label', L111_MAT_LABEL[k]);
+    d.innerHTML = l111MatSvg(k);
+    return d;
+  }
+
+  /* ---------------- 渲染 ---------------- */
+
+  /** 题型 A 找角色 / B 找材料：一张大卡三选一 */
+  function renderL111Pick(q) {
+    ensureL111Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l111-ask l111-stage';
+    var row = document.createElement('div');
+    row.className = 'l111-cards';
+    var label = q.type === 'L111B' ? L111_MAT_LABEL : L111_CHAR_LABEL;
+    q.items.forEach(function (k, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l111-card';
+      b.dataset.item = k;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', label[k]);
+      b.innerHTML = q.type === 'L111B' ? l111MatSvg(k) : l111CharSvg(k);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 C：狼在门口 → 点大喇叭喊走它 */
+  function renderL111C(q) {
+    ensureL111Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l111-ask l111-stage';
+    box.dataset.l111c = q.cv;
+    var sc = l111DoorStage(box, {});
+    l111KnockFx(sc);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'l111-horn';
+    btn.setAttribute('aria-label', '大喇叭，一起把狼喊走');
+    btn.innerHTML = l111HornSvg();
+    btn.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      state.busy = true;
+      btn.classList.add('l111-blast');
+      l111HornSound();
+      /* 「Go away!」是本题的动作结果（剧情台词），不是夸奖音；必须播完再给星星，
+         保证星星之后 400ms 内绝对安静（§二.10 / §三.26）。 */
+      say(['l111_c_go_away'], function () {
+        l111WolfFlee(sc.wolf);
+        setTimeout(function () {
+          if (state.phase !== 'asking') return;
+          state.busy = false;
+          if (state.phase !== 'asking' || state.busy) return;
+          judge(true, btn);
+        }, 620);
+      });
+    });
+    box.appendChild(btn);
+    askDisplay.appendChild(box);
+  }
+
+  /* ---------------- 判定 ---------------- */
+
+  function resolveL111(el, target) {
+    if (!el) return false;
+    var item = el.dataset ? el.dataset.item : null;
+    var pig = target && target.dataset ? target.dataset.pig : null;
+    var tut = (state.phase === 'tutorial') ? state.tut : null;
+    if (!tut) { l111Bounce(el); return false; }
+
+    var need = tut.l111Need;
+    if (!need) { l111Bounce(el); return false; }
+    if (pig !== String(need.pig) || item !== need.item) {
+      l111Bounce(el);
+      if (tut.canDrag) armHint();
+      return false;
+    }
+    /* 对上第三只小猪：材料消失，草房/砖房从地里长出来 */
+    if (el.parentNode) el.parentNode.removeChild(el);
+    var plot = askDisplay.querySelector('.l111-plot');
+    plot.innerHTML = L111_HOUSE_SVG[need.build || 'brick'];
+    l111BuildHouse(plot);
+    tut.canDrag = false; tut.l111On = false;
+    tut.hintTarget = null;
+    clearHint();
+    var nx = tut._l111Next;
+    setTimeout(function () { if (state.tut === tut && nx) nx(); }, 760);
+    return true;
+  }
+
+  /* ---------------- 出题：A 找角色 / B 找材料 / C 喊走狼 ---------------- */
+  function makeQuestionL111(type, prev) {
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var kA = pick(L111_CHARS);
+        var itemsA = shuffle(L111_CHARS.slice());
+        q = {
+          type: 'L111A', sig: 'A:' + kA, kind: kA, items: itemsA,
+          options: [], answer: itemsA.indexOf(kA), audio: [L111_A_KEY[kA]]
+        };
+      } else if (type === 1) {
+        var kB = pick(L111_MATS);
+        var itemsB = shuffle(L111_MATS.slice());
+        q = {
+          type: 'L111B', sig: 'B:' + kB, kind: kB, items: itemsB,
+          options: [], answer: itemsB.indexOf(kB), audio: [L111_B_KEY[kB]]
+        };
+      } else {
+        var cv = Math.random() < 0.5 ? 0 : 1;
+        q = {
+          type: 'L111C', sig: 'C:' + cv, kind: 'wolf', cv: cv, items: [],
+          options: [], answer: 0, audio: [L111_C_KEY[cv]]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 教学：草房 2 演示 → 砖房互动 → 敲门 2 演示 → 找狼互动 → 过渡 ----------------
+     7 环节；演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），拖错只弹回不判错（§二.11）。 */
+  var runL111Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'pigs1', word: 'l111_t_pigs' },
+      { t: 'demo', sid: 'straw2', word: 'l111_t_straw_house', build: 'straw' },
+      { t: 'drag', sid: 'brickPut', word: 'l111_t_bricks_put', need: { pig: 3, item: 'brick', build: 'brick' } },
+      { t: 'demo', sid: 'knock1', word: 'l111_t_knock', knock: true },
+      { t: 'demo', sid: 'wolf2', word: 'l111_t_wolf', reveal: true },
+      { t: 'pick', sid: 'findWolf', word: 'l111_a_wolf', kind: 'wolf' },
+      { t: 'out', sid: 'out', word: 'l111_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null;
+      me.canDrag = false; me.l111On = false; me.l111Need = null; me._l111Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL111Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l111-ask l111-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '三只小猪');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示 1：三只小猪打招呼 */
+    function playPigs(me, act, next) {
+      var w = stage(me, act);
+      var sc = l111PigStage(w, {});
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        sc.pigs.forEach(function (p, i) {
+          setTimeout(function () { if (state.tut === me) p.classList.add('l111-hi'); }, i * 150);
+        });
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 900);
+      });
+    }
+    /* 演示 2：稻草飞过去搭成草房 */
+    function playBuild(me, act, next) {
+      var w = stage(me, act);
+      var sc = l111PigStage(w, {});
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        l111ThrowStraw(w);
+        setTimeout(function () { if (state.tut === me) l111BuildHouse(sc.plot); }, 620);
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 1180);
+      });
+    }
+    /* 互动：把砖头拖给第三只小猪（4 秒小手） */
+    function playDrag(me, act, next) {
+      var w = stage(me, act);
+      var sc = l111PigStage(w, { droppable: true });
+      var tray = document.createElement('div');
+      tray.className = 'l111-tray';
+      tray.dataset.drop = 'tray';
+      var brick = null;
+      shuffle(['brick', 'straw', 'wood']).forEach(function (k) {
+        var c = l111MatCard(k);
+        if (k === 'brick') brick = c;
+        tray.appendChild(c);
+      });
+      w.appendChild(tray);
+      me.l111Need = act.need;
+      me._l111Next = next;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l111On = true; me.canDrag = true; me.customMode = 'L111';
+        me.hintFrom = brick;
+        me.hintTo = sc.pigs[2];
+        me.hintTarget = me.hintFrom;
+        me.hintToY = 0.5;
+        armHint();
+      });
+    }
+    /* 演示 3 / 4：敲门 → 大灰狼现身 */
+    function playDoor(me, act, next) {
+      var w = stage(me, act);
+      var sc = l111DoorStage(w, {});
+      if (act.reveal) sc.wolf.classList.add('l111-pop');
+      else sc.wolf.style.opacity = '0';
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        if (!act.reveal) l111KnockFx(sc);
+        else { sc.wolf.style.opacity = ''; sc.wolf.classList.add('l111-pop'); }
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, act.reveal ? 620 : 900);
+      });
+    }
+    /* 互动：三个角色里点出大灰狼 */
+    function playPick(me, act, next) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l111-cards';
+      var items = shuffle(L111_CHARS.slice());
+      var hit = null;
+      items.forEach(function (k, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'l111-card';
+        b.dataset.item = k;
+        b.dataset.idx = String(i);
+        b.setAttribute('aria-label', L111_CHAR_LABEL[k]);
+        b.innerHTML = l111CharSvg(k);
+        if (k === act.kind) hit = b;
+        b.addEventListener('click', function () {
+          if (state.tut !== me) return;
+          if (k !== act.kind) { l111Bounce(b); armHint(); return; }
+          b.classList.add('right');
+          me.hintTarget = null; clearHint();
+          setTimeout(function () { if (state.tut === me) next(); }, 560);
+        });
+        row.appendChild(b);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.hintTarget = hit; me.hintFrom = null; me.hintTo = null;
+        armHint();
+      });
+    }
+    function playOut(me, act) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l111-cards';
+      ['straw', 'wood', 'brick'].forEach(function (k, i) {
+        var d = document.createElement('div');
+        d.className = 'l111-card';
+        d.style.cursor = 'default';
+        d.setAttribute('aria-label', L111_HOUSE_LABEL[k]);
+        d.innerHTML = L111_HOUSE_SVG[k];
+        row.appendChild(d);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') {
+        if (act.knock || act.reveal) { playDoor(me, act, next); return; }
+        if (act.build) { playBuild(me, act, next); return; }
+        playPigs(me, act, next); return;
+      }
+      if (act.t === 'drag') { playDrag(me, act, next); return; }
+      if (act.t === 'pick') { playPick(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -27153,6 +27896,10 @@
     if (q.type === 'L105A') { optionsBar.classList.add('gone'); renderL105A(q); return; }
     if (q.type === 'L105B') { optionsBar.classList.add('gone'); renderL105B(q); return; }
     if (q.type === 'L105C') { optionsBar.classList.add('gone'); renderL105C(q); return; }
+
+    /* ---- 第 11 岛第 1 关：三只小猪（A 找角色 / B 找材料 / C 喊走狼） ---- */
+    if (q.type === 'L111A' || q.type === 'L111B') { optionsBar.classList.add('gone'); renderL111Pick(q); return; }
+    if (q.type === 'L111C') { optionsBar.classList.add('gone'); renderL111C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -27602,6 +28349,11 @@
     }
     // 第 10 岛第 5 关：三题型都自带舞台
     if (q.type === 'L105A' || q.type === 'L105B' || q.type === 'L105C') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 11 岛第 1 关：三题型都自带舞台
+    if (q.type === 'L111A' || q.type === 'L111B' || q.type === 'L111C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -28276,7 +29028,8 @@
             qt !== 'L102A' && qt !== 'L102B' && qt !== 'L102C' && qt !== 'L102D' &&
             qt !== 'L103A' && qt !== 'L103B' && qt !== 'L103C' &&
             qt !== 'L104A' && qt !== 'L104B' && qt !== 'L104C' &&
-            qt !== 'L105A' && qt !== 'L105B' && qt !== 'L105C') {
+            qt !== 'L105A' && qt !== 'L105B' && qt !== 'L105C' &&
+            qt !== 'L111A' && qt !== 'L111B' && qt !== 'L111C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -28430,7 +29183,8 @@
       d.ghost.remove();
       state.lastPointerAt = Date.now();
       /* 第 9 岛第 2 关：轻点由元素自己的 click（l92Pick / resolveL92）处理 */
-      if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L105') return;
+      if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L105' ||
+          d.mode === 'L111') return;
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
       else if (d.mode === 'F14T') tutPickF14(d.el);
@@ -28508,6 +29262,8 @@
         resolveL104(d.el, target);
       } else if (d.mode === 'L105') {
         resolveL105(d.el, target);
+      } else if (d.mode === 'L111') {
+        resolveL111(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -28541,7 +29297,8 @@
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
-    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102' || d.mode === 'L103' || d.mode === 'L104' || d.mode === 'L105') {
+    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102' || d.mode === 'L103' || d.mode === 'L104' || d.mode === 'L105' ||
+        d.mode === 'L111') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -28556,6 +29313,7 @@
       else if (d.mode === 'L103') l103Bounce(d.el);
       else if (d.mode === 'L104') l104Bounce(d.el);
       else if (d.mode === 'L105') l105Bounce(d.el);
+      else if (d.mode === 'L111') l111Bounce(d.el);
       else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
@@ -29670,6 +30428,16 @@
       // 快/左转 2 演示 → 右转互动 → 红灯 2 演示 → 绿灯互动 → 下雨 2 演示 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错车道只弹回不判错（§二.11）
       custom: runL105Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '11-1': {
+      // 三只小猪（童话故事岛开篇）：7 环节
+      // 草房 2 演示（三只小猪 → 稻草飞过去搭房子）→ 砖房互动（拖砖头给第三只猪）→
+      // 敲门 2 演示（敲门声 + 门抖 → 大灰狼现身）→ 找狼互动 → 过渡；
+      // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错只弹回不判错（§二.11）
+      custom: runL111Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
@@ -30802,7 +31570,11 @@
           l105kind: q.kind || null,
           l105pics: q.pics ? q.pics.slice() : null,
           l105icons: q.icons ? q.icons.slice() : null,
-          l105answer: (typeof q.answer === 'number') ? q.answer : null
+          l105answer: (typeof q.answer === 'number') ? q.answer : null,
+          l111kind: q.kind || null,
+          l111items: q.items ? q.items.slice() : null,
+          l111answer: (typeof q.answer === 'number') ? q.answer : null,
+          l111cv: (typeof q.cv === 'number') ? q.cv : null
         } : null
       };
     },

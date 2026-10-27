@@ -1633,6 +1633,30 @@ add("l105_b_rain",  "The boy has an umbrella in the rain. Find the picture.", "e
 add("l105_c_stop",     "Find the sign that means stop.", "en", -15, EN_ASK)
 add("l105_c_umbrella", "Find the umbrella for the rain.", "en", -15, EN_ASK)
 
+# ---- 第 11 岛第 1 关：三只小猪（L11-W1，第 11 岛开篇 · 童话故事） ----
+# 教学 7 条（互动「找大灰狼」复用 A 型同句 l111_a_wolf，按 §一.12 不重复生成）
+add("l111_t_pigs",        "Look! Three little pigs.", "en", -15, EN_ASK)
+add("l111_t_straw_house", "The first pig builds a straw house.", "en", -15, EN_ASK)
+add("l111_t_bricks_put",  "The third pig wants a strong house. Put the bricks here.", "en", -15, EN_ASK)
+add("l111_t_knock",       "Knock knock! Who is knocking at the door?", "en", -15, EN_ASK)
+add("l111_t_wolf",        "It's the big bad wolf!", "en", -15, EN_ASK)
+add("l111_t_out",         "The wolf is here! Let's play!", "en", -15, EN_ASK)
+
+# A 听音找角色（狼 / 猪 / 猎人）
+add("l111_a_wolf",   "Who is knocking at the door? Find the big bad wolf.", "en", -15, EN_ASK)
+add("l111_a_pig",    "Who is building the house? Find the little pig.", "en", -15, EN_ASK)
+add("l111_a_hunter", "Who can help the pigs? Find the hunter.", "en", -15, EN_ASK)
+
+# B 听音找材料（草 / 木头 / 砖头）
+add("l111_b_straw", "The first pig builds a straw house. Find the straw.", "en", -15, EN_ASK)
+add("l111_b_wood",  "The second pig builds a wood house. Find the wood.", "en", -15, EN_ASK)
+add("l111_b_brick", "The third pig builds a brick house. Find the bricks.", "en", -15, EN_ASK)
+
+# C 听台词做动作：狼在门口 → 点喇叭喊「Go away!」把狼吓跑
+add("l111_c_wolf",    "The wolf is here! The pigs say, go away!", "en", -15, EN_ASK)
+add("l111_c_knock",   "Knock knock! The big bad wolf is at the door. The pigs say, go away!", "en", -15, EN_ASK)
+add("l111_c_go_away", "Go away!", "en", -5, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
