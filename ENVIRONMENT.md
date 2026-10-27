@@ -14,7 +14,7 @@
 | 线上地址 | https://lipinglabs.github.io/lilearn-english/ |
 | 仓库 | `lipinglabs/lilearn-english`（**public**） |
 | 技术形态 | 纯静态：单页 HTML + 两个数据脚本 + Service Worker。**无构建、无框架、无后端、无 npm 依赖** |
-| 内容规模 | 12 岛 × 5 关框架；已做第 1–6 岛全部（30 关，已全通）+ 第 7 岛全部 5 关（身体与五官岛收官）+ 第 8 岛全部 5 关（情绪与感受岛收官）+ 第 9 岛全部 5 关（衣物穿戴 / 穿脱动作 / 天气与衣服 / 找错误捣蛋鬼换装 / 游乐场·变装大秀综合考验，已上线），共 45 关 |
+| 内容规模 | 12 岛 × 5 关框架；已做第 1–6 岛全部（30 关，已全通）+ 第 7 岛全部 5 关（身体与五官岛收官）+ 第 8 岛全部 5 关（情绪与感受岛收官）+ 第 9 岛全部 5 关（衣物穿戴岛收官）+ 第 10 岛第 1 关（交通工具与场景分类，已上线），共 46 关 |
 | 部署 | GitHub Pages（源 `main` 分支根目录 `/`，legacy 构建），推送即自动重建 |
 
 ---
@@ -63,8 +63,8 @@
 ### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
 
 ```
-index.html 1,287,830 B / 27,740 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  33,448,657 B /  9,869 行   ← window.VOICE_BANK，1007 条 base64 mp3
+index.html 1,317,506 B / 28,310 行   ← 结构 + 样式 + 全部游戏逻辑
+voice.js  34,164,520 B / 10,080 行   ← window.VOICE_BANK，1029 条 base64 mp3
 assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
 ```
 
@@ -422,6 +422,15 @@ var ANIMAL_IMG = window.ANIMAL_IMG || {};
   **修了一个真实出题 bug**：`makePlan()` 原写死 `i % 3`（3 种题型轮转），而 9-5 有 4 种题型 → L95D 永远不会出现（12 轮只有 A/B/C 各 4 题）。改为 `makePlan(typeCount)`，`9-5` 传 4、其余关卡仍传 3（`beginRounds()` 与 `restartLevel()` 两处调用点按 `levelDef` 判定），并加「相邻两轮不重复」的去重洗牌；
   探针 `tools/probe_l95.js` 双视口逐项断言：7 教学步 sigOk/audioOk/demoOk（演示定格等点按）/ hintOk（4 秒小手）/ blankOk（拖空白不推进、衣物仍在、幽灵回收）/ dragOk（穿脱结果正确）/ 12 轮 L95A/L95B/L95C/L95D **各 3** 且 starsDelta=1 / 答对 voiceOnCorrect 空 / 答错走「again」不扣星 / 无英文 / 双视口无溢出 / 通关 stars=12 / grand=true（岛末关）/ 地图第 9 岛 cleared 点亮 / unlockedLevel[9]=5 / unlockedIsland=10。
   探针自身踩过的两个坑（都不是游戏 bug）：① 身上衣物必须按**实际绘制区域**抓取（`getBBox()` 中心 + `elementFromPoint` 复核），因为 `.l92-on` 是 `pointer-events:none`、只有内层 `<g>` 可拾取，按整卡中心抓会抓到包围盒里的空洞，拖拽根本起不来；② `Game.snapshot()` 的 `question.audio` 是**字符串**（首个语音键）不是数组，按数组断言会误报。
+- **第 10 岛 W1 已完成（2026-10-27）**：交通工具与场景分类——**第 10 岛开篇**，只改 `index.html` 主逻辑 + 追加 `voice.js`；
+  美术全部手写 SVG：三个场景（天空「蓝天 + 太阳 + 两朵云」/ 马路「草地 + 沥青 + 白色虚线」/ 铁轨「碎石 + 枕木 + 双钢轨」）+
+  四种交通工具（car / bus / train / plane），零位图、零渐变 defs、零 emoji，单图 < 1KB；
+  三种题型（12 轮 **4/4/4**）：A 听音放场景（三个场景框 + 底部 1 辆交通工具，拖到对应场景）/ B 听音找工具（3 张交通工具卡点选）/ C TPR 模拟驾驶（场景里停着车 + 巨大👍，永远判对 §三.12，配 WebAudio 合成发动机音效）；
+  教学 10 环节：Car 2 演示 + 1 互动 → Plane 2 演示 + 1 互动 → Train / Bus 各 1 演示 → 综合互动（3 辆选 1，拖到铁轨）→ 过渡；演示语音播完**必须点屏幕才推进**（§三.14）、互动 **4 秒小手**（§二.12）；
+  拖拽宽容：拖到错误场景 / 空白处一律平滑弹回，不判错、不消失（§二.11）；**接收热区比视觉大一圈**——热区 = 整张卡片（含 `padding:7px`），视觉 = 卡内 `.l10-art`，所以命中区天然比看到的大一圈（§三.15），不用负 inset，避免相邻场景热区互相重叠抢错目标；
+  语音 1029 条（本关新生成 22 条 l10_ 系列：t_ 教学 10 条 / a_ 放场景 4 条 / b_ 找工具 4 条 / c_ TPR 4 条；全部 rate -15 ≈ 0.85x）；
+  解锁链：`markCleared(9,5)` 走通用逻辑自动 `unlockedIsland=10`、`unlockedLevel[10]=1`，第 10 岛地图图标为手写小汽车 SVG（`islandIconNode` index===10），`ISLANDS[9]` 更名为「交通工具」；
+  探针 `tools/probe_l10.js` 双视口逐项断言：解锁链（未通 9-5 时岛 10 锁定 / 通关后解锁）/ 地图第 10 岛 `unlocked` / 10 教学步 sigOk+audioOk / demoOk（演示定格、未点按不自动前进）/ hintOk（4 秒小手）/ dragOk（拖错场景弹回且不推进、拖对后场景里出现交通工具）/ 12 轮 L10A/L10B/L10C 各 4 且 starsDelta=1 / 答对 voiceOnCorrect 空 / 👍 ≥44vw（手机）且 ≥150px（宽屏）/ 无英文 / 双视口无溢出 / 通关 stars=12 / grand=false（非岛末关）/ cleared['10-1']=true / unlockedLevel[10]=1（10-2 不存在，不得越界）。
 - **第 7 岛主题**：`ISLANDS[6]` 由原来的「天气与季节」改为**「身体与五官」**（本岛第 1 关就是五官 eye / nose / mouth / ear）；
   地图图标为手写笑脸 SVG（`islandIconNode` index===7），不用 emoji 字符（RULES §二.5 / §二.17）。
 - **第 5 岛主题**：`ISLANDS[4]` 为**「食物与饮料」**，地图图标用 3D 面包 PNG；

@@ -2900,7 +2900,7 @@
     { icon: '👶', name: '身体与五官' },
     { icon: '🙂', name: '情绪与感受' },
     { icon: '👕', name: '衣物穿戴' },
-    { icon: '🏠', name: '家居房间' },
+    { icon: '🚗', name: '交通工具' },
     { icon: '⚽', name: '动作运动' },
     { icon: '🎉', name: '节日庆祝' }
   ];
@@ -3881,7 +3881,8 @@
     '9-2': { numbers: null, make: 'makeL92', title: '第 2 关', tutorial: true },
     '9-3': { numbers: null, make: 'makeL93', title: '第 3 关', tutorial: true },
     '9-4': { numbers: null, make: 'makeL94', title: '第 4 关', tutorial: true },
-    '9-5': { numbers: null, make: 'makeL95', title: '第 5 关', tutorial: true }
+    '9-5': { numbers: null, make: 'makeL95', title: '第 5 关', tutorial: true },
+    '10-1': { numbers: null, make: 'makeL10', title: '第 1 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -3974,6 +3975,24 @@
         '<path d="M38 28 Q50 40 62 28" fill="none" stroke="#4f9fd6" stroke-width="3.2"/>' +
         '<path d="M36 70 H64" stroke="#5aa7d6" stroke-width="2.4" opacity=".55"/>';
       return tee;
+    }
+    // 第 10 岛是「交通工具」，地图图标用手写小汽车 SVG（免费 SVG，RULES §二.5 不用 emoji 字符）
+    if (index === 10) {
+      var carIcon = document.createElementNS(SVG_NS, 'svg');
+      carIcon.setAttribute('viewBox', '0 0 100 100');
+      carIcon.setAttribute('class', 'mini-shapes');
+      carIcon.innerHTML =
+        '<rect x="8" y="46" width="84" height="22" rx="11" fill="#ff8f6b" stroke="#e06a45" stroke-width="3.6"/>' +
+        '<path d="M26 47 L35 31 Q38 27 44 27 H62 Q68 27 71 32 L80 47 Z" fill="#ff8f6b" stroke="#e06a45" ' +
+        'stroke-width="3.6" stroke-linejoin="round"/>' +
+        '<path d="M35 44 L42 34 Q44 32 47 32 H53 V44 Z" fill="#bfe6ff"/>' +
+        '<path d="M58 44 V32 H62 Q66 32 68 35 L73 44 Z" fill="#bfe6ff"/>' +
+        '<circle cx="28" cy="68" r="9" fill="#4a4a52" stroke="#2f2f36" stroke-width="3.2"/>' +
+        '<circle cx="28" cy="68" r="3" fill="#c9ced6"/>' +
+        '<circle cx="72" cy="68" r="9" fill="#4a4a52" stroke="#2f2f36" stroke-width="3.2"/>' +
+        '<circle cx="72" cy="68" r="3" fill="#c9ced6"/>' +
+        '<circle cx="13" cy="55" r="3.4" fill="#fff2b8" stroke="#e0a92e" stroke-width="1.6"/>';
+      return carIcon;
     }
     if (index === 2) {
       var box = document.createElementNS(SVG_NS, 'svg');
@@ -4115,6 +4134,7 @@
     if (def && def.make === 'makeL93') return makeQuestionL93(typeIdx, prev);
     if (def && def.make === 'makeL94') return makeQuestionL94(typeIdx, prev);
     if (def && def.make === 'makeL95') return makeQuestionL95(typeIdx, prev);
+    if (def && def.make === 'makeL10') return makeQuestionL10(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -23872,6 +23892,527 @@
     return api;
   })();
 
+  /* ================= 第 10 岛第 1 关：交通工具与场景分类（Car / Bus / Train / Plane） ================= */
+
+  var L10_SCENES = ['sky', 'road', 'tracks'];      // 固定纵向顺序：天空在上、马路在中、铁轨在下（空间直觉）
+  var L10_VEHICLES = ['car', 'bus', 'train', 'plane'];
+  /** 每个交通工具「属于」的场景（题型 A 的正确答案 + 题型 C 的背景） */
+  var L10_SCENE_OF = { car: 'road', bus: 'road', train: 'tracks', plane: 'sky' };
+  var L10_A_KEY = {
+    car: 'l10_a_car_road', bus: 'l10_a_bus_road',
+    train: 'l10_a_train_tracks', plane: 'l10_a_plane_sky'
+  };
+  var L10_B_KEY = { car: 'l10_b_car', bus: 'l10_b_bus', train: 'l10_b_train', plane: 'l10_b_plane' };
+  var L10_C_KEY = { car: 'l10_c_car', bus: 'l10_c_bus', train: 'l10_c_train', plane: 'l10_c_plane' };
+  var L10_LABEL = { car: '小汽车', bus: '公交车', train: '火车', plane: '飞机' };
+  var L10_SCENE_LABEL = { road: '马路', sky: '天空', tracks: '铁轨' };
+
+  /* ---- 手写 SVG 美术（免费 SVG，RULES §二.5 / §二.17；全部极轻量，无位图、无渐变 defs，避免重绘） ---- */
+  var L10_VEH_SVG = {
+    car:
+      '<svg viewBox="0 0 120 80" aria-hidden="true">' +
+      '<rect x="9" y="37" width="102" height="24" rx="12" fill="#ff8f6b" stroke="#e06a45" stroke-width="3.4"/>' +
+      '<path d="M33 38 L43 22 Q46 18 52 18 H76 Q82 18 85 23 L94 38 Z" fill="#ff8f6b" stroke="#e06a45" ' +
+      'stroke-width="3.4" stroke-linejoin="round"/>' +
+      '<path d="M44 35 L51 24 Q53 22 57 22 H64 V35 Z" fill="#bfe6ff"/>' +
+      '<path d="M70 35 V22 H75 Q79 22 81 25 L86 35 Z" fill="#bfe6ff"/>' +
+      '<circle cx="33" cy="60" r="9.5" fill="#4a4a52" stroke="#2f2f36" stroke-width="3"/>' +
+      '<circle cx="33" cy="60" r="3.2" fill="#c9ced6"/>' +
+      '<circle cx="90" cy="60" r="9.5" fill="#4a4a52" stroke="#2f2f36" stroke-width="3"/>' +
+      '<circle cx="90" cy="60" r="3.2" fill="#c9ced6"/>' +
+      '<circle cx="14" cy="49" r="3.6" fill="#fff2b8" stroke="#e0a92e" stroke-width="1.6"/>' +
+      '</svg>',
+    bus:
+      '<svg viewBox="0 0 120 80" aria-hidden="true">' +
+      '<rect x="13" y="14" width="94" height="48" rx="10" fill="#ffd166" stroke="#e0a92e" stroke-width="3.4"/>' +
+      '<rect x="20" y="21" width="19" height="15" rx="3" fill="#bfe6ff"/>' +
+      '<rect x="43" y="21" width="19" height="15" rx="3" fill="#bfe6ff"/>' +
+      '<rect x="66" y="21" width="19" height="15" rx="3" fill="#bfe6ff"/>' +
+      '<rect x="89" y="21" width="12" height="15" rx="3" fill="#bfe6ff"/>' +
+      '<rect x="20" y="42" width="80" height="9" rx="4.5" fill="#fff0bd"/>' +
+      '<path d="M13 51 H107" stroke="#e0a92e" stroke-width="2.6"/>' +
+      '<circle cx="35" cy="62" r="9" fill="#4a4a52" stroke="#2f2f36" stroke-width="3"/>' +
+      '<circle cx="35" cy="62" r="3" fill="#c9ced6"/>' +
+      '<circle cx="85" cy="62" r="9" fill="#4a4a52" stroke="#2f2f36" stroke-width="3"/>' +
+      '<circle cx="85" cy="62" r="3" fill="#c9ced6"/>' +
+      '</svg>',
+    train:
+      '<svg viewBox="0 0 120 80" aria-hidden="true">' +
+      '<rect x="16" y="30" width="60" height="30" rx="8" fill="#6ec6d8" stroke="#3f9fb3" stroke-width="3.4"/>' +
+      '<rect x="76" y="18" width="32" height="42" rx="7" fill="#6ec6d8" stroke="#3f9fb3" stroke-width="3.4"/>' +
+      '<rect x="84" y="25" width="17" height="13" rx="3" fill="#bfe6ff"/>' +
+      '<rect x="26" y="20" width="13" height="11" rx="3" fill="#4a4a52"/>' +
+      '<rect x="28" y="9" width="9" height="12" rx="3" fill="#8a8f98"/>' +
+      '<circle cx="32" cy="6" r="5" fill="#e8eef5" opacity=".9"/>' +
+      '<rect x="24" y="38" width="20" height="13" rx="3" fill="#bfe6ff"/>' +
+      '<rect x="50" y="38" width="18" height="13" rx="3" fill="#bfe6ff"/>' +
+      '<circle cx="33" cy="61" r="8.5" fill="#4a4a52" stroke="#2f2f36" stroke-width="3"/>' +
+      '<circle cx="70" cy="61" r="8.5" fill="#4a4a52" stroke="#2f2f36" stroke-width="3"/>' +
+      '<circle cx="92" cy="61" r="7.5" fill="#4a4a52" stroke="#2f2f36" stroke-width="3"/>' +
+      '</svg>',
+    plane:
+      '<svg viewBox="0 0 120 80" aria-hidden="true">' +
+      '<ellipse cx="58" cy="42" rx="42" ry="13.5" fill="#8ec8f0" stroke="#4f9fd6" stroke-width="3.4"/>' +
+      '<path d="M48 33 L62 11 L75 11 L66 33 Z" fill="#cfe8fa" stroke="#4f9fd6" stroke-width="2.8" stroke-linejoin="round"/>' +
+      '<path d="M48 51 L62 73 L75 73 L66 51 Z" fill="#cfe8fa" stroke="#4f9fd6" stroke-width="2.8" stroke-linejoin="round"/>' +
+      '<path d="M16 42 L27 29 L38 29 L32 42 Z" fill="#cfe8fa" stroke="#4f9fd6" stroke-width="2.8" stroke-linejoin="round"/>' +
+      '<circle cx="35" cy="42" r="5" fill="#fff" stroke="#8fc7e8" stroke-width="2"/>' +
+      '<circle cx="54" cy="42" r="5" fill="#fff" stroke="#8fc7e8" stroke-width="2"/>' +
+      '<path d="M92 36 q10 6 0 12" fill="none" stroke="#4f9fd6" stroke-width="2.6"/>' +
+      '</svg>'
+  };
+
+  var L10_SCENE_SVG = {
+    /* 天空：蓝天 + 太阳 + 两朵云 */
+    sky:
+      '<svg viewBox="0 0 200 90" preserveAspectRatio="none" aria-hidden="true">' +
+      '<rect width="200" height="90" fill="#bfe6ff"/>' +
+      '<rect width="200" height="34" fill="#d6efff"/>' +
+      '<circle cx="164" cy="21" r="12" fill="#ffe08a"/>' +
+      '<circle cx="164" cy="21" r="17" fill="#ffe08a" opacity=".35"/>' +
+      '<g fill="#ffffff" opacity=".95">' +
+      '<ellipse cx="48" cy="24" rx="19" ry="10"/><ellipse cx="64" cy="22" rx="14" ry="8"/>' +
+      '<ellipse cx="34" cy="26" rx="12" ry="7"/>' +
+      '<ellipse cx="126" cy="60" rx="16" ry="8"/><ellipse cx="139" cy="58" rx="11" ry="6"/>' +
+      '</g></svg>',
+    /* 马路：草地 + 沥青 + 白色虚线 */
+    road:
+      '<svg viewBox="0 0 200 90" preserveAspectRatio="none" aria-hidden="true">' +
+      '<rect width="200" height="90" fill="#a8dc9a"/>' +
+      '<rect y="12" width="200" height="66" fill="#9aa3ad"/>' +
+      '<rect y="12" width="200" height="5" fill="#8792a0"/>' +
+      '<rect y="73" width="200" height="5" fill="#8792a0"/>' +
+      '<g fill="#f7f3e8">' +
+      '<rect x="10" y="43" width="30" height="6" rx="3"/><rect x="58" y="43" width="30" height="6" rx="3"/>' +
+      '<rect x="106" y="43" width="30" height="6" rx="3"/><rect x="154" y="43" width="30" height="6" rx="3"/>' +
+      '</g></svg>',
+    /* 铁轨：碎石 + 枕木 + 双钢轨 */
+    tracks:
+      '<svg viewBox="0 0 200 90" preserveAspectRatio="none" aria-hidden="true">' +
+      '<rect width="200" height="90" fill="#d9d2c4"/>' +
+      '<g fill="#b99a72">' +
+      '<rect x="6" y="26" width="12" height="38" rx="3"/><rect x="34" y="26" width="12" height="38" rx="3"/>' +
+      '<rect x="62" y="26" width="12" height="38" rx="3"/><rect x="90" y="26" width="12" height="38" rx="3"/>' +
+      '<rect x="118" y="26" width="12" height="38" rx="3"/><rect x="146" y="26" width="12" height="38" rx="3"/>' +
+      '<rect x="174" y="26" width="12" height="38" rx="3"/>' +
+      '</g>' +
+      '<g stroke="#c3c9d2" stroke-width="5" stroke-linecap="round">' +
+      '<path d="M0 33 H200"/><path d="M0 57 H200"/>' +
+      '</g>' +
+      '<g stroke="#eef2f7" stroke-width="1.6" opacity=".8">' +
+      '<path d="M0 31.6 H200"/><path d="M0 55.6 H200"/>' +
+      '</g></svg>'
+  };
+
+  var L10_THUMB_SVG =
+    '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+    '<rect x="10" y="45" width="21" height="40" rx="8" fill="#ffd9a4" stroke="#d08f4c" stroke-width="3.6"/>' +
+    '<path d="M31 81 V52 q0 -5.4 3.6 -9.4 L45 27 q3.6 -5.4 8.8 -3.4 q4.8 1.8 4.6 7.4 v11 h15.8 q8.2 0 7.2 8.2 ' +
+    'l-2.7 21.4 q-1 8.4 -9.4 8.4 Z" fill="#ffe3b8" stroke="#d08f4c" stroke-width="3.6" stroke-linejoin="round"/>' +
+    '<path d="M37 61 q9.5 4.2 19 0" fill="none" stroke="#d08f4c" stroke-width="2.8" stroke-linecap="round" opacity=".5"/>' +
+    '</svg>';
+
+  function ensureL10Css() {
+    if (document.getElementById('l10-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l10-style';
+    s.textContent = [
+      '.l10-ask{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.1vh;width:100%}',
+      /* 三个场景纵向排列（天空在上 / 马路在中 / 铁轨在下），符合孩子的空间直觉 */
+      '.l10-scenes{display:flex;flex-direction:column;gap:.9vh;width:min(92vw,560px)}',
+      /* 热区 = 整张卡（含 padding），视觉 = 内部 .l10-art ⇒ 接收热区天然比视觉大一圈（§三.15） */
+      '.l10-scene{position:relative;padding:7px;border-radius:18px;background:rgba(255,255,255,.74);' +
+        'box-shadow:0 2px 8px rgba(90,120,150,.12);height:min(14.4vh,106px);box-sizing:border-box;' +
+        'transition:box-shadow .18s,transform .18s}',
+      '.l10-scene .l10-art{position:relative;width:100%;height:100%;border-radius:13px;overflow:hidden;background:#eaf4fb}',
+      '.l10-scene .l10-art svg{width:100%;height:100%;display:block}',
+      '.l10-scene.drop-hot{box-shadow:0 0 0 4px #7fd18a,0 4px 14px rgba(90,180,120,.3);transform:scale(1.02)}',
+      '.l10-scene.l10-right{box-shadow:0 0 0 4px #7fd18a,0 4px 16px rgba(90,180,120,.36)}',
+      '.l10-veh-in{position:absolute;left:50%;top:50%;width:36%;transform:translate(-50%,-50%) scale(.55);opacity:0;' +
+        'transition:transform .42s cubic-bezier(.3,1.3,.5,1),opacity .3s}',
+      '.l10-veh-in.in{transform:translate(-50%,-50%) scale(1);opacity:1}',
+      '.l10-veh-in svg{width:100%;height:100%;display:block}',
+      '.l10-flyer{position:absolute;left:50%;bottom:2px;width:34%;transform:translate(-50%,0) scale(.9);z-index:3;' +
+        'pointer-events:none;transition:transform .52s cubic-bezier(.35,1.15,.4,1);' +
+        'filter:drop-shadow(0 3px 5px rgba(0,0,0,.18))}',
+      '.l10-flyer svg{width:100%;height:100%;display:block}',
+      '.l10-tray{display:flex;justify-content:center;align-items:center;gap:3vw;width:min(92vw,560px);' +
+        'padding:1vh 2vw;border-radius:18px;background:rgba(255,255,255,.82);box-shadow:inset 0 0 0 2px #e4eef7}',
+      '.l10-card{width:min(22vw,96px);aspect-ratio:3/2;display:flex;align-items:center;justify-content:center;' +
+        'border-radius:14px;background:#fff;box-shadow:0 2px 6px rgba(90,120,150,.14);cursor:grab;touch-action:none}',
+      '.l10-card svg{width:92%;height:92%;display:block;pointer-events:none}',
+      '.l10-card.dragging{opacity:.4}',
+      '.l10-card.l10-wrong{animation:l10shake .38s}',
+      '@keyframes l10shake{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-3deg)}' +
+        '75%{transform:translateX(5px) rotate(3deg)}}',
+      '.l10-pickrow{display:flex;justify-content:center;align-items:center;gap:3vw;width:min(94vw,600px)}',
+      '.l10-pickcard{width:min(27vw,148px);aspect-ratio:1/1;padding:7px;border:3px solid #d9e7f2;border-radius:20px;' +
+        'background:#fff;box-shadow:0 3px 10px rgba(90,120,150,.12);box-sizing:border-box;cursor:pointer}',
+      '.l10-pickcard svg{width:100%;height:100%;display:block;pointer-events:none}',
+      '.l10-pickcard.right{border-color:#7fd18a;background:#eafaf0}',
+      '.l10-pickcard.wrong{border-color:#f3b0a8;animation:l10shake .38s}',
+      '.l10-tpr{gap:2vh}',
+      '.l10-tprscene{height:min(24vh,190px);width:min(88vw,520px)}',
+      '.l10-tprscene .l10-veh-in{width:44%;transform:translate(-50%,-50%) scale(1);opacity:1}',
+      '.l10-thumb{width:min(44vw,190px);aspect-ratio:1;border:none;background:none;padding:0;cursor:pointer;' +
+        'filter:drop-shadow(0 6px 12px rgba(90,150,90,.28));transition:transform .12s}',
+      '.l10-thumb:active{transform:scale(.94)}',
+      '.l10-thumb.right{transform:scale(1.08)}',
+      '.l10-thumb svg{width:100%;height:100%;display:block}',
+      '@media (max-height:600px){.l10-scene{height:min(11.6vh,76px)}.l10-tprscene{height:min(19vh,124px)}' +
+        '.l10-thumb{width:min(44vw,150px)}.l10-scenes{gap:.55vh}.l10-tray{padding:.6vh 2vw}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  /** 未命中轻轻抖一下（不判错、不消失），§二.11 宽容判定 */
+  function l10Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l10-wrong');
+    void el.offsetWidth;
+    el.classList.add('l10-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l10-wrong'); }, 430);
+  }
+
+  /** 发动机音效：WebAudio 实时合成，零音频文件（RULES §二.7） */
+  function l10Engine() {
+    try {
+      var ctx = ensureCtx();
+      if (!ctx) return;
+      var t0 = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(74, t0);
+      osc.frequency.linearRampToValueAtTime(128, t0 + 0.17);
+      osc.frequency.linearRampToValueAtTime(86, t0 + 0.44);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.1, t0 + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.5);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.52);
+    } catch (e) { /* 音效失败绝不影响流程 */ }
+  }
+
+  function l10SceneCard(scene, droppable) {
+    var d = document.createElement('div');
+    d.className = 'l10-scene l10-scene-' + scene;
+    d.dataset.scene = scene;
+    if (droppable) d.dataset.drop = 'scene';
+    d.setAttribute('aria-label', L10_SCENE_LABEL[scene]);
+    var art = document.createElement('div');
+    art.className = 'l10-art';
+    art.innerHTML = L10_SCENE_SVG[scene];
+    d.appendChild(art);
+    return d;
+  }
+
+  function l10VehCard(item, draggable) {
+    var b = document.createElement(draggable ? 'div' : 'button');
+    if (!draggable) b.type = 'button';
+    b.className = 'l10-card';
+    b.dataset.item = item;
+    if (draggable) { b.dataset.drag = 'vehicle'; b.dataset.from = 'tray'; }
+    b.setAttribute('aria-label', L10_LABEL[item]);
+    b.innerHTML = L10_VEH_SVG[item];
+    return b;
+  }
+
+  /** 把交通工具「停」进场景里（带缩放淡入） */
+  function l10PlaceInScene(sceneEl, item) {
+    if (!sceneEl || !item) return;
+    var art = sceneEl.querySelector('.l10-art') || sceneEl;
+    var old = art.querySelector('.l10-veh-in');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    var v = document.createElement('div');
+    v.className = 'l10-veh-in';
+    v.setAttribute('aria-hidden', 'true');
+    v.innerHTML = L10_VEH_SVG[item] || '';
+    art.appendChild(v);
+    void v.offsetWidth;
+    v.classList.add('in');
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：三个场景框 + 底部 1 个交通工具（拖到对应场景） */
+  function renderL10A(q) {
+    ensureL10Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l10-ask l10-stage';
+    var scenes = document.createElement('div');
+    scenes.className = 'l10-scenes';
+    L10_SCENES.forEach(function (sc) { scenes.appendChild(l10SceneCard(sc, true)); });
+    box.appendChild(scenes);
+    var tray = document.createElement('div');
+    tray.className = 'l10-tray';
+    tray.dataset.drop = 'tray';
+    tray.appendChild(l10VehCard(q.item, true));
+    box.appendChild(tray);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 B：3 个交通工具，点出听到的那个 */
+  function renderL10B(q) {
+    ensureL10Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l10-ask l10-pick l10-stage';
+    var row = document.createElement('div');
+    row.className = 'l10-pickrow';
+    q.items.forEach(function (item, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l10-pickcard';
+      b.dataset.item = item;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', L10_LABEL[item]);
+      b.innerHTML = L10_VEH_SVG[item];
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 C：TPR 模拟驾驶 —— 场景 + 大交通工具 + 巨大👍（永远判对，§三.12） */
+  function renderL10C(q) {
+    ensureL10Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l10-ask l10-tpr l10-stage';
+    var stage = l10SceneCard(L10_SCENE_OF[q.item], false);
+    stage.classList.add('l10-tprscene');
+    box.appendChild(stage);
+    l10PlaceInScene(stage, q.item);
+    var thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'l10-thumb';
+    thumb.setAttribute('aria-label', '我做到了');
+    thumb.innerHTML = L10_THUMB_SVG;
+    thumb.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      l10Engine();
+      thumb.classList.add('right');
+      judge(true, thumb);
+    });
+    box.appendChild(thumb);
+    askDisplay.appendChild(box);
+  }
+
+  /* ---------------- 判定：拖到对应场景 = 对；拖错场景温柔鼓励；拖回栏里只弹回 ---------------- */
+  function resolveL10(el, target) {
+    if (!el) return false;
+    var item = el.dataset ? el.dataset.item : null;
+    var scene = target && target.dataset ? target.dataset.scene : null;
+    var tut = (state.phase === 'tutorial') ? state.tut : null;
+
+    if (tut) {
+      var need = tut.l10Need;
+      if (!need) { l10Bounce(el); return false; }
+      if (item !== need.item || scene !== need.scene) {
+        l10Bounce(el);
+        if (tut.canDrag) armHint();
+        return false;
+      }
+      l10PlaceInScene(target, item);
+      tut.canDrag = false; tut.l10On = false;
+      clearHint();
+      var nx = tut._l10Next;
+      setTimeout(function () { if (state.tut === tut && nx) nx(); }, 720);
+      return true;
+    }
+
+    var q = state.question;
+    if (!q || q.type !== 'L10A') return false;
+    /* 拖回底栏 / 空白：静默弹回，不算答错 */
+    if (!scene) { l10Bounce(el); return false; }
+    if (item !== q.item || scene !== q.scene) { judge(false, el); return false; }
+    l10PlaceInScene(target, item);
+    target.classList.add('l10-right');
+    judge(true, target);
+    return true;
+  }
+
+  /* ---------------- 出题：A 听音放场景 / B 听音找工具 / C TPR ---------------- */
+  function makeQuestionL10(type, prev) {
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var item = pick(L10_VEHICLES);
+        q = {
+          type: 'L10A', sig: 'A:' + item, item: item, scene: L10_SCENE_OF[item],
+          sceneOrder: L10_SCENES.slice(), options: [], answer: 0,
+          audio: [L10_A_KEY[item]]
+        };
+      } else if (type === 1) {
+        var t = pick(L10_VEHICLES);
+        var others = shuffle(L10_VEHICLES.filter(function (x) { return x !== t; })).slice(0, 2);
+        var items = shuffle([t].concat(others));
+        q = {
+          type: 'L10B', sig: 'B:' + t, item: t, items: items, options: [],
+          answer: items.indexOf(t), audio: [L10_B_KEY[t]]
+        };
+      } else {
+        var c = pick(L10_VEHICLES);
+        q = { type: 'L10C', sig: 'C:' + c, item: c, options: [], answer: 0, audio: [L10_C_KEY[c]] };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 教学：Car 2 演示 + 1 互动 / Plane 2 演示 + 1 互动 / Train + Bus 各 1 演示 / 综合互动 / 过渡 ---------------- */
+  var runL10Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'car1',     word: 'l10_t_car1',      item: 'car',   anim: 'road' },
+      { t: 'demo', sid: 'car2',     word: 'l10_t_car2',      item: 'car',   scene: 'road' },
+      { t: 'drag', sid: 'carPut',   word: 'l10_t_car_put',   item: 'car',   scene: 'road',   opts: ['car', 'plane'] },
+      { t: 'demo', sid: 'plane1',   word: 'l10_t_plane1',    item: 'plane', anim: 'sky' },
+      { t: 'demo', sid: 'plane2',   word: 'l10_t_plane2',    item: 'plane', scene: 'sky' },
+      { t: 'drag', sid: 'planePut', word: 'l10_t_plane_put', item: 'plane', scene: 'sky',    opts: ['plane', 'train'] },
+      { t: 'demo', sid: 'train',    word: 'l10_t_train',     item: 'train', anim: 'tracks' },
+      { t: 'demo', sid: 'bus',      word: 'l10_t_bus',       item: 'bus',   anim: 'road' },
+      { t: 'drag', sid: 'trainPut', word: 'l10_t_train_put', item: 'train', scene: 'tracks', opts: ['car', 'bus', 'train'] },
+      { t: 'out',  sid: 'out',      word: 'l10_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null; me._advance = null;
+      me.canDrag = false; me.l10On = false; me.l10Need = null; me._l10Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL10Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l10-ask l10-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '情景');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    /* 演示定格：等孩子点屏幕任意位置才 next()（§三.14，禁止定时器自动前进） */
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    function scenesRow(host, droppable) {
+      var row = document.createElement('div');
+      row.className = 'l10-scenes';
+      L10_SCENES.forEach(function (sc) { row.appendChild(l10SceneCard(sc, droppable)); });
+      host.appendChild(row);
+      return row;
+    }
+    /* 演示：语音 → 交通工具「开」进场景 → 定格等点按 */
+    function playDemo(me, act, next) {
+      var w = stage(me, act);
+      var row = scenesRow(w, false);
+      me.replay = function () { say([act.word]); };
+      if (!act.anim) {
+        /* 第 2 遍演示：直接停在该场景里复述 */
+        l10PlaceInScene(row.querySelector('.l10-scene[data-scene="' + act.scene + '"]'), act.item);
+        say([act.word], function () { if (state.tut === me) gate(me, next); });
+        return;
+      }
+      var target = row.querySelector('.l10-scene[data-scene="' + act.anim + '"]');
+      var flyer = document.createElement('div');
+      flyer.className = 'l10-flyer';
+      flyer.setAttribute('aria-hidden', 'true');
+      flyer.innerHTML = L10_VEH_SVG[act.item];
+      w.appendChild(flyer);
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        /* transform 是「替换」不是「累加」：保留 -50% 居中，再叠加位移 */
+        var tb = target.getBoundingClientRect();
+        var fb = flyer.getBoundingClientRect();
+        var dx = (tb.left + tb.width / 2) - (fb.left + fb.width / 2);
+        var dy = (tb.top + tb.height / 2) - (fb.top + fb.height / 2);
+        flyer.style.transform = 'translate(calc(-50% + ' + dx + 'px),' + dy + 'px) scale(.72)';
+        setTimeout(function () {
+          if (state.tut !== me) return;
+          if (flyer.parentNode) flyer.parentNode.removeChild(flyer);
+          l10PlaceInScene(target, act.item);
+          gate(me, next);
+        }, 580);
+      });
+    }
+    /* 互动：语音后开放拖拽 + 4 秒小手（§二.12） */
+    function playDrag(me, act, next) {
+      var w = stage(me, act);
+      var row = scenesRow(w, true);
+      var tray = document.createElement('div');
+      tray.className = 'l10-tray';
+      tray.dataset.drop = 'tray';
+      shuffle(act.opts.slice()).forEach(function (it) { tray.appendChild(l10VehCard(it, true)); });
+      w.appendChild(tray);
+      me.l10Need = { item: act.item, scene: act.scene };
+      me._l10Next = next;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l10On = true; me.canDrag = true; me.customMode = 'L10';
+        me.hintFrom = tray.querySelector('.l10-card[data-item="' + act.item + '"]');
+        me.hintTo = row.querySelector('.l10-scene[data-scene="' + act.scene + '"]');
+        me.hintTarget = me.hintFrom; me.hintToY = 0.5;
+        armHint();
+      });
+    }
+    /* 过渡：三个场景各停一辆，收尾走 tutFinish（§三.8） */
+    function playOutro(me, act) {
+      var w = stage(me, act);
+      var row = scenesRow(w, false);
+      l10PlaceInScene(row.querySelector('.l10-scene[data-scene="sky"]'), 'plane');
+      l10PlaceInScene(row.querySelector('.l10-scene[data-scene="road"]'), 'bus');
+      l10PlaceInScene(row.querySelector('.l10-scene[data-scene="tracks"]'), 'train');
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'drag') { playDrag(me, act, next); return; }
+      playOutro(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -24195,6 +24736,10 @@
     if (q.type === 'L95B') { optionsBar.classList.add('gone'); renderL95B(q); return; }
     if (q.type === 'L95C') { optionsBar.classList.add('gone'); renderL95C(q); return; }
     if (q.type === 'L95D') { optionsBar.classList.add('gone'); renderL95D(q); return; }
+    /* ---- 第 10 岛第 1 关：交通工具与场景分类（A 拖到场景 / B 3 选 1 / C TPR 模拟驾驶） ---- */
+    if (q.type === 'L10A') { optionsBar.classList.add('gone'); renderL10A(q); return; }
+    if (q.type === 'L10B') { optionsBar.classList.add('gone'); renderL10B(q); return; }
+    if (q.type === 'L10C') { optionsBar.classList.add('gone'); renderL10C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -24619,6 +25164,11 @@
     }
     // 第 9 岛第 5 关 A/B/C/D：作答用「小人 + 物品栏」拖拽舞台（renderDisplay 已渲染），不用选项栏
     if (q.type === 'L95A' || q.type === 'L95B' || q.type === 'L95C' || q.type === 'L95D') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 10 岛第 1 关：A 拖拽舞台 / B 三选一 / C TPR，全部不用选项栏
+    if (q.type === 'L10A' || q.type === 'L10B' || q.type === 'L10C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -25288,7 +25838,8 @@
             qt !== 'L92A' && qt !== 'L92C' &&
             qt !== 'L93A' && qt !== 'L93B' && qt !== 'L93C' &&
             qt !== 'L94A' && qt !== 'L94B' && qt !== 'L94C' &&
-            qt !== 'L95A' && qt !== 'L95B' && qt !== 'L95C' && qt !== 'L95D') {
+            qt !== 'L95A' && qt !== 'L95B' && qt !== 'L95C' && qt !== 'L95D' &&
+            qt !== 'L10A' && qt !== 'L10B' && qt !== 'L10C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -25510,6 +26061,8 @@
         resolveL94(d.el, target);
       } else if (d.mode === 'L95') {
         resolveL95(d.el, target);
+      } else if (d.mode === 'L10') {
+        resolveL10(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -25543,7 +26096,7 @@
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
-    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95') {
+    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -25551,7 +26104,10 @@
       d.ghost.style.top = sr1.top + 'px';
       d.ghost.style.transform = 'scale(1)';
       setTimeout(function () { if (d.ghost.parentNode) d.ghost.remove(); }, 240);
-      if (d.mode === 'L94') l94Bounce(d.el); else if (d.mode === 'L95') l95Bounce(d.el); else l92Bounce(d.el);
+      if (d.mode === 'L94') l94Bounce(d.el);
+      else if (d.mode === 'L95') l95Bounce(d.el);
+      else if (d.mode === 'L10') l10Bounce(d.el);
+      else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
       d.ghost.style.transition = 'transform .18s, opacity .18s';
@@ -26623,6 +27179,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '10-1': {
+      // 交通工具与场景分类（Car / Bus / Train / Plane）：10 环节
+      // Car 2 演示 + 1 互动 → Plane 2 演示 + 1 互动 → Train/Bus 各 1 演示 → 综合互动 → 过渡；
+      // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错场景只弹回不判错（§二.11）
+      custom: runL10Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -26873,6 +27438,7 @@
     if (q.type === 'L93A') return 'L93';
     if (q.type === 'L94A') return 'L94';
     if (q.type === 'L95A' || q.type === 'L95B' || q.type === 'L95C') return 'L95';
+    if (q.type === 'L10A') return 'L10';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -27717,7 +28283,11 @@
           l95slot: q.slot || null,
           l95looks: q.looks ? q.looks.slice() : null,
           l95steps: q.steps ? q.steps.slice() : null,
-          l95answer: (typeof q.answer === 'number') ? q.answer : null
+          l95answer: (typeof q.answer === 'number') ? q.answer : null,
+          l10item: q.item || null,
+          l10scene: q.scene || null,
+          l10items: q.items ? q.items.slice() : null,
+          l10answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },

@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1007** 条（英文 1001 + 中文 6）
+总条目：**1029** 条（英文 1023 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -991,20 +991,42 @@
 | `l94_c_hand` | en | Show me silly! Put your hand on your head! | 已存在 |
 | `l94_c_nose` | en | Show me silly! Put your finger on your nose! | 已存在 |
 | `l94_c_jump` | en | Show me silly! Jump like a frog! | 已存在 |
-| `l95_t_welcome` | en | Welcome to the fashion show! It's cold. Put on the shoes and the coat. | 待生成 |
-| `l95_t_welcome2` | en | Look! The shoes and the coat are on! So stylish! | 待生成 |
-| `l95_t_coat` | en | Brrr! It's cold. Put on the coat. | 待生成 |
-| `l95_t_hot1` | en | Now it's hot. Take off the coat. | 待生成 |
-| `l95_t_hot2` | en | The coat is off! So cool! | 待生成 |
-| `l95_t_hat` | en | Take off the hat. | 待生成 |
-| `l95_t_out` | en | You are a fashion superstar! Let's play! | 待生成 |
-| `l95_b_shoes` | en | Let's be silly! Put the shoes on his head! | 待生成 |
-| `l95_b_pants` | en | Let's be silly! Put the pants on his arms! | 待生成 |
-| `l95_b_hat` | en | Let's be silly! Put the hat on his foot! | 待生成 |
-| `l95_c_pants_hat` | en | First, put on the pants. Then, take off the hat. | 待生成 |
-| `l95_c_shoes_coat` | en | First, put on the shoes. Then, take off the coat. | 待生成 |
-| `l95_c_coat_hat` | en | First, put on the coat. Then, take off the hat. | 待生成 |
-| `l95_d_find` | en | Find the silly boy! | 待生成 |
+| `l95_t_welcome` | en | Welcome to the fashion show! It's cold. Put on the shoes and the coat. | 已存在 |
+| `l95_t_welcome2` | en | Look! The shoes and the coat are on! So stylish! | 已存在 |
+| `l95_t_coat` | en | Brrr! It's cold. Put on the coat. | 已存在 |
+| `l95_t_hot1` | en | Now it's hot. Take off the coat. | 已存在 |
+| `l95_t_hot2` | en | The coat is off! So cool! | 已存在 |
+| `l95_t_hat` | en | Take off the hat. | 已存在 |
+| `l95_t_out` | en | You are a fashion superstar! Let's play! | 已存在 |
+| `l95_b_shoes` | en | Let's be silly! Put the shoes on his head! | 已存在 |
+| `l95_b_pants` | en | Let's be silly! Put the pants on his arms! | 已存在 |
+| `l95_b_hat` | en | Let's be silly! Put the hat on his foot! | 已存在 |
+| `l95_c_pants_hat` | en | First, put on the pants. Then, take off the hat. | 已存在 |
+| `l95_c_shoes_coat` | en | First, put on the shoes. Then, take off the coat. | 已存在 |
+| `l95_c_coat_hat` | en | First, put on the coat. Then, take off the hat. | 已存在 |
+| `l95_d_find` | en | Find the silly boy! | 已存在 |
+| `l10_t_car1` | en | Look! A car. The car goes on the road. | 待生成 |
+| `l10_t_car2` | en | The car is on the road. Beep beep! | 待生成 |
+| `l10_t_car_put` | en | Put the car on the road. | 待生成 |
+| `l10_t_plane1` | en | Look! A plane. The plane flies in the sky. | 待生成 |
+| `l10_t_plane2` | en | The plane is in the sky. Up high! | 待生成 |
+| `l10_t_plane_put` | en | Put the plane in the sky. | 待生成 |
+| `l10_t_train` | en | Look! A train. The train goes on the tracks. | 待生成 |
+| `l10_t_bus` | en | And a bus! The bus goes on the road. | 待生成 |
+| `l10_t_train_put` | en | Put the train on the tracks. | 待生成 |
+| `l10_t_out` | en | You know the vehicles! Let's play! | 待生成 |
+| `l10_a_car_road` | en | The car goes on the road. Where does it go? | 待生成 |
+| `l10_a_bus_road` | en | The bus goes on the road. Where does it go? | 待生成 |
+| `l10_a_train_tracks` | en | The train goes on the tracks. Where does it go? | 待生成 |
+| `l10_a_plane_sky` | en | The plane flies in the sky. Where does it go? | 待生成 |
+| `l10_b_car` | en | Find the car. | 待生成 |
+| `l10_b_bus` | en | Find the bus. | 待生成 |
+| `l10_b_train` | en | Find the train. | 待生成 |
+| `l10_b_plane` | en | Find the plane. | 待生成 |
+| `l10_c_car` | en | Drive the car! | 待生成 |
+| `l10_c_bus` | en | Drive the bus! | 待生成 |
+| `l10_c_train` | en | Drive the train! | 待生成 |
+| `l10_c_plane` | en | Fly the plane! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

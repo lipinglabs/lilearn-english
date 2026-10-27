@@ -1497,6 +1497,36 @@ add("l95_c_shoes_coat","First, put on the shoes. Then, take off the coat.", "en"
 add("l95_c_coat_hat",  "First, put on the coat. Then, take off the hat.", "en", -15, EN_ASK)
 add("l95_d_find",      "Find the silly boy!", "en", -15, EN_ASK)
 
+# ---------------- 第 10 岛第 1 关：交通工具与场景分类（Car / Bus / Train / Plane） ----------------
+# 全部 rate -15（≈0.85x，用户要求）。场景固定三个：road 马路 / sky 天空 / tracks 铁轨。
+# 教学 10 环节：Car 2 演示 + 1 互动 → Plane 2 演示 + 1 互动 → Train/Bus 各 1 演示 → 综合互动 → 过渡。
+# 去重自检（§一.12）：「Find the car/bus/train/plane.」与「Put the car on the road.」等均为本批新句。
+add("l10_t_car1",       "Look! A car. The car goes on the road.", "en", -15, EN_ASK)
+add("l10_t_car2",       "The car is on the road. Beep beep!", "en", -15, EN_ASK)
+add("l10_t_car_put",    "Put the car on the road.", "en", -15, EN_ASK)
+add("l10_t_plane1",     "Look! A plane. The plane flies in the sky.", "en", -15, EN_ASK)
+add("l10_t_plane2",     "The plane is in the sky. Up high!", "en", -15, EN_ASK)
+add("l10_t_plane_put",  "Put the plane in the sky.", "en", -15, EN_ASK)
+add("l10_t_train",      "Look! A train. The train goes on the tracks.", "en", -15, EN_ASK)
+add("l10_t_bus",        "And a bus! The bus goes on the road.", "en", -15, EN_ASK)
+add("l10_t_train_put",  "Put the train on the tracks.", "en", -15, EN_ASK)
+add("l10_t_out",        "You know the vehicles! Let's play!", "en", -12, EN_PRAISE)
+# 题型 A：听音放场景（先陈述再问，给孩子两次输入）
+add("l10_a_car_road",     "The car goes on the road. Where does it go?", "en", -15, EN_ASK)
+add("l10_a_bus_road",     "The bus goes on the road. Where does it go?", "en", -15, EN_ASK)
+add("l10_a_train_tracks", "The train goes on the tracks. Where does it go?", "en", -15, EN_ASK)
+add("l10_a_plane_sky",    "The plane flies in the sky. Where does it go?", "en", -15, EN_ASK)
+# 题型 B：听音找交通工具
+add("l10_b_car",   "Find the car.", "en", -15, EN_ASK)
+add("l10_b_bus",   "Find the bus.", "en", -15, EN_ASK)
+add("l10_b_train", "Find the train.", "en", -15, EN_ASK)
+add("l10_b_plane", "Find the plane.", "en", -15, EN_ASK)
+# 题型 C：TPR 模拟驾驶（飞机用 fly 更自然）
+add("l10_c_car",   "Drive the car!", "en", -15, EN_ASK)
+add("l10_c_bus",   "Drive the bus!", "en", -15, EN_ASK)
+add("l10_c_train", "Drive the train!", "en", -15, EN_ASK)
+add("l10_c_plane", "Fly the plane!", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
