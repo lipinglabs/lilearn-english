@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1230** 条（英文 1224 + 中文 6）
+总条目：**1249** 条（英文 1243 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1214,20 +1214,39 @@
 | `l123_b_light` | en | The cars are coming. What do I look at? | 已存在 |
 | `l123_c_cry` | en | Put the crying baby in the sad box. | 已存在 |
 | `l123_c_laugh` | en | Put the laughing baby in the happy box. | 已存在 |
-| `l124_t_intro` | en | Let's play a game. First, go to the table and get the apple. | 待生成 |
-| `l124_t_inhand` | en | Now the apple is in my hand. | 待生成 |
-| `l124_t_getask` | en | Get the apple. | 待生成 |
-| `l124_t_dad` | en | Then, give the apple to Daddy. | 待生成 |
-| `l124_t_dadhold` | en | The apple is in Daddy's hands. He is happy! | 待生成 |
-| `l124_t_giveask` | en | Give the apple to Daddy. | 待生成 |
-| `l124_t_out` | en | Great! You can follow instructions! Let's play! | 待生成 |
-| `l124_a_apple_dad` | en | First, get the apple. Then, give the apple to Daddy. | 待生成 |
-| `l124_a_apple_mom` | en | First, get the apple. Then, give the apple to Mommy. | 待生成 |
-| `l124_a_ball_dad` | en | First, get the ball. Then, give the ball to Daddy. | 待生成 |
-| `l124_a_ball_mom` | en | First, get the ball. Then, give the ball to Mommy. | 待生成 |
-| `l124_c_dad` | en | First, get the apple. Then, give it to Daddy. | 待生成 |
-| `l124_c_mom` | en | First, get the apple. Then, give it to Mommy. | 待生成 |
-| `l124_line_thanks` | en | Thank you so much! | 待生成 |
+| `l124_t_intro` | en | Let's play a game. First, go to the table and get the apple. | 已存在 |
+| `l124_t_inhand` | en | Now the apple is in my hand. | 已存在 |
+| `l124_t_getask` | en | Get the apple. | 已存在 |
+| `l124_t_dad` | en | Then, give the apple to Daddy. | 已存在 |
+| `l124_t_dadhold` | en | The apple is in Daddy's hands. He is happy! | 已存在 |
+| `l124_t_giveask` | en | Give the apple to Daddy. | 已存在 |
+| `l124_t_out` | en | Great! You can follow instructions! Let's play! | 已存在 |
+| `l124_a_apple_dad` | en | First, get the apple. Then, give the apple to Daddy. | 已存在 |
+| `l124_a_apple_mom` | en | First, get the apple. Then, give the apple to Mommy. | 已存在 |
+| `l124_a_ball_dad` | en | First, get the ball. Then, give the ball to Daddy. | 已存在 |
+| `l124_a_ball_mom` | en | First, get the ball. Then, give the ball to Mommy. | 已存在 |
+| `l124_c_dad` | en | First, get the apple. Then, give it to Daddy. | 已存在 |
+| `l124_c_mom` | en | First, get the apple. Then, give it to Mommy. | 已存在 |
+| `l124_line_thanks` | en | Thank you so much! | 已存在 |
+| `l125_t_intro` | en | Welcome to the final treasure hunt! Look at the map and the golden key. Let's find the treasure! | 待生成 |
+| `l125_t_map` | en | Here is the map. The treasure is at the red X. | 待生成 |
+| `l125_t_find` | en | First, find the red apple. | 待生成 |
+| `l125_t_wow` | en | Wow! You found the treasure! You are the English superstar! | 待生成 |
+| `l125_t_super` | en | Look at the golden trophy! You did it! | 待生成 |
+| `l125_t_out` | en | Let's start the real treasure hunt! | 待生成 |
+| `l125_a_big_ele` | en | Can you find the big elephant? | 待生成 |
+| `l125_a_red_car` | en | Find the red car. | 待生成 |
+| `l125_a_green_apple` | en | Find the green apple. | 待生成 |
+| `l125_a_blue_car` | en | Find the blue car. | 待生成 |
+| `l125_b_apple_car` | en | First, find the apple. Then, find the car. | 待生成 |
+| `l125_b_cat_bread` | en | First, find the cat. Then, find the bread. | 待生成 |
+| `l125_b_banana_hat` | en | First, find the banana. Then, find the hat. | 待生成 |
+| `l125_b_dog_milk` | en | First, find the dog. Then, find the milk. | 待生成 |
+| `l125_c_star` | en | Put the golden star on the trophy. | 待生成 |
+| `l125_c_heart` | en | Put the red heart on the trophy. | 待生成 |
+| `l125_c_ring` | en | Put the golden ring on the trophy. | 待生成 |
+| `l125_c_flag` | en | Put the little flag on the trophy. | 待生成 |
+| `l125_finale` | en | Congratulations! You finished all sixty levels. You are a real English superstar! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

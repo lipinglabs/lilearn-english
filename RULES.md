@@ -670,6 +670,28 @@
    - **矮屏 `<600px` 的媒体查询会缩小元素，探针阈值要同步**。本关 `.l124-thumb` 正常是 `min(44vw,190px)`，
      但 `@media (max-height:600px)` 压到 `min(38vw,170px)`；探针若写死 `min(W*0.44,190)`，
      在 800×600 下会假失败（170 < 190）。阈值必须跟 CSS 一起写：`H<=600 ? min(38vw,170) : min(44vw,190)`。
+35. **收官关（年度大结局）的三层验收 + 变体池的「牌堆发牌」（第 12 岛第 5 关确立，项目最后一关）**：
+   - **岛末关的 grand 之外还要一层「全局结局」，两者互不等价**。12-5 通关时必须同时成立五件事，
+     探针逐项断言，少一项都算没做完：
+     ① `cleared['12-5']`；② `#viewDone` 带 `grand`；③ 舞台升起 `.island-flag[data-island="12"]`；
+     ④ `#viewDone` 带 `finale` + 结局层里 **12 面小旗** + 中文横幅；⑤ 地图第 12 岛卡片带 `.cleared` + `.island-flag-badge`。
+     第 ⑤ 项是用户唯一看得见的「整岛通关」，判定走 `isIslandCleared(12)`（同岛 5 关全清），不能用「本关通关」代替。
+     `finish()` 里写成 `if (grand && isFinalLevel()) showFinale();`——`isFinalLevel()` 判 `currentIsland === ISLANDS.length`
+     且 `state.level === LEVELS_PER_ISLAND`，这样以后加岛也不会误触发。
+   - **结局层的动画只能用 transform/opacity，且 `pointer-events:none`**。它盖在 `#viewDone` 上，
+     一旦吃掉点击，「重新开始」就点不动了；12 面小旗用 `animation-delay` 依次升起（0.09s 递增），
+     横幅用 `forwards` 停在原地，零定时器、零 JS 逐帧。
+   - **变体池要用「牌堆发牌」，不要用「随机且不与上轮相同」**。12-5 的 A/B/C 各有 4 种变体 × 4 轮，
+     若只是 `pick(list.filter(x => x.key !== last))`，实测会出现 `ele,bluecar,ele,bluecar` 这种
+     「4 轮只见到 2 种」（概率不低，800×600 那轮就撞上了）——孩子没见过的题型等于没考。
+     正确做法：每种题型维护一副洗好的牌堆，`shift()` 发完再洗；新牌堆首张若与上一轮相同就 `push(shift())` 挪到队尾。
+     探针因此可以断言「4 种变体各出现恰好一次」（`distinct(aWants) === 4`），比「有变化」强得多。
+   - **结局台词排在通关音效之后**：`finish()` 里先 `playRandomPraise(playLevelComplete)`，
+     结局层里用 `setTimeout(..., 3000)` 再 `say(['l125_finale'])`。§二.10 禁的是「答对夸奖人声」，
+     结束语属于剧情台词，可以做，但顺序必须是「音效 → 台词」，且台词之后不再有任何声音。
+   - **探针读落位状态要卡在 430ms 之前**：`judge(true)` 之后 430ms 就 `nextRound`，而 `drag()` 自带 220ms 尾部延时，
+     再 `sleep(300)` 读到的是下一屏（症状：4 轮 C 型里 3 轮报「拖对后没有落位」，最后一轮却对——因为没有下一轮）。
+     落位类断言一律在 `drag()` 返回后立即读（§三.34 的节拍规矩在多题型关更致命）。
 
 ---
 

@@ -1863,6 +1863,36 @@ add("l124_c_mom", "First, get the apple. Then, give it to Mommy.", "en", -15, EN
 # 剧情台词（§三.26）：递对了先念这句，念完再给星星
 add("l124_line_thanks", "Thank you so much!", "en", -10, EN_ASK)
 
+# ---- 第 12 岛第 5 关：年度游乐场 · 小岛寻宝大结局（L12-W5，项目收官） ----
+# 全部 rate -15 ≈ 0.85x。教学 6 环节：藏宝图+金钥匙 2 演示 → 找红苹果（互动）→ 奖杯 2 演示 → 过渡。
+add("l125_t_intro", "Welcome to the final treasure hunt! Look at the map and the golden key. Let's find the treasure!", "en", -15, EN_ASK)
+add("l125_t_map",   "Here is the map. The treasure is at the red X.", "en", -15, EN_ASK)
+add("l125_t_find",  "First, find the red apple.", "en", -15, EN_ASK)
+add("l125_t_wow",   "Wow! You found the treasure! You are the English superstar!", "en", -15, EN_ASK)
+add("l125_t_super", "Look at the golden trophy! You did it!", "en", -15, EN_ASK)
+add("l125_t_out",   "Let's start the real treasure hunt!", "en", -15, EN_ASK)
+
+# A 跨主题寻宝听音（每句只有一个语义唯一的答案，颜色/名词都真的可分辨）
+add("l125_a_big_ele",     "Can you find the big elephant?", "en", -15, EN_ASK)
+add("l125_a_red_car",     "Find the red car.", "en", -15, EN_ASK)
+add("l125_a_green_apple", "Find the green apple.", "en", -15, EN_ASK)
+add("l125_a_blue_car",    "Find the blue car.", "en", -15, EN_ASK)
+
+# B 多步指令寻宝（两步按顺序点）
+add("l125_b_apple_car",   "First, find the apple. Then, find the car.", "en", -15, EN_ASK)
+add("l125_b_cat_bread",   "First, find the cat. Then, find the bread.", "en", -15, EN_ASK)
+add("l125_b_banana_hat",  "First, find the banana. Then, find the hat.", "en", -15, EN_ASK)
+add("l125_b_dog_milk",    "First, find the dog. Then, find the milk.", "en", -15, EN_ASK)
+
+# C 拖拽组装奖杯（零件名是题眼）
+add("l125_c_star",  "Put the golden star on the trophy.", "en", -15, EN_ASK)
+add("l125_c_heart", "Put the red heart on the trophy.", "en", -15, EN_ASK)
+add("l125_c_ring",  "Put the golden ring on the trophy.", "en", -15, EN_ASK)
+add("l125_c_flag",  "Put the little flag on the trophy.", "en", -15, EN_ASK)
+
+# 年度通关大结局收尾台词（通关音效播完之后才念）
+add("l125_finale", "Congratulations! You finished all sixty levels. You are a real English superstar!", "en", -12, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
