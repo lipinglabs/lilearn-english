@@ -1580,6 +1580,32 @@ add("l103_b_red_stop",  "The red light is on. The car is stopping. Find the pict
 add("l103_c_red",   "Red light!", "en", -15, EN_ASK)
 add("l103_c_green", "Green light!", "en", -15, EN_ASK)
 
+# ---------------- 第 10 岛第 4 关：天气（Sunny / Rainy / Cloudy） ----------------
+# 全部 rate -15（≈0.85x）。教学 10 环节：晴天 2 演示 + 1 互动 → 雨天 2 演示 + 1 互动 →
+# 阴天 2 演示 + 1 互动 → 过渡。**本关严禁 TPR 动作题**，互动全部是点选 / 拖拽。
+# 去重（§一.12）：本批 18 条均为新句。
+add("l104_t_sunny",       "Look at the sky. It's sunny! We need sunglasses.", "en", -15, EN_ASK)
+add("l104_t_sunny2",      "The sunglasses are on! Cool!", "en", -15, EN_ASK)
+add("l104_t_sun_put",     "It's sunny. Put the sunglasses on the boy.", "en", -15, EN_ASK)
+add("l104_t_rainy",       "Oh no! It's rainy. We need an umbrella.", "en", -15, EN_ASK)
+add("l104_t_rainy2",      "The umbrella is up! We are dry.", "en", -15, EN_ASK)
+add("l104_t_rain_put",    "It's rainy. Put the umbrella on the boy.", "en", -15, EN_ASK)
+add("l104_t_cloudy",      "Look! So many clouds. It's cloudy.", "en", -15, EN_ASK)
+add("l104_t_cloudy2",     "The sky is grey. It's cloudy.", "en", -15, EN_ASK)
+add("l104_t_cloudy_find", "It's cloudy. Find the cloudy picture.", "en", -15, EN_ASK)
+add("l104_t_out",         "You know the weather! Let's play!", "en", -12, EN_PRAISE)
+# 题型 A：听音找天气
+add("l104_a_sunny",  "Find the sunny day.", "en", -15, EN_ASK)
+add("l104_a_rainy",  "Find the rainy day.", "en", -15, EN_ASK)
+add("l104_a_cloudy", "Find the cloudy day.", "en", -15, EN_ASK)
+# 题型 B：听天气给小人配物品（只有晴 / 雨两种，阴天不配物品避免歧义）
+add("l104_b_sunny", "It's sunny.", "en", -15, EN_ASK)
+add("l104_b_rainy", "It's rainy.", "en", -15, EN_ASK)
+# 题型 C：听句子找场景
+add("l104_c_sun",   "The boy is wearing sunglasses. Find the picture.", "en", -15, EN_ASK)
+add("l104_c_rain",  "The boy has an umbrella. Find the picture.", "en", -15, EN_ASK)
+add("l104_c_cloud", "The boy is looking at the clouds. Find the picture.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

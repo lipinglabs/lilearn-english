@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1062** 条（英文 1056 + 中文 6）
+总条目：**1080** 条（英文 1074 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1043,23 +1043,41 @@
 | `l102_d_snail` | en | Put the snail in the slow box. | 已存在 |
 | `l102_d_car` | en | Put the car in the fast box. | 已存在 |
 | `l102_d_turtle` | en | Put the turtle in the slow box. | 已存在 |
-| `l103_t_red` | en | Look! The red light. Stop! | 待生成 |
-| `l103_t_red2` | en | The car stops before the zebra crossing. | 待生成 |
-| `l103_t_red_put` | en | Put the car here. Red light, stop! | 待生成 |
-| `l103_t_green` | en | Now, the green light. Go! | 待生成 |
-| `l103_t_green2` | en | Green light! The car can go. | 待生成 |
-| `l103_t_green_put` | en | Put the car here. Green light, go! | 待生成 |
-| `l103_t_boy` | en | The green light is on. The boy can walk. | 待生成 |
-| `l103_t_boy2` | en | Look! The boy is walking. | 待生成 |
-| `l103_t_out` | en | You know the traffic rules! Let's play! | 待生成 |
-| `l103_a_red_car` | en | The red light is on. What to do? Put the car here. | 待生成 |
-| `l103_a_green_car` | en | The green light is on. What to do? Put the car here. | 待生成 |
-| `l103_a_red_boy` | en | The red light is on. What to do? Put the boy here. | 待生成 |
-| `l103_a_green_boy` | en | The green light is on. What to do? Put the boy here. | 待生成 |
-| `l103_b_green_go` | en | The green light is on. The car is going. Find the picture. | 待生成 |
-| `l103_b_red_stop` | en | The red light is on. The car is stopping. Find the picture. | 待生成 |
-| `l103_c_red` | en | Red light! | 待生成 |
-| `l103_c_green` | en | Green light! | 待生成 |
+| `l103_t_red` | en | Look! The red light. Stop! | 已存在 |
+| `l103_t_red2` | en | The car stops before the zebra crossing. | 已存在 |
+| `l103_t_red_put` | en | Put the car here. Red light, stop! | 已存在 |
+| `l103_t_green` | en | Now, the green light. Go! | 已存在 |
+| `l103_t_green2` | en | Green light! The car can go. | 已存在 |
+| `l103_t_green_put` | en | Put the car here. Green light, go! | 已存在 |
+| `l103_t_boy` | en | The green light is on. The boy can walk. | 已存在 |
+| `l103_t_boy2` | en | Look! The boy is walking. | 已存在 |
+| `l103_t_out` | en | You know the traffic rules! Let's play! | 已存在 |
+| `l103_a_red_car` | en | The red light is on. What to do? Put the car here. | 已存在 |
+| `l103_a_green_car` | en | The green light is on. What to do? Put the car here. | 已存在 |
+| `l103_a_red_boy` | en | The red light is on. What to do? Put the boy here. | 已存在 |
+| `l103_a_green_boy` | en | The green light is on. What to do? Put the boy here. | 已存在 |
+| `l103_b_green_go` | en | The green light is on. The car is going. Find the picture. | 已存在 |
+| `l103_b_red_stop` | en | The red light is on. The car is stopping. Find the picture. | 已存在 |
+| `l103_c_red` | en | Red light! | 已存在 |
+| `l103_c_green` | en | Green light! | 已存在 |
+| `l104_t_sunny` | en | Look at the sky. It's sunny! We need sunglasses. | 待生成 |
+| `l104_t_sunny2` | en | The sunglasses are on! Cool! | 待生成 |
+| `l104_t_sun_put` | en | It's sunny. Put the sunglasses on the boy. | 待生成 |
+| `l104_t_rainy` | en | Oh no! It's rainy. We need an umbrella. | 待生成 |
+| `l104_t_rainy2` | en | The umbrella is up! We are dry. | 待生成 |
+| `l104_t_rain_put` | en | It's rainy. Put the umbrella on the boy. | 待生成 |
+| `l104_t_cloudy` | en | Look! So many clouds. It's cloudy. | 待生成 |
+| `l104_t_cloudy2` | en | The sky is grey. It's cloudy. | 待生成 |
+| `l104_t_cloudy_find` | en | It's cloudy. Find the cloudy picture. | 待生成 |
+| `l104_t_out` | en | You know the weather! Let's play! | 待生成 |
+| `l104_a_sunny` | en | Find the sunny day. | 待生成 |
+| `l104_a_rainy` | en | Find the rainy day. | 待生成 |
+| `l104_a_cloudy` | en | Find the cloudy day. | 待生成 |
+| `l104_b_sunny` | en | It's sunny. | 待生成 |
+| `l104_b_rainy` | en | It's rainy. | 待生成 |
+| `l104_c_sun` | en | The boy is wearing sunglasses. Find the picture. | 待生成 |
+| `l104_c_rain` | en | The boy has an umbrella. Find the picture. | 待生成 |
+| `l104_c_cloud` | en | The boy is looking at the clouds. Find the picture. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

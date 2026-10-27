@@ -3976,7 +3976,8 @@
     '9-5': { numbers: null, make: 'makeL95', title: '第 5 关', tutorial: true, types: 4 },
     '10-1': { numbers: null, make: 'makeL10', title: '第 1 关', tutorial: true },
     '10-2': { numbers: null, make: 'makeL102', title: '第 2 关', tutorial: true, types: 4 },
-    '10-3': { numbers: null, make: 'makeL103', title: '第 3 关', tutorial: true }
+    '10-3': { numbers: null, make: 'makeL103', title: '第 3 关', tutorial: true },
+    '10-4': { numbers: null, make: 'makeL104', title: '第 4 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4231,6 +4232,7 @@
     if (def && def.make === 'makeL10') return makeQuestionL10(typeIdx, prev);
     if (def && def.make === 'makeL102') return makeQuestionL102(typeIdx, prev);
     if (def && def.make === 'makeL103') return makeQuestionL103(typeIdx, prev);
+    if (def && def.make === 'makeL104') return makeQuestionL104(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -25735,6 +25737,520 @@
     return api;
   })();
 
+  /* ================= 第 10 岛第 4 关：天气（Sunny / Rainy / Cloudy） ================= */
+
+  var L104_WEATHERS = ['sunny', 'rainy', 'cloudy'];
+  var L104_LABEL = { sunny: '晴天', rainy: '雨天', cloudy: '阴天' };
+  var L104_ITEM_OF = { sunny: 'sunglasses', rainy: 'umbrella' };
+  var L104_ITEM_LABEL = { sunglasses: '墨镜', umbrella: '雨伞', hat: '帽子' };
+  var L104_A_KEY = { sunny: 'l104_a_sunny', rainy: 'l104_a_rainy', cloudy: 'l104_a_cloudy' };
+  var L104_B_KEY = { sunny: 'l104_b_sunny', rainy: 'l104_b_rainy' };
+  var L104_C_KEY = { sun: 'l104_c_sun', rain: 'l104_c_rain', cloud: 'l104_c_cloud' };
+  var L104_SCENE_LABEL = { sun: '太阳下戴墨镜', rain: '雨里打伞', cloud: '看天上的乌云' };
+
+  /* ---- 手写 SVG 美术（零位图、零 emoji；雨滴与云只做 transform/opacity 动画） ---- */
+
+  /* 小人（viewBox 0 0 80 130）—— 与配件共用同一坐标系，大图 / 缩略图都不会错位 */
+  var L104_KID_BODY =
+    '<path d="M32 92 L28 118" stroke="#4a5b8c" stroke-width="9" stroke-linecap="round"/>' +
+    '<path d="M48 92 L52 118" stroke="#4a5b8c" stroke-width="9" stroke-linecap="round"/>' +
+    '<path d="M28 118 H18" stroke="#2f3b5c" stroke-width="8" stroke-linecap="round"/>' +
+    '<path d="M52 118 H62" stroke="#2f3b5c" stroke-width="8" stroke-linecap="round"/>' +
+    '<rect x="26" y="58" width="28" height="40" rx="11" fill="#6ec6d8" stroke="#3f9fb3" stroke-width="3"/>' +
+    '<path d="M28 66 L18 84" stroke="#ffe0c2" stroke-width="7" stroke-linecap="round"/>' +
+    '<path d="M52 66 L62 84" stroke="#ffe0c2" stroke-width="7" stroke-linecap="round"/>' +
+    '<circle cx="40" cy="34" r="19" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3"/>' +
+    '<path d="M21 30 q19 -18 38 0 q0 -22 -19 -22 q-19 0 -19 22 Z" fill="#4a3a2c"/>' +
+    '<circle cx="33" cy="34" r="2.4" fill="#2f2f36"/><circle cx="47" cy="34" r="2.4" fill="#2f2f36"/>' +
+    '<path d="M35 43 q5 4 10 0" fill="none" stroke="#c4736a" stroke-width="2.2" stroke-linecap="round"/>';
+
+  var L104_KID_GLASSES =
+    '<rect x="23" y="27" width="15" height="11" rx="4.5" fill="#2f3b5c" stroke="#1b2333" stroke-width="2"/>' +
+    '<rect x="42" y="27" width="15" height="11" rx="4.5" fill="#2f3b5c" stroke="#1b2333" stroke-width="2"/>' +
+    '<path d="M38 32 H42" stroke="#1b2333" stroke-width="2.6"/>' +
+    '<path d="M23 31 L17 29" stroke="#1b2333" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="M57 31 L63 29" stroke="#1b2333" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="M26 30 l4 -1.6" stroke="#9fd8ff" stroke-width="1.8" opacity=".85"/>';
+
+  /* 雨伞：伞面在头顶，短伞柄压在头发上（孩子一眼能读懂「举着伞」） */
+  var L104_KID_UMBRELLA =
+    '<path d="M40 2 Q70 4 72 26 Q56 20 40 26 Q24 20 8 26 Q10 4 40 2 Z" fill="#ff8f6b" ' +
+    'stroke="#d94b4b" stroke-width="3" stroke-linejoin="round"/>' +
+    '<path d="M40 26 V46" stroke="#8a6142" stroke-width="3.6" stroke-linecap="round"/>' +
+    '<path d="M40 2 V-3" stroke="#d94b4b" stroke-width="3.4" stroke-linecap="round"/>';
+
+  function l104KidGroup(worn) {
+    var g = '';
+    if (worn === 'umbrella') g += L104_KID_UMBRELLA;   // 伞在后，伞柄被头发压住
+    g += L104_KID_BODY;
+    if (worn === 'sunglasses') g += L104_KID_GLASSES;
+    return g;
+  }
+
+  /* 三种天气背景（viewBox 0 0 200 160） */
+  var L104_BG = {
+    sunny:
+      '<rect width="200" height="160" fill="#d9f0ff"/>' +
+      '<circle cx="100" cy="46" r="30" fill="#ffd166" stroke="#e0a92e" stroke-width="3"/>' +
+      '<g stroke="#ffc94d" stroke-width="4" stroke-linecap="round">' +
+      '<path d="M100 4 V16"/><path d="M100 76 V88"/><path d="M58 46 H70"/><path d="M130 46 H142"/>' +
+      '<path d="M70 16 L78 24"/><path d="M122 68 L130 76"/><path d="M130 16 L122 24"/><path d="M78 68 L70 76"/>' +
+      '</g>' +
+      '<rect y="128" width="200" height="32" fill="#a8dc9a"/>',
+    rainy:
+      '<rect width="200" height="160" fill="#c3d2e0"/>' +
+      '<g fill="#8a97a6">' +
+      '<ellipse cx="78" cy="34" rx="36" ry="19"/><ellipse cx="120" cy="30" rx="30" ry="16"/>' +
+      '<ellipse cx="48" cy="42" rx="22" ry="13"/>' +
+      '</g>' +
+      '<g class="l104-rain" stroke="#7fb3e0" stroke-width="4" stroke-linecap="round">' +
+      '<path d="M52 58 L46 76"/><path d="M78 64 L72 84"/><path d="M104 58 L98 78"/>' +
+      '<path d="M130 64 L124 84"/><path d="M152 58 L146 76"/>' +
+      '</g>' +
+      '<g class="l104-rain l104-rain-b" stroke="#9cc6e8" stroke-width="3.4" stroke-linecap="round">' +
+      '<path d="M64 88 L58 104"/><path d="M92 92 L86 110"/><path d="M118 88 L112 106"/><path d="M142 92 L136 108"/>' +
+      '</g>' +
+      '<rect y="132" width="200" height="28" fill="#7f8b95"/>',
+    cloudy:
+      '<rect width="200" height="160" fill="#dbe4ee"/>' +
+      '<g class="l104-cloud" fill="#9aa7b6">' +
+      '<ellipse cx="72" cy="40" rx="38" ry="20"/><ellipse cx="114" cy="34" rx="30" ry="16"/>' +
+      '<ellipse cx="46" cy="48" rx="24" ry="14"/>' +
+      '</g>' +
+      '<g class="l104-cloud l104-cloud-b" fill="#b6c2cf">' +
+      '<ellipse cx="108" cy="72" rx="36" ry="15"/><ellipse cx="150" cy="66" rx="26" ry="12"/>' +
+      '</g>' +
+      '<rect y="128" width="200" height="32" fill="#9aa3ad"/>'
+  };
+
+  /* 题型 A 的天气图标（viewBox 0 0 100 100） */
+  var L104_ICON = {
+    sunny:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<circle cx="50" cy="50" r="24" fill="#ffd166" stroke="#e0a92e" stroke-width="3.4"/>' +
+      '<g stroke="#ffc94d" stroke-width="4.5" stroke-linecap="round">' +
+      '<path d="M50 8 V20"/><path d="M50 80 V92"/><path d="M8 50 H20"/><path d="M80 50 H92"/>' +
+      '<path d="M20 20 L29 29"/><path d="M71 71 L80 80"/><path d="M80 20 L71 29"/><path d="M29 71 L20 80"/>' +
+      '</g></svg>',
+    rainy:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<g fill="#8a97a6"><ellipse cx="46" cy="36" rx="26" ry="15"/><ellipse cx="68" cy="32" rx="20" ry="12"/>' +
+      '<ellipse cx="28" cy="42" rx="15" ry="10"/></g>' +
+      '<g stroke="#7fb3e0" stroke-width="5" stroke-linecap="round">' +
+      '<path d="M34 56 L28 74"/><path d="M50 60 L44 80"/><path d="M66 56 L60 76"/><path d="M80 60 L74 78"/>' +
+      '</g></svg>',
+    cloudy:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<g fill="#9aa7b6"><ellipse cx="42" cy="46" rx="28" ry="16"/><ellipse cx="66" cy="40" rx="22" ry="13"/>' +
+      '<ellipse cx="24" cy="52" rx="16" ry="10"/></g>' +
+      '<g fill="#b6c2cf"><ellipse cx="58" cy="66" rx="26" ry="11"/></g></svg>'
+  };
+
+  function ensureL104Css() {
+    if (document.getElementById('l104-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l104-style';
+    s.textContent = [
+      '.l104-ask{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.1vh;width:100%}',
+      /* 天气舞台：背景 SVG 铺满，小人居中站在下方 */
+      '.l104-sky{position:relative;width:min(88vw,560px);max-width:100%;border-radius:20px;overflow:hidden;' +
+        'box-shadow:0 3px 10px rgba(90,120,150,.14)}',
+      '.l104-sky svg{width:100%;height:auto;display:block}',
+      /* 雨滴 / 云：只动 transform，零重绘（§二.7） */
+      '.l104-stage .l104-rain{animation:l104Rain 1.05s linear infinite}',
+      '.l104-stage .l104-rain-b{animation-duration:1.35s;animation-delay:-.4s}',
+      '@keyframes l104Rain{0%{transform:translateY(-5px);opacity:0}' +
+        '25%{opacity:1}100%{transform:translateY(7px);opacity:0}}',
+      '.l104-stage .l104-cloud{animation:l104Drift 6s ease-in-out infinite alternate}',
+      '.l104-stage .l104-cloud-b{animation-duration:8s;animation-delay:-2s}',
+      '@keyframes l104Drift{0%{transform:translateX(-4px)}100%{transform:translateX(5px)}}',
+      /* 底部物品栏 */
+      '.l104-tray{display:flex;justify-content:center;align-items:center;gap:3vw;width:min(88vw,520px);' +
+        'max-width:100%;padding:1vh 2vw;border-radius:18px;background:rgba(255,255,255,.84);' +
+        'box-shadow:inset 0 0 0 2px #e4eef7}',
+      /* 热区 = 整张卡（含 padding），视觉在 svg 内 ⇒ 接收热区比视觉大一圈（§三.15） */
+      '.l104-card{width:min(22vw,96px);aspect-ratio:1/1;padding:6px;box-sizing:border-box;display:flex;' +
+        'align-items:center;justify-content:center;border-radius:16px;background:#fff;' +
+        'box-shadow:0 2px 6px rgba(90,120,150,.16);cursor:grab;touch-action:none}',
+      '.l104-card svg{width:100%;height:100%;display:block;pointer-events:none}',
+      '.l104-card.dragging{opacity:.4}',
+      '.l104-card.l104-wrong{animation:l104shake .38s}',
+      '.l104-sky.l104-wrong{animation:l104shake .38s}',
+      '@keyframes l104shake{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-2deg)}' +
+        '75%{transform:translateX(5px) rotate(2deg)}}',
+      /* 题型 A：三个天气图标 */
+      '.l104-icons{display:flex;justify-content:center;align-items:center;gap:3vw;width:min(88vw,560px);max-width:100%}',
+      '.l104-icon{flex:1;min-width:0;max-width:170px;aspect-ratio:1/1;padding:8px;box-sizing:border-box;' +
+        'border:3px solid #d9e7f2;border-radius:20px;background:#fff;box-shadow:0 3px 10px rgba(90,120,150,.12);' +
+        'cursor:pointer}',
+      '.l104-icon svg{width:100%;height:100%;display:block;pointer-events:none}',
+      '.l104-icon.right{border-color:#7fd18a;background:#eafaf0}',
+      '.l104-icon.wrong{border-color:#f3b0a8;animation:l104shake .38s}',
+      /* 题型 C：三张场景图 */
+      '.l104-pics{display:flex;justify-content:center;align-items:center;gap:2.4vw;width:min(88vw,640px);max-width:100%}',
+      '.l104-pic{flex:1;min-width:0;max-width:210px;padding:5px;box-sizing:border-box;border:3px solid #d9e7f2;' +
+        'border-radius:16px;background:#fff;box-shadow:0 3px 10px rgba(90,120,150,.12);cursor:pointer;overflow:hidden}',
+      '.l104-pic svg{width:100%;height:auto;display:block;pointer-events:none}',
+      '.l104-pic.right{border-color:#7fd18a;background:#eafaf0}',
+      '.l104-pic.wrong{border-color:#f3b0a8;animation:l104shake .38s}',
+      '@media (max-height:600px){.l104-sky{width:min(70vw,360px)}.l104-card{width:min(16vw,74px)}' +
+        '.l104-tray{padding:.5vh 2vw}.l104-icon{max-width:120px}.l104-pic{max-width:150px}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  function l104Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l104-wrong');
+    void el.offsetWidth;
+    el.classList.add('l104-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l104-wrong'); }, 430);
+  }
+
+  /** 天气舞台：背景 + 小人（可带配件） */
+  function l104StageSvg(weather, worn) {
+    return '<svg viewBox="0 0 200 160" aria-hidden="true">' + (L104_BG[weather] || L104_BG.sunny) +
+      '<g transform="translate(60,22)">' + l104KidGroup(worn) + '</g></svg>';
+  }
+
+  /** 题型 C 的场景缩略图：背景 + 小人 + 配件 */
+  function l104SceneThumb(kind) {
+    var w = kind === 'sun' ? 'sunny' : (kind === 'rain' ? 'rainy' : 'cloudy');
+    var worn = kind === 'sun' ? 'sunglasses' : (kind === 'rain' ? 'umbrella' : null);
+    return '<svg viewBox="0 0 200 160" aria-hidden="true">' + L104_BG[w] +
+      '<g transform="translate(60,22)">' + l104KidGroup(worn) + '</g></svg>';
+  }
+
+  function l104BuildStage(host, weather, worn) {
+    var sky = document.createElement('div');
+    sky.className = 'l104-sky';
+    sky.dataset.weather = weather;
+    sky.setAttribute('aria-label', L104_LABEL[weather]);
+    sky.innerHTML = l104StageSvg(weather, worn);
+    host.appendChild(sky);
+    return sky;
+  }
+
+  function l104VehCard(item) {
+    var c = document.createElement('div');
+    c.className = 'l104-card';
+    c.dataset.item = item;
+    c.dataset.drag = 'gear';
+    c.dataset.from = 'tray';
+    c.setAttribute('aria-label', L104_ITEM_LABEL[item]);
+    c.innerHTML = item === 'sunglasses' ? '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<rect x="8" y="32" width="38" height="26" rx="9" fill="#2f3b5c" stroke="#1b2333" stroke-width="3"/>' +
+      '<rect x="54" y="32" width="38" height="26" rx="9" fill="#2f3b5c" stroke="#1b2333" stroke-width="3"/>' +
+      '<path d="M46 43 H54" stroke="#1b2333" stroke-width="4"/>' +
+      '<path d="M8 38 L2 34" stroke="#1b2333" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M92 38 L98 34" stroke="#1b2333" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M14 38 l8 -3" stroke="#9fd8ff" stroke-width="3" opacity=".85"/></svg>'
+      : item === 'umbrella' ? '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M50 8 Q92 10 94 42 Q72 32 50 42 Q28 32 6 42 Q8 10 50 8 Z" fill="#ff8f6b" ' +
+      'stroke="#d94b4b" stroke-width="3.4" stroke-linejoin="round"/>' +
+      '<path d="M50 42 V84" stroke="#8a6142" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M50 84 q0 9 9 9" fill="none" stroke="#8a6142" stroke-width="4" stroke-linecap="round"/></svg>'
+      : '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M22 58 Q22 26 50 26 Q78 26 78 58 Z" fill="#8fd49a" stroke="#4f9e5f" stroke-width="3.4"/>' +
+      '<rect x="18" y="56" width="64" height="12" rx="6" fill="#7ec98a" stroke="#4f9e5f" stroke-width="3.4"/></svg>';
+    return c;
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：三个天气图标，点出听到的那个 */
+  function renderL104A(q) {
+    ensureL104Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l104-ask l104-stage';
+    var row = document.createElement('div');
+    row.className = 'l104-icons';
+    q.icons.forEach(function (w, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l104-icon';
+      b.dataset.weather = w;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', L104_LABEL[w]);
+      b.innerHTML = L104_ICON[w];
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 B：小人 + 天气，把对应物品拖到身上 */
+  function renderL104B(q) {
+    ensureL104Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l104-ask l104-stage';
+    var sky = l104BuildStage(box, q.weather, null);
+    sky.dataset.drop = 'kid';
+    var tray = document.createElement('div');
+    tray.className = 'l104-tray';
+    tray.dataset.drop = 'tray';
+    q.items.forEach(function (it) { tray.appendChild(l104VehCard(it)); });
+    box.appendChild(tray);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 C：三张场景图，点出与句子相符的那张 */
+  function renderL104C(q) {
+    ensureL104Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l104-ask l104-stage';
+    var row = document.createElement('div');
+    row.className = 'l104-pics';
+    q.pics.forEach(function (k, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l104-pic';
+      b.dataset.pic = k;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', L104_SCENE_LABEL[k]);
+      b.innerHTML = l104SceneThumb(k);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+    askDisplay.appendChild(box);
+  }
+
+  /** 把配饰戴到小人身上（重绘同一坐标系的小孩，绝不歪） */
+  function l104Wear(skyEl, item, weather) {
+    if (!skyEl) return;
+    var w = weather || skyEl.dataset.weather || 'sunny';
+    skyEl.innerHTML = l104StageSvg(w, item);
+  }
+
+  /* ---------------- 判定 ---------------- */
+  function resolveL104(el, target) {
+    if (!el) return false;
+    var item = el.dataset ? el.dataset.item : null;
+    var drop = target && target.dataset ? target.dataset.drop : null;
+    var tut = (state.phase === 'tutorial') ? state.tut : null;
+
+    if (tut) {
+      var need = tut.l104Need;
+      if (!need) { l104Bounce(el); return false; }
+      if (item !== need.item || drop !== 'kid') { l104Bounce(el); if (tut.canDrag) armHint(); return false; }
+      l104Wear(target, item, tut.l104Weather);
+      tut.canDrag = false; tut.l104On = false;
+      clearHint();
+      var nx = tut._l104Next;
+      setTimeout(function () { if (state.tut === tut && nx) nx(); }, 720);
+      return true;
+    }
+
+    var q = state.question;
+    if (!q || q.type !== 'L104B') return false;
+    if (drop !== 'kid') { l104Bounce(el); return false; }
+    if (item !== q.item) { judge(false, el); return false; }
+    l104Wear(target, item, q.weather);
+    judge(true, target);
+    return true;
+  }
+
+  /* ---------------- 出题：A 找天气 / B 配物品 / C 找场景 ---------------- */
+  function makeQuestionL104(type, prev) {
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：三个天气图标（顺序洗牌），听句子点出对应天气 */
+        var w = pick(L104_WEATHERS);
+        var icons = shuffle(L104_WEATHERS.slice());
+        q = {
+          type: 'L104A', sig: 'A:' + w, weather: w, icons: icons,
+          options: [], answer: icons.indexOf(w), audio: [L104_A_KEY[w]]
+        };
+      } else if (type === 1) {
+        /* B：只有晴 / 雨两种（阴天不配物品，避免「阴天该戴什么」的歧义） */
+        var wb = pick(['sunny', 'rainy']);
+        var needItem = L104_ITEM_OF[wb];
+        var others = shuffle(['sunglasses', 'umbrella', 'hat'].filter(function (x) { return x !== needItem; })).slice(0, 2);
+        var items = shuffle([needItem].concat(others));
+        q = {
+          type: 'L104B', sig: 'B:' + wb, weather: wb, item: needItem, items: items,
+          options: [], answer: items.indexOf(needItem), audio: [L104_B_KEY[wb]]
+        };
+      } else {
+        /* C：三张场景图，听句子点出对应那张 */
+        var kind = pick(['sun', 'rain', 'cloud']);
+        var pics = shuffle(['sun', 'rain', 'cloud']);
+        q = {
+          type: 'L104C', sig: 'C:' + kind, kind: kind, pics: pics,
+          options: [], answer: pics.indexOf(kind), audio: [L104_C_KEY[kind]]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 教学：晴天 2 演示 + 1 互动 → 雨天 2 演示 + 1 互动 → 阴天 2 演示 + 1 互动 → 过渡 ----------------
+     本关严禁 TPR：所有互动都是「拖物品到小人」或「点图」，没有任何模仿动作 / 大拇指确认。 */
+  var runL104Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'sunny1',  word: 'l104_t_sunny',   weather: 'sunny',  wear: 'sunglasses' },
+      { t: 'demo', sid: 'sunny2',  word: 'l104_t_sunny2',  weather: 'sunny',  wear: 'sunglasses', pre: true },
+      { t: 'drag', sid: 'sunPut',  word: 'l104_t_sun_put', weather: 'sunny',  item: 'sunglasses', opts: ['sunglasses', 'umbrella'] },
+      { t: 'demo', sid: 'rainy1',  word: 'l104_t_rainy',   weather: 'rainy',  wear: 'umbrella' },
+      { t: 'demo', sid: 'rainy2',  word: 'l104_t_rainy2',  weather: 'rainy',  wear: 'umbrella', pre: true },
+      { t: 'drag', sid: 'rainPut', word: 'l104_t_rain_put', weather: 'rainy', item: 'umbrella', opts: ['umbrella', 'sunglasses'] },
+      { t: 'demo', sid: 'cloudy1', word: 'l104_t_cloudy',  weather: 'cloudy', wear: null },
+      { t: 'demo', sid: 'cloudy2', word: 'l104_t_cloudy2', weather: 'cloudy', wear: null },
+      { t: 'pick', sid: 'cloudyPick', word: 'l104_t_cloudy_find', kind: 'cloud' },
+      { t: 'out',  sid: 'out',     word: 'l104_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null;
+      me.canDrag = false; me.l104On = false; me.l104Need = null; me.l104Weather = null; me._l104Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL104Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l104-ask l104-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '天气情景');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示：语音播完 → 配件「戴上」→ 定格等点按（§三.14） */
+    function playDemo(me, act, next) {
+      var w = stage(me, act);
+      var sky = l104BuildStage(w, act.weather, act.pre ? act.wear : null);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        if (!act.pre) l104Wear(sky, act.wear, act.weather);
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, act.pre ? 200 : 620);
+      });
+    }
+    /* 互动：把物品拖到小人身上（4 秒小手 §二.12） */
+    function playDrag(me, act, next) {
+      var w = stage(me, act);
+      var sky = l104BuildStage(w, act.weather, null);
+      sky.dataset.drop = 'kid';
+      var tray = document.createElement('div');
+      tray.className = 'l104-tray';
+      tray.dataset.drop = 'tray';
+      var card = null;
+      shuffle(act.opts.slice()).forEach(function (it) {
+        var c = l104VehCard(it);
+        if (it === act.item) card = c;
+        tray.appendChild(c);
+      });
+      w.appendChild(tray);
+      me.l104Need = { item: act.item };
+      me.l104Weather = act.weather;
+      me._l104Next = next;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l104On = true; me.canDrag = true; me.customMode = 'L104';
+        me.hintFrom = card;
+        me.hintTo = sky;
+        me.hintTarget = me.hintFrom; me.hintToY = 0.55;
+        armHint();
+      });
+    }
+    /* 互动（阴天）：三张图里点出阴天——避免「阴天该戴什么」的歧义（用户允许的替代方案） */
+    function playPick(me, act, next) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l104-pics';
+      var pics = shuffle(['sun', 'rain', 'cloud']);
+      var hit = null;
+      pics.forEach(function (k, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'l104-pic';
+        b.dataset.pic = k;
+        b.dataset.idx = String(i);
+        b.setAttribute('aria-label', L104_SCENE_LABEL[k]);
+        b.innerHTML = l104SceneThumb(k);
+        if (k === act.kind) hit = b;
+        b.addEventListener('click', function () {
+          if (state.tut !== me) return;
+          if (k !== act.kind) { l104Bounce(b); armHint(); return; }
+          b.classList.add('right');
+          me.hintTarget = null; clearHint();
+          setTimeout(function () { if (state.tut === me) next(); }, 520);
+        });
+        row.appendChild(b);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.hintTarget = hit; me.hintFrom = null; me.hintTo = null;
+        armHint();
+      });
+    }
+    function playOut(me, act) {
+      var w = stage(me, act);
+      l104BuildStage(w, 'sunny', 'sunglasses');
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'drag') { playDrag(me, act, next); return; }
+      if (act.t === 'pick') { playPick(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -26071,6 +26587,10 @@
     if (q.type === 'L103A') { optionsBar.classList.add('gone'); renderL103A(q); return; }
     if (q.type === 'L103B') { optionsBar.classList.add('gone'); renderL103B(q); return; }
     if (q.type === 'L103C') { optionsBar.classList.add('gone'); renderL103C(q); return; }
+    /* ---- 第 10 岛第 4 关：天气（A 找天气 / B 配物品 / C 找场景） ---- */
+    if (q.type === 'L104A') { optionsBar.classList.add('gone'); renderL104A(q); return; }
+    if (q.type === 'L104B') { optionsBar.classList.add('gone'); renderL104B(q); return; }
+    if (q.type === 'L104C') { optionsBar.classList.add('gone'); renderL104C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -26510,6 +27030,11 @@
     }
     // 第 10 岛第 3 关：三题型都自带舞台，不用选项栏
     if (q.type === 'L103A' || q.type === 'L103B' || q.type === 'L103C') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 10 岛第 4 关：三题型都自带舞台
+    if (q.type === 'L104A' || q.type === 'L104B' || q.type === 'L104C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -27182,7 +27707,8 @@
             qt !== 'L95A' && qt !== 'L95B' && qt !== 'L95C' && qt !== 'L95D' &&
             qt !== 'L10A' && qt !== 'L10B' && qt !== 'L10C' &&
             qt !== 'L102A' && qt !== 'L102B' && qt !== 'L102C' && qt !== 'L102D' &&
-            qt !== 'L103A' && qt !== 'L103B' && qt !== 'L103C') {
+            qt !== 'L103A' && qt !== 'L103B' && qt !== 'L103C' &&
+            qt !== 'L104A' && qt !== 'L104B' && qt !== 'L104C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -27410,6 +27936,8 @@
         resolveL102(d.el, target);
       } else if (d.mode === 'L103') {
         resolveL103(d.el, target);
+      } else if (d.mode === 'L104') {
+        resolveL104(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -27443,7 +27971,7 @@
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
-    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102' || d.mode === 'L103') {
+    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102' || d.mode === 'L103' || d.mode === 'L104') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -27456,6 +27984,7 @@
       else if (d.mode === 'L10') l10Bounce(d.el);
       else if (d.mode === 'L102') l102Bounce(d.el);
       else if (d.mode === 'L103') l103Bounce(d.el);
+      else if (d.mode === 'L104') l104Bounce(d.el);
       else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
@@ -28555,6 +29084,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '10-4': {
+      // 天气（Sunny / Rainy / Cloudy）：10 环节
+      // 晴天 2 演示 + 1 互动 → 雨天 2 演示 + 1 互动 → 阴天 2 演示 + 1 互动（点图）→ 过渡；
+      // 本关**严禁 TPR**：互动只有「拖物品到小人」与「点图」两种。
+      custom: runL104Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -28807,6 +29345,7 @@
     if (q.type === 'L10A') return 'L10';
     if (q.type === 'L102A' || q.type === 'L102D') return 'L102';
     if (q.type === 'L103A') return 'L103';
+    if (q.type === 'L104B') return 'L104';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -29670,7 +30209,13 @@
           l103item: q.item || null,
           l103zone: q.zone || null,
           l103pics: q.pics ? q.pics.slice() : null,
-          l103answer: (typeof q.answer === 'number') ? q.answer : null
+          l103answer: (typeof q.answer === 'number') ? q.answer : null,
+          l104weather: q.weather || null,
+          l104item: q.item || null,
+          l104icons: q.icons ? q.icons.slice() : null,
+          l104pics: q.pics ? q.pics.slice() : null,
+          l104kind: q.kind || null,
+          l104answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },
