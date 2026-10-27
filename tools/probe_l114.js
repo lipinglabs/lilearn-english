@@ -367,16 +367,19 @@ const finish = code => { if (finished) return; finished = true; try { proc.kill(
       if (row.voiceOnCorrect.length) rep.errors.push('第 ' + r + ' 轮 L114C 答对后播放了语音：' + row.voiceOnCorrect.join(','));
     }
 
-    row.voicesAll = (await keysBetween(ct, ct + 2400)).filter(k => k !== 'unknown');
+    const advanced = await wait('Game.round > ' + (r - 1) + ' || Game.phase === "done"', 8000);
+    row.advanced = advanced;
+    /* A 型的台词在「第三张排进去」之后才播，必须在推进之后整段窗口回看，
+       否则 2.4 秒的固定窗口会漏掉它（实测第 2/4 轮误报） */
     if (q.type === 'L114A') {
+      row.voicesAll = (await keysBetween(ct, Date.now())).filter(k => k !== 'unknown');
       row.lineOk = row.voicesAll.indexOf(LINE) >= 0;
       if (!row.lineOk) rep.errors.push('第 ' + r + ' 轮 L114A 排对后没播剧情台词：' + row.voicesAll.join(','));
       row.praise = row.voicesAll.filter(k => k.indexOf('praise') === 0);
-      if (row.praise.length) rep.errors.push('第 ' + r + ' 轮 L114A 排对后播了夸奖人声：' + row.praise.join(','));
+      /* 最后一轮之后的 praise_* 是「通关 playRandomPraise」，是要求的行为；
+         其余轮次出现才是「答对禁人声」被破坏 */
+      if (row.praise.length && r < 12) rep.errors.push('第 ' + r + ' 轮 L114A 排对后播了夸奖人声：' + row.praise.join(','));
     }
-
-    const advanced = await wait('Game.round > ' + (r - 1) + ' || Game.phase === "done"', 8000);
-    row.advanced = advanced;
     row.starsDelta = (await ev('Game.stars')) - starsBefore;
     if (!advanced) rep.errors.push('第 ' + r + ' 轮没有推进（' + q.type + '）');
     if (row.starsDelta !== 1) rep.errors.push('第 ' + r + ' 轮星星未 +1（' + row.starsDelta + '）');

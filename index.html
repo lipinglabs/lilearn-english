@@ -2767,6 +2767,23 @@
   function prefetchIslandVoice(island) {
     var m = window.VOICE_CHUNK_OF_ISLAND;
     var list = (m && m[island]) || null;
+    if (!list || !list.length) return;
+    /* 串行预取：并行发起会把带宽切成好几份，反而把「当前这一关」的那一块拖到几十秒之后
+       （弱网实测：4 块并行 ≈2MB 全挤在一起，教学第一句被 2.5 秒兜底跳过）。
+       串行后当前关的分块只需和 1 条预取抢带宽，到位时间减半以上。 */
+    var i = 0;
+    var next = function () {
+      if (i >= list.length) return;
+      var c = list[i++];
+      loadVoiceChunk(c, function () { setTimeout(next, 80); });
+    };
+    next();
+  }
+
+  /** 只预取某一关的语音（用户点了关卡就立刻发请求，抢在岛的串行预取队列前面） */
+  function prefetchLevelVoice(island, level) {
+    var lm = window.VOICE_CHUNK_OF_LEVEL;
+    var list = (lm && lm[island + '-' + level]) || null;
     if (list) for (var i = 0; i < list.length; i++) loadVoiceChunk(list[i]);
   }
 
@@ -32718,6 +32735,8 @@
 
   function enterLevel(level) {
     state.level = level || 1;
+    /* 先把这一关的语音请求发出去（一关约 0.5MB），孩子看关卡封面的这几秒正好用来下载 */
+    prefetchLevelVoice(currentIsland, state.level);
     showScreen('level');
     buildStars();
     state.phase = 'idle';
