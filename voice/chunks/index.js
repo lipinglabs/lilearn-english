@@ -497,6 +497,23 @@ window.VOICE_CHUNK_FOR = {
 "l115_t_names":"island_11_5",
 "l115_t_out":"island_11_5",
 "l115_t_wolf_q":"island_11_5",
+"l121_a_leo":"island_12_1",
+"l121_a_lily":"island_12_1",
+"l121_a_tom":"island_12_1",
+"l121_b_ask":"island_12_1",
+"l121_b_no":"island_12_1",
+"l121_b_yes":"island_12_1",
+"l121_c_leo":"island_12_1",
+"l121_c_lily":"island_12_1",
+"l121_c_tom":"island_12_1",
+"l121_line_leo":"island_12_1",
+"l121_line_tom":"island_12_1",
+"l121_t_ask_a":"island_12_1",
+"l121_t_ask_q":"island_12_1",
+"l121_t_find_lily":"island_12_1",
+"l121_t_friends":"island_12_1",
+"l121_t_leo":"island_12_1",
+"l121_t_out":"island_12_1",
 "l3_cat_big":"island_3_1",
 "l3_cat_small":"island_3_1",
 "l3_dog_big":"island_3_1",
@@ -1181,6 +1198,7 @@ window.VOICE_CHUNK_OF_ISLAND = {
 9:["island_9_1","island_9_2","island_9_3","island_9_4","island_9_5"],
 10:["island_10_1","island_10_2","island_10_3","island_10_4","island_10_5"],
 11:["island_11_1","island_11_2","island_11_3","island_11_4","island_11_5"],
+12:["island_12_1"],
 };
 window.VOICE_CHUNK_OF_LEVEL = {
 "4-1":["island_4_1"],
@@ -1218,5 +1236,6 @@ window.VOICE_CHUNK_OF_LEVEL = {
 "11-3":["island_11_3"],
 "11-4":["island_11_4"],
 "11-5":["island_11_5"],
+"12-1":["island_12_1"],
 };
 window.VOICE_CORE_CHUNK = "core";

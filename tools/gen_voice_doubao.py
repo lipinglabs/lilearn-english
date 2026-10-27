@@ -1755,6 +1755,34 @@ add("l115_b_basket", "I am going to Grandma's house. Who says this in the story?
 add("l115_c_red_pig", "Help Little Red Riding Hood go to Grandma's house. And help the pig go to the brick house.", "en", -15, EN_ASK)
 add("l115_c_pig_red", "Help the pig go to the brick house. And help Little Red Riding Hood go to Grandma's house.", "en", -15, EN_ASK)
 
+# ---- 第 12 岛第 1 关：自我介绍 What's your name?（L12-W1，第 12 岛开篇） ----
+# 教学 6 条：新朋友 / 男孩问 / 女孩答 / 找 Lily / 男孩答 / 过渡
+add("l121_t_friends",   "Look! A new friend.", "en", -15, EN_ASK)
+add("l121_t_ask_q",     "The boy asks, what's your name?", "en", -15, EN_ASK)
+add("l121_t_ask_a",     "The girl says, my name is Lily.", "en", -15, EN_ASK)
+add("l121_t_find_lily", "Who is Lily? Find Lily.", "en", -15, EN_ASK)
+add("l121_t_leo",       "The boy says, my name is Leo.", "en", -15, EN_ASK)
+add("l121_t_out",       "Let's meet more friends! Let's play!", "en", -15, EN_ASK)
+
+# A 听音找人（三个名字牌）
+add("l121_a_leo",  "What's your name? My name is Leo.", "en", -15, EN_ASK)
+add("l121_a_lily", "What's your name? My name is Lily.", "en", -15, EN_ASK)
+add("l121_a_tom",  "What's your name? My name is Tom.", "en", -15, EN_ASK)
+
+# B 听对话选回答（两个「语音气泡」，点哪个就播哪句）
+add("l121_b_ask", "What's your name?", "en", -15, EN_ASK)
+add("l121_b_yes", "My name is Lily.", "en", -10, EN_ASK)
+add("l121_b_no",  "I am fine.", "en", -10, EN_ASK)
+
+# C 拖拽匹配名字（两个小孩各配一张名字牌）
+add("l121_c_leo",  "Find Leo's name. Put it on him.", "en", -15, EN_ASK)
+add("l121_c_lily", "Find Lily's name. Put it on her.", "en", -15, EN_ASK)
+add("l121_c_tom",  "Find Tom's name. Put it on him.", "en", -15, EN_ASK)
+
+# 剧情台词：名字牌全部配好后播完再给星星（§三.26）；lily 复用 b_yes 同句同 key（§一.12）
+add("l121_line_leo", "My name is Leo.", "en", -10, EN_ASK)
+add("l121_line_tom", "My name is Tom.", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

@@ -3004,7 +3004,7 @@
     { icon: '👕', name: '衣物穿戴' },
     { icon: '🚗', name: '交通工具' },
     { icon: '🐷', name: '童话故事' },
-    { icon: '🎉', name: '节日庆祝' }
+    { icon: '📛', name: '自我介绍' }
   ];
 
   var PRAISE_KEYS = ['praise_1', 'praise_2', 'praise_3', 'praise_4', 'praise_5', 'praise_6'];
@@ -4021,7 +4021,8 @@
     '11-2': { numbers: null, make: 'makeL112', title: '第 2 关', tutorial: true },
     '11-3': { numbers: null, make: 'makeL113', title: '第 3 关', tutorial: true },
     '11-4': { numbers: null, make: 'makeL114', title: '第 4 关', tutorial: true },
-    '11-5': { numbers: null, make: 'makeL115', title: '第 5 关', tutorial: true }
+    '11-5': { numbers: null, make: 'makeL115', title: '第 5 关', tutorial: true },
+    '12-1': { numbers: null, make: 'makeL121', title: '第 1 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4148,6 +4149,22 @@
         '<ellipse cx="26" cy="55" rx="5" ry="3.2" fill="#ff8fae" opacity=".6"/>' +
         '<ellipse cx="74" cy="55" rx="5" ry="3.2" fill="#ff8fae" opacity=".6"/>';
       return pigIcon;
+    }
+    // 第 12 岛是「自我介绍」，地图图标用手写「挂名字牌的小孩」SVG（免费 SVG，RULES §二.5 不用 emoji 字符）
+    if (index === 12) {
+      var kidIcon = document.createElementNS(SVG_NS, 'svg');
+      kidIcon.setAttribute('viewBox', '0 0 100 100');
+      kidIcon.setAttribute('class', 'mini-shapes');
+      kidIcon.innerHTML =
+        '<circle cx="50" cy="36" r="21" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.4"/>' +
+        '<path d="M29 36 C29 15 71 15 71 36 Q71 26 60 22 Q50 18 40 22 Q29 26 29 36 Z" fill="#3b2b30"/>' +
+        '<circle cx="43" cy="37" r="2.6" fill="#3b2b30"/><circle cx="57" cy="37" r="2.6" fill="#3b2b30"/>' +
+        '<path d="M44 45 q6 5 12 0" fill="none" stroke="#c4736a" stroke-width="2.4" stroke-linecap="round"/>' +
+        '<path d="M34 62 H66 L72 92 H28 Z" fill="#ff9fba" stroke="#e07f9c" stroke-width="3.2" ' +
+        'stroke-linejoin="round"/>' +
+        '<rect x="35" y="72" width="30" height="15" rx="4" fill="#fffdf6" stroke="#e0b98d" stroke-width="2.6"/>' +
+        '<path d="M42 80 H58" stroke="#c9a06f" stroke-width="3" stroke-linecap="round"/>';
+      return kidIcon;
     }
     if (index === 2) {
       var box = document.createElementNS(SVG_NS, 'svg');
@@ -4299,6 +4316,7 @@
     if (def && def.make === 'makeL113') return makeQuestionL113(typeIdx, prev);
     if (def && def.make === 'makeL114') return makeQuestionL114(typeIdx, prev);
     if (def && def.make === 'makeL115') return makeQuestionL115(typeIdx, prev);
+    if (def && def.make === 'makeL121') return makeQuestionL121(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -30015,6 +30033,585 @@
     return api;
   })();
 
+  /* ================= 第 12 岛第 1 关：自我介绍 What's your name?（L12-W1，第 12 岛开篇） =================
+     三个手写卡通小孩：Lily（长发）/ Leo（短发）/ Tom（卷发），胸口可挂名字牌。
+     三题型：A 听音找人（三个名字牌里点出听到的那个）/ B 听对话选回答（两个「语音气泡」，点哪个播哪句）/
+     C 拖拽匹配名字（两个小孩各配一张名字牌，两步拖拽）。
+     ⚠ 本关是全项目**唯一**允许出现拉丁字母的地方：名字牌是题目内容本身（认自己的名字），
+       不是说明文字。探针把这条做成白名单断言（只允许 Lily / Leo / Tom 三个词）。 */
+
+  var L121_KIDS = {
+    lily: { hair: '#8a5a3b', hairEdge: '#6f4a32', shirt: '#ff9fba', shirtEdge: '#e07f9c', skin: '#ffe0c2', style: 'long', name: 'Lily' },
+    leo: { hair: '#3b2b30', hairEdge: '#2a1e22', shirt: '#6fb1e8', shirtEdge: '#4f91c8', skin: '#f7d3ad', style: 'short', name: 'Leo' },
+    tom: { hair: '#e08a3c', hairEdge: '#bd6d28', shirt: '#8fd18a', shirtEdge: '#6fb36a', skin: '#ffe6c8', style: 'curly', name: 'Tom' }
+  };
+  var L121_IDS = ['leo', 'lily', 'tom'];
+  var L121_NAME = { lily: 'Lily', leo: 'Leo', tom: 'Tom' };
+
+  /** 一个卡通小孩。withBadge=true 时胸口直接画好名字牌 */
+  function l121KidSvg(who, withBadge) {
+    var k = L121_KIDS[who] || L121_KIDS.leo;
+    var backHair = '';
+    if (k.style === 'long') {
+      backHair =
+        '<path d="M50 6 C75 6 85 24 85 46 C85 64 81 80 77 96 L63 96 C69 80 71 62 71 46 ' +
+        'C71 33 63 27 50 27 C37 27 29 33 29 46 C29 62 31 80 37 96 L23 96 C19 80 15 64 15 46 ' +
+        'C15 24 25 6 50 6 Z" fill="' + k.hair + '" stroke="' + k.hairEdge + '" stroke-width="3"/>';
+    }
+    var frontHair = '';
+    if (k.style === 'short') {
+      frontHair =
+        '<path d="M28 46 C28 24 72 24 72 46 Q72 34 62 30 Q50 24 38 30 Q28 34 28 46 Z" fill="' + k.hair +
+        '" stroke="' + k.hairEdge + '" stroke-width="2.6" stroke-linejoin="round"/>';
+    } else if (k.style === 'curly') {
+      frontHair =
+        '<g fill="' + k.hair + '" stroke="' + k.hairEdge + '" stroke-width="2.4">' +
+        '<circle cx="50" cy="20" r="12"/><circle cx="33" cy="27" r="10"/><circle cx="67" cy="27" r="10"/>' +
+        '<circle cx="26" cy="42" r="8"/><circle cx="74" cy="42" r="8"/></g>';
+    } else {
+      frontHair =
+        '<path d="M28 46 C28 24 72 24 72 46 Q72 36 60 33 Q50 30 40 33 Q28 36 28 46 Z" fill="' + k.hair +
+        '" stroke="' + k.hairEdge + '" stroke-width="2.6" stroke-linejoin="round"/>';
+    }
+    var badge = '';
+    if (withBadge) {
+      badge =
+        '<rect x="33" y="86" width="34" height="16" rx="4.5" fill="#fffdf6" stroke="#e0b98d" stroke-width="2.4"/>' +
+        '<text x="50" y="94.6" text-anchor="middle" dominant-baseline="middle" ' +
+        'font-size="11" font-weight="700" fill="#5a4a42" font-family="inherit">' + k.name + '</text>';
+    }
+    return '<svg viewBox="0 0 100 132" aria-hidden="true">' +
+      /* 腿 + 鞋 */
+      '<rect x="41" y="108" width="8" height="16" rx="4" fill="' + k.skin + '"/>' +
+      '<rect x="53" y="108" width="8" height="16" rx="4" fill="' + k.skin + '"/>' +
+      '<path d="M38 126 H47" stroke="#7a4b2a" stroke-width="7" stroke-linecap="round"/>' +
+      '<path d="M55 126 H64" stroke="#7a4b2a" stroke-width="7" stroke-linecap="round"/>' +
+      /* 身体（上衣） */
+      '<path d="M36 72 H64 L72 112 H28 Z" fill="' + k.shirt + '" stroke="' + k.shirtEdge +
+      '" stroke-width="3" stroke-linejoin="round"/>' +
+      /* 胳膊 */
+      '<path d="M36 80 L22 102" stroke="' + k.skin + '" stroke-width="8" stroke-linecap="round"/>' +
+      '<path d="M64 80 L78 102" stroke="' + k.skin + '" stroke-width="8" stroke-linecap="round"/>' +
+      backHair +
+      /* 头 */
+      '<circle cx="50" cy="48" r="23" fill="' + k.skin + '" stroke="#e8b98d" stroke-width="3"/>' +
+      frontHair +
+      /* 五官 */
+      '<circle cx="42" cy="49" r="2.9" fill="#3b2b30"/>' +
+      '<circle cx="58" cy="49" r="2.9" fill="#3b2b30"/>' +
+      '<path d="M44 58 q6 5 12 0" fill="none" stroke="#c4736a" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<ellipse cx="34" cy="54" rx="4" ry="2.6" fill="#ff9fae" opacity=".55"/>' +
+      '<ellipse cx="66" cy="54" rx="4" ry="2.6" fill="#ff9fae" opacity=".55"/>' +
+      badge +
+      '</svg>';
+  }
+
+  /* 语音气泡里的「喇叭 + 声波」（不用任何文字：本关只有名字牌允许出现字母） */
+  var L121_SPEAKER =
+    '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+    '<path d="M22 40 H36 L52 24 V76 L36 60 H22 Z" fill="#7fb8e8" stroke="#5f9fd6" stroke-width="3.4" ' +
+    'stroke-linejoin="round"/>' +
+    '<path d="M64 36 q11 14 0 28" fill="none" stroke="#5f9fd6" stroke-width="6" stroke-linecap="round"/>' +
+    '<path d="M77 27 q18 23 0 46" fill="none" stroke="#9fcbea" stroke-width="6" stroke-linecap="round"/>' +
+    '</svg>';
+
+  function ensureL121Css() {
+    if (document.getElementById('l121-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l121-style';
+    s.textContent = [
+      '.l121-ask{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.8vh;width:100%}',
+      /* 三选一的卡片：热区是整块卡（含边框），比画面大一圈 */
+      '.l121-cards{display:flex;justify-content:center;align-items:flex-end;gap:2.6vw;width:min(88vw,560px);max-width:100%}',
+      '.l121-card{position:relative;flex:1;min-width:0;max-width:170px;height:min(30vh,210px);aspect-ratio:3/4;' +
+        'padding:0;border:3px solid transparent;border-radius:18px;overflow:hidden;background:#fff;cursor:pointer;' +
+        'box-shadow:0 2px 10px rgba(150,120,90,.18);transition:transform .16s,border-color .16s,box-shadow .16s}',
+      '.l121-card.right{border-color:#7fd18a;transform:translateY(-3px)}',
+      '.l121-card.l121-wrong{animation:l121shake .38s}',
+      '.l121-card.l121-hi{box-shadow:0 0 0 4px #ffb84d;transform:translateY(-5px)}',
+      '@keyframes l121shake{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-3deg)}' +
+        '60%{transform:translateX(5px) rotate(3deg)}}',
+      '.l121-kid{position:absolute;inset:0;display:grid;place-items:end center;padding:3px;box-sizing:border-box}',
+      '.l121-kid svg{width:100%;height:100%;display:block}',
+
+      /* 题型 B：一个小女孩 + 两个语音气泡 */
+      '.l121-bstage{display:flex;flex-direction:column;align-items:center;gap:1.6vh;width:100%}',
+      '.l121-bkid{width:min(32vw,142px)}',
+      '.l121-bkid svg{width:100%;height:auto;display:block}',
+      '.l121-bubbles{display:flex;justify-content:center;align-items:stretch;gap:4vw;width:min(86vw,440px);max-width:100%}',
+      '.l121-bubble{position:relative;flex:1;min-width:0;max-width:190px;height:min(15vh,104px);' +
+        'border:3px solid #cfe3f5;border-radius:20px;background:#fff;cursor:pointer;' +
+        'box-shadow:0 3px 10px rgba(140,170,200,.22);transition:transform .14s,border-color .14s;' +
+        'display:grid;place-items:center;padding:6px;box-sizing:border-box}',
+      '.l121-bubble::after{content:"";position:absolute;left:50%;top:-11px;width:16px;height:16px;' +
+        'background:#fff;border-left:3px solid #cfe3f5;border-top:3px solid #cfe3f5;' +
+        'transform:translateX(-50%) rotate(45deg);border-radius:3px 0 0 0}',
+      '.l121-bubble:active{transform:translateY(2px)}',
+      '.l121-bubble.right{border-color:#7fd18a;transform:translateY(-3px)}',
+      '.l121-bubble.l121-wrong{animation:l121shake .38s;border-color:#e8a09a}',
+      '.l121-bubble svg{width:min(14vw,64px);height:auto;display:block;pointer-events:none}',
+
+      /* 题型 C：两个小孩 + 两张名字牌 */
+      '.l121-cstage{display:flex;flex-direction:column;align-items:center;gap:2vh;width:100%}',
+      '.l121-kids{display:flex;justify-content:center;align-items:flex-end;gap:5vw;width:min(88vw,480px);max-width:100%}',
+      '.l121-kidbox{position:relative;flex:1;min-width:0;max-width:180px;height:min(37vh,255px);' +
+        'border:3px dashed #c9b79a;border-radius:18px;background:rgba(255,255,255,.6);' +
+        'box-sizing:border-box;display:grid;place-items:end center;padding:5px;' +
+        'transition:box-shadow .18s,transform .18s,border-color .18s}',
+      '.l121-kidbox.drop-hot{box-shadow:0 0 0 4px #7fd18a;border-color:transparent;transform:translateY(-3px)}',
+      '.l121-kidbox.l121-done{box-shadow:0 0 0 4px #7fd18a;border-color:transparent}',
+      '.l121-kidbox > svg{width:100%;height:100%;display:block}',
+      /* 挂上去的名字牌是**新建的展示节点**（§三.31），不是把拖拽件搬进来 */
+      '.l121-badge-on{position:absolute;left:50%;top:71%;transform:translate(-50%,-50%);' +
+        'background:#fffdf6;border:2.4px solid #e0b98d;border-radius:6px;padding:1px 7px;' +
+        'font-size:min(3.6vw,15px);font-weight:700;color:#5a4a42;white-space:nowrap;' +
+        'box-shadow:0 2px 6px rgba(150,120,90,.25);animation:l121pop .34s cubic-bezier(.3,1.4,.5,1)}',
+      '@keyframes l121pop{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}' +
+        '100%{transform:translate(-50%,-50%) scale(1);opacity:1}}',
+      '.l121-tray3{display:flex;justify-content:center;align-items:center;gap:6vw;' +
+        'width:min(76vw,380px);max-width:100%;padding:8px 4vw;border-radius:18px;background:rgba(255,255,255,.62)}',
+      '.l121-tray3 .l121-badge{flex:0 0 auto}',
+      '.l121-badge{display:grid;place-items:center;width:min(22vw,104px);height:min(9vh,54px);' +
+        'background:#fffdf6;border:3px solid #ffd08a;border-radius:13px;cursor:grab;touch-action:none;' +
+        'font-size:min(4.6vw,21px);font-weight:700;color:#5a4a42;box-shadow:0 3px 0 #e8c58a;' +
+        'box-sizing:border-box;user-select:none}',
+      '.l121-badge.l121-wrong{animation:l121shake .4s}',
+      /* 幽灵：名字牌是纯 div，仍用双类锁成拖拽样式（§三.25） */
+      '.drag-ghost.l121-badge{position:fixed;transform:scale(1.08);border-radius:13px;' +
+        'filter:drop-shadow(0 10px 14px rgba(140,110,80,.28))}',
+
+      /* 教学：一排小孩 */
+      '.l121-big{position:relative;width:min(86vw,520px);max-width:100%;height:min(40vh,300px);' +
+        'border-radius:20px;overflow:hidden;background:linear-gradient(#eaf6ff,#fdf6ea);' +
+        'box-shadow:0 3px 12px rgba(150,120,90,.18);display:flex;justify-content:center;' +
+        'align-items:flex-end;gap:3vw;padding:8px;box-sizing:border-box}',
+      '.l121-bigkid{width:26%;transition:transform .22s,filter .22s}',
+      '.l121-bigkid svg{width:100%;height:auto;display:block}',
+      '.l121-bigkid.l121-hi{transform:translateY(-8px) scale(1.06);filter:drop-shadow(0 5px 8px rgba(200,150,60,.45))}',
+      /* 矮屏压缩：连底部名字牌栏一起压，避免被挤出可视区（§三.11） */
+      '@media (max-height:600px){.l121-card{height:min(26vh,150px);max-width:126px}' +
+      '.l121-kidbox{height:min(30vh,190px)}.l121-bkid{width:min(24vw,96px)}' +
+      '.l121-bubble{height:min(12vh,76px)}.l121-badge{height:min(7vh,40px);width:min(20vw,88px)}' +
+      '.l121-big{height:min(34vh,200px)}.l121-cards{gap:2vw}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  /** 三选一卡片 */
+  function l121CardEl(who, idx) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'l121-card';
+    b.dataset.who = who;
+    b.dataset.idx = String(idx);
+    b.setAttribute('aria-label', '第 ' + (idx + 1) + ' 个小朋友');
+    var d = document.createElement('div');
+    d.className = 'l121-kid';
+    d.innerHTML = l121KidSvg(who, true);
+    b.appendChild(d);
+    return b;
+  }
+
+  function l121Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l121-wrong');
+    void el.offsetWidth;
+    el.classList.add('l121-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l121-wrong'); }, 440);
+  }
+
+  /* ---------------- 渲染 ---------------- */
+
+  /** 题型 A：三个挂着名字牌的小孩，点出听到的那一个 */
+  function renderL121A(q) {
+    ensureL121Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l121-ask l121-stage';
+    w.dataset.l121ask = 'L121A';
+    w.dataset.l121items = q.items.join(',');
+    var row = document.createElement('div');
+    row.className = 'l121-cards';
+    q.items.forEach(function (who, i) {
+      var b = l121CardEl(who, i);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    w.appendChild(row);
+    askDisplay.appendChild(w);
+  }
+
+  /** 题型 B：小女孩 + 两个「语音气泡」（点哪个播哪句，判对错由播的内容决定） */
+  function renderL121B(q) {
+    ensureL121Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l121-ask l121-bstage l121-stage';
+    w.dataset.l121ask = 'L121B';
+    w.dataset.l121items = q.items.join(',');
+    var kid = document.createElement('div');
+    kid.className = 'l121-bkid';
+    kid.innerHTML = l121KidSvg('lily', true);
+    w.appendChild(kid);
+
+    var row = document.createElement('div');
+    row.className = 'l121-bubbles';
+    q.items.forEach(function (kind, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l121-bubble';
+      b.dataset.kind = kind;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', '第 ' + (i + 1) + ' 个语音气泡');
+      b.innerHTML = L121_SPEAKER;
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        /* 气泡本身就是一段语音：先把它播完，再判对错（§三.26 顺序） */
+        state.busy = true;
+        b.classList.add(kind === 'yes' ? 'right' : 'l121-wrong');
+        say([kind === 'yes' ? 'l121_b_yes' : 'l121_b_no'], function () {
+          setTimeout(function () {
+            if (state.phase !== 'asking') return;
+            b.classList.remove('right', 'l121-wrong');
+            state.busy = false;
+            judge(i === q.answer, b);
+          }, 240);
+        });
+      });
+      row.appendChild(b);
+    });
+    w.appendChild(row);
+    askDisplay.appendChild(w);
+  }
+
+  /** 题型 C：两个小孩（没挂名字牌）+ 两张名字牌 */
+  function renderL121C(q) {
+    ensureL121Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l121-ask l121-cstage l121-stage';
+    w.dataset.l121ask = 'L121C';
+    w.dataset.l121kids = q.kidsWho.join(',');
+    w.dataset.l121badges = q.badges.join(',');
+
+    var kids = document.createElement('div');
+    kids.className = 'l121-kids';
+    q.kidsWho.forEach(function (who) {
+      var box = document.createElement('div');
+      box.className = 'l121-kidbox';
+      box.dataset.drop = 'kid';
+      box.dataset.kid = who;
+      box.setAttribute('aria-label', '一个还没挂名字牌的小朋友');
+      box.innerHTML = l121KidSvg(who, false);
+      kids.appendChild(box);
+    });
+    w.appendChild(kids);
+
+    var tray = document.createElement('div');
+    tray.className = 'l121-tray3';
+    tray.dataset.drop = 'tray';
+    q.badges.forEach(function (who) {
+      var b = document.createElement('div');
+      b.className = 'l121-badge';
+      b.dataset.drag = 'item';
+      b.dataset.from = 'tray';
+      b.dataset.who = who;
+      b.setAttribute('aria-label', L121_NAME[who] + ' 的名字牌');
+      b.textContent = L121_NAME[who];
+      tray.appendChild(b);
+    });
+    w.appendChild(tray);
+    askDisplay.appendChild(w);
+  }
+
+  /* ---------------- 判定 ---------------- */
+
+  function l121AllBadged() {
+    var boxes = askDisplay.querySelectorAll('.l121-kidbox');
+    if (boxes.length !== 2) return false;
+    for (var i = 0; i < boxes.length; i++) if (!boxes[i].querySelector('.l121-badge-on')) return false;
+    return true;
+  }
+
+  function resolveL121(el, target) {
+    if (!el) return false;
+    var kid = target && target.dataset ? target.dataset.kid : null;
+    var who = el.dataset.who;
+    var tut = (state.phase === 'tutorial') ? state.tut : null;
+    if (!kid || !who) { l121Bounce(el); return false; }
+    if (target.querySelector('.l121-badge-on')) { l121Bounce(el); return false; }   /* 已经挂好了 */
+
+    if (tut) {
+      if (!tut.l121On) { l121Bounce(el); return false; }
+      if (kid !== who) { l121Bounce(el); armHint(); return false; }
+      l121Hang(el, target, who);
+      if (l121AllBadged()) {
+        tut.l121On = false;
+        tut.hintTarget = null; tut.hintFrom = null; tut.hintTo = null;
+        clearHint();
+        var nx = tut._l121Next;
+        setTimeout(function () { if (state.tut === tut && nx) nx(); }, 700);
+      }
+      return true;
+    }
+
+    var q = state.question;
+    if (!q || q.type !== 'L121C') { l121Bounce(el); return false; }
+    if (kid !== who) { judge(false, el); return false; }
+    l121Hang(el, target, who);
+    if (l121AllBadged()) {
+      target.classList.add('l121-done');
+      /* 两张名字牌都挂好：把两个名字都念一遍再给星星（§三.26） */
+      var lines = q.kidsWho.map(function (k) {
+        return k === 'lily' ? 'l121_b_yes' : (k === 'leo' ? 'l121_line_leo' : 'l121_line_tom');
+      });
+      l121SayThenJudge(lines, target);
+    }
+    return true;
+  }
+
+  /** 挂名字牌：**新建展示节点**（§三.31），不把拖拽件搬进来 */
+  function l121Hang(el, box, who) {
+    var tag = document.createElement('span');
+    tag.className = 'l121-badge-on';
+    tag.dataset.who = who;
+    tag.textContent = L121_NAME[who];
+    box.appendChild(tag);
+    box.classList.add('l121-filled');
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+  }
+
+  function l121SayThenJudge(keys, btn) {
+    if (state.busy) return;
+    state.busy = true;
+    say(keys, function () {
+      setTimeout(function () {
+        if (state.phase !== 'asking') return;
+        state.busy = false;
+        judge(true, btn);
+      }, 320);
+    });
+  }
+
+  /* ---------------- 出题：A 听音找人 / B 听对话选回答 / C 拖拽匹配名字 ---------------- */
+  var L121_LAST = { ans: -1, pair: '' };
+
+  function makeQuestionL121(type, prev) {
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var target = pick(L121_IDS);
+        var items = shuffle(L121_IDS.slice());
+        /* 防背题：答案位不与上一轮相同 */
+        for (var k = 0; k < 8 && items.indexOf(target) === L121_LAST.ans; k++) items = shuffle(L121_IDS.slice());
+        var ans = items.indexOf(target);
+        L121_LAST.ans = ans;
+        q = {
+          type: 'L121A', sig: 'A:' + target, items: items, options: [], answer: ans,
+          audio: ['l121_a_' + target]
+        };
+      } else if (type === 1) {
+        var itemsB = shuffle(['yes', 'no']);
+        q = {
+          type: 'L121B', sig: 'B:' + itemsB.join(''), items: itemsB, options: [],
+          answer: itemsB.indexOf('yes'), audio: ['l121_b_ask']
+        };
+      } else {
+        /* C：两个小孩（从三人里取两个）+ 同名两张牌（顺序打乱）；音频按孩子从左到右念 */
+        var pool = shuffle(L121_IDS.slice());
+        var kids = [pool[0], pool[1]];
+        var badges = shuffle(kids.slice());
+        for (var k2 = 0; k2 < 6 && badges.join('') === kids.join(''); k2++) badges = shuffle(kids.slice());
+        var pair = kids.join('');
+        for (var k3 = 0; k3 < 6 && pair === L121_LAST.pair; k3++) {
+          pool = shuffle(L121_IDS.slice());
+          kids = [pool[0], pool[1]];
+          badges = shuffle(kids.slice());
+          pair = kids.join('');
+        }
+        L121_LAST.pair = pair;
+        q = {
+          type: 'L121C', sig: 'C:' + kids.join('-'), kidsWho: kids, badges: badges,
+          options: [], answer: 0,
+          audio: kids.map(function (w) { return 'l121_c_' + w; })
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 教学：认识新朋友 3 演示 + 1 互动 + 过渡 ----------------
+     演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），点错只抖动不判错。 */
+  var runL121Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'friends', word: 'l121_t_friends' },      /* 男孩 + 女孩出场 */
+      { t: 'demo', sid: 'askq', word: 'l121_t_ask_q' },           /* 男孩问「你叫什么名字」 */
+      { t: 'demo', sid: 'aska', word: 'l121_t_ask_a' },           /* 女孩答「我叫 Lily」 */
+      { t: 'ask', sid: 'findLily', word: 'l121_t_find_lily', want: 'lily' },  /* 互动：点出 Lily */
+      { t: 'demo', sid: 'leo', word: 'l121_t_leo' },              /* 男孩答「我叫 Leo」 */
+      { t: 'out', sid: 'out', word: 'l121_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null;
+      me.canDrag = false; me.l121On = false; me._l121Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL121Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l121-ask l121-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '认识新朋友');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+
+    /** 大画面里排几个小孩，可指定哪些先隐藏、哪些依次高亮 */
+    function kidRow(names) {
+      var box = document.createElement('div');
+      box.className = 'l121-big';
+      var els = {};
+      names.forEach(function (who) {
+        var d = document.createElement('div');
+        d.className = 'l121-bigkid';
+        d.dataset.who = who;
+        d.innerHTML = l121KidSvg(who, true);
+        box.appendChild(d);
+        els[who] = d;
+      });
+      return { box: box, els: els };
+    }
+
+    /* 演示 1：男孩和女孩出场 */
+    function playFriends(me, act, next) {
+      var w = stage(me, act);
+      var row = kidRow(['leo', 'lily']);
+      Object.keys(row.els).forEach(function (k) { row.els[k].style.opacity = '0'; });
+      w.appendChild(row.box);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        [['leo', 200], ['lily', 900]].forEach(function (spec) {
+          setTimeout(function () {
+            if (state.tut !== me) return;
+            var el = row.els[spec[0]];
+            el.style.transition = 'opacity .3s, transform .3s';
+            el.style.opacity = '1';
+            el.classList.add('l121-hi');
+            setTimeout(function () { if (el.classList) el.classList.remove('l121-hi'); }, 460);
+          }, spec[1]);
+        });
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 2600);
+      });
+    }
+
+    /* 演示 2 / 3：男孩问（问句时男孩高亮）/ 女孩答（答句时女孩高亮） */
+    function playOneSpeaks(me, act, next, speaker) {
+      var w = stage(me, act);
+      var row = kidRow(['leo', 'lily']);
+      w.appendChild(row.box);
+      var target = row.els[speaker];
+      if (target) target.classList.add('l121-hi');
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 900);
+      });
+    }
+
+    /* 互动：三个小孩（打乱），点出 Lily（4 秒小手） */
+    function playAsk(me, act, next) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l121-cards';
+      var order = shuffle(L121_IDS.slice());
+      var right = null;
+      order.forEach(function (who, i) {
+        var b = l121CardEl(who, i);
+        if (who === act.want) right = b;
+        b.addEventListener('click', function () {
+          if (state.phase !== 'tutorial' || state.tut !== me || !me.l121On) return;
+          if (who !== act.want) { l121Bounce(b); armHint(); return; }
+          me.l121On = false; me.hintTarget = null;
+          clearHint();
+          b.classList.add('right');
+          setTimeout(function () { if (state.tut === me) next(); }, 620);
+        });
+        row.appendChild(b);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l121On = true;
+        me.hintTarget = right;
+        armHint();
+      });
+    }
+
+    function playOut(me, act) {
+      var w = stage(me, act);
+      var row = kidRow(['leo', 'lily', 'tom']);
+      w.appendChild(row.box);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') {
+        if (act.sid === 'friends') { playFriends(me, act, next); return; }
+        if (act.sid === 'askq') { playOneSpeaks(me, act, next, 'leo'); return; }
+        if (act.sid === 'aska') { playOneSpeaks(me, act, next, 'lily'); return; }
+        playOneSpeaks(me, act, next, 'leo'); return;
+      }
+      if (act.t === 'ask') { playAsk(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -30381,6 +30978,11 @@
     /* ---- 第 11 岛第 5 关：童话故事游乐场大结局（A 找细节 / B 找角色 / C 两个角色各回各家） ---- */
     if (q.type === 'L115A' || q.type === 'L115B') { optionsBar.classList.add('gone'); renderL115Pick(q); return; }
     if (q.type === 'L115C') { optionsBar.classList.add('gone'); renderL115C(q); return; }
+
+    /* ---- 第 12 岛第 1 关：自我介绍（A 听音找人 / B 听对话选回答 / C 拖拽匹配名字） ---- */
+    if (q.type === 'L121A') { optionsBar.classList.add('gone'); renderL121A(q); return; }
+    if (q.type === 'L121B') { optionsBar.classList.add('gone'); renderL121B(q); return; }
+    if (q.type === 'L121C') { optionsBar.classList.add('gone'); renderL121C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -30855,6 +31457,11 @@
     }
     // 第 11 岛第 5 关：三题型都自带舞台
     if (q.type === 'L115A' || q.type === 'L115B' || q.type === 'L115C') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 12 岛第 1 关：三题型都自带舞台
+    if (q.type === 'L121A' || q.type === 'L121B' || q.type === 'L121C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -31534,7 +32141,8 @@
             qt !== 'L112A' && qt !== 'L112B' && qt !== 'L112C' &&
             qt !== 'L113A' && qt !== 'L113B' && qt !== 'L113C' &&
             qt !== 'L114A' && qt !== 'L114B' && qt !== 'L114C' &&
-            qt !== 'L115A' && qt !== 'L115B' && qt !== 'L115C') {
+            qt !== 'L115A' && qt !== 'L115B' && qt !== 'L115C' &&
+            qt !== 'L121A' && qt !== 'L121B' && qt !== 'L121C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -31689,7 +32297,8 @@
       state.lastPointerAt = Date.now();
       /* 第 9 岛第 2 关：轻点由元素自己的 click（l92Pick / resolveL92）处理 */
       if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L105' ||
-          d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114' || d.mode === 'L115') return;
+          d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114' || d.mode === 'L115' ||
+          d.mode === 'L121') return;
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
       else if (d.mode === 'F14T') tutPickF14(d.el);
@@ -31777,6 +32386,8 @@
         resolveL114(d.el, target);
       } else if (d.mode === 'L115') {
         resolveL115(d.el, target);
+      } else if (d.mode === 'L121') {
+        resolveL121(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -31811,7 +32422,8 @@
         tutDropOn(target, e.clientX, e.clientY);
       }
     } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102' || d.mode === 'L103' || d.mode === 'L104' || d.mode === 'L105' ||
-        d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114' || d.mode === 'L115') {
+        d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114' || d.mode === 'L115' ||
+        d.mode === 'L121') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -31831,6 +32443,7 @@
       else if (d.mode === 'L113') l113Bounce(d.el);
       else if (d.mode === 'L114') l114Bounce(d.el);
       else if (d.mode === 'L115') l115Bounce(d.el);
+      else if (d.mode === 'L121') l121Bounce(d.el);
       else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
@@ -32994,6 +33607,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '12-1': {
+      // 自我介绍（第 12 岛开篇）：6 环节
+      // 男孩+女孩出场 → 男孩问 → 女孩答 → 点出 Lily（互动）→ 男孩答 → 过渡；
+      // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
+      custom: runL121Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -33252,6 +33874,7 @@
     if (q.type === 'L113C') return 'L113';
     if (q.type === 'L114A') return 'L114';
     if (q.type === 'L115C') return 'L115';
+    if (q.type === 'L121C') return 'L121';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -34032,12 +34655,12 @@
           ansBox: q.ansBox || null,
           cmp: q.cmp || null,
           ansScene: q.ansScene || null,
-          g5kids: q.kids ? q.kids.map(function (k) { return { kid: k.kid.id, gender: k.kid.gender, act: k.act }; }) : null,
+          g5kids: (q.kids && q.kids.length && q.kids[0] && q.kids[0].kid) ? q.kids.map(function (k) { return { kid: k.kid.id, gender: k.kid.gender, act: k.act }; }) : null,
           g5noun: q.noun || null,
           g5act: q.act || null,
           g5a1: q.a1 || null,
           g5a2: q.a2 || null,
-          g4kids: q.kids ? q.kids.map(function (k) { return { kid: k.kid.id, gender: k.kid.gender, act: k.act }; }) : null,
+          g4kids: (q.kids && q.kids.length && q.kids[0] && q.kids[0].kid) ? q.kids.map(function (k) { return { kid: k.kid.id, gender: k.kid.gender, act: k.act }; }) : null,
           g4noun: q.noun || null,
           g4act: q.act || null,
           g4steps: (q.type === 'G4B' && q.steps) ? q.steps.map(function (s) { return { gender: s.gender, act: s.act }; }) : null,
@@ -34154,7 +34777,12 @@
           l115items: q.items ? q.items.slice() : null,
           l115answer: (typeof q.answer === 'number') ? q.answer : null,
           l115dest: q.destOrder ? q.destOrder.slice() : null,
-          l115who: q.whoOrder ? q.whoOrder.slice() : null
+          l115who: q.whoOrder ? q.whoOrder.slice() : null,
+          l121ask: q.ask || null,
+          l121items: q.items ? q.items.slice() : null,
+          l121answer: (typeof q.answer === 'number') ? q.answer : null,
+          l121kids: q.kidsWho ? q.kidsWho.slice() : null,
+          l121badges: q.badges ? q.badges.slice() : null
         } : null
       };
     },

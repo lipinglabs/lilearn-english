@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1167** 条（英文 1161 + 中文 6）
+总条目：**1184** 条（英文 1178 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1150,21 +1150,38 @@
 | `l114_b_first` | en | Which one is first? | 已存在 |
 | `l114_b_last` | en | Which one is last? | 已存在 |
 | `l114_c_check` | en | Look at the pictures. Is this correct? | 已存在 |
-| `l115_t_friends` | en | Look! All our friends are here! | 待生成 |
-| `l115_t_names` | en | The pig, Little Red Riding Hood, and Goldilocks. | 待生成 |
-| `l115_t_find_red` | en | Who is Little Red Riding Hood? Touch her. | 待生成 |
-| `l115_t_wolf_q` | en | Do you remember? Who is the bad wolf? | 待生成 |
-| `l115_t_forest` | en | He is in the forest! | 待生成 |
-| `l115_t_out` | en | What a big party! Let's play the final game! | 待生成 |
-| `l115_line_party` | en | What a party! | 待生成 |
-| `l115_a_grandma` | en | In this story, a little girl visits her grandma. Which picture is it? | 待生成 |
-| `l115_a_house` | en | In this story, a pig builds a house. Which picture is it? | 待生成 |
-| `l115_a_porridge` | en | In this story, a girl tastes some porridge. Which picture is it? | 待生成 |
-| `l115_b_knock` | en | Who is knocking at the door? Who says this in the story? | 待生成 |
-| `l115_b_blow` | en | I will blow your house down! Who says this in the story? | 待生成 |
-| `l115_b_basket` | en | I am going to Grandma's house. Who says this in the story? | 待生成 |
-| `l115_c_red_pig` | en | Help Little Red Riding Hood go to Grandma's house. And help the pig go to the brick house. | 待生成 |
-| `l115_c_pig_red` | en | Help the pig go to the brick house. And help Little Red Riding Hood go to Grandma's house. | 待生成 |
+| `l115_t_friends` | en | Look! All our friends are here! | 已存在 |
+| `l115_t_names` | en | The pig, Little Red Riding Hood, and Goldilocks. | 已存在 |
+| `l115_t_find_red` | en | Who is Little Red Riding Hood? Touch her. | 已存在 |
+| `l115_t_wolf_q` | en | Do you remember? Who is the bad wolf? | 已存在 |
+| `l115_t_forest` | en | He is in the forest! | 已存在 |
+| `l115_t_out` | en | What a big party! Let's play the final game! | 已存在 |
+| `l115_line_party` | en | What a party! | 已存在 |
+| `l115_a_grandma` | en | In this story, a little girl visits her grandma. Which picture is it? | 已存在 |
+| `l115_a_house` | en | In this story, a pig builds a house. Which picture is it? | 已存在 |
+| `l115_a_porridge` | en | In this story, a girl tastes some porridge. Which picture is it? | 已存在 |
+| `l115_b_knock` | en | Who is knocking at the door? Who says this in the story? | 已存在 |
+| `l115_b_blow` | en | I will blow your house down! Who says this in the story? | 已存在 |
+| `l115_b_basket` | en | I am going to Grandma's house. Who says this in the story? | 已存在 |
+| `l115_c_red_pig` | en | Help Little Red Riding Hood go to Grandma's house. And help the pig go to the brick house. | 已存在 |
+| `l115_c_pig_red` | en | Help the pig go to the brick house. And help Little Red Riding Hood go to Grandma's house. | 已存在 |
+| `l121_t_friends` | en | Look! A new friend. | 待生成 |
+| `l121_t_ask_q` | en | The boy asks, what's your name? | 待生成 |
+| `l121_t_ask_a` | en | The girl says, my name is Lily. | 待生成 |
+| `l121_t_find_lily` | en | Who is Lily? Find Lily. | 待生成 |
+| `l121_t_leo` | en | The boy says, my name is Leo. | 待生成 |
+| `l121_t_out` | en | Let's meet more friends! Let's play! | 待生成 |
+| `l121_a_leo` | en | What's your name? My name is Leo. | 待生成 |
+| `l121_a_lily` | en | What's your name? My name is Lily. | 待生成 |
+| `l121_a_tom` | en | What's your name? My name is Tom. | 待生成 |
+| `l121_b_ask` | en | What's your name? | 待生成 |
+| `l121_b_yes` | en | My name is Lily. | 待生成 |
+| `l121_b_no` | en | I am fine. | 待生成 |
+| `l121_c_leo` | en | Find Leo's name. Put it on him. | 待生成 |
+| `l121_c_lily` | en | Find Lily's name. Put it on her. | 待生成 |
+| `l121_c_tom` | en | Find Tom's name. Put it on him. | 待生成 |
+| `l121_line_leo` | en | My name is Leo. | 待生成 |
+| `l121_line_tom` | en | My name is Tom. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
