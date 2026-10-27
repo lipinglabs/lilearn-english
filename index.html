@@ -3978,7 +3978,8 @@
     '10-1': { numbers: null, make: 'makeL10', title: '第 1 关', tutorial: true },
     '10-2': { numbers: null, make: 'makeL102', title: '第 2 关', tutorial: true, types: 4 },
     '10-3': { numbers: null, make: 'makeL103', title: '第 3 关', tutorial: true },
-    '10-4': { numbers: null, make: 'makeL104', title: '第 4 关', tutorial: true }
+    '10-4': { numbers: null, make: 'makeL104', title: '第 4 关', tutorial: true },
+    '10-5': { numbers: null, make: 'makeL105', title: '第 5 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4234,6 +4235,7 @@
     if (def && def.make === 'makeL102') return makeQuestionL102(typeIdx, prev);
     if (def && def.make === 'makeL103') return makeQuestionL103(typeIdx, prev);
     if (def && def.make === 'makeL104') return makeQuestionL104(typeIdx, prev);
+    if (def && def.make === 'makeL105') return makeQuestionL105(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -26252,6 +26254,560 @@
     return api;
   })();
 
+  /* ================= 第 10 岛第 5 关：游乐场 · 交通与自然终极考验 =================
+     岛末综合关：把 10-1 交通工具 / 10-2 方向 / 10-3 红绿灯 / 10-4 天气合流成一场「上路」考验。
+     美术全部手写 SVG，零位图、零 emoji。雨只做一层极简 CSS 斜纹，且只在主舞台动，缩略图永远静态。 */
+
+  var L105_LANE_LABEL = { left: '左边的蓝色车道', mid: '中间的灰色车道', right: '右边的黄色车道' };
+  var L105_LANE_BG = { left: '#bfe0ff', mid: '#cfd4da', right: '#fff2b8' };
+  var L105_WEATHER_LABEL = { sunny: '晴天', rainy: '雨天', cloudy: '阴天' };
+
+  /* 题型 B 的三张画面（顺序洗牌后上屏） */
+  var L105_PICS = ['green_go', 'red_stop', 'rain_umbrella'];
+  var L105_PIC_LABEL = {
+    green_go: '绿灯，汽车开了过去',
+    red_stop: '红灯，汽车停在停止线前',
+    rain_umbrella: '下雨，小朋友打着伞'
+  };
+  /* 题型 C 的三个图标 */
+  var L105_ICONS = ['sun', 'umbrella', 'redlight'];
+  var L105_ICON_LABEL = { sun: '太阳，晴天', umbrella: '雨伞，雨天', redlight: '红灯，要停下' };
+
+  /* 题型 B / C 的语音：绿 / 红 / 晴三句与 10-3、10-4 完全同句，直接复用同一 key（§一.12） */
+  var L105_B_KEY = {
+    green_go: 'l103_b_green_go',
+    red_stop: 'l103_b_red_stop',
+    rain_umbrella: 'l105_b_rain'
+  };
+  var L105_C_KEY = {
+    sun: 'l104_a_sunny',
+    umbrella: 'l105_c_umbrella',
+    redlight: 'l105_c_stop'
+  };
+
+  /* ---- 手写 SVG 美术（零位图、零 emoji） ---- */
+
+  /** 俯视小汽车（车头朝上，与 10-2 的 topcar 同一造型语言）；umbrella = 车顶撑伞
+      两种状态共用同一个 viewBox，伞出现时车不会跳尺寸。 */
+  function l105CarSvg(umbrella) {
+    var body =
+      '<rect x="10" y="10" width="40" height="80" rx="14" fill="#ff8f6b" stroke="#e06a45" stroke-width="3.2"/>' +
+      '<rect x="17" y="22" width="26" height="17" rx="6" fill="#bfe6ff" stroke="#8fc6e6" stroke-width="1.4"/>' +
+      '<rect x="17" y="62" width="26" height="14" rx="6" fill="#bfe6ff" stroke="#8fc6e6" stroke-width="1.4"/>' +
+      '<rect x="18" y="12" width="9" height="5" rx="2.5" fill="#ffe9a8"/>' +
+      '<rect x="33" y="12" width="9" height="5" rx="2.5" fill="#ffe9a8"/>' +
+      '<rect x="18" y="83" width="9" height="5" rx="2.5" fill="#ffb3ad"/>' +
+      '<rect x="33" y="83" width="9" height="5" rx="2.5" fill="#ffb3ad"/>';
+    var umb =
+      '<path d="M30 3 Q57 7 57 25 Q44 19 30 25 Q16 19 3 25 Q3 7 30 3 Z" fill="#ff8f6b" ' +
+      'stroke="#d94b4b" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M30 3 V-1" stroke="#d94b4b" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<path d="M30 24 V34" stroke="#8a6142" stroke-width="3.2" stroke-linecap="round"/>';
+    return '<svg viewBox="0 0 60 112" aria-hidden="true">' + (umbrella ? umb : '') +
+      '<g transform="translate(0,16)">' + body + '</g></svg>';
+  }
+
+  /** 车道底色（左浅蓝 / 中灰 / 右浅黄 —— 与 10-2 完全一致的左右视觉锚点） */
+  function l105LaneArt(ln) {
+    return '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+      '<rect width="100" height="100" fill="' + (L105_LANE_BG[ln] || L105_LANE_BG.mid) + '"/>' +
+      '<path d="M50 4 V96" stroke="#ffffff" stroke-width="4" stroke-dasharray="13 12" opacity=".62"/></svg>';
+  }
+
+  /** 天图层（只占舞台顶部一条，绝不盖住路中间的车） */
+  function l105SkySvg(weather) {
+    if (weather === 'sunny') {
+      return '<svg viewBox="0 0 200 66" preserveAspectRatio="xMinYMin meet" aria-hidden="true">' +
+        '<circle cx="34" cy="32" r="19" fill="#ffd166" stroke="#e0a92e" stroke-width="2.6"/>' +
+        '<g stroke="#ffc94d" stroke-width="3" stroke-linecap="round">' +
+        '<path d="M34 4 V11"/><path d="M34 53 V60"/><path d="M5 32 H12"/><path d="M56 32 H63"/>' +
+        '<path d="M13 11 L18 16"/><path d="M50 48 L55 53"/><path d="M55 11 L50 16"/><path d="M18 48 L13 53"/>' +
+        '</g></svg>';
+    }
+    var dark = weather === 'rainy' ? '#8a97a6' : '#9aa7b6';
+    return '<svg viewBox="0 0 200 66" preserveAspectRatio="xMinYMin meet" aria-hidden="true">' +
+      '<g fill="' + dark + '"><ellipse cx="40" cy="28" rx="29" ry="15"/>' +
+      '<ellipse cx="74" cy="24" rx="23" ry="12"/><ellipse cx="18" cy="34" rx="17" ry="10"/></g>' +
+      (weather === 'rainy'
+        ? '<g stroke="#6fa8dc" stroke-width="3.4" stroke-linecap="round">' +
+          '<path d="M26 46 L21 60"/><path d="M48 50 L43 64"/><path d="M70 46 L65 60"/><path d="M92 50 L87 64"/>' +
+          '</g>'
+        : '<g fill="#b6c2cf"><ellipse cx="118" cy="42" rx="25" ry="11"/></g>') +
+      '</svg>';
+  }
+
+  function ensureL105Css() {
+    if (document.getElementById('l105-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l105-style';
+    s.textContent = [
+      '.l105-ask{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.1vh;width:100%}',
+      /* 十字路口：三条纵向车道（左蓝 / 中灰 / 右黄），高度按视口给死，矮屏另压 */
+      '.l105-race{position:relative;display:flex;gap:1.4vw;width:min(90vw,520px);max-width:100%;' +
+        'height:min(42vh,320px);border-radius:18px}',
+      '.l105-lane{position:relative;flex:1;padding:5px;border-radius:16px;box-sizing:border-box;' +
+        'background:rgba(255,255,255,.7);box-shadow:0 2px 8px rgba(90,120,150,.12);' +
+        'transition:box-shadow .18s,transform .18s}',
+      '.l105-lane-art{position:relative;width:100%;height:100%;border-radius:12px;overflow:hidden}',
+      '.l105-lane[data-lane="left"] .l105-lane-art{background:#bfe0ff}',
+      '.l105-lane[data-lane="mid"] .l105-lane-art{background:#cfd4da}',
+      '.l105-lane[data-lane="right"] .l105-lane-art{background:#fff2b8}',
+      '.l105-lane-art svg{position:absolute;inset:0;width:100%;height:100%;display:block}',
+      '.l105-lane.drop-hot{box-shadow:0 0 0 4px #7fd18a,0 4px 14px rgba(90,180,120,.3);transform:scale(1.03)}',
+      '.l105-lane.l105-right{box-shadow:0 0 0 4px #7fd18a,0 4px 16px rgba(90,180,120,.36)}',
+      /* 斑马线：横跨三条车道的白色竖条（过了它 = 过马路） */
+      '.l105-cross{position:absolute;left:0;right:0;top:30%;height:12%;pointer-events:none;' +
+        'background:repeating-linear-gradient(90deg,#f7f7f2 0 14px,rgba(247,247,242,0) 14px 28px);' +
+        'opacity:.92}',
+      '.l105-sky{position:absolute;left:0;right:0;top:0;height:30%;pointer-events:none;overflow:hidden;' +
+        'border-radius:18px 18px 0 0}',
+      '.l105-sky svg{width:100%;height:100%;display:block}',
+      /* 雨：一层极简斜纹，只动 background-position；缩略图不带这个类，永远静态 */
+      '.l105-rain{position:absolute;inset:0;pointer-events:none;border-radius:18px;opacity:.5;' +
+        'background-image:repeating-linear-gradient(101deg,rgba(120,175,225,.9) 0 2px,rgba(0,0,0,0) 2px 15px);' +
+        'animation:l105rain 1.15s linear infinite}',
+      '@keyframes l105rain{0%{background-position:0 0}100%{background-position:-7px 28px}}',
+      '.l105-light{position:absolute;right:2%;top:1%;width:min(11vw,44px);pointer-events:none}',
+      '.l105-light svg{width:100%;height:auto;display:block}',
+      /* 车：热区是整块车身；只用 left/top 位移，transform 恒定居中便于过渡 */
+      '.l105-car{position:absolute;height:24%;aspect-ratio:60/112;transform:translate(-50%,-50%);' +
+        'cursor:grab;touch-action:none;' +
+        'transition:left .42s cubic-bezier(.3,1.2,.5,1),top .42s cubic-bezier(.3,1.2,.5,1)}',
+      '.l105-car svg{width:100%;height:100%;display:block;pointer-events:none}',
+      '.l105-car.l105-fast{transition-duration:.24s}',
+      '.l105-car.dragging{opacity:.35}',
+      '.l105-car.l105-wrong{animation:l105nudge .4s}',
+      '@keyframes l105nudge{0%,100%{transform:translate(-50%,-50%)}' +
+        '28%{transform:translate(calc(-50% - 6px),-50%) rotate(-5deg)}' +
+        '62%{transform:translate(calc(-50% + 6px),-50%) rotate(5deg)}}',
+      '.l105-car.l105-pop{animation:l105pop .34s cubic-bezier(.3,1.4,.5,1)}',
+      '@keyframes l105pop{0%{transform:translate(-50%,-50%) scale(.84)}100%{transform:translate(-50%,-50%) scale(1)}}',
+      /* 「停住」的红圈脉冲：只画一圈，1.1s 一次，成本极低 */
+      '.l105-car.l105-halt::after{content:"";position:absolute;inset:-14%;border-radius:50%;' +
+        'border:3px solid rgba(255,90,82,.6);animation:l105pulse 1.1s ease-out infinite}',
+      '@keyframes l105pulse{0%{transform:scale(.86);opacity:.9}100%{transform:scale(1.16);opacity:0}}',
+      /* 幽灵是 .l105-car 的克隆：必须把绝对定位 / 居中 / 高度改回拖拽样式 */
+      '.drag-ghost.l105-car{position:fixed;height:auto;transform:scale(1.06);border-radius:12px;' +
+        'background:rgba(255,255,255,.5);border:none;filter:drop-shadow(0 10px 14px rgba(120,90,60,.28))}',
+      /* 斑马线对面（绿灯「过马路」的投放区） */
+      '.l105-goal{position:absolute;left:0;right:0;top:0;height:28%;border-radius:12px 12px 0 0}',
+      '.l105-goal.drop-hot{box-shadow:inset 0 0 0 4px #7fd18a}',
+      /* 题型 B：三张场景图 */
+      '.l105-pics{display:flex;justify-content:center;align-items:center;gap:2.2vw;' +
+        'width:min(88vw,640px);max-width:100%}',
+      '.l105-pic{flex:1;min-width:0;max-width:200px;padding:6px;border-radius:16px;border:3px solid transparent;' +
+        'background:rgba(255,255,255,.86);box-shadow:0 2px 10px rgba(90,120,150,.14);cursor:pointer;' +
+        'transition:transform .16s,border-color .16s}',
+      '.l105-pic svg{width:100%;height:auto;display:block;border-radius:11px}',
+      '.l105-pic.right{border-color:#7fd18a;transform:translateY(-2px)}',
+      '.l105-pic.l105-wrong{animation:l105shake .38s}',
+      /* 题型 C：三个图标 */
+      '.l105-icons{display:flex;justify-content:center;align-items:center;gap:3vw;width:min(88vw,540px);max-width:100%}',
+      '.l105-icon{flex:1;min-width:0;max-width:150px;aspect-ratio:1/1;padding:8px;border-radius:18px;' +
+        'border:3px solid transparent;background:rgba(255,255,255,.86);box-shadow:0 2px 10px rgba(90,120,150,.14);' +
+        'cursor:pointer;display:grid;place-items:center;transition:transform .16s,border-color .16s}',
+      '.l105-icon svg{width:100%;height:100%;display:block}',
+      '.l105-icon.right{border-color:#7fd18a;transform:translateY(-2px)}',
+      '.l105-icon.l105-wrong{animation:l105shake .38s}',
+      '@keyframes l105shake{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-3deg)}' +
+        '60%{transform:translateX(5px) rotate(3deg)}}',
+      /* 矮屏（横屏手机 / 小窗）：整体压一档，保证车与图标都在可视区 */
+      '@media (max-height:600px){.l105-race{height:min(38vh,210px)}.l105-sky{height:26%}' +
+      '.l105-icon{max-width:104px}.l105-pic{max-width:150px}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  /** 搭一个十字路口。opt = { weather, light, at, goal } */
+  function l105BuildStage(host, opt) {
+    opt = opt || {};
+    var race = document.createElement('div');
+    race.className = 'l105-race';
+    var lanes = {};
+    ['left', 'mid', 'right'].forEach(function (ln) {
+      var lane = document.createElement('div');
+      lane.className = 'l105-lane';
+      lane.dataset.drop = 'lane';
+      lane.dataset.lane = ln;
+      lane.setAttribute('aria-label', L105_LANE_LABEL[ln]);
+      var art = document.createElement('div');
+      art.className = 'l105-lane-art';
+      art.innerHTML = l105LaneArt(ln);
+      lane.appendChild(art);
+      if (ln === 'mid' && opt.goal) {
+        var g = document.createElement('div');
+        g.className = 'l105-goal';
+        g.dataset.drop = 'goal';
+        g.setAttribute('aria-label', '斑马线对面');
+        lane.appendChild(g);
+      }
+      race.appendChild(lane);
+      lanes[ln] = lane;
+    });
+    var cross = document.createElement('div');
+    cross.className = 'l105-cross';
+    race.appendChild(cross);
+    if (opt.weather) {
+      var sky = document.createElement('div');
+      sky.className = 'l105-sky';
+      sky.innerHTML = l105SkySvg(opt.weather);
+      race.appendChild(sky);
+      if (opt.weather === 'rainy') {
+        var rain = document.createElement('div');
+        rain.className = 'l105-rain';
+        race.appendChild(rain);
+      }
+    }
+    if (opt.light) {
+      var li = document.createElement('div');
+      li.className = 'l105-light';
+      li.innerHTML = l103LightSvg(opt.light);
+      race.appendChild(li);
+    }
+    var car = document.createElement('div');
+    car.className = 'l105-car';
+    car.dataset.drag = 'item';
+    car.dataset.from = 'stage';
+    car.dataset.item = 'car';
+    car.setAttribute('aria-label', '小汽车');
+    car.innerHTML = l105CarSvg(false);
+    race.appendChild(car);
+    host.appendChild(race);
+    l105Place(car, opt.at || 'lane');
+    return { race: race, car: car, lanes: lanes, goal: race.querySelector('.l105-goal') };
+  }
+
+  /** 车位：left/mid/right = 车道中央；line = 停在停止线前；past = 过了斑马线；start = 从底下开上来 */
+  function l105Place(car, key, fast) {
+    if (!car) return;
+    var x = 50, y = 64;
+    if (key === 'left') x = 16.8;
+    else if (key === 'right') x = 83.2;
+    else if (key === 'past') y = 15;
+    else if (key === 'line') y = 53;
+    else if (key === 'start') y = 86;
+    if (fast) car.classList.add('l105-fast'); else car.classList.remove('l105-fast');
+    car.style.left = x + '%';
+    car.style.top = y + '%';
+    car.dataset.at = key;
+  }
+
+  /** 车顶撑起雨伞（教学演示 6：只换 SVG，viewBox 不变所以车不会跳尺寸） */
+  function l105AddUmbrella(car) {
+    if (!car) return;
+    car.innerHTML = l105CarSvg(true);
+    car.classList.remove('l105-pop');
+    void car.offsetWidth;
+    car.classList.add('l105-pop');
+  }
+
+  function l105Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l105-wrong');
+    void el.offsetWidth;
+    el.classList.add('l105-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l105-wrong'); }, 440);
+  }
+
+  /** 题型 B 的三张画面（viewBox 0 0 200 160） */
+  function l105SceneThumb(kind) {
+    if (kind === 'rain_umbrella') {
+      return '<svg viewBox="0 0 200 160" aria-hidden="true">' +
+        '<rect width="200" height="160" fill="#c3d2e0"/>' +
+        '<g fill="#8a97a6"><ellipse cx="64" cy="28" rx="32" ry="16"/>' +
+        '<ellipse cx="100" cy="24" rx="24" ry="13"/></g>' +
+        '<g stroke="#7fb3e0" stroke-width="4" stroke-linecap="round">' +
+        '<path d="M30 42 L25 58"/><path d="M52 46 L47 62"/><path d="M150 44 L145 60"/><path d="M172 48 L167 64"/>' +
+        '</g>' +
+        '<rect y="134" width="200" height="26" fill="#7f8b95"/>' +
+        '<g transform="translate(60,22)">' + l104KidGroup('umbrella') + '</g>' +
+        '</svg>';
+    }
+    var green = kind === 'green_go';
+    var carY = green ? 10 : 102;
+    return '<svg viewBox="0 0 200 160" aria-hidden="true">' +
+      '<rect width="200" height="160" fill="#a8dc9a"/>' +
+      '<rect x="30" width="140" height="160" fill="#cfd4da"/>' +
+      '<path d="M100 4 V150" stroke="#f7f3e8" stroke-width="4" stroke-dasharray="12 11" opacity=".78"/>' +
+      '<g fill="#f7f7f2">' +
+      '<rect x="38" y="70" width="14" height="30" rx="4"/><rect x="62" y="70" width="14" height="30" rx="4"/>' +
+      '<rect x="86" y="70" width="14" height="30" rx="4"/><rect x="110" y="70" width="14" height="30" rx="4"/>' +
+      '<rect x="134" y="70" width="14" height="30" rx="4"/><rect x="158" y="70" width="14" height="30" rx="4"/>' +
+      '</g>' +
+      '<g transform="translate(83,' + carY + ')">' +
+      '<rect width="34" height="56" rx="12" fill="#ff8f6b" stroke="#e06a45" stroke-width="2.6"/>' +
+      '<rect x="5" y="9" width="24" height="12" rx="5" fill="#bfe6ff"/>' +
+      '<rect x="5" y="36" width="24" height="11" rx="5" fill="#bfe6ff"/>' +
+      '</g>' +
+      '<g transform="translate(176,52)">' +
+      '<rect width="18" height="46" rx="7" fill="#3f4a57" stroke="#2b333d" stroke-width="2.4"/>' +
+      '<circle cx="9" cy="13" r="6" fill="' + (green ? '#5c3a3a' : '#ff5a52') + '"/>' +
+      '<circle cx="9" cy="33" r="6" fill="' + (green ? '#5ad46f' : '#2f4a35') + '"/>' +
+      '</g>' +
+      '</svg>';
+  }
+
+  /** 题型 C 的三个图标：太阳（复用 10-4）/ 红灯（复用 10-3）/ 雨伞（新画） */
+  function l105IconSvg(kind) {
+    if (kind === 'sun') return L104_ICON.sunny;
+    if (kind === 'redlight') return l103LightSvg('red');
+    return '<svg viewBox="0 0 100 122" aria-hidden="true">' +
+      '<path d="M50 16 Q86 20 86 48 Q68 40 50 48 Q32 40 14 48 Q14 20 50 16 Z" fill="#ff8f6b" ' +
+      'stroke="#d94b4b" stroke-width="3.4" stroke-linejoin="round"/>' +
+      '<path d="M50 16 V9" stroke="#d94b4b" stroke-width="3.4" stroke-linecap="round"/>' +
+      '<path d="M50 48 V94" stroke="#8a6142" stroke-width="5" stroke-linecap="round"/>' +
+      '<path d="M50 94 q0 12 -12 12 q-9 0 -9 -8" fill="none" stroke="#8a6142" stroke-width="5" ' +
+      'stroke-linecap="round"/>' +
+      '<path d="M50 16 Q32 20 32 34" fill="none" stroke="#ffd0c4" stroke-width="2.6" opacity=".9"/>' +
+      '</svg>';
+  }
+
+  /* ---------------- 渲染 ---------------- */
+
+  function renderL105A(q) {
+    ensureL105Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l105-ask l105-stage';
+    w.setAttribute('aria-label', L105_WEATHER_LABEL[q.weather] + '的十字路口');
+    w.dataset.l105weather = q.weather;
+    l105BuildStage(w, { weather: q.weather, at: 'lane' });
+    askDisplay.appendChild(w);
+  }
+
+  function renderL105B(q) {
+    ensureL105Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l105-ask l105-stage';
+    var row = document.createElement('div');
+    row.className = 'l105-pics';
+    q.pics.forEach(function (k, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l105-pic';
+      b.dataset.pic = k;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', L105_PIC_LABEL[k]);
+      b.innerHTML = l105SceneThumb(k);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+    askDisplay.appendChild(box);
+  }
+
+  function renderL105C(q) {
+    ensureL105Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l105-ask l105-stage';
+    var row = document.createElement('div');
+    row.className = 'l105-icons';
+    q.icons.forEach(function (k, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l105-icon';
+      b.dataset.icon = k;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', L105_ICON_LABEL[k]);
+      b.innerHTML = l105IconSvg(k);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+    askDisplay.appendChild(box);
+  }
+
+  /* ---------------- 判定 ---------------- */
+
+  function resolveL105(el, target) {
+    if (!el) return false;
+    var drop = target && target.dataset ? target.dataset.drop : null;
+    var lane = target && target.dataset ? target.dataset.lane : null;
+    var tut = (state.phase === 'tutorial') ? state.tut : null;
+
+    if (tut) {
+      var need = tut.l105Need;
+      if (!need) { l105Bounce(el); return false; }
+      var ok = false;
+      if (need.lane) ok = (drop === 'lane' && lane === need.lane);
+      else if (need.goal) ok = (drop === 'goal');
+      if (!ok) { l105Bounce(el); if (tut.canDrag) armHint(); return false; }
+      l105Place(el, need.lane || 'past');
+      tut.canDrag = false; tut.l105On = false;
+      tut.hintTarget = null;
+      clearHint();
+      var nx = tut._l105Next;
+      setTimeout(function () { if (state.tut === tut && nx) nx(); }, 680);
+      return true;
+    }
+
+    var q = state.question;
+    if (!q || q.type !== 'L105A') { l105Bounce(el); return false; }
+    if (drop !== 'lane' || !lane) { l105Bounce(el); return false; }
+    if (lane !== q.lane) { judge(false, el); return false; }
+    l105Place(el, q.lane);
+    target.classList.add('l105-right');
+    judge(true, target);
+    return true;
+  }
+
+  /* ---------------- 出题：A 天气+方向 / B 三张场景 / C 三个图标 ---------------- */
+  function makeQuestionL105(type, prev) {
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：听「天气 + 方向」把车开到对应车道（左右颜色锚点沿用 10-2） */
+        var wA = pick(['sunny', 'rainy', 'cloudy']);
+        var laneA = pick(['left', 'right']);
+        q = {
+          type: 'L105A', sig: 'A:' + wA + ':' + laneA, weather: wA, lane: laneA,
+          options: [], answer: 0, audio: ['l105_a_' + wA + '_' + laneA]
+        };
+      } else if (type === 1) {
+        /* B：三张场景图，听句子点出对应那张 */
+        var kB = pick(L105_PICS);
+        var pics = shuffle(L105_PICS.slice());
+        q = {
+          type: 'L105B', sig: 'B:' + kB, kind: kB, pics: pics,
+          options: [], answer: pics.indexOf(kB), audio: [L105_B_KEY[kB]]
+        };
+      } else {
+        /* C：三个图标（天气 / 交通标志），听句子点出对应的那个 */
+        var kC = pick(L105_ICONS);
+        var icons = shuffle(L105_ICONS.slice());
+        q = {
+          type: 'L105C', sig: 'C:' + kC, kind: kC, icons: icons,
+          options: [], answer: icons.indexOf(kC), audio: [L105_C_KEY[kC]]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 教学：快/左转 2 演示 → 右转互动 → 红灯 2 演示 → 绿灯互动 → 下雨 2 演示 → 过渡 ----------------
+     9 环节；演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），拖错车道只弹回不判错（§二.11）。 */
+  var runL105Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'fast1', word: 'l105_t_fast', weather: 'sunny', at: 'lane', from: 'start', fast: true },
+      { t: 'demo', sid: 'left2', word: 'l105_t_left', weather: 'sunny', at: 'left', from: 'mid', fast: true },
+      { t: 'drag', sid: 'rightPut', word: 'l105_t_right_put', weather: 'sunny', at: 'mid', need: { lane: 'right' } },
+      { t: 'demo', sid: 'red1', word: 'l105_t_red', weather: 'cloudy', light: 'red', at: 'line', from: 'start' },
+      { t: 'demo', sid: 'stop2', word: 'l105_t_stop', weather: 'cloudy', light: 'red', at: 'line', halt: true },
+      { t: 'drag', sid: 'goPut', word: 'l105_t_go', weather: 'sunny', light: 'green', at: 'line', goal: true, need: { goal: true } },
+      { t: 'demo', sid: 'rain1', word: 'l105_t_rain', weather: 'rainy', at: 'lane' },
+      { t: 'demo', sid: 'rain2', word: 'l105_t_rain2', weather: 'rainy', at: 'lane', umbrella: true },
+      { t: 'out', sid: 'out', word: 'l105_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null;
+      me.canDrag = false; me.l105On = false; me.l105Need = null; me._l105Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL105Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l105-ask l105-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '十字路口');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示：语音播完 → 车动起来（开到车道 / 停在停止线 / 撑伞）→ 定格等点按 */
+    function playDemo(me, act, next) {
+      var w = stage(me, act);
+      var sc = l105BuildStage(w, {
+        weather: act.weather, light: act.light, at: act.from || act.at
+      });
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        l105Place(sc.car, act.at, !!act.fast);
+        if (act.halt) sc.car.classList.add('l105-halt');
+        if (act.umbrella) setTimeout(function () { if (state.tut === me) l105AddUmbrella(sc.car); }, 380);
+        setTimeout(function () { if (state.tut === me) gate(me, next); },
+          act.umbrella ? 900 : (act.halt ? 460 : 680));
+      });
+    }
+    /* 互动：把车拖到目标车道 / 拖过斑马线（4 秒小手） */
+    function playDrag(me, act, next) {
+      var w = stage(me, act);
+      var sc = l105BuildStage(w, {
+        weather: act.weather, light: act.light, at: act.at, goal: !!act.goal
+      });
+      me.l105Need = act.need;
+      me._l105Next = next;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l105On = true; me.canDrag = true; me.customMode = 'L105';
+        me.hintFrom = sc.car;
+        me.hintTo = act.need.lane ? sc.lanes[act.need.lane] : sc.goal;
+        me.hintTarget = me.hintFrom;
+        me.hintToY = act.need.lane ? 0.5 : 0.36;
+        armHint();
+      });
+    }
+    function playOut(me, act) {
+      var w = stage(me, act);
+      l105BuildStage(w, { weather: 'sunny', light: 'green', at: 'past' });
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'drag') { playDrag(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -26592,6 +27148,11 @@
     if (q.type === 'L104A') { optionsBar.classList.add('gone'); renderL104A(q); return; }
     if (q.type === 'L104B') { optionsBar.classList.add('gone'); renderL104B(q); return; }
     if (q.type === 'L104C') { optionsBar.classList.add('gone'); renderL104C(q); return; }
+
+    /* ---- 第 10 岛第 5 关：交通与自然终极考验（A 天气+方向 / B 找场景 / C 找标志） ---- */
+    if (q.type === 'L105A') { optionsBar.classList.add('gone'); renderL105A(q); return; }
+    if (q.type === 'L105B') { optionsBar.classList.add('gone'); renderL105B(q); return; }
+    if (q.type === 'L105C') { optionsBar.classList.add('gone'); renderL105C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -27036,6 +27597,11 @@
     }
     // 第 10 岛第 4 关：三题型都自带舞台
     if (q.type === 'L104A' || q.type === 'L104B' || q.type === 'L104C') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 10 岛第 5 关：三题型都自带舞台
+    if (q.type === 'L105A' || q.type === 'L105B' || q.type === 'L105C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -27709,7 +28275,8 @@
             qt !== 'L10A' && qt !== 'L10B' && qt !== 'L10C' &&
             qt !== 'L102A' && qt !== 'L102B' && qt !== 'L102C' && qt !== 'L102D' &&
             qt !== 'L103A' && qt !== 'L103B' && qt !== 'L103C' &&
-            qt !== 'L104A' && qt !== 'L104B' && qt !== 'L104C') {
+            qt !== 'L104A' && qt !== 'L104B' && qt !== 'L104C' &&
+            qt !== 'L105A' && qt !== 'L105B' && qt !== 'L105C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -27863,7 +28430,7 @@
       d.ghost.remove();
       state.lastPointerAt = Date.now();
       /* 第 9 岛第 2 关：轻点由元素自己的 click（l92Pick / resolveL92）处理 */
-      if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95') return;
+      if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L105') return;
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
       else if (d.mode === 'F14T') tutPickF14(d.el);
@@ -27939,6 +28506,8 @@
         resolveL103(d.el, target);
       } else if (d.mode === 'L104') {
         resolveL104(d.el, target);
+      } else if (d.mode === 'L105') {
+        resolveL105(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -27972,7 +28541,7 @@
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
-    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102' || d.mode === 'L103' || d.mode === 'L104') {
+    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102' || d.mode === 'L103' || d.mode === 'L104' || d.mode === 'L105') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -27986,6 +28555,7 @@
       else if (d.mode === 'L102') l102Bounce(d.el);
       else if (d.mode === 'L103') l103Bounce(d.el);
       else if (d.mode === 'L104') l104Bounce(d.el);
+      else if (d.mode === 'L105') l105Bounce(d.el);
       else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
@@ -29094,6 +29664,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '10-5': {
+      // 游乐场 · 交通与自然终极考验：岛末综合关，9 环节
+      // 快/左转 2 演示 → 右转互动 → 红灯 2 演示 → 绿灯互动 → 下雨 2 演示 → 过渡；
+      // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错车道只弹回不判错（§二.11）
+      custom: runL105Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -29347,6 +29926,7 @@
     if (q.type === 'L102A' || q.type === 'L102D') return 'L102';
     if (q.type === 'L103A') return 'L103';
     if (q.type === 'L104B') return 'L104';
+    if (q.type === 'L105A') return 'L105';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -30216,7 +30796,13 @@
           l104icons: q.icons ? q.icons.slice() : null,
           l104pics: q.pics ? q.pics.slice() : null,
           l104kind: q.kind || null,
-          l104answer: (typeof q.answer === 'number') ? q.answer : null
+          l104answer: (typeof q.answer === 'number') ? q.answer : null,
+          l105weather: q.weather || null,
+          l105lane: q.lane || null,
+          l105kind: q.kind || null,
+          l105pics: q.pics ? q.pics.slice() : null,
+          l105icons: q.icons ? q.icons.slice() : null,
+          l105answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },

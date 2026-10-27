@@ -1606,6 +1606,33 @@ add("l104_c_sun",   "The boy is wearing sunglasses. Find the picture.", "en", -1
 add("l104_c_rain",  "The boy has an umbrella. Find the picture.", "en", -15, EN_ASK)
 add("l104_c_cloud", "The boy is looking at the clouds. Find the picture.", "en", -15, EN_ASK)
 
+# ---- 第 10 岛第 5 关：游乐场 · 交通与自然终极考验（L10-W5，岛末综合关） ----
+# 教学 9 条：快 + 左转 / 右转互动 / 红灯 / 停 / 绿灯走 / 下雨 / 要伞 / 过渡
+add("l105_t_fast",        "Look! The car is fast.", "en", -15, EN_ASK)
+add("l105_t_left",        "Turn left! The car turns left.", "en", -15, EN_ASK)
+add("l105_t_right_put",   "Turn right! Move the car to the right.", "en", -15, EN_ASK)
+add("l105_t_red",         "The red light is on.", "en", -15, EN_ASK)
+add("l105_t_stop",        "Stop!", "en", -15, EN_ASK)
+add("l105_t_go",          "Now it's green. Go!", "en", -15, EN_ASK)
+add("l105_t_rain",        "Oh no! It's rainy.", "en", -15, EN_ASK)
+add("l105_t_rain2",       "We need an umbrella.", "en", -15, EN_ASK)
+add("l105_t_out",         "You know everything! Let's play the final game!", "en", -15, EN_ASK)
+
+# A 综合听指令（天气 + 方向），6 种组合
+add("l105_a_sunny_left",   "It's sunny. Turn left.", "en", -15, EN_ASK)
+add("l105_a_sunny_right",  "It's sunny. Turn right.", "en", -15, EN_ASK)
+add("l105_a_rainy_left",   "It's rainy. Turn left.", "en", -15, EN_ASK)
+add("l105_a_rainy_right",  "It's rainy. Turn right.", "en", -15, EN_ASK)
+add("l105_a_cloudy_left",  "It's cloudy. Turn left.", "en", -15, EN_ASK)
+add("l105_a_cloudy_right", "It's cloudy. Turn right.", "en", -15, EN_ASK)
+
+# B 三张场景图里找（绿 / 红两句与 10-3 同句同 key，直接复用 l103_b_green_go / l103_b_red_stop）
+add("l105_b_rain",  "The boy has an umbrella in the rain. Find the picture.", "en", -15, EN_ASK)
+
+# C 三个图标里找（天气 / 交通标志）；晴天这句与 10-4 同句同 key，复用 l104_a_sunny
+add("l105_c_stop",     "Find the sign that means stop.", "en", -15, EN_ASK)
+add("l105_c_umbrella", "Find the umbrella for the rain.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1080** 条（英文 1074 + 中文 6）
+总条目：**1098** 条（英文 1092 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1060,24 +1060,42 @@
 | `l103_b_red_stop` | en | The red light is on. The car is stopping. Find the picture. | 已存在 |
 | `l103_c_red` | en | Red light! | 已存在 |
 | `l103_c_green` | en | Green light! | 已存在 |
-| `l104_t_sunny` | en | Look at the sky. It's sunny! We need sunglasses. | 待生成 |
-| `l104_t_sunny2` | en | The sunglasses are on! Cool! | 待生成 |
-| `l104_t_sun_put` | en | It's sunny. Put the sunglasses on the boy. | 待生成 |
-| `l104_t_rainy` | en | Oh no! It's rainy. We need an umbrella. | 待生成 |
-| `l104_t_rainy2` | en | The umbrella is up! We are dry. | 待生成 |
-| `l104_t_rain_put` | en | It's rainy. Put the umbrella on the boy. | 待生成 |
-| `l104_t_cloudy` | en | Look! So many clouds. It's cloudy. | 待生成 |
-| `l104_t_cloudy2` | en | The sky is grey. It's cloudy. | 待生成 |
-| `l104_t_cloudy_find` | en | It's cloudy. Find the cloudy picture. | 待生成 |
-| `l104_t_out` | en | You know the weather! Let's play! | 待生成 |
-| `l104_a_sunny` | en | Find the sunny day. | 待生成 |
-| `l104_a_rainy` | en | Find the rainy day. | 待生成 |
-| `l104_a_cloudy` | en | Find the cloudy day. | 待生成 |
-| `l104_b_sunny` | en | It's sunny. | 待生成 |
-| `l104_b_rainy` | en | It's rainy. | 待生成 |
-| `l104_c_sun` | en | The boy is wearing sunglasses. Find the picture. | 待生成 |
-| `l104_c_rain` | en | The boy has an umbrella. Find the picture. | 待生成 |
-| `l104_c_cloud` | en | The boy is looking at the clouds. Find the picture. | 待生成 |
+| `l104_t_sunny` | en | Look at the sky. It's sunny! We need sunglasses. | 已存在 |
+| `l104_t_sunny2` | en | The sunglasses are on! Cool! | 已存在 |
+| `l104_t_sun_put` | en | It's sunny. Put the sunglasses on the boy. | 已存在 |
+| `l104_t_rainy` | en | Oh no! It's rainy. We need an umbrella. | 已存在 |
+| `l104_t_rainy2` | en | The umbrella is up! We are dry. | 已存在 |
+| `l104_t_rain_put` | en | It's rainy. Put the umbrella on the boy. | 已存在 |
+| `l104_t_cloudy` | en | Look! So many clouds. It's cloudy. | 已存在 |
+| `l104_t_cloudy2` | en | The sky is grey. It's cloudy. | 已存在 |
+| `l104_t_cloudy_find` | en | It's cloudy. Find the cloudy picture. | 已存在 |
+| `l104_t_out` | en | You know the weather! Let's play! | 已存在 |
+| `l104_a_sunny` | en | Find the sunny day. | 已存在 |
+| `l104_a_rainy` | en | Find the rainy day. | 已存在 |
+| `l104_a_cloudy` | en | Find the cloudy day. | 已存在 |
+| `l104_b_sunny` | en | It's sunny. | 已存在 |
+| `l104_b_rainy` | en | It's rainy. | 已存在 |
+| `l104_c_sun` | en | The boy is wearing sunglasses. Find the picture. | 已存在 |
+| `l104_c_rain` | en | The boy has an umbrella. Find the picture. | 已存在 |
+| `l104_c_cloud` | en | The boy is looking at the clouds. Find the picture. | 已存在 |
+| `l105_t_fast` | en | Look! The car is fast. | 待生成 |
+| `l105_t_left` | en | Turn left! The car turns left. | 待生成 |
+| `l105_t_right_put` | en | Turn right! Move the car to the right. | 待生成 |
+| `l105_t_red` | en | The red light is on. | 待生成 |
+| `l105_t_stop` | en | Stop! | 待生成 |
+| `l105_t_go` | en | Now it's green. Go! | 待生成 |
+| `l105_t_rain` | en | Oh no! It's rainy. | 待生成 |
+| `l105_t_rain2` | en | We need an umbrella. | 待生成 |
+| `l105_t_out` | en | You know everything! Let's play the final game! | 待生成 |
+| `l105_a_sunny_left` | en | It's sunny. Turn left. | 待生成 |
+| `l105_a_sunny_right` | en | It's sunny. Turn right. | 待生成 |
+| `l105_a_rainy_left` | en | It's rainy. Turn left. | 待生成 |
+| `l105_a_rainy_right` | en | It's rainy. Turn right. | 待生成 |
+| `l105_a_cloudy_left` | en | It's cloudy. Turn left. | 待生成 |
+| `l105_a_cloudy_right` | en | It's cloudy. Turn right. | 待生成 |
+| `l105_b_rain` | en | The boy has an umbrella in the rain. Find the picture. | 待生成 |
+| `l105_c_stop` | en | Find the sign that means stop. | 待生成 |
+| `l105_c_umbrella` | en | Find the umbrella for the rain. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
