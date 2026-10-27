@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1216** 条（英文 1210 + 中文 6）
+总条目：**1230** 条（英文 1224 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1200,20 +1200,34 @@
 | `l122_line_apple` | en | Apple starts with A! | 已存在 |
 | `l122_line_ball` | en | Ball starts with B! | 已存在 |
 | `l122_line_cat` | en | Cat starts with C! | 已存在 |
-| `l123_t_apple` | en | Look! A red apple. | 待生成 |
-| `l123_t_jump` | en | The red apple is jumping! | 待生成 |
-| `l123_t_find` | en | The blue car is driving. Find the picture. | 待生成 |
-| `l123_t_hungry` | en | The boy is hungry. | 待生成 |
-| `l123_t_bread` | en | He wants some bread. | 待生成 |
-| `l123_a_dog` | en | The small dog is running fast. Find the dog. | 待生成 |
-| `l123_a_cat` | en | The cat is sleeping on the mat. Find the cat. | 待生成 |
-| `l123_a_ele` | en | The big elephant is eating grass. Find the elephant. | 待生成 |
-| `l123_b_milk` | en | I am thirsty. What do I need? | 待生成 |
-| `l123_b_bread` | en | I am hungry. What do I need? | 待生成 |
-| `l123_b_hat` | en | The sun is hot. What do I need? | 待生成 |
-| `l123_b_light` | en | The cars are coming. What do I look at? | 待生成 |
-| `l123_c_cry` | en | Put the crying baby in the sad box. | 待生成 |
-| `l123_c_laugh` | en | Put the laughing baby in the happy box. | 待生成 |
+| `l123_t_apple` | en | Look! A red apple. | 已存在 |
+| `l123_t_jump` | en | The red apple is jumping! | 已存在 |
+| `l123_t_find` | en | The blue car is driving. Find the picture. | 已存在 |
+| `l123_t_hungry` | en | The boy is hungry. | 已存在 |
+| `l123_t_bread` | en | He wants some bread. | 已存在 |
+| `l123_a_dog` | en | The small dog is running fast. Find the dog. | 已存在 |
+| `l123_a_cat` | en | The cat is sleeping on the mat. Find the cat. | 已存在 |
+| `l123_a_ele` | en | The big elephant is eating grass. Find the elephant. | 已存在 |
+| `l123_b_milk` | en | I am thirsty. What do I need? | 已存在 |
+| `l123_b_bread` | en | I am hungry. What do I need? | 已存在 |
+| `l123_b_hat` | en | The sun is hot. What do I need? | 已存在 |
+| `l123_b_light` | en | The cars are coming. What do I look at? | 已存在 |
+| `l123_c_cry` | en | Put the crying baby in the sad box. | 已存在 |
+| `l123_c_laugh` | en | Put the laughing baby in the happy box. | 已存在 |
+| `l124_t_intro` | en | Let's play a game. First, go to the table and get the apple. | 待生成 |
+| `l124_t_inhand` | en | Now the apple is in my hand. | 待生成 |
+| `l124_t_getask` | en | Get the apple. | 待生成 |
+| `l124_t_dad` | en | Then, give the apple to Daddy. | 待生成 |
+| `l124_t_dadhold` | en | The apple is in Daddy's hands. He is happy! | 待生成 |
+| `l124_t_giveask` | en | Give the apple to Daddy. | 待生成 |
+| `l124_t_out` | en | Great! You can follow instructions! Let's play! | 待生成 |
+| `l124_a_apple_dad` | en | First, get the apple. Then, give the apple to Daddy. | 待生成 |
+| `l124_a_apple_mom` | en | First, get the apple. Then, give the apple to Mommy. | 待生成 |
+| `l124_a_ball_dad` | en | First, get the ball. Then, give the ball to Daddy. | 待生成 |
+| `l124_a_ball_mom` | en | First, get the ball. Then, give the ball to Mommy. | 待生成 |
+| `l124_c_dad` | en | First, get the apple. Then, give it to Daddy. | 待生成 |
+| `l124_c_mom` | en | First, get the apple. Then, give it to Mommy. | 待生成 |
+| `l124_line_thanks` | en | Thank you so much! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

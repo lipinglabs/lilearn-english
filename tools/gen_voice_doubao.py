@@ -1840,6 +1840,29 @@ add("l123_b_light", "The cars are coming. What do I look at?", "en", -15, EN_ASK
 add("l123_c_cry",   "Put the crying baby in the sad box.", "en", -15, EN_ASK)
 add("l123_c_laugh", "Put the laughing baby in the happy box.", "en", -15, EN_ASK)
 
+# ---- 第 12 岛第 4 关：情景闯关 · 多步指令 First… Then…（L12-W4） ----
+# 全部 rate -15 ≈ 0.85x。教学 7 环节：拿苹果 2 演示 + 1 互动 → 递给爸爸 2 演示 + 1 互动 → 过渡。
+add("l124_t_intro",   "Let's play a game. First, go to the table and get the apple.", "en", -15, EN_ASK)
+add("l124_t_inhand",  "Now the apple is in my hand.", "en", -15, EN_ASK)
+add("l124_t_getask",  "Get the apple.", "en", -15, EN_ASK)
+add("l124_t_dad",     "Then, give the apple to Daddy.", "en", -15, EN_ASK)
+add("l124_t_dadhold", "The apple is in Daddy's hands. He is happy!", "en", -15, EN_ASK)
+add("l124_t_giveask", "Give the apple to Daddy.", "en", -15, EN_ASK)
+add("l124_t_out",     "Great! You can follow instructions! Let's play!", "en", -15, EN_ASK)
+
+# A 两步拖拽（物品 × 对象 四种组合，句面不重复）
+add("l124_a_apple_dad", "First, get the apple. Then, give the apple to Daddy.", "en", -15, EN_ASK)
+add("l124_a_apple_mom", "First, get the apple. Then, give the apple to Mommy.", "en", -15, EN_ASK)
+add("l124_a_ball_dad",  "First, get the ball. Then, give the ball to Daddy.", "en", -15, EN_ASK)
+add("l124_a_ball_mom",  "First, get the ball. Then, give the ball to Mommy.", "en", -15, EN_ASK)
+
+# C 找顺序（只有苹果一种物品，变化的是「给谁」；拿球那张是干扰项）
+add("l124_c_dad", "First, get the apple. Then, give it to Daddy.", "en", -15, EN_ASK)
+add("l124_c_mom", "First, get the apple. Then, give it to Mommy.", "en", -15, EN_ASK)
+
+# 剧情台词（§三.26）：递对了先念这句，念完再给星星
+add("l124_line_thanks", "Thank you so much!", "en", -10, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
