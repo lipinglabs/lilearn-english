@@ -1551,6 +1551,30 @@ add("l102_d_snail",  "Put the snail in the slow box.", "en", -15, EN_ASK)
 add("l102_d_car",    "Put the car in the fast box.", "en", -15, EN_ASK)
 add("l102_d_turtle", "Put the turtle in the slow box.", "en", -15, EN_ASK)
 
+# ---------------- 第 10 岛第 3 关：听指令过马路（Red light, Green light） ----------------
+# 全部 rate -15（≈0.85x）。教学 9 环节：红灯 2 演示 + 1 互动 → 绿灯 2 演示 + 1 互动 →
+# 行人 2 演示 → 过渡。去重（§一.12）：本批 17 条均为新句，无重复。
+add("l103_t_red",       "Look! The red light. Stop!", "en", -15, EN_ASK)
+add("l103_t_red2",      "The car stops before the zebra crossing.", "en", -15, EN_ASK)
+add("l103_t_red_put",   "Put the car here. Red light, stop!", "en", -15, EN_ASK)
+add("l103_t_green",     "Now, the green light. Go!", "en", -15, EN_ASK)
+add("l103_t_green2",    "Green light! The car can go.", "en", -15, EN_ASK)
+add("l103_t_green_put", "Put the car here. Green light, go!", "en", -15, EN_ASK)
+add("l103_t_boy",       "The green light is on. The boy can walk.", "en", -15, EN_ASK)
+add("l103_t_boy2",      "Look! The boy is walking.", "en", -15, EN_ASK)
+add("l103_t_out",       "You know the traffic rules! Let's play!", "en", -12, EN_PRAISE)
+# 题型 A：听指令拖车 / 人（红灯停、绿灯行）
+add("l103_a_red_car",   "The red light is on. What to do? Put the car here.", "en", -15, EN_ASK)
+add("l103_a_green_car", "The green light is on. What to do? Put the car here.", "en", -15, EN_ASK)
+add("l103_a_red_boy",   "The red light is on. What to do? Put the boy here.", "en", -15, EN_ASK)
+add("l103_a_green_boy", "The green light is on. What to do? Put the boy here.", "en", -15, EN_ASK)
+# 题型 B：听句子找画面（正确行为 / 闯红灯两种问法）
+add("l103_b_green_go",  "The green light is on. The car is going. Find the picture.", "en", -15, EN_ASK)
+add("l103_b_red_stop",  "The red light is on. The car is stopping. Find the picture.", "en", -15, EN_ASK)
+# 题型 C：TPR 木头人 / 往前走
+add("l103_c_red",   "Red light!", "en", -15, EN_ASK)
+add("l103_c_green", "Green light!", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

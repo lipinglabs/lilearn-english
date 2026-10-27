@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1045** 条（英文 1039 + 中文 6）
+总条目：**1062** 条（英文 1056 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1027,22 +1027,39 @@
 | `l10_c_bus` | en | Drive the bus! | 已存在 |
 | `l10_c_train` | en | Drive the train! | 已存在 |
 | `l10_c_plane` | en | Fly the plane! | 已存在 |
-| `l102_t_race_car` | en | Look at the race! The car is fast. | 待生成 |
-| `l102_t_race_turtle` | en | The turtle is slow. | 待生成 |
-| `l102_t_drive_fast` | en | Drive fast! | 待生成 |
-| `l102_t_drive_slow` | en | Drive slow! | 待生成 |
-| `l102_t_left` | en | Turn left! Move to the blue road. | 待生成 |
-| `l102_t_right` | en | Turn right! Move to the yellow road. | 待生成 |
-| `l102_t_right_drag` | en | Turn right! Move the car to the yellow road. | 待生成 |
-| `l102_t_police_left` | en | The police says turn left. | 待生成 |
-| `l102_t_police_right` | en | The police says turn right. | 待生成 |
-| `l102_t_out` | en | You are a great driver! Let's play! | 待生成 |
-| `l102_b_fast` | en | Find the fast one. | 待生成 |
-| `l102_b_slow` | en | Find the slow one. | 待生成 |
-| `l102_d_rocket` | en | Put the rocket in the fast box. | 待生成 |
-| `l102_d_snail` | en | Put the snail in the slow box. | 待生成 |
-| `l102_d_car` | en | Put the car in the fast box. | 待生成 |
-| `l102_d_turtle` | en | Put the turtle in the slow box. | 待生成 |
+| `l102_t_race_car` | en | Look at the race! The car is fast. | 已存在 |
+| `l102_t_race_turtle` | en | The turtle is slow. | 已存在 |
+| `l102_t_drive_fast` | en | Drive fast! | 已存在 |
+| `l102_t_drive_slow` | en | Drive slow! | 已存在 |
+| `l102_t_left` | en | Turn left! Move to the blue road. | 已存在 |
+| `l102_t_right` | en | Turn right! Move to the yellow road. | 已存在 |
+| `l102_t_right_drag` | en | Turn right! Move the car to the yellow road. | 已存在 |
+| `l102_t_police_left` | en | The police says turn left. | 已存在 |
+| `l102_t_police_right` | en | The police says turn right. | 已存在 |
+| `l102_t_out` | en | You are a great driver! Let's play! | 已存在 |
+| `l102_b_fast` | en | Find the fast one. | 已存在 |
+| `l102_b_slow` | en | Find the slow one. | 已存在 |
+| `l102_d_rocket` | en | Put the rocket in the fast box. | 已存在 |
+| `l102_d_snail` | en | Put the snail in the slow box. | 已存在 |
+| `l102_d_car` | en | Put the car in the fast box. | 已存在 |
+| `l102_d_turtle` | en | Put the turtle in the slow box. | 已存在 |
+| `l103_t_red` | en | Look! The red light. Stop! | 待生成 |
+| `l103_t_red2` | en | The car stops before the zebra crossing. | 待生成 |
+| `l103_t_red_put` | en | Put the car here. Red light, stop! | 待生成 |
+| `l103_t_green` | en | Now, the green light. Go! | 待生成 |
+| `l103_t_green2` | en | Green light! The car can go. | 待生成 |
+| `l103_t_green_put` | en | Put the car here. Green light, go! | 待生成 |
+| `l103_t_boy` | en | The green light is on. The boy can walk. | 待生成 |
+| `l103_t_boy2` | en | Look! The boy is walking. | 待生成 |
+| `l103_t_out` | en | You know the traffic rules! Let's play! | 待生成 |
+| `l103_a_red_car` | en | The red light is on. What to do? Put the car here. | 待生成 |
+| `l103_a_green_car` | en | The green light is on. What to do? Put the car here. | 待生成 |
+| `l103_a_red_boy` | en | The red light is on. What to do? Put the boy here. | 待生成 |
+| `l103_a_green_boy` | en | The green light is on. What to do? Put the boy here. | 待生成 |
+| `l103_b_green_go` | en | The green light is on. The car is going. Find the picture. | 待生成 |
+| `l103_b_red_stop` | en | The red light is on. The car is stopping. Find the picture. | 待生成 |
+| `l103_c_red` | en | Red light! | 待生成 |
+| `l103_c_green` | en | Green light! | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |

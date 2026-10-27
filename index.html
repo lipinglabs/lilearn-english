@@ -3883,7 +3883,8 @@
     '9-4': { numbers: null, make: 'makeL94', title: '第 4 关', tutorial: true },
     '9-5': { numbers: null, make: 'makeL95', title: '第 5 关', tutorial: true, types: 4 },
     '10-1': { numbers: null, make: 'makeL10', title: '第 1 关', tutorial: true },
-    '10-2': { numbers: null, make: 'makeL102', title: '第 2 关', tutorial: true, types: 4 }
+    '10-2': { numbers: null, make: 'makeL102', title: '第 2 关', tutorial: true, types: 4 },
+    '10-3': { numbers: null, make: 'makeL103', title: '第 3 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4137,6 +4138,7 @@
     if (def && def.make === 'makeL95') return makeQuestionL95(typeIdx, prev);
     if (def && def.make === 'makeL10') return makeQuestionL10(typeIdx, prev);
     if (def && def.make === 'makeL102') return makeQuestionL102(typeIdx, prev);
+    if (def && def.make === 'makeL103') return makeQuestionL103(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -25160,6 +25162,486 @@
     return api;
   })();
 
+  /* ================= 第 10 岛第 3 关：听指令过马路（Red light, Green light） ================= */
+
+  var L103_LIGHT_LABEL = { red: '红灯', green: '绿灯' };
+  var L103_ACTOR_LABEL = { car: '小汽车', boy: '小朋友' };
+  /* 题型 B 的三种画面：绿灯车走（对）/ 红灯车停（对）/ 红灯车还在走（闯红灯，错） */
+  var L103_PICS = ['green_go', 'red_stop', 'red_go'];
+
+  /* ---- 手写 SVG 美术（零位图、零 emoji） ---- */
+  function l103LightSvg(state) {
+    var red = state === 'red';
+    return '<svg viewBox="0 0 60 150" aria-hidden="true">' +
+      '<rect x="24" y="120" width="12" height="28" rx="3" fill="#8a8f98"/>' +
+      '<rect x="6" y="4" width="48" height="120" rx="14" fill="#3f4a57" stroke="#2b333d" stroke-width="3.4"/>' +
+      (red ? '<circle cx="30" cy="34" r="19" fill="#ff5a52" opacity=".28"/>' : '') +
+      (red ? '' : '<circle cx="30" cy="92" r="19" fill="#5ad46f" opacity=".26"/>') +
+      '<circle cx="30" cy="34" r="13" fill="' + (red ? '#ff5a52' : '#5c3a3a') + '"' +
+      (red ? ' stroke="#ffb3ad" stroke-width="2.4"' : '') + '/>' +
+      '<circle cx="30" cy="62" r="13" fill="#5c4a2a"/>' +
+      '<circle cx="30" cy="90" r="13" fill="' + (red ? '#2f4a35' : '#5ad46f') + '"' +
+      (red ? '' : ' stroke="#a9ecb6" stroke-width="2.4"') + '/>' +
+      '</svg>';
+  }
+
+  var L103_BOY_SVG =
+    '<svg viewBox="0 0 70 120" aria-hidden="true">' +
+    '<circle cx="35" cy="21" r="14" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3"/>' +
+    '<path d="M21 16 q14 -12 28 0 q0 -15 -14 -15 q-14 0 -14 15 Z" fill="#4a3a2c"/>' +
+    '<circle cx="30" cy="21" r="2" fill="#2f2f36"/><circle cx="40" cy="21" r="2" fill="#2f2f36"/>' +
+    '<path d="M31 28 q4 3 8 0" fill="none" stroke="#c4736a" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<rect x="24" y="36" width="22" height="34" rx="9" fill="#6ec6d8" stroke="#3f9fb3" stroke-width="3"/>' +
+    '<path d="M24 44 L12 60" stroke="#ffe0c2" stroke-width="6" stroke-linecap="round"/>' +
+    '<path d="M46 44 L58 58" stroke="#ffe0c2" stroke-width="6" stroke-linecap="round"/>' +
+    '<path d="M30 70 L24 100" stroke="#4a5b8c" stroke-width="8" stroke-linecap="round"/>' +
+    '<path d="M40 70 L48 98" stroke="#4a5b8c" stroke-width="8" stroke-linecap="round"/>' +
+    '<path d="M24 100 H16" stroke="#2f3b5c" stroke-width="7" stroke-linecap="round"/>' +
+    '<path d="M48 98 H58" stroke="#2f3b5c" stroke-width="7" stroke-linecap="round"/>' +
+    '</svg>';
+
+  /** 题型 B 的小画面：light = red/green，go = 车已过斑马线 */
+  function l103MiniSvg(pk) {
+    var green = pk.indexOf('green') === 0;
+    var go = /_go$/.test(pk);
+    var carX = go ? 152 : 52;
+    return '<svg viewBox="0 0 200 130" aria-hidden="true">' +
+      '<rect width="200" height="130" fill="#eaf4fb"/>' +
+      '<rect y="60" width="200" height="70" fill="#9aa3ad"/>' +
+      '<rect y="60" width="200" height="5" fill="#8792a0"/>' +
+      '<rect x="88" y="60" width="28" height="70" fill="#c9c2b4"/>' +
+      '<g fill="#ffffff">' +
+      '<rect x="90" y="66" width="24" height="9"/><rect x="90" y="82" width="24" height="9"/>' +
+      '<rect x="90" y="98" width="24" height="9"/><rect x="90" y="114" width="24" height="9"/>' +
+      '</g>' +
+      '<rect x="80" y="60" width="5" height="70" fill="#ffffff"/>' +
+      '<rect x="12" y="16" width="26" height="64" rx="8" fill="#3f4a57" stroke="#2b333d" stroke-width="2.6"/>' +
+      '<circle cx="25" cy="30" r="7" fill="' + (green ? '#5c3a3a' : '#ff5a52') + '"/>' +
+      '<circle cx="25" cy="48" r="7" fill="#5c4a2a"/>' +
+      '<circle cx="25" cy="66" r="7" fill="' + (green ? '#5ad46f' : '#2f4a35') + '"/>' +
+      '<g transform="translate(' + (carX - 28) + ',92)">' +
+      '<rect x="0" y="7" width="56" height="15" rx="7.5" fill="#ff8f6b" stroke="#e06a45" stroke-width="2.4"/>' +
+      '<path d="M13 8 L19 0 H36 L42 8 Z" fill="#ff8f6b" stroke="#e06a45" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<circle cx="14" cy="23" r="5.6" fill="#4a4a52"/><circle cx="42" cy="23" r="5.6" fill="#4a4a52"/>' +
+      '</g></svg>';
+  }
+
+  function ensureL103Css() {
+    if (document.getElementById('l103-style')) return;
+    var s = document.createElement('style');
+    s.id = 'l103-style';
+    s.textContent = [
+      '.l103-ask{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.2vh;width:100%}',
+      '.l103-scene{position:relative;width:min(94vw,600px);border-radius:18px;overflow:hidden;background:#eaf4fb;' +
+        'box-shadow:0 3px 10px rgba(90,120,150,.12)}',
+      '.l103-sky{height:min(8vh,62px);background:#d9efff}',
+      '.l103-road{position:relative;display:flex;align-items:stretch;height:min(23vh,170px);background:#9aa3ad;' +
+        'border-top:4px solid #8792a0;border-bottom:4px solid #8792a0}',
+      /* 热区 = 整块区域（含 padding），视觉在内部 —— 比视觉大一圈（§三.15 / §三.21） */
+      '.l103-zone{position:relative;flex:1;padding:6px;box-sizing:border-box;border-radius:14px;' +
+        'transition:box-shadow .18s,background .18s}',
+      '.l103-zone.drop-hot{box-shadow:inset 0 0 0 4px #7fd18a;background:rgba(127,209,138,.2)}',
+      '.l103-zone.l103-right{box-shadow:inset 0 0 0 4px #7fd18a}',
+      '.l103-cross{position:relative;width:19%;flex:none}',
+      '.l103-stopline{position:absolute;left:0;top:0;bottom:0;width:6px;background:#fff;opacity:.95;z-index:1}',
+      /* 斑马线：横向条纹（车从条纹上压过去） */
+      '.l103-zebra{position:absolute;inset:0;background:repeating-linear-gradient(0deg,#ffffff 0 9px,' +
+        'rgba(255,255,255,0) 9px 20px);opacity:.95}',
+      /* 红绿灯：压在场景左侧，不接事件 */
+      '.l103-light{position:absolute;left:4px;bottom:6px;width:min(11vw,48px);pointer-events:none;z-index:3}',
+      '.l103-light svg{width:100%;height:auto;display:block}',
+      /* 演示用：车 / 人按 left 百分比移动 */
+      '.l103-actor{position:absolute;bottom:8%;left:8%;width:15%;transform:translateX(-50%);' +
+        'transition:left .9s linear;z-index:2}',
+      '.l103-actor svg{width:100%;height:auto;display:block}',
+      /* 落在区域内：居中摆放 */
+      '.l103-zone .l103-actor{left:50%;bottom:6%;width:56%;transition:none;' +
+        'animation:l103pop .3s cubic-bezier(.3,1.4,.5,1)}',
+      '@keyframes l103pop{0%{transform:translateX(-50%) scale(.7)}100%{transform:translateX(-50%) scale(1)}}',
+      '.l103-actor.l103-walk{animation:l103step .5s ease-in-out infinite alternate}',
+      '@keyframes l103step{0%{transform:translateX(-50%) rotate(-3deg)}100%{transform:translateX(-50%) rotate(3deg)}}',
+      /* 底部待选栏 */
+      '.l103-tray{display:flex;justify-content:center;align-items:center;gap:3vw;width:min(92vw,560px);' +
+        'padding:1vh 2vw;border-radius:18px;background:rgba(255,255,255,.82);box-shadow:inset 0 0 0 2px #e4eef7}',
+      '.l103-card{width:min(22vw,96px);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;' +
+        'border-radius:14px;background:#fff;box-shadow:0 2px 6px rgba(90,120,150,.14);cursor:grab;touch-action:none}',
+      '.l103-card svg{width:84%;height:84%;display:block;pointer-events:none}',
+      '.l103-card.dragging{opacity:.4}',
+      '.l103-card.l103-wrong{animation:l103shake .38s}',
+      '.l103-zone.l103-wrong{animation:l103shake .38s}',
+      '@keyframes l103shake{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-3deg)}' +
+        '75%{transform:translateX(5px) rotate(3deg)}}',
+      /* 题型 B：三张小画面 */
+      '.l103-pics{display:flex;justify-content:center;align-items:center;gap:2.4vw;width:min(96vw,640px)}',
+      '.l103-pic{flex:1;max-width:200px;padding:5px;border:3px solid #d9e7f2;border-radius:16px;background:#fff;' +
+        'box-shadow:0 3px 10px rgba(90,120,150,.12);box-sizing:border-box;cursor:pointer;overflow:hidden}',
+      '.l103-pic svg{width:100%;height:auto;display:block;pointer-events:none}',
+      '.l103-pic.right{border-color:#7fd18a;background:#eafaf0}',
+      '.l103-pic.wrong{border-color:#f3b0a8;animation:l103shake .38s}',
+      /* 题型 C：红绿灯 + 巨大👍 */
+      '.l103-tpr{display:flex;flex-direction:column;align-items:center;gap:1.6vh}',
+      '.l103-tprlight{width:min(26vw,110px)}',
+      '.l103-tprlight svg{width:100%;height:auto;display:block}',
+      '.l103-thumb{width:min(44vw,190px);aspect-ratio:1;border:none;background:none;padding:0;cursor:pointer;' +
+        'filter:drop-shadow(0 6px 12px rgba(90,150,90,.28));transition:transform .12s}',
+      '.l103-thumb:active{transform:scale(.94)}',
+      '.l103-thumb.right{transform:scale(1.08)}',
+      '.l103-thumb svg{width:100%;height:100%;display:block}',
+      '@media (max-height:600px){.l103-road{height:min(19vh,120px)}.l103-sky{height:min(6vh,42px)}' +
+        '.l103-tprlight{width:min(16vw,74px)}.l103-thumb{width:min(44vw,150px)}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  function l103Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l103-wrong');
+    void el.offsetWidth;
+    el.classList.add('l103-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l103-wrong'); }, 430);
+  }
+
+  function l103ZoneEl(zone) {
+    return document.querySelector('#askDisplay .l103-zone[data-zone="' + zone + '"]');
+  }
+
+  function l103BuildScene(host, lightState, droppable) {
+    var scene = document.createElement('div');
+    scene.className = 'l103-scene';
+    var sky = document.createElement('div');
+    sky.className = 'l103-sky';
+    scene.appendChild(sky);
+
+    var road = document.createElement('div');
+    road.className = 'l103-road';
+
+    var zstop = document.createElement('div');
+    zstop.className = 'l103-zone';
+    zstop.dataset.zone = 'stop';
+    if (droppable) zstop.dataset.drop = 'zone';
+    zstop.setAttribute('aria-label', '停止线前');
+
+    var cross = document.createElement('div');
+    cross.className = 'l103-cross';
+    var line = document.createElement('div');
+    line.className = 'l103-stopline';
+    var zebra = document.createElement('div');
+    zebra.className = 'l103-zebra';
+    cross.appendChild(zebra);
+    cross.appendChild(line);
+
+    var zpast = document.createElement('div');
+    zpast.className = 'l103-zone';
+    zpast.dataset.zone = 'past';
+    if (droppable) zpast.dataset.drop = 'zone';
+    zpast.setAttribute('aria-label', '斑马线后');
+
+    road.appendChild(zstop);
+    road.appendChild(cross);
+    road.appendChild(zpast);
+    scene.appendChild(road);
+
+    var light = document.createElement('div');
+    light.className = 'l103-light';
+    light.setAttribute('aria-hidden', 'true');
+    light.innerHTML = l103LightSvg(lightState);
+    scene.appendChild(light);
+
+    host.appendChild(scene);
+    return scene;
+  }
+
+  function l103ActorNode(actor) {
+    var d = document.createElement('div');
+    d.className = 'l103-actor';
+    d.dataset.item = actor;
+    d.setAttribute('aria-label', L103_ACTOR_LABEL[actor]);
+    if (actor === 'boy') d.classList.add('l103-walk');
+    d.innerHTML = actor === 'boy' ? L103_BOY_SVG : L10_VEH_SVG.car;
+    return d;
+  }
+
+  /** 把车 / 人停进指定区域 */
+  function l103PlaceActor(zoneEl, actor) {
+    if (!zoneEl || !actor) return;
+    Array.prototype.forEach.call(document.querySelectorAll('#askDisplay .l103-road > .l103-actor'), function (n) {
+      if (n.parentNode) n.parentNode.removeChild(n);
+    });
+    var old = zoneEl.querySelector('.l103-actor');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    zoneEl.appendChild(l103ActorNode(actor));
+  }
+
+  /** 演示：让演员从 from% 走到 to% */
+  function l103Walk(actorEl, toPct, done) {
+    if (!actorEl) { if (done) done(); return; }
+    actorEl.style.left = toPct + '%';
+    setTimeout(function () { if (done) done(); }, 960);
+  }
+
+  /* ---------------- 答题渲染 ---------------- */
+
+  /** 题型 A：红绿灯 + 两个区域（停止线前 / 斑马线后），把车或人拖到对的位置 */
+  function renderL103A(q) {
+    ensureL103Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l103-ask l103-stage';
+    l103BuildScene(box, q.light, true);
+    var tray = document.createElement('div');
+    tray.className = 'l103-tray';
+    tray.dataset.drop = 'tray';
+    tray.appendChild(l103VehCard(q.item));
+    box.appendChild(tray);
+    askDisplay.appendChild(box);
+  }
+
+  function l103VehCard(actor) {
+    var c = document.createElement('div');
+    c.className = 'l103-card';
+    c.dataset.item = actor;
+    c.dataset.drag = 'actor';
+    c.dataset.from = 'tray';
+    c.setAttribute('aria-label', L103_ACTOR_LABEL[actor]);
+    c.innerHTML = actor === 'boy' ? L103_BOY_SVG : L10_VEH_SVG.car;
+    return c;
+  }
+
+  /** 题型 B：三张小画面，点出与句子相符的那张 */
+  function renderL103B(q) {
+    ensureL103Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l103-ask l103-stage';
+    var row = document.createElement('div');
+    row.className = 'l103-pics';
+    q.pics.forEach(function (pk, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l103-pic';
+      b.dataset.pic = pk;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', '画面' + (i + 1));
+      b.innerHTML = l103MiniSvg(pk);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+    askDisplay.appendChild(box);
+  }
+
+  /** 题型 C：TPR 红绿灯反应（红 = 木头人，绿 = 往前走；👍 永远判对） */
+  function renderL103C(q) {
+    ensureL103Css();
+    askDisplay.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'l103-ask l103-tpr l103-stage';
+    var light = document.createElement('div');
+    light.className = 'l103-tprlight';
+    light.setAttribute('aria-hidden', 'true');
+    light.innerHTML = l103LightSvg(q.light);
+    box.appendChild(light);
+    var thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'l103-thumb';
+    thumb.setAttribute('aria-label', '我做到了');
+    thumb.innerHTML = L10_THUMB_SVG;
+    thumb.addEventListener('click', function () {
+      if (state.phase !== 'asking' || state.busy) return;
+      l10Engine();
+      thumb.classList.add('right');
+      judge(true, thumb);
+    });
+    box.appendChild(thumb);
+    askDisplay.appendChild(box);
+  }
+
+  /* ---------------- 判定 ---------------- */
+  function resolveL103(el, target) {
+    if (!el) return false;
+    var item = el.dataset ? el.dataset.item : null;
+    var zone = target && target.dataset ? target.dataset.zone : null;
+    var tut = (state.phase === 'tutorial') ? state.tut : null;
+
+    if (tut) {
+      var need = tut.l103Need;
+      if (!need) { l103Bounce(el); return false; }
+      if (item !== need.item || zone !== need.zone) { l103Bounce(el); if (tut.canDrag) armHint(); return false; }
+      l103PlaceActor(target, item);
+      tut.canDrag = false; tut.l103On = false;
+      clearHint();
+      var nx = tut._l103Next;
+      setTimeout(function () { if (state.tut === tut && nx) nx(); }, 700);
+      return true;
+    }
+
+    var q = state.question;
+    if (!q || q.type !== 'L103A') return false;
+    if (!zone) { l103Bounce(el); return false; }
+    if (item !== q.item || zone !== q.zone) { judge(false, el); return false; }
+    l103PlaceActor(target, item);
+    target.classList.add('l103-right');
+    judge(true, target);
+    return true;
+  }
+
+  /* ---------------- 出题：A 拖车/人 / B 找画面 / C TPR ---------------- */
+  function makeQuestionL103(type, prev) {
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        var light = pick(['red', 'green']);
+        var actor = pick(['car', 'boy']);
+        var zone = light === 'red' ? 'stop' : 'past';
+        q = {
+          type: 'L103A', sig: 'A:' + light + ':' + actor,
+          light: light, actor: actor, item: actor, zone: zone,
+          options: [], answer: 0,
+          audio: ['l103_a_' + light + '_' + actor]
+        };
+      } else if (type === 1) {
+        /* B：正确画面 + 两个干扰画面（闯红灯 / 行为相反） */
+        var greenGo = Math.random() < 0.5;
+        var right = greenGo ? 'green_go' : 'red_stop';
+        var others = L103_PICS.filter(function (x) { return x !== right; });
+        var pics = shuffle([right].concat(others));
+        q = {
+          type: 'L103B', sig: 'B:' + right, pic: right, pics: pics,
+          options: [], answer: pics.indexOf(right),
+          audio: [greenGo ? 'l103_b_green_go' : 'l103_b_red_stop']
+        };
+      } else {
+        var lc = pick(['red', 'green']);
+        q = {
+          type: 'L103C', sig: 'C:' + lc, light: lc, options: [], answer: 0,
+          audio: ['l103_c_' + lc]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+  /* ---------------- 教学：红灯 2 演示 + 1 互动 → 绿灯 2 演示 + 1 互动 → 行人 2 演示 → 过渡 ---------------- */
+  var runL103Tutorial = (function () {
+    var ACTS = [
+      { t: 'drive', sid: 'redDemo',   word: 'l103_t_red',       light: 'red',   to: 36, actor: 'car' },
+      { t: 'drive', sid: 'redStop',   word: 'l103_t_red2',      light: 'red',   to: 38, actor: 'car' },
+      { t: 'drag',  sid: 'redPut',    word: 'l103_t_red_put',   light: 'red',   zone: 'stop', item: 'car' },
+      { t: 'drive', sid: 'greenDemo', word: 'l103_t_green',     light: 'green', to: 78, actor: 'car' },
+      { t: 'drive', sid: 'greenGo',   word: 'l103_t_green2',    light: 'green', to: 84, actor: 'car' },
+      { t: 'drag',  sid: 'greenPut',  word: 'l103_t_green_put', light: 'green', zone: 'past', item: 'car' },
+      { t: 'walk',  sid: 'boy1',      word: 'l103_t_boy',       light: 'green', to: 12, actor: 'boy' },
+      { t: 'walk',  sid: 'boy2',      word: 'l103_t_boy2',      light: 'green', to: 82, actor: 'boy' },
+      { t: 'out',   sid: 'out',       word: 'l103_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null;
+      me.canDrag = false; me.l103On = false; me.l103Need = null; me._l103Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL103Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l103-ask l103-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '马路情景');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap'); if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+    /* 演示：车/人从左侧驶入（或走到）目标位置，语音播完才开始动 */
+    function playDrive(me, act, next) {
+      var w = stage(me, act);
+      l103BuildScene(w, act.light, false);
+      var road = w.querySelector('.l103-road');
+      var a = l103ActorNode(act.actor);
+      a.style.left = act.t === 'walk' ? '10%' : '8%';
+      road.appendChild(a);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        l103Walk(a, act.to, function () { if (state.tut === me) gate(me, next); });
+      });
+    }
+    /* 互动：把车拖到停止线前 / 斑马线后 */
+    function playDrag(me, act, next) {
+      var w = stage(me, act);
+      l103BuildScene(w, act.light, true);
+      var tray = document.createElement('div');
+      tray.className = 'l103-tray';
+      tray.dataset.drop = 'tray';
+      var card = l103VehCard(act.item);
+      tray.appendChild(card);
+      w.appendChild(tray);
+      me.l103Need = { item: act.item, zone: act.zone };
+      me._l103Next = next;
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l103On = true; me.canDrag = true; me.customMode = 'L103';
+        me.hintFrom = card;
+        me.hintTo = l103ZoneEl(act.zone);
+        me.hintTarget = me.hintFrom; me.hintToY = 0.5;
+        armHint();
+      });
+    }
+    function playOut(me, act) {
+      var w = stage(me, act);
+      l103BuildScene(w, 'green', false);
+      var road = w.querySelector('.l103-road');
+      l103PlaceActor(road.querySelector('.l103-zone[data-zone="past"]'), 'boy');
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'drive' || act.t === 'walk') { playDrive(me, act, next); return; }
+      if (act.t === 'drag') { playDrag(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -25492,6 +25974,10 @@
     if (q.type === 'L102B') { optionsBar.classList.add('gone'); renderL102B(q); return; }
     if (q.type === 'L102C') { optionsBar.classList.add('gone'); renderL102C(q); return; }
     if (q.type === 'L102D') { optionsBar.classList.add('gone'); renderL102D(q); return; }
+    /* ---- 第 10 岛第 3 关：听指令过马路（A 拖车/人 / B 找画面 / C TPR 红绿灯） ---- */
+    if (q.type === 'L103A') { optionsBar.classList.add('gone'); renderL103A(q); return; }
+    if (q.type === 'L103B') { optionsBar.classList.add('gone'); renderL103B(q); return; }
+    if (q.type === 'L103C') { optionsBar.classList.add('gone'); renderL103C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -25926,6 +26412,11 @@
     }
     // 第 10 岛第 2 关：四题型都自带舞台，不用选项栏
     if (q.type === 'L102A' || q.type === 'L102B' || q.type === 'L102C' || q.type === 'L102D') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 10 岛第 3 关：三题型都自带舞台，不用选项栏
+    if (q.type === 'L103A' || q.type === 'L103B' || q.type === 'L103C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -26597,7 +27088,8 @@
             qt !== 'L94A' && qt !== 'L94B' && qt !== 'L94C' &&
             qt !== 'L95A' && qt !== 'L95B' && qt !== 'L95C' && qt !== 'L95D' &&
             qt !== 'L10A' && qt !== 'L10B' && qt !== 'L10C' &&
-            qt !== 'L102A' && qt !== 'L102B' && qt !== 'L102C' && qt !== 'L102D') {
+            qt !== 'L102A' && qt !== 'L102B' && qt !== 'L102C' && qt !== 'L102D' &&
+            qt !== 'L103A' && qt !== 'L103B' && qt !== 'L103C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -26823,6 +27315,8 @@
         resolveL10(d.el, target);
       } else if (d.mode === 'L102') {
         resolveL102(d.el, target);
+      } else if (d.mode === 'L103') {
+        resolveL103(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -26856,7 +27350,7 @@
       } else if (d.mode === 'TUT') {
         tutDropOn(target, e.clientX, e.clientY);
       }
-    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102') {
+    } else if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L10' || d.mode === 'L102' || d.mode === 'L103') {
       /* 第 9 岛第 2 关：拖到空白处 → 平滑弹回原位（不报错、不消失） */
       var sr1 = d.el.getBoundingClientRect();
       d.ghost.style.transition = 'left .22s cubic-bezier(.3,1.2,.5,1), top .22s cubic-bezier(.3,1.2,.5,1), transform .22s, opacity .22s';
@@ -26868,6 +27362,7 @@
       else if (d.mode === 'L95') l95Bounce(d.el);
       else if (d.mode === 'L10') l10Bounce(d.el);
       else if (d.mode === 'L102') l102Bounce(d.el);
+      else if (d.mode === 'L103') l103Bounce(d.el);
       else l92Bounce(d.el);
     } else {
       // 拖到空白处：飞回原位
@@ -27958,6 +28453,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '10-3': {
+      // 听指令过马路（Red light / Green light）：9 环节
+      // 红灯 2 演示 + 1 互动 → 绿灯 2 演示 + 1 互动 → 行人 2 演示 → 过渡；
+      // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错区域只弹回不判错（§二.11）
+      custom: runL103Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -28209,6 +28713,7 @@
     if (q.type === 'L95A' || q.type === 'L95B' || q.type === 'L95C') return 'L95';
     if (q.type === 'L10A') return 'L10';
     if (q.type === 'L102A' || q.type === 'L102D') return 'L102';
+    if (q.type === 'L103A') return 'L103';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -29062,7 +29567,12 @@
           l102want: q.want || null,
           l102box: q.box || null,
           l102items: q.items ? q.items.slice() : null,
-          l102answer: (typeof q.answer === 'number') ? q.answer : null
+          l102answer: (typeof q.answer === 'number') ? q.answer : null,
+          l103light: q.light || null,
+          l103item: q.item || null,
+          l103zone: q.zone || null,
+          l103pics: q.pics ? q.pics.slice() : null,
+          l103answer: (typeof q.answer === 'number') ? q.answer : null
         } : null
       };
     },
