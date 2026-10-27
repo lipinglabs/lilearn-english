@@ -4023,7 +4023,8 @@
     '11-4': { numbers: null, make: 'makeL114', title: '第 4 关', tutorial: true },
     '11-5': { numbers: null, make: 'makeL115', title: '第 5 关', tutorial: true },
     '12-1': { numbers: null, make: 'makeL121', title: '第 1 关', tutorial: true },
-    '12-2': { numbers: null, make: 'makeL122', title: '第 2 关', tutorial: true }
+    '12-2': { numbers: null, make: 'makeL122', title: '第 2 关', tutorial: true },
+    '12-3': { numbers: null, make: 'makeL123', title: '第 3 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -4319,6 +4320,7 @@
     if (def && def.make === 'makeL115') return makeQuestionL115(typeIdx, prev);
     if (def && def.make === 'makeL121') return makeQuestionL121(typeIdx, prev);
     if (def && def.make === 'makeL122') return makeQuestionL122(typeIdx, prev);
+    if (def && def.make === 'makeL123') return makeQuestionL123(typeIdx, prev);
     return makeQuestion(typeIdx, prev);
   }
 
@@ -31164,6 +31166,712 @@
     return api;
   })();
 
+  /* ================= 第 12 岛第 3 关：综合听力大复习（L12-W3） =================
+     把前 11 岛的五条线合起来听：颜色 / 动物 / 动作 / 食物 / 情绪。
+     三题型：A 长句综合听音（小狗在跑 / 小猫在睡 / 大象在吃）/
+             B 跨主题听音选择（渴了要牛奶、饿了要面包、太阳大要帽子、过马路看红绿灯）/
+             C 拖拽分类（把哭的宝宝拖进「难过」框、笑的宝宝拖进「开心」框）。
+     美术：全部手写内联 SVG，零新增 PNG、零生图（§二.17）；
+           动作靠「画出来的线索」表达（跑 = 速度线、睡 = 闭眼 + 折线 Z、吃 = 卷到嘴边的草），
+           不靠文字、不靠 emoji 字符（§二.5 / §三.12）。
+     全局：演示语音播完定格等点按（§三.14）、互动 4 秒小手（§二.12）、
+           答对只音效 + 星星（§1.6）、拖到空白不判错不消失（§二.11）。 */
+
+  var L123_ANIMALS = ['dog', 'cat', 'ele'];
+  var L123_ITEMS = ['milk', 'bread', 'apple', 'banana', 'hat', 'light'];
+  var L123_FACES = ['cry', 'laugh', 'sleep'];
+  var L123_BQ = [
+    { ans: 'milk',  key: 'l123_b_milk'  },
+    { ans: 'bread', key: 'l123_b_bread' },
+    { ans: 'hat',   key: 'l123_b_hat'   },
+    { ans: 'light', key: 'l123_b_light' }
+  ];
+  /* 宝宝 → 该进的框（cry 只属于难过框、laugh 只属于开心框，语义唯一不产生歧义） */
+  var L123_FACE_BOX = { cry: 'sad', laugh: 'happy' };
+
+  /* ---------------- 手写 SVG ---------------- */
+
+  function l123Svg(inner) {
+    return '<svg viewBox="0 0 100 100" class="l123-art" aria-hidden="true">' + inner + '</svg>';
+  }
+
+  function l123AppleSvg() {
+    return l123Svg(
+      '<path d="M50 30 C50 20 55 15 62 12" fill="none" stroke="#8a5a3b" stroke-width="4.4" stroke-linecap="round"/>' +
+      '<path d="M53 26 C61 15 76 14 81 18 C78 29 63 33 53 26 Z" fill="#7fc46a" stroke="#5da84c" stroke-width="2.6"/>' +
+      '<path d="M50 28 C67 21 87 34 87 56 C87 80 68 94 50 94 C32 94 13 80 13 56 C13 34 33 21 50 28 Z" ' +
+      'fill="#ef5f5f" stroke="#cf4646" stroke-width="3.4"/>' +
+      '<ellipse cx="34" cy="48" rx="7" ry="10" fill="#fff" opacity=".38" transform="rotate(-20 34 48)"/>');
+  }
+
+  function l123BananaSvg() {
+    return l123Svg(
+      '<path d="M20 26 C20 64 46 86 78 80 C85 78 86 72 80 71 C54 73 34 52 33 26 C32 19 20 19 20 26 Z" ' +
+      'fill="#ffd24a" stroke="#dfa92b" stroke-width="3.2" stroke-linejoin="round"/>' +
+      '<path d="M27 31 C29 56 46 72 68 74" fill="none" stroke="#ffe89a" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<path d="M22 20 L18 12" stroke="#8a5a3b" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M80 80 L88 78" stroke="#8a5a3b" stroke-width="4" stroke-linecap="round"/>');
+  }
+
+  function l123CarSvg() {
+    return l123Svg(
+      '<path d="M16 44 L4 40 M18 54 L2 54 M16 64 L6 70" stroke="#c9d4e0" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<path d="M14 62 V54 C14 50 17 48 21 48 H33 L41 36 C43 33 46 32 49 32 H63 C66 32 69 33 71 36 L79 48 H83 ' +
+      'C87 48 90 50 90 54 V62 Z" fill="#5aa9e6" stroke="#3f8ec9" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M45 48 L51 38 H61 L68 48 Z" fill="#e6f4ff" stroke="#3f8ec9" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<circle cx="31" cy="64" r="10" fill="#41414d" stroke="#26262e" stroke-width="2.6"/>' +
+      '<circle cx="31" cy="64" r="3.6" fill="#cfd4da"/>' +
+      '<circle cx="71" cy="64" r="10" fill="#41414d" stroke="#26262e" stroke-width="2.6"/>' +
+      '<circle cx="71" cy="64" r="3.6" fill="#cfd4da"/>' +
+      '<circle cx="86" cy="55" r="3.2" fill="#ffe08a"/>');
+  }
+
+  /** 小狗在跑：抬腿 + 三条速度线（动作必须画出来） */
+  function l123DogSvg() {
+    return l123Svg(
+      '<path d="M18 44 L4 38 M16 54 L2 54 M18 64 L6 70" stroke="#c9d4e0" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<path d="M26 40 C20 30 26 22 36 25" fill="none" stroke="#b8843f" stroke-width="4.4" stroke-linecap="round"/>' +
+      '<ellipse cx="52" cy="56" rx="26" ry="15" fill="#e0a86a" stroke="#b8843f" stroke-width="3"/>' +
+      '<circle cx="78" cy="44" r="14" fill="#e8b273" stroke="#b8843f" stroke-width="3"/>' +
+      '<path d="M72 32 C68 21 79 19 83 28 Z" fill="#b8843f"/>' +
+      '<ellipse cx="87" cy="49" rx="7" ry="5.4" fill="#f6d3a6" stroke="#b8843f" stroke-width="2.4"/>' +
+      '<circle cx="89" cy="47" r="2.4" fill="#4a3a30"/>' +
+      '<circle cx="76" cy="41" r="2.6" fill="#4a3a30"/>' +
+      '<path d="M40 70 L34 88 M52 70 L48 88 M62 70 L68 88 M72 68 L78 86" stroke="#c98f4f" ' +
+      'stroke-width="5.4" stroke-linecap="round"/>');
+  }
+
+  /** 小猫在睡：闭眼 + 蜷尾 + 两个折线 Z（不是文字） */
+  function l123CatSvg() {
+    return l123Svg(
+      '<path d="M74 28 h12 l-12 13 h12" fill="none" stroke="#a8bccf" stroke-width="3" ' +
+      'stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M86 14 h9 l-9 10 h9" fill="none" stroke="#c9d8e6" stroke-width="2.6" ' +
+      'stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M20 62 C20 44 34 34 52 34 C72 34 88 46 88 62 C88 74 78 80 66 80 H40 C28 80 20 74 20 62 Z" ' +
+      'fill="#f4c884" stroke="#d09a4f" stroke-width="3"/>' +
+      '<circle cx="34" cy="58" r="15" fill="#f8d79c" stroke="#d09a4f" stroke-width="3"/>' +
+      '<path d="M23 45 L20 33 L32 39 Z" fill="#f4c884" stroke="#d09a4f" stroke-width="2.6" stroke-linejoin="round"/>' +
+      '<path d="M42 43 L46 32 L52 43 Z" fill="#f4c884" stroke="#d09a4f" stroke-width="2.6" stroke-linejoin="round"/>' +
+      '<path d="M26 60 q5 -4 10 0" fill="none" stroke="#7a5330" stroke-width="2.6" stroke-linecap="round"/>' +
+      '<path d="M38 61 q5 -4 10 0" fill="none" stroke="#7a5330" stroke-width="2.6" stroke-linecap="round"/>' +
+      '<path d="M33 69 q4 3 8 0" fill="none" stroke="#c9637a" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<path d="M62 76 C74 74 78 66 72 58" fill="none" stroke="#d09a4f" stroke-width="4" stroke-linecap="round"/>');
+  }
+
+  /** 大象在吃：鼻子卷到嘴边、嘴边一丛草 */
+  function l123EleSvg() {
+    return l123Svg(
+      '<ellipse cx="42" cy="60" rx="30" ry="22" fill="#b9c7d6" stroke="#8f9fae" stroke-width="3"/>' +
+      '<path d="M26 78 v8 M42 80 v7 M58 77 v8" stroke="#8f9fae" stroke-width="7" stroke-linecap="round"/>' +
+      '<circle cx="72" cy="46" r="19" fill="#c6d3e0" stroke="#8f9fae" stroke-width="3"/>' +
+      '<ellipse cx="61" cy="40" rx="11" ry="14" fill="#adbdcc" stroke="#8f9fae" stroke-width="2.6"/>' +
+      '<path d="M88 44 C97 56 92 70 80 69 C74 69 71 64 72 59" fill="none" stroke="#c6d3e0" ' +
+      'stroke-width="10" stroke-linecap="round"/>' +
+      '<path d="M88 44 C97 56 92 70 80 69 C74 69 71 64 72 59" fill="none" stroke="#8f9fae" ' +
+      'stroke-width="3" stroke-linecap="round" opacity=".4"/>' +
+      '<circle cx="78" cy="41" r="2.8" fill="#3f4a55"/>' +
+      '<path d="M66 74 q6 -11 15 -7 q-4 11 -15 7 Z" fill="#7fc46a" stroke="#5da84c" stroke-width="2.2"/>' +
+      '<path d="M58 86 q9 -8 18 -5" fill="none" stroke="#5da84c" stroke-width="2.4" stroke-linecap="round"/>');
+  }
+
+  function l123MilkSvg() {
+    return l123Svg(
+      '<path d="M34 30 H66 L63 82 C63 87 58 90 50 90 C42 90 37 87 37 82 Z" fill="#eaf4ff" ' +
+      'stroke="#b9cfe4" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M38 46 H62 L60 82 C60 85 56 87 50 87 C44 87 40 85 40 82 Z" fill="#ffffff" ' +
+      'stroke="#e3eef8" stroke-width="2"/>' +
+      '<ellipse cx="50" cy="46" rx="12" ry="3.4" fill="#f7fbff" stroke="#dbe8f4" stroke-width="2"/>' +
+      '<circle cx="45" cy="62" r="2.6" fill="#eef6ff"/><circle cx="55" cy="72" r="2" fill="#eef6ff"/>' +
+      '<ellipse cx="50" cy="30" rx="16" ry="4" fill="#f7fbff" stroke="#b9cfe4" stroke-width="2.6"/>');
+  }
+
+  function l123BreadSvg() {
+    return l123Svg(
+      '<path d="M16 64 C16 44 30 32 50 32 C70 32 84 44 84 64 C84 76 77 82 66 82 H34 C23 82 16 76 16 64 Z" ' +
+      'fill="#e8b96a" stroke="#c98f45" stroke-width="3"/>' +
+      '<path d="M30 52 q6 -6 12 0 M48 47 q6 -6 12 0 M66 52 q6 -6 12 0" fill="none" stroke="#c98f45" ' +
+      'stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M28 70 h44" stroke="#d9a86a" stroke-width="2.6" stroke-linecap="round"/>');
+  }
+
+  function l123HatSvg() {
+    return l123Svg(
+      '<ellipse cx="50" cy="62" rx="38" ry="13" fill="#ffd166" stroke="#dfa92b" stroke-width="3"/>' +
+      '<path d="M28 62 C28 38 37 26 50 26 C63 26 72 38 72 62 Z" fill="#ffe08a" ' +
+      'stroke="#dfa92b" stroke-width="3"/>' +
+      '<path d="M29 55 H71" stroke="#ef8f8f" stroke-width="6" stroke-linecap="round"/>' +
+      '<path d="M60 60 q8 4 12 -4" fill="none" stroke="#ef8f8f" stroke-width="4" stroke-linecap="round"/>');
+  }
+
+  /** 红绿灯：红灯亮（带光晕），另两盏压暗（状态一眼可辨，§三.23） */
+  function l123LightSvg() {
+    return l123Svg(
+      '<path d="M50 76 V94" stroke="#b0b8c2" stroke-width="7" stroke-linecap="round"/>' +
+      '<rect x="33" y="8" width="34" height="70" rx="12" fill="#4e5560" stroke="#3a4049" stroke-width="3"/>' +
+      '<circle cx="50" cy="24" r="17" fill="#ef5f5f" opacity=".32"/>' +
+      '<circle cx="50" cy="24" r="9.6" fill="#ef5f5f"/>' +
+      '<circle cx="50" cy="43" r="9.6" fill="#2f343c"/>' +
+      '<circle cx="50" cy="62" r="9.6" fill="#2f343c"/>');
+  }
+
+  function l123ItemSvg(id) {
+    if (id === 'milk') return l123MilkSvg();
+    if (id === 'bread') return l123BreadSvg();
+    if (id === 'apple') return l123AppleSvg();
+    if (id === 'banana') return l123BananaSvg();
+    if (id === 'hat') return l123HatSvg();
+    return l123LightSvg();
+  }
+
+  function l123AnimalSvg(id) {
+    if (id === 'dog') return l123DogSvg();
+    if (id === 'cat') return l123CatSvg();
+    return l123EleSvg();
+  }
+
+  /** 宝宝三种状态：哭 / 笑 / 睡（同一套头型，只换眉眼嘴与泪珠） */
+  function l123FaceSvg(mood) {
+    var head = '<circle cx="50" cy="52" r="33" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.4"/>' +
+      '<path d="M20 40 C24 20 38 11 50 11 C62 11 76 20 80 40 C69 29 59 25 50 25 C41 25 31 29 20 40 Z" ' +
+      'fill="#7a5330"/>' +
+      '<circle cx="32" cy="52" r="4.4" fill="#f7b0bd" opacity=".6"/>' +
+      '<circle cx="68" cy="52" r="4.4" fill="#f7b0bd" opacity=".6"/>';
+    if (mood === 'cry') {
+      return l123Svg(head +
+        '<path d="M30 46 q7 6 13 0" fill="none" stroke="#5a4030" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M57 46 q7 6 13 0" fill="none" stroke="#5a4030" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M36 54 q-4 11 0 15 q4 3 6 -2 q1 -6 -1 -13 Z" fill="#7ec2f0"/>' +
+        '<path d="M64 54 q4 11 0 15 q-4 3 -6 -2 q-1 -6 1 -13 Z" fill="#7ec2f0"/>' +
+        '<ellipse cx="50" cy="72" rx="11" ry="9" fill="#8c4a52" stroke="#6d363e" stroke-width="2.4"/>' +
+        '<ellipse cx="50" cy="78" rx="6" ry="4" fill="#e07f9c"/>');
+    }
+    if (mood === 'laugh') {
+      return l123Svg(head +
+        '<path d="M30 46 q7 -7 13 0" fill="none" stroke="#5a4030" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M57 46 q7 -7 13 0" fill="none" stroke="#5a4030" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M36 64 q14 14 28 0 q-14 8 -28 0 Z" fill="#8c4a52" stroke="#6d363e" stroke-width="2.4"/>' +
+        '<ellipse cx="50" cy="70" rx="7" ry="4" fill="#e07f9c"/>');
+    }
+    return l123Svg(head +
+      '<path d="M30 48 q7 4 13 0" fill="none" stroke="#5a4030" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<path d="M57 48 q7 4 13 0" fill="none" stroke="#5a4030" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<ellipse cx="50" cy="70" rx="5.5" ry="6.5" fill="#8c4a52"/>' +
+      '<path d="M68 26 h9 l-9 9 h9 M82 14 h7 l-7 8 h7" fill="none" stroke="#a8bccf" stroke-width="2.6" ' +
+      'stroke-linecap="round" stroke-linejoin="round"/>');
+  }
+
+  /** 大框上的图标：开心 / 难过（纯图形，不含任何文字） */
+  function l123BoxSvg(kind) {
+    var happy = kind === 'happy';
+    var c = happy ? '#6fb87a' : '#7fa6cc';
+    var bg = happy ? '#dff4e2' : '#e2eefa';
+    var face = happy
+      ? '<circle cx="36" cy="42" r="5" fill="' + c + '"/><circle cx="64" cy="42" r="5" fill="' + c + '"/>' +
+        '<path d="M32 58 q18 18 36 0" fill="none" stroke="' + c + '" stroke-width="5.4" stroke-linecap="round"/>'
+      : '<path d="M28 41 q8 -7 16 0" fill="none" stroke="' + c + '" stroke-width="4.2" stroke-linecap="round"/>' +
+        '<path d="M56 41 q8 -7 16 0" fill="none" stroke="' + c + '" stroke-width="4.2" stroke-linecap="round"/>' +
+        '<path d="M34 70 q16 -13 32 0" fill="none" stroke="' + c + '" stroke-width="5" stroke-linecap="round"/>' +
+        '<path d="M38 48 q-3 10 1 14" stroke="#7ec2f0" stroke-width="4" stroke-linecap="round"/>';
+    return l123Svg('<rect x="6" y="6" width="88" height="88" rx="22" fill="' + bg + '" stroke="' + c +
+      '" stroke-width="5"/>' + face);
+  }
+
+  /** 饿的小男孩（可选手上拿着面包） */
+  function l123BoySvg(hasBread) {
+    return l123Svg(
+      '<circle cx="50" cy="30" r="17" fill="#ffdcc0" stroke="#e8b98d" stroke-width="3"/>' +
+      '<path d="M32 27 C35 12 50 7 58 13 C67 7 71 18 68 27 C59 18 41 18 32 27 Z" fill="#5a4030"/>' +
+      '<circle cx="44" cy="31" r="2.4" fill="#3b2b30"/><circle cx="57" cy="31" r="2.4" fill="#3b2b30"/>' +
+      '<path d="M44 39 q6 4 12 0" fill="none" stroke="#c9637a" stroke-width="2.6" stroke-linecap="round"/>' +
+      '<circle cx="35" cy="36" r="4" fill="#f7b0bd" opacity=".55"/>' +
+      '<circle cx="65" cy="36" r="4" fill="#f7b0bd" opacity=".55"/>' +
+      '<path d="M50 47 C62 47 70 56 70 68 C70 80 62 86 50 86 C38 86 30 80 30 68 C30 56 38 47 50 47 Z" ' +
+      'fill="#8fd0c7" stroke="#5faea3" stroke-width="3"/>' +
+      '<path d="M32 60 C24 66 28 75 41 73" fill="none" stroke="#ffdcc0" stroke-width="7" stroke-linecap="round"/>' +
+      '<path d="M68 60 C76 66 72 75 59 73" fill="none" stroke="#ffdcc0" stroke-width="7" stroke-linecap="round"/>' +
+      '<circle cx="42" cy="73" r="5.4" fill="#ffdcc0" stroke="#e8b98d" stroke-width="2"/>' +
+      '<circle cx="58" cy="73" r="5.4" fill="#ffdcc0" stroke="#e8b98d" stroke-width="2"/>' +
+      '<path d="M40 62 q10 5 20 0" fill="none" stroke="#5faea3" stroke-width="2.4" stroke-linecap="round"/>' +
+      (hasBread
+        ? '<path d="M68 54 C68 47 74 43 80 43 C86 43 91 47 91 54 C91 60 87 62 81 62 C73 62 68 60 68 54 Z" ' +
+          'fill="#e8b96a" stroke="#c98f45" stroke-width="2.6"/>' +
+          '<path d="M74 53 q5 -4 9 0" fill="none" stroke="#c98f45" stroke-width="2.2" stroke-linecap="round"/>'
+        : ''));
+  }
+
+  /* ---------------- 样式 ---------------- */
+
+  function ensureL123Css() {
+    if (document.getElementById('l123css')) return;
+    var s = document.createElement('style');
+    s.id = 'l123css';
+    s.textContent = [
+      /* 定宽 + max-width:100%（§三.11：躲开 width:100% 归零坑，又不超过父容器） */
+      '.l123-ask{position:relative;display:flex;flex-direction:column;align-items:center;' +
+        'justify-content:center;gap:1.6vh;width:min(90vw,520px);max-width:100%;' +
+        'box-sizing:border-box;padding:2px 1vw}',
+      '.l123-cards{display:flex;justify-content:center;align-items:center;gap:min(3.2vw,16px);' +
+        'width:100%;max-width:100%;flex-wrap:nowrap}',
+      /* 三张选图统一装进浅色圆角卡里：图形不再"飘"在大片空白中，一眼看出是三个选项 */
+      '.l123-card{appearance:none;border:0;cursor:pointer;padding:6px;' +
+        'width:min(27vw,140px);height:min(27vw,140px);display:grid;place-items:center;' +
+        'border-radius:20px;background:rgba(255,255,255,.74);' +
+        'box-shadow:0 2px 8px rgba(150,120,90,.12);' +
+        'box-sizing:border-box;transition:transform .16s,box-shadow .16s}',
+      '.l123-card > svg{width:100%;height:100%;display:block}',
+      '.l123-card:active{transform:scale(.96)}',
+      '.l123-card.l123-right{transform:translateY(-5px) scale(1.06)}',
+      '.l123-card.l123-wrong{animation:l123shake .42s}',
+      '@keyframes l123shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}' +
+        '50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}',
+
+      /* 教学大舞台 */
+      '.l123-big{position:relative;width:min(80vw,440px);max-width:100%;height:min(38vh,280px);' +
+        'border-radius:22px;overflow:hidden;background:linear-gradient(#fff8ec,#eef7ff);' +
+        'box-shadow:0 3px 12px rgba(150,120,90,.18);display:flex;align-items:center;' +
+        'justify-content:center;box-sizing:border-box;padding:8px}',
+      '.l123-bigart{width:min(44vw,200px);height:min(44vw,200px)}',
+      '.l123-bigart svg{width:100%;height:100%;display:block}',
+      '.l123-hop{animation:l123hop .66s cubic-bezier(.3,1.3,.4,1) infinite}',
+      '@keyframes l123hop{0%,100%{transform:translateY(0)}45%{transform:translateY(-15%) scale(1.03)}}',
+      '.l123-drive{animation:l123drive 1.5s ease-in-out infinite}',
+      '@keyframes l123drive{0%,100%{transform:translateX(0)}50%{transform:translateX(6%)}}',
+
+      /* C 型：两个大框 + 底部宝宝栏 */
+      '.l123-boxes{display:flex;justify-content:center;align-items:stretch;gap:min(4vw,20px);' +
+        'width:100%;max-width:100%;flex-wrap:nowrap}',
+      /* 热区 = 整块卡（含 padding），画面在内部 —— 不用负 inset（§三.21） */
+      '.l123-box{position:relative;width:min(38vw,168px);height:min(38vw,168px);' +
+        'box-sizing:border-box;padding:9px;border-radius:22px;background:rgba(255,255,255,.66);' +
+        'border:3px dashed #d9c6a8;display:grid;place-items:center;transition:border-color .16s,box-shadow .16s}',
+      '.l123-boxart{width:100%;height:100%}',
+      '.l123-boxart svg{width:100%;height:100%;display:block;pointer-events:none}',
+      '.l123-box.drop-hot{border-color:#7fd18a;box-shadow:0 0 0 4px rgba(127,209,138,.4)}',
+      '.l123-box.l123-filled{border-style:solid;border-color:#7fd18a}',
+      '.l123-box .l123-resident{position:absolute;right:-6%;bottom:-8%;width:46%;height:46%;' +
+        'border-radius:50%;background:#fffdf6;box-shadow:0 2px 8px rgba(150,120,90,.28);padding:3px;' +
+        'box-sizing:border-box;pointer-events:none;animation:l123pop .34s cubic-bezier(.3,1.4,.5,1)}',
+      '.l123-resident svg{width:100%;height:100%;display:block}',
+      '@keyframes l123pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}',
+      '.l123-tray{display:flex;justify-content:center;align-items:center;gap:min(5vw,24px);' +
+        'width:min(84vw,460px);max-width:100%;padding:6px 3vw;border-radius:18px;' +
+        'background:rgba(255,255,255,.62);box-sizing:border-box}',
+      '.l123-chip{width:min(21vw,100px);height:min(21vw,100px);cursor:grab;touch-action:none;' +
+        'user-select:none;-webkit-user-select:none;display:grid;place-items:center;border-radius:18px;' +
+        'box-sizing:border-box;transition:transform .16s,box-shadow .16s}',
+      '.l123-chip > svg{width:100%;height:100%;display:block;pointer-events:none}',
+      '.l123-chip.l123-pick{box-shadow:0 0 0 4px rgba(127,209,138,.55);transform:scale(1.06)}',
+      '.l123-chip.l123-wrong{animation:l123shake .42s}',
+      /* 幽灵：纯 div，双类锁成拖拽样式（§三.25） */
+      '.drag-ghost.l123-chip{position:fixed;transform:scale(1.1);' +
+        'filter:drop-shadow(0 10px 14px rgba(140,110,80,.3))}',
+
+      /* 矮屏压缩：主舞台与底部栏一起压（§三.11） */
+      '@media (max-height:600px){.l123-big{height:min(30vh,180px)}' +
+        '.l123-bigart{width:min(30vw,130px);height:min(30vw,130px)}' +
+        '.l123-card{width:min(21vw,104px);height:min(21vw,104px);padding:5px;border-radius:16px}' +
+        '.l123-box{width:min(30vw,124px);height:min(30vw,124px)}' +
+        '.l123-chip{width:min(17vw,80px);height:min(17vw,80px)}' +
+        '.l123-ask{gap:min(2vh,10px)}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  /* ---------------- 渲染 ---------------- */
+
+  function l123Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l123-wrong');
+    void el.offsetWidth;
+    el.classList.add('l123-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l123-wrong'); }, 460);
+  }
+
+  /** A 长句综合听音：三张「动物 + 动作」卡片 */
+  function renderL123A(q) {
+    ensureL123Css();
+    l123Picked = null;
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l123-ask l123-stage';
+    w.dataset.l123ask = 'L123A';
+    w.dataset.l123items = q.items.join(',');
+    var row = document.createElement('div');
+    row.className = 'l123-cards';
+    q.items.forEach(function (a, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l123-card';
+      b.dataset.beast = a;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', '第 ' + (i + 1) + ' 张图片');
+      b.innerHTML = l123AnimalSvg(a);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    w.appendChild(row);
+    askDisplay.appendChild(w);
+  }
+
+  /** B 跨主题听音选择：三张物品卡 */
+  function renderL123B(q) {
+    ensureL123Css();
+    l123Picked = null;
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l123-ask l123-stage';
+    w.dataset.l123ask = 'L123B';
+    w.dataset.l123items = q.items.join(',');
+    var row = document.createElement('div');
+    row.className = 'l123-cards';
+    q.items.forEach(function (id, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l123-card';
+      b.dataset.item = id;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', '第 ' + (i + 1) + ' 张图片');
+      b.innerHTML = l123ItemSvg(id);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    w.appendChild(row);
+    askDisplay.appendChild(w);
+  }
+
+  /** C 拖拽分类：上方两个大框（左右每轮随机），下方三个宝宝 */
+  function renderL123C(q) {
+    ensureL123Css();
+    l123Picked = null;
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l123-ask l123-stage l123-cstage';
+    w.dataset.l123ask = 'L123C';
+    w.dataset.l123target = q.target;
+    w.dataset.l123box = q.box;
+    w.dataset.l123sides = q.sides.sad + ',' + q.sides.happy;
+    w.dataset.l123chips = q.chips.join(',');
+
+    var boxes = document.createElement('div');
+    boxes.className = 'l123-boxes';
+    ['sad', 'happy'].forEach(function (kind) {
+      var d = document.createElement('div');
+      d.className = 'l123-box';
+      d.dataset.drop = 'l123box';
+      d.dataset.box = kind;
+      d.dataset.side = q.sides[kind];
+      d.setAttribute('aria-label', kind === 'happy' ? '开心的框' : '难过的框');
+      var art = document.createElement('div');
+      art.className = 'l123-boxart';
+      art.innerHTML = l123BoxSvg(kind);
+      d.appendChild(art);
+      d.addEventListener('click', function () { l123TapBox(d); });
+      boxes.appendChild(d);
+      /* 左右顺序只由 JS 行内决定，CSS 不钉边（§三.27 / §三.28） */
+      d.style.order = q.sides[kind] === 'left' ? '0' : '1';
+    });
+    w.appendChild(boxes);
+
+    var tray = document.createElement('div');
+    tray.className = 'l123-tray';
+    q.chips.forEach(function (face) {
+      var d = document.createElement('div');
+      d.className = 'l123-chip';
+      d.dataset.drag = 'l123chip';
+      d.dataset.face = face;
+      d.setAttribute('aria-label', '一个可以拖动的宝宝');
+      d.innerHTML = l123FaceSvg(face);
+      d.addEventListener('click', function () { l123Select(d); });
+      tray.appendChild(d);
+    });
+    w.appendChild(tray);
+    askDisplay.appendChild(w);
+  }
+
+  /* 点选等价路径（§二.11）：点宝宝 → 点框 */
+  var l123Picked = null;
+  var l123LastDrop = 0;
+
+  function l123Select(el) {
+    if (Date.now() - l123LastDrop < 350) return;   /* 拖完紧跟的 click 不算点选 */
+    if (state.phase !== 'asking' || state.busy) return;
+    if (l123Picked === el) { l123Picked = null; el.classList.remove('l123-pick'); return; }
+    if (l123Picked) l123Picked.classList.remove('l123-pick');
+    l123Picked = el;
+    el.classList.add('l123-pick');
+  }
+
+  function l123TapBox(boxEl) {
+    if (!l123Picked || state.phase !== 'asking' || state.busy) return;
+    var el = l123Picked;
+    l123Picked = null;
+    el.classList.remove('l123-pick');
+    resolveL123(el, boxEl);
+  }
+
+  /** 放进框里：**新建展示节点**（§三.31），拖拽件从底部栏移除 */
+  function l123Place(el, box) {
+    var on = document.createElement('span');
+    on.className = 'l123-resident';
+    on.dataset.face = el.dataset.face;
+    on.innerHTML = l123FaceSvg(el.dataset.face);
+    box.appendChild(on);
+    box.classList.add('l123-filled');
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+  }
+
+  /** 拖拽判定：宝宝要对、框也要对；拖到空白只弹回不判错（§二.11） */
+  function resolveL123(el, target) {
+    if (!el) return false;
+    var box = target && target.dataset ? target.dataset.box : null;
+    if (!box) { l123Bounce(el); return false; }                 /* 拖到空白 / 拖回栏里 */
+    var q = state.question;
+    if (!q || q.type !== 'L123C') { l123Bounce(el); return false; }
+    l123LastDrop = Date.now();
+    if (target.querySelector('.l123-resident')) { l123Bounce(el); return false; }
+    if (el.dataset.face !== q.target) { judge(false, el); return false; }   /* 拿错宝宝 */
+    if (box !== q.box) { judge(false, el); return false; }                  /* 放错框 */
+    l123Place(el, target);
+    judge(true, target);
+    return true;
+  }
+
+  /* ---------------- 出题：12 轮 4/4/4 ---------------- */
+  /* 防背题（§三.28）：A/B 答案位与上一轮不同、题面不连续重复；
+     C 的题面不连续重复、两个框左右每轮换边（且不与上一轮同侧）。 */
+  var L123_LAST = { A: -1, B: -1, beast: '', ask: '', target: '', sadSide: '' };
+
+  function l123ShuffleAvoid(list, want, prevPos) {
+    var a = shuffle(list.slice());
+    for (var k = 0; k < 8 && a.indexOf(want) === prevPos; k++) a = shuffle(list.slice());
+    return a;
+  }
+
+  function l123PickDiff(list, prevValue) {
+    var v = pick(list, prevValue);
+    for (var k = 0; k < 8 && v === prevValue; k++) v = pick(list);
+    return v;
+  }
+
+  function makeQuestionL123(type, prev) {
+    if (type === 0) {
+      var beast = l123PickDiff(L123_ANIMALS, L123_LAST.beast);
+      L123_LAST.beast = beast;
+      var itemsA = l123ShuffleAvoid(L123_ANIMALS, beast, L123_LAST.A);
+      var ansA = itemsA.indexOf(beast);
+      L123_LAST.A = ansA;
+      return {
+        type: 'L123A', beast: beast, items: itemsA, answer: ansA, options: [],
+        audio: ['l123_a_' + beast]
+      };
+    }
+    if (type === 1) {
+      var prevAsk = L123_LAST.ask;
+      var tpl = pick(L123_BQ.filter(function (t) { return t.ans !== prevAsk; }));
+      if (!tpl) tpl = pick(L123_BQ);
+      L123_LAST.ask = tpl.ans;
+      var others = shuffle(L123_ITEMS.filter(function (x) { return x !== tpl.ans; })).slice(0, 2);
+      var itemsB = l123ShuffleAvoid([tpl.ans].concat(others), tpl.ans, L123_LAST.B);
+      var ansB = itemsB.indexOf(tpl.ans);
+      L123_LAST.B = ansB;
+      return {
+        type: 'L123B', askAns: tpl.ans, items: itemsB, answer: ansB, options: [],
+        audio: [tpl.key]
+      };
+    }
+    var target = L123_LAST.target === 'cry' ? 'laugh' : 'cry';
+    if (!L123_LAST.target) target = pick(['cry', 'laugh']);
+    L123_LAST.target = target;
+    /* 难过框的左右：不与上一轮同侧（真的换边，防背位置） */
+    var sadSide = Math.random() < 0.5 ? 'left' : 'right';
+    if (sadSide === L123_LAST.sadSide) sadSide = sadSide === 'left' ? 'right' : 'left';
+    L123_LAST.sadSide = sadSide;
+    return {
+      type: 'L123C', target: target, box: L123_FACE_BOX[target],
+      sides: { sad: sadSide, happy: sadSide === 'left' ? 'right' : 'left' },
+      chips: shuffle(L123_FACES.slice()), answer: 0, options: [],
+      audio: [target === 'cry' ? 'l123_c_cry' : 'l123_c_laugh']
+    };
+  }
+
+  /* ---------------- 教学：综合大复习 6 环节 ----------------
+     1) 红苹果出场  2) 苹果在跳  3) 听长句在三张图里找蓝汽车（互动）
+     4) 小男孩饿了  5) 他想要面包  6) 过渡语
+     演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12）。 */
+  var runL123Tutorial = (function () {
+    var ACTS = [
+      { t: 'demo', sid: 'appleShow', word: 'l123_t_apple' },
+      { t: 'demo', sid: 'appleJump', word: 'l123_t_jump', hop: true },
+      { t: 'ask',  sid: 'findCar',   word: 'l123_t_find', want: 'car' },
+      { t: 'demo', sid: 'boyHungry', word: 'l123_t_hungry' },
+      { t: 'demo', sid: 'boyBread',  word: 'l123_t_bread', bread: true },
+      { t: 'out',  sid: 'out',       word: 'l105_t_out' }
+    ];
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap');
+      if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null;
+      me.canDrag = false; me.l123On = false; me._l123Next = null;
+      clearTap(me); clearHint();
+    }
+    function stage(me, act) {
+      blank(me);
+      ensureL123Css();
+      l123Picked = null;
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l123-ask l123-stage';
+      w.dataset.sid = act.sid;
+      w.setAttribute('aria-label', '综合听力复习');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap');
+        if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+
+    /* 演示 1/2：红苹果（第二步让苹果真的跳起来） */
+    function playApple(me, act, next) {
+      var w = stage(me, act);
+      var box = document.createElement('div');
+      box.className = 'l123-big';
+      var it = document.createElement('div');
+      it.className = 'l123-bigart' + (act.hop ? ' l123-hop' : '');
+      it.dataset.l123art = 'apple';
+      it.innerHTML = l123AppleSvg();
+      box.appendChild(it);
+      w.appendChild(box);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 700);
+      });
+    }
+
+    /* 演示 4/5：饿的小男孩（第五步手上多一块面包） */
+    function playBoy(me, act, next) {
+      var w = stage(me, act);
+      var box = document.createElement('div');
+      box.className = 'l123-big';
+      var it = document.createElement('div');
+      it.className = 'l123-bigart';
+      it.dataset.l123art = act.bread ? 'boyBread' : 'boy';
+      it.innerHTML = l123BoySvg(!!act.bread);
+      box.appendChild(it);
+      w.appendChild(box);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 700);
+      });
+    }
+
+    /* 互动：三张图（红苹果跳 / 蓝汽车开 / 黄香蕉），听长句找蓝汽车 */
+    function playAsk(me, act, next) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l123-cards';
+      var order = shuffle(['apple', 'car', 'banana']);
+      var right = null;
+      order.forEach(function (kind, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'l123-card';
+        b.dataset.pic = kind;
+        b.dataset.idx = String(i);
+        b.setAttribute('aria-label', '第 ' + (i + 1) + ' 张图');
+        b.innerHTML = kind === 'apple' ? l123AppleSvg() : (kind === 'car' ? l123CarSvg() : l123BananaSvg());
+        if (kind === 'apple') b.firstChild.classList.add('l123-hop');
+        if (kind === 'car') b.firstChild.classList.add('l123-drive');
+        if (kind === act.want) right = b;
+        b.addEventListener('click', function () {
+          if (state.phase !== 'tutorial' || state.tut !== me || !me.l123On) return;
+          if (kind !== act.want) { l123Bounce(b); armHint(); return; }
+          me.l123On = false; me.hintTarget = null;
+          clearHint();
+          b.classList.add('l123-right');
+          setTimeout(function () { if (state.tut === me) next(); }, 620);
+        });
+        row.appendChild(b);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l123On = true;
+        me.hintTarget = right;
+        armHint();
+      });
+    }
+
+    /* 过渡：苹果 / 牛奶 / 笑的宝宝一起摆出来 */
+    function playOut(me, act) {
+      var w = stage(me, act);
+      var row = document.createElement('div');
+      row.className = 'l123-cards';
+      [l123AppleSvg(), l123MilkSvg(), l123FaceSvg('laugh')].forEach(function (svg, i) {
+        var d = document.createElement('div');
+        d.className = 'l123-card';
+        d.dataset.pic = ['apple', 'milk', 'laugh'][i];
+        d.innerHTML = svg;
+        row.appendChild(d);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+
+    function playAct(me, i) {
+      if (state.tut !== me) return;
+      if (i >= ACTS.length) { tutFinish(me, false); return; }
+      var act = ACTS[i];
+      var next = function () { playAct(me, i + 1); };
+      if (act.t === 'demo') {
+        if (act.sid === 'appleShow' || act.sid === 'appleJump') { playApple(me, act, next); return; }
+        playBoy(me, act, next); return;
+      }
+      if (act.t === 'ask') { playAsk(me, act, next); return; }
+      playOut(me, act);
+    }
+    var api = function (me) { playAct(me, 0); };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   var runB4Tutorial = (function () {
     var ACTS = [
       { type: 'demo', word: 'b4_t_rock_feather', sid: 'rockFeather' },   // 演示 1：石头 + 羽毛
@@ -31540,6 +32248,11 @@
     if (q.type === 'L122A') { optionsBar.classList.add('gone'); renderL122A(q); return; }
     if (q.type === 'L122B') { optionsBar.classList.add('gone'); renderL122B(q); return; }
     if (q.type === 'L122C') { optionsBar.classList.add('gone'); renderL122C(q); return; }
+
+    /* ---- 第 12 岛第 3 关：综合听力大复习（A 长句听音 / B 跨主题选择 / C 拖拽分类） ---- */
+    if (q.type === 'L123A') { optionsBar.classList.add('gone'); renderL123A(q); return; }
+    if (q.type === 'L123B') { optionsBar.classList.add('gone'); renderL123B(q); return; }
+    if (q.type === 'L123C') { optionsBar.classList.add('gone'); renderL123C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -32024,6 +32737,11 @@
     }
     // 第 12 岛第 2 关：三题型都自带舞台
     if (q.type === 'L122A' || q.type === 'L122B' || q.type === 'L122C') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 12 岛第 3 关：三题型都自带舞台
+    if (q.type === 'L123A' || q.type === 'L123B' || q.type === 'L123C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -32705,7 +33423,8 @@
             qt !== 'L114A' && qt !== 'L114B' && qt !== 'L114C' &&
             qt !== 'L115A' && qt !== 'L115B' && qt !== 'L115C' &&
             qt !== 'L121A' && qt !== 'L121B' && qt !== 'L121C' &&
-            qt !== 'L122A' && qt !== 'L122B' && qt !== 'L122C') {
+            qt !== 'L122A' && qt !== 'L122B' && qt !== 'L122C' &&
+            qt !== 'L123A' && qt !== 'L123B' && qt !== 'L123C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -32861,7 +33580,7 @@
       /* 第 9 岛第 2 关：轻点由元素自己的 click（l92Pick / resolveL92）处理 */
       if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L105' ||
           d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114' || d.mode === 'L115' ||
-          d.mode === 'L121' || d.mode === 'L122') return;
+          d.mode === 'L121' || d.mode === 'L122' || d.mode === 'L123') return;
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
       else if (d.mode === 'F14T') tutPickF14(d.el);
@@ -32953,6 +33672,8 @@
         resolveL121(d.el, target);
       } else if (d.mode === 'L122') {
         resolveL122(d.el, target);
+      } else if (d.mode === 'L123') {
+        resolveL123(d.el, target);
       } else if (d.mode === 'F1C') {
         resolveF1C(d.idx, target);
       } else if (d.mode === 'F2C') {
@@ -34191,6 +34912,15 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '12-3': {
+      // 综合听力大复习：6 环节
+      // 红苹果 → 苹果在跳 → 听长句找蓝汽车（互动）→ 男孩饿了 → 想要面包 → 过渡
+      // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
+      custom: runL123Tutorial,
+      steps: [],
+      onDrop: function () { return false; },
+      onSuccess: function () { /* 教学无投放环节 */ }
     }
   };
 
@@ -34451,6 +35181,7 @@
     if (q.type === 'L115C') return 'L115';
     if (q.type === 'L121C') return 'L121';
     if (q.type === 'L122C') return 'L122';
+    if (q.type === 'L123C') return 'L123';
     if (q.type === 'W5A' || q.type === 'W5B' || q.type === 'P2B' ||
         q.type === 'P3B' || q.type === 'P4B' || q.type === 'P5B' || q.type === 'B1C' ||
         q.type === 'B2C' || q.type === 'B3C' || q.type === 'B5C' ||
@@ -35364,7 +36095,16 @@
           l122answer: (typeof q.answer === 'number') ? q.answer : null,
           l122pick: q.pick || null,
           l122slots: q.slots ? q.slots.slice() : null,
-          l122tray: q.trayItems ? q.trayItems.slice() : null
+          l122tray: q.trayItems ? q.trayItems.slice() : null,
+          l123ask: q.type || null,
+          l123beast: q.beast || null,
+          l123items: q.items ? q.items.slice() : null,
+          l123answer: (typeof q.answer === 'number') ? q.answer : null,
+          l123askid: q.askAns || null,
+          l123target: q.target || null,
+          l123box: q.box || null,
+          l123sides: q.sides ? [q.sides.sad, q.sides.happy] : null,
+          l123chips: q.chips ? q.chips.slice() : null
         } : null
       };
     },

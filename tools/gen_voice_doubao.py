@@ -1815,6 +1815,31 @@ add("l122_line_apple", "Apple starts with A!", "en", -10, EN_ASK)
 add("l122_line_ball",  "Ball starts with B!", "en", -10, EN_ASK)
 add("l122_line_cat",   "Cat starts with C!", "en", -10, EN_ASK)
 
+# ---- 第 12 岛第 3 关：综合听力大复习（L12-W3） ----
+# 颜色 + 动物 + 动作 + 食物 + 情绪五条线合起来听；全部 rate -15 ≈ 0.85x。
+# 教学 6 条：红苹果 / 苹果在跳 / 听长句找蓝汽车 / 男孩饿了 / 想要面包 / 过渡
+add("l123_t_apple",  "Look! A red apple.", "en", -15, EN_ASK)
+add("l123_t_jump",   "The red apple is jumping!", "en", -15, EN_ASK)
+add("l123_t_find",   "The blue car is driving. Find the picture.", "en", -15, EN_ASK)
+add("l123_t_hungry", "The boy is hungry.", "en", -15, EN_ASK)
+add("l123_t_bread",  "He wants some bread.", "en", -15, EN_ASK)
+# 过渡语「You know everything! Let's play the final game!」与 l105_t_out 同句，按 §一.12 直接复用，不再重复生成
+
+# A 长句综合听音（小狗在跑 / 小猫在睡 / 大象在吃）
+add("l123_a_dog", "The small dog is running fast. Find the dog.", "en", -15, EN_ASK)
+add("l123_a_cat", "The cat is sleeping on the mat. Find the cat.", "en", -15, EN_ASK)
+add("l123_a_ele", "The big elephant is eating grass. Find the elephant.", "en", -15, EN_ASK)
+
+# B 跨主题听音选择（渴了要牛奶 / 饿了要面包 / 太阳大要帽子 / 过马路看红绿灯）
+add("l123_b_milk",  "I am thirsty. What do I need?", "en", -15, EN_ASK)
+add("l123_b_bread", "I am hungry. What do I need?", "en", -15, EN_ASK)
+add("l123_b_hat",   "The sun is hot. What do I need?", "en", -15, EN_ASK)
+add("l123_b_light", "The cars are coming. What do I look at?", "en", -15, EN_ASK)
+
+# C 拖拽分类（把宝宝放进开心 / 难过的大框）
+add("l123_c_cry",   "Put the crying baby in the sad box.", "en", -15, EN_ASK)
+add("l123_c_laugh", "Put the laughing baby in the happy box.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",

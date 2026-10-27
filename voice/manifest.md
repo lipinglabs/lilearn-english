@@ -1,6 +1,6 @@
 # 语音文本清单（自动生成，勿手改）
 
-总条目：**1202** 条（英文 1196 + 中文 6）
+总条目：**1216** 条（英文 1210 + 中文 6）
 
 | key | 语种 | 文本 | 状态 |
 | --- | --- | --- | --- |
@@ -1182,24 +1182,38 @@
 | `l121_c_tom` | en | Find Tom's name. Put it on him. | 已存在 |
 | `l121_line_leo` | en | My name is Leo. | 已存在 |
 | `l121_line_tom` | en | My name is Tom. | 已存在 |
-| `l122_t_a_name` | en | Look! The letter A. | 待生成 |
-| `l122_t_a_say` | en | A says at, at, apple. | 待生成 |
-| `l122_t_find` | en | Which letter says at? Touch it. | 待生成 |
-| `l122_t_b` | en | B says buh, buh, ball. | 待生成 |
-| `l122_t_c` | en | C says kuh, kuh, cat. | 待生成 |
-| `l122_t_out` | en | You know the letter sounds! Let's play! | 待生成 |
-| `l122_a_a` | en | A says at. | 待生成 |
-| `l122_a_b` | en | B says buh. | 待生成 |
-| `l122_a_c` | en | C says kuh. | 待生成 |
-| `l122_b_a` | en | Which one starts with at? | 待生成 |
-| `l122_b_b` | en | Which one starts with buh? | 待生成 |
-| `l122_b_c` | en | Which one starts with kuh? | 待生成 |
-| `l122_c_apple` | en | Put the apple next to the letter A. | 待生成 |
-| `l122_c_ball` | en | Put the ball next to the letter B. | 待生成 |
-| `l122_c_cat` | en | Put the cat next to the letter C. | 待生成 |
-| `l122_line_apple` | en | Apple starts with A! | 待生成 |
-| `l122_line_ball` | en | Ball starts with B! | 待生成 |
-| `l122_line_cat` | en | Cat starts with C! | 待生成 |
+| `l122_t_a_name` | en | Look! The letter A. | 已存在 |
+| `l122_t_a_say` | en | A says at, at, apple. | 已存在 |
+| `l122_t_find` | en | Which letter says at? Touch it. | 已存在 |
+| `l122_t_b` | en | B says buh, buh, ball. | 已存在 |
+| `l122_t_c` | en | C says kuh, kuh, cat. | 已存在 |
+| `l122_t_out` | en | You know the letter sounds! Let's play! | 已存在 |
+| `l122_a_a` | en | A says at. | 已存在 |
+| `l122_a_b` | en | B says buh. | 已存在 |
+| `l122_a_c` | en | C says kuh. | 已存在 |
+| `l122_b_a` | en | Which one starts with at? | 已存在 |
+| `l122_b_b` | en | Which one starts with buh? | 已存在 |
+| `l122_b_c` | en | Which one starts with kuh? | 已存在 |
+| `l122_c_apple` | en | Put the apple next to the letter A. | 已存在 |
+| `l122_c_ball` | en | Put the ball next to the letter B. | 已存在 |
+| `l122_c_cat` | en | Put the cat next to the letter C. | 已存在 |
+| `l122_line_apple` | en | Apple starts with A! | 已存在 |
+| `l122_line_ball` | en | Ball starts with B! | 已存在 |
+| `l122_line_cat` | en | Cat starts with C! | 已存在 |
+| `l123_t_apple` | en | Look! A red apple. | 待生成 |
+| `l123_t_jump` | en | The red apple is jumping! | 待生成 |
+| `l123_t_find` | en | The blue car is driving. Find the picture. | 待生成 |
+| `l123_t_hungry` | en | The boy is hungry. | 待生成 |
+| `l123_t_bread` | en | He wants some bread. | 待生成 |
+| `l123_a_dog` | en | The small dog is running fast. Find the dog. | 待生成 |
+| `l123_a_cat` | en | The cat is sleeping on the mat. Find the cat. | 待生成 |
+| `l123_a_ele` | en | The big elephant is eating grass. Find the elephant. | 待生成 |
+| `l123_b_milk` | en | I am thirsty. What do I need? | 待生成 |
+| `l123_b_bread` | en | I am hungry. What do I need? | 待生成 |
+| `l123_b_hat` | en | The sun is hot. What do I need? | 待生成 |
+| `l123_b_light` | en | The cars are coming. What do I look at? | 待生成 |
+| `l123_c_cry` | en | Put the crying baby in the sad box. | 待生成 |
+| `l123_c_laugh` | en | Put the laughing baby in the happy box. | 待生成 |
 | `praise_1` | zh | 李旻泽，你真棒 | 已存在 |
 | `praise_2` | zh | 李旻泽，你又过了一关 | 已存在 |
 | `praise_3` | zh | 李旻泽，你又进步了一点点 | 已存在 |
