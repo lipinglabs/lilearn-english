@@ -244,6 +244,7 @@ const finish = code => { if (finished) return; finished = true; try { proc.kill(
 
   // ---------- 2) 12 轮 ----------
   const seenType = {};
+  const seenOv = {};
   const wrongTested = { L103A: false, L103B: false };
 
   for (let r = 1; r <= 12; r++) {
@@ -257,6 +258,9 @@ const finish = code => { if (finished) return; finished = true; try { proc.kill(
     const starsBefore = await ev('Game.stars');
     row.audio = q.audio ? [q.audio] : [];
     let ct = Date.now();
+    /* 溢出必须在「本题已稳定渲染、尚未作答」时量。
+       放在推进之后量会抓到下一题刚插入、CSS 还没生效的瞬间（假阳性）。 */
+    if (!seenOv[q.type]) { seenOv[q.type] = 1; row.overflow = await overflow(); }
 
     if (q.type === 'L103A') {
       row.zones = await ev('document.querySelectorAll("#askDisplay .l103-zone").length');
@@ -318,7 +322,6 @@ const finish = code => { if (finished) return; finished = true; try { proc.kill(
     const advanced = await wait('Game.round > ' + (r - 1) + ' || Game.phase === "done"', 4500);
     row.advanced = advanced;
     row.starsDelta = (await ev('Game.stars')) - starsBefore;
-    if (r === 1) row.overflow = await overflow();
     if (!advanced) rep.errors.push('第 ' + r + ' 轮没有推进（' + q.type + '）');
     if (row.voiceOnCorrect.length) rep.errors.push('第 ' + r + ' 轮答对后播放了语音：' + row.voiceOnCorrect.join(','));
     if (row.starsDelta !== 1) rep.errors.push('第 ' + r + ' 轮星星未 +1（' + row.starsDelta + '）');
@@ -363,7 +366,7 @@ const finish = code => { if (finished) return; finished = true; try { proc.kill(
   const roundsOk = rep.rounds.every(s => s.advanced && s.starsDelta === 1 && s.voiceOnCorrect.length === 0);
   const semOk = rep.rounds.every(s => s.audioOk === true);
   const noOv = o => !o || (o.sw <= o.iw + 1 && o.sh <= o.ih + 1 && o.cut.length === 0 && o.zero.length === 0);
-  const noOverflow = rep.tutorial.every(s => noOv(s.overflow)) && noOv(rep.rounds[0] && rep.rounds[0].overflow);
+  const noOverflow = rep.tutorial.every(s => noOv(s.overflow)) && rep.rounds.every(s => noOv(s.overflow));
   const ok = rep.errors.length === 0 && sigOk && audioOk && demoOk && dragOk && outOk &&
     roundsOk && semOk && noOverflow &&
     rep.rounds.length === 12 &&

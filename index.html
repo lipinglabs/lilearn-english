@@ -2770,6 +2770,23 @@
     if (list) for (var i = 0; i < list.length; i++) loadVoiceChunk(list[i]);
   }
 
+  /** 等该岛语音就绪（或超时）再继续：保证教学第一句不会是哑的 */
+  function waitIslandVoice(island, maxMs, onReady) {
+    var m = window.VOICE_CHUNK_OF_ISLAND;
+    var list = (m && m[island]) || [];
+    var pending = [];
+    for (var i = 0; i < list.length; i++) {
+      if (voiceChunkState[list[i]] !== 'done') pending.push(list[i]);
+    }
+    if (!pending.length) { onReady(); return; }
+    var fired = false, left = pending.length;
+    var fire = function () { if (fired) return; fired = true; onReady(); };
+    for (var j = 0; j < pending.length; j++) {
+      loadVoiceChunk(pending[j], function () { if (--left <= 0) fire(); });
+    }
+    setTimeout(fire, maxMs);   // 网络太差也别把孩子卡在空白页
+  }
+
   /* 启动即预取公共语音（开场 / 再试一次 / 通关夸奖），不等用户操作 */
   loadVoiceChunk(window.VOICE_CORE_CHUNK || 'core');
 
@@ -3828,6 +3845,10 @@
 
   function renderMap() {
     clearIslandFlag();          // 离开关卡时把舞台上的通关旗收掉，否则会飘到地图上
+
+    /* 地图是孩子停留最久的一屏：在这里就把「当前可玩的岛」的语音预取起来，
+       等他点进岛、再点关卡时，分块多半已经在本地了，第一句语音不会缺。 */
+    if (progress.unlockedIsland) prefetchIslandVoice(progress.unlockedIsland);
 
     var st = document.getElementById('starTotal');
     if (st) {
@@ -25303,7 +25324,7 @@
     s.id = 'l103-style';
     s.textContent = [
       '.l103-ask{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.2vh;width:100%}',
-      '.l103-scene{position:relative;width:min(94vw,600px);border-radius:18px;overflow:hidden;background:#eaf4fb;' +
+      '.l103-scene{position:relative;width:min(88vw,600px);max-width:100%;border-radius:18px;overflow:hidden;background:#eaf4fb;' +
         'box-shadow:0 3px 10px rgba(90,120,150,.12)}',
       '.l103-sky{height:min(8vh,62px);background:#d9efff}',
       '.l103-road{position:relative;display:flex;align-items:stretch;height:min(23vh,170px);background:#9aa3ad;' +
@@ -25332,7 +25353,7 @@
       '.l103-actor.l103-walk{animation:l103step .5s ease-in-out infinite alternate}',
       '@keyframes l103step{0%{transform:translateX(-50%) rotate(-3deg)}100%{transform:translateX(-50%) rotate(3deg)}}',
       /* 底部待选栏 */
-      '.l103-tray{display:flex;justify-content:center;align-items:center;gap:3vw;width:min(92vw,560px);' +
+      '.l103-tray{display:flex;justify-content:center;align-items:center;gap:3vw;width:min(88vw,560px);max-width:100%};' +
         'padding:1vh 2vw;border-radius:18px;background:rgba(255,255,255,.82);box-shadow:inset 0 0 0 2px #e4eef7}',
       '.l103-card{width:min(22vw,96px);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;' +
         'border-radius:14px;background:#fff;box-shadow:0 2px 6px rgba(90,120,150,.14);cursor:grab;touch-action:none}',
@@ -25343,8 +25364,8 @@
       '@keyframes l103shake{0%,100%{transform:none}25%{transform:translateX(-5px) rotate(-3deg)}' +
         '75%{transform:translateX(5px) rotate(3deg)}}',
       /* 题型 B：三张小画面 */
-      '.l103-pics{display:flex;justify-content:center;align-items:center;gap:2.4vw;width:min(96vw,640px)}',
-      '.l103-pic{flex:1;max-width:200px;padding:5px;border:3px solid #d9e7f2;border-radius:16px;background:#fff;' +
+      '.l103-pics{display:flex;justify-content:center;align-items:center;gap:2.4vw;width:min(88vw,640px);max-width:100%}',
+      '.l103-pic{flex:1;min-width:0;max-width:200px;padding:5px;border:3px solid #d9e7f2;border-radius:16px;background:#fff;' +
         'box-shadow:0 3px 10px rgba(90,120,150,.12);box-sizing:border-box;cursor:pointer;overflow:hidden}',
       '.l103-pic svg{width:100%;height:auto;display:block;pointer-events:none}',
       '.l103-pic.right{border-color:#7fd18a;background:#eafaf0}',
@@ -25358,7 +25379,8 @@
       '.l103-thumb:active{transform:scale(.94)}',
       '.l103-thumb.right{transform:scale(1.08)}',
       '.l103-thumb svg{width:100%;height:100%;display:block}',
-      '@media (max-height:600px){.l103-road{height:min(19vh,120px)}.l103-sky{height:min(6vh,42px)}' +
+      '@media (max-height:600px){.l103-road{height:min(17vh,104px)}.l103-sky{height:min(5vh,34px)}' +
+        '.l103-tray{padding:.5vh 2vw}.l103-card{width:min(16vw,74px)}' +
         '.l103-tprlight{width:min(16vw,74px)}.l103-thumb{width:min(44vw,150px)}}'
     ].join('');
     document.head.appendChild(s);
@@ -28905,13 +28927,18 @@
   function startGame() {
     if (state.phase !== 'idle') return;
     state.phase = 'intro';
-    btnStart.hidden = true;
 
-    // 带教学环节的关卡（第 2 岛第 2 关起）：先进教学模式，不放开场白
-    var def = levelDef(currentIsland, state.level);
-    if (def && def.tutorial) { startTutorial(); return; }
-
-    say(['intro'], function () { beginRounds(); });
+    /* 语音分块可能还在路上（尤其弱网）：先等它就绪，最多 12 秒。
+       否则教学第一句会因为 key 还没到而哑掉——兜底虽然会补播，但孩子已经看完了定格动画。
+       等待期间**不隐藏开始按钮**：屏幕保持原样，不会出现「点了没反应」的空白页。 */
+    waitIslandVoice(currentIsland, 12000, function () {
+      if (state.phase !== 'intro') return;   // 等待期间被返回键取消了
+      btnStart.hidden = true;
+      // 带教学环节的关卡（第 2 岛第 2 关起）：先进教学模式，不放开场白
+      var def = levelDef(currentIsland, state.level);
+      if (def && def.tutorial) { startTutorial(); return; }
+      say(['intro'], function () { beginRounds(); });
+    });
   }
 
   function confetti(grand) {
