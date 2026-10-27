@@ -9,9 +9,14 @@
 
 用法：
     set DOUBAO_API_KEY=xxxx
-    python tools/gen_voice_doubao.py                # 生成缺失的 + 注入页面
+    python tools/gen_voice_doubao.py                # 生成缺失的 + 注入 voice.js（本地产物）
     python tools/gen_voice_doubao.py --inject-only  # 只注入，不合成
     python tools/gen_voice_doubao.py --force --only n11 n12   # 强制重做指定条目
+
+⚠️ 生成完**必须**接着跑一次拆分，否则页面听不到新语音：
+    python tools/split_voice.py
+页面加载的是 voice/chunks/*.js（按岛拆分、按需加载），voice.js 只是本地中间产物、
+已 gitignore，不再入库（音频唯一真源是 voice/<key>.mp3，全部 1062 条都在库里）。
 """
 
 from __future__ import annotations

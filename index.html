@@ -2702,7 +2702,7 @@
 </div>
 <div id="toast" class="toast" hidden></div>
 
-<script src="voice.js"></script>
+<script src="voice/chunks/index.js"></script>
 <script src="assets.js"></script>
 <!-- 第 3 岛第 3 关（长/短）插画：3 套画风，缺失时自动回退内联 legacy 原图 -->
 <script src="art33.js"></script>
@@ -2724,6 +2724,54 @@
     var b = window.VOICE_BANK;
     return (b && typeof b === 'object') ? b : {};
   }
+
+  /* ---------------- 语音分块按需加载 ----------------
+     语音库已从单体 voice.js（35MB 同步阻塞脚本）拆成 voice/chunks/*.js：
+       core           公共语音（开场 / 再试一次 / 通关夸奖 / 中文鼓励），启动即预取
+       island_N(_k)   第 N 岛的语音，进入该岛时才加载；单块上限约 2.2MB，大岛会切成 2–3 块
+     索引在 voice/chunks/index.js：VOICE_CHUNK_FOR[key] → 分块名。
+     正常路径靠预取，播放时仍是同步的（iOS 要求 play() 落在用户手势里）；
+     万一某个 key 还没到（跨岛复用 / 预取未完成），say() 会补加载后重播一次，绝不静默丢失。 */
+  var voiceChunkState = {};    // name -> 'loading' | 'done'
+  var voiceChunkWaiters = {};  // name -> [callback]
+
+  function loadVoiceChunk(name, onDone) {
+    if (!name) { if (onDone) onDone(); return; }
+    if (voiceChunkState[name] === 'done') { if (onDone) onDone(); return; }
+    if (voiceChunkWaiters[name]) { if (onDone) voiceChunkWaiters[name].push(onDone); return; }
+    voiceChunkState[name] = 'loading';
+    voiceChunkWaiters[name] = onDone ? [onDone] : [];
+    var s = document.createElement('script');
+    s.src = 'voice/chunks/' + name + '.js';
+    s.async = true;
+    function settle() {
+      voiceChunkState[name] = 'done';
+      var list = voiceChunkWaiters[name] || [];
+      delete voiceChunkWaiters[name];
+      for (var i = 0; i < list.length; i++) { try { list[i](); } catch (e) { /* 单个回调失败不影响其它 */ } }
+    }
+    s.onload = settle;
+    s.onerror = function () {
+      /* 加载失败也标记完成：宁可少一句语音，也不能让教学流程卡在等分块 */
+      console.warn('[voice] 分块加载失败：' + name);
+      settle();
+    };
+    document.head.appendChild(s);
+  }
+
+  function voiceChunkOf(key) {
+    var m = window.VOICE_CHUNK_FOR;
+    return (m && m[key]) || null;
+  }
+
+  function prefetchIslandVoice(island) {
+    var m = window.VOICE_CHUNK_OF_ISLAND;
+    var list = (m && m[island]) || null;
+    if (list) for (var i = 0; i < list.length; i++) loadVoiceChunk(list[i]);
+  }
+
+  /* 启动即预取公共语音（开场 / 再试一次 / 通关夸奖），不等用户操作 */
+  loadVoiceChunk(window.VOICE_CORE_CHUNK || 'core');
 
   var cache = new Map();
   var current = null;
@@ -3619,8 +3667,28 @@
     return true;
   }
 
-  function say(keys, onDone) {
+  function say(keys, onDone, retried) {
     var list = Array.isArray(keys) ? keys.slice() : [keys];
+    /* 分块按需加载兜底：有 key 还没到、且索引里知道它在哪个分块 → 先补加载，再重播一次。
+       正常路径靠预取，这里只是安全网（跨岛复用 / 用户手速比网络快）。 */
+    if (!retried) {
+      var bank0 = voiceBank(), pending = [];
+      for (var i0 = 0; i0 < list.length; i0++) {
+        if (!Object.prototype.hasOwnProperty.call(bank0, list[i0])) {
+          var chunk0 = voiceChunkOf(list[i0]);
+          if (chunk0 && pending.indexOf(chunk0) < 0) pending.push(chunk0);
+        }
+      }
+      if (pending.length) {
+        var left = pending.length, fired = false;
+        var tick = function () {
+          if (fired) return;
+          if (--left <= 0) { fired = true; say(list, onDone, true); }
+        };
+        for (var i1 = 0; i1 < pending.length; i1++) loadVoiceChunk(pending[i1], tick);
+        return;
+      }
+    }
     var myToken = ++speakToken;
     var i = 0;
     var delivered = false;
@@ -3833,6 +3901,9 @@
     currentIsland = index;
     showScreen('island');
     renderIsland();
+    /* 进岛即预取该岛语音分块：等孩子挑关卡、看地图的这几秒把语音拉下来，
+       真正开始教学时就能同步播放（iOS 要求 play() 落在用户手势里，不能等异步）。 */
+    prefetchIslandVoice(index);
   }
 
   /* 可玩关卡登记表：新增关卡只往这里加一行（RULES §三.5） */

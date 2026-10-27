@@ -143,3 +143,7 @@ tools/probe_*_land.txt
 tools/probe_*_port.txt
 tools/probe_audio_*.txt
 sedqcbQS0
+
+# 语音库单体文件：只是本地构建产物（由 1062 个 voice/*.mp3 生成），
+# 页面实际加载的是 voice/chunks/*.js（按岛拆分，按需加载）。不要再入库。
+voice.js

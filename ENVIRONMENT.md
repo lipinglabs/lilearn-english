@@ -58,18 +58,27 @@
 
 ---
 
-## 2. 项目架构（index + voice + assets）
+## 2. 项目架构（index + voice chunks + assets）
 
-### 2.1 三文件结构（2026-10-23 物理切割后的最终形态）
+### 2.1 四文件结构（2026-10-27 语音分块后的最终形态）
 
 ```
-index.html 1,381,370 B / 29,595 行   ← 结构 + 样式 + 全部游戏逻辑
-voice.js  35,321,142 B / 10,414 行   ← window.VOICE_BANK，1062 条 base64 mp3
+index.html 1,384,910 B / 29,666 行   ← 结构 + 样式 + 全部游戏逻辑 + 语音分块加载器
+voice/chunks/*.js   20 个分块 / 约 33.6 MB（base64）  ← window.VOICE_BANK，按岛拆分、按需加载
+  ├─ core.js            0.68 MB  公共语音（开场 / 再试一次 / 通关夸奖 / 中文鼓励），启动即预取
+  ├─ island_N(_k).js   1.0–2.2 MB 第 N 岛语音；大岛按体积再切成 2–3 块（单块上限 2.3 MB）
+  └─ index.js           29.9 KB   key → 分块 索引（同步加载，必须先于其它脚本）
 assets.js  1,389,354 B /    439 行   ← window.FRUIT_IMG(15) / COLOR_IMG(20) / ANIMAL_IMG(14) / FOOD_IMG(3)
+voice/<key>.mp3     1062 个          ← 音频唯一真源（全部入库）
 ```
 
-**切割前**是 9.5 MB 单文件，iPhone 上解析阻塞主线程导致 1–2 秒卡顿与发热；切割后 `index.html` 降至 327,800 B（−96.6%）。
-**不要再把 base64 塞回 `index.html`。**
+**历史**：切割前是 9.5 MB 单文件（iPhone 解析阻塞主线程、1–2 秒卡顿）；2026-10-23 切成 index/voice/assets 三文件；
+2026-10-27 再把 35 MB 的单体 `voice.js` 按岛拆成 `voice/chunks/*.js` 并改成按需加载——
+首屏不再解析 35 MB，进岛才拉那 1–2 MB。`voice.js` 已降级为**本地构建产物**（`gitignore`，不再入库）。
+
+**不要再把 base64 塞回 `index.html`；也不要再恢复单体 `voice.js`。**
+新增语音的流水线是两步：`tools/gen_voice_doubao.py`（合成 mp3）→ `tools/split_voice.py`（重建分块 + 索引）。
+只跑第一步的话，页面**听不到**新语音（分块里没有）。
 
 ### 2.2 index.html 内部地标（行号随改动漂移，用关键字定位）
 

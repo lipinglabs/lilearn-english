@@ -30,11 +30,21 @@
 
 - **每一次通关都必须调用 `playRandomPraise()`**，不得改用手写语音、其他音色或其他引擎。
 
-### 1.3 语音的实现方式：构建期一次性生成 + base64 内联
+### 1.3 语音的实现方式：构建期一次性生成 + base64 分块按需加载
 
-- 所有语音由 `tools/gen_voice_doubao.py` 调用豆包 2.0 生成，写入 `voice/*.mp3`，再以 base64 内联进 `index.html`（`VOICE_BANK_START` / `VOICE_BANK_END` 之间）。
+- 所有语音由 `tools/gen_voice_doubao.py` 调用豆包 2.0 生成，写入 `voice/<key>.mp3`（**唯一真源，全部入库**）。
+- 再由 `tools/split_voice.py` 把 mp3 转成 base64，按**岛**拆进 `voice/chunks/island_N.js`，
+  公共语音进 `core.js`，并生成 `voice/chunks/index.js`（key → 分块）。
+  **页面加载的是分块，不是单体 `voice.js`；`voice.js` 只是本地中间产物，已 gitignore。**
+- **新增语音必须两步都跑**：先合成 mp3，再跑 `split_voice.py`。只跑第一步，分块里没有新 key，
+  页面会**静默少一句语音**（`speak()` 只会打一条 `[voice] 缺少语音 key` 警告）。
+- 加载策略：启动预取 `core`（0.68 MB），进岛时 `prefetchIslandVoice()` 并行拉该岛所有分块；
+  单块上限 2.3 MB，大岛自动切成 2–3 块。
+- 兜底：`say()` 发现某个 key 还没到、且索引里有它的分块，会**先补加载再重播一次**（`retried` 防死循环）。
+  这是安全网，不是主路径——主路径必须靠预取，因为 **iOS 要求 `play()` 落在用户手势里**，不能等异步。
 - 页面运行时不调用任何外部接口，**API Key 绝不进入前端、绝不进入仓库**。
 - 为什么不在浏览器里实时调豆包：会把密钥暴露在公开网页上，且接口未开放跨域。需要「任意文本实时合成」时，必须另建后端代理，密钥只放服务端。
+- **发布语音相关改动必须提升 `sw.js` 的 `CACHE` 版本号**，否则老用户会命中旧缓存（v4 里存着 35 MB 单体 voice.js）。
 
 ### 1.4 context_texts 必须放进 additions（否则静默失效）
 
