@@ -3698,11 +3698,12 @@
       }
       if (pending.length) {
         var left = pending.length, fired = false;
-        var tick = function () {
-          if (fired) return;
-          if (--left <= 0) { fired = true; say(list, onDone, true); }
-        };
+        var go = function () { if (fired) return; fired = true; say(list, onDone, true); };
+        var tick = function () { if (--left <= 0) go(); };
         for (var i1 = 0; i1 < pending.length; i1++) loadVoiceChunk(pending[i1], tick);
+        /* 铁律：语音绝不能拖住流程。最多等 2.5 秒，超时就把缺的这句跳过、
+           照样交付 onDone——否则一次慢下载会把整个教学卡死在第一步。 */
+        setTimeout(go, 2500);
         return;
       }
     }
@@ -29470,7 +29471,7 @@
     /* 语音分块可能还在路上（尤其弱网）：先等它就绪，最多 12 秒。
        否则教学第一句会因为 key 还没到而哑掉——兜底虽然会补播，但孩子已经看完了定格动画。
        等待期间**不隐藏开始按钮**：屏幕保持原样，不会出现「点了没反应」的空白页。 */
-    waitIslandVoice(currentIsland, 12000, function () {
+    waitIslandVoice(currentIsland, 20000, function () {
       if (state.phase !== 'intro') return;   // 等待期间被返回键取消了
       btnStart.hidden = true;
       // 带教学环节的关卡（第 2 岛第 2 关起）：先进教学模式，不放开场白
