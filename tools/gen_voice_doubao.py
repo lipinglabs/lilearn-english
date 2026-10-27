@@ -1682,6 +1682,32 @@ add("l112_b_grandma", "Grandma is in the house. Find Grandma.", "en", -15, EN_AS
 # C 听指令拖拽（把小红帽拖到去奶奶家的小路）
 add("l112_c_go", "Help Little Red Riding Hood go to Grandma's house.", "en", -15, EN_ASK)
 
+# ---- 第 11 岛第 3 关：金发姑娘与三只小熊（L11-W3） ----
+# 教学 7 条：太烫 / 太凉 / 找烫的那碗 / 尝一口 / 刚刚好 / 找刚好的椅子 / 过渡
+add("l113_t_hot",        "Look! This porridge is too hot!", "en", -15, EN_ASK)
+add("l113_t_cold",       "This one is too cold!", "en", -15, EN_ASK)
+add("l113_t_hot_where",  "Where is the hot porridge? Touch it.", "en", -15, EN_ASK)
+add("l113_t_taste",      "Goldilocks tastes the porridge.", "en", -15, EN_ASK)
+add("l113_t_just",       "Ah! This porridge is just right!", "en", -15, EN_ASK)
+add("l113_t_chair",      "Which chair is just right for her? Find the just right chair.", "en", -15, EN_ASK)
+add("l113_t_out",        "Goldilocks found the right one! Let's play!", "en", -15, EN_ASK)
+
+# 剧情台词：答对后播完这句再给星星（§三.26）
+add("l113_line_just", "Just right!", "en", -8, EN_ASK)
+
+# A 听音找状态（烫 / 凉 / 刚好）
+add("l113_a_hot",  "Find the porridge that is too hot.", "en", -15, EN_ASK)
+add("l113_a_cold", "Find the porridge that is too cold.", "en", -15, EN_ASK)
+add("l113_a_just", "Find the porridge that is just right.", "en", -15, EN_ASK)
+
+# B 听台词找椅子（太大 / 太小 / 刚好）
+add("l113_b_big",   "This chair is too big for the girl. Find it.", "en", -15, EN_ASK)
+add("l113_b_small", "This chair is too small for the girl. Find it.", "en", -15, EN_ASK)
+add("l113_b_just",  "This chair is just right for the girl. Find it.", "en", -15, EN_ASK)
+
+# C 拖拽金发姑娘坐上「刚好」的椅子
+add("l113_c_chair", "Help Goldilocks sit on the just right chair.", "en", -15, EN_ASK)
+
 PRAISES = [
     "李旻泽，你真棒",
     "李旻泽，你又过了一关",
