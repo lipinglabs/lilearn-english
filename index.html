@@ -608,6 +608,11 @@
   .options.off { opacity: 0; pointer-events: none; }
   .options.gone { display: none; }
 
+  /* 铁律：任何可拖元素都必须 touch-action:none。手机上默认值 auto 会把拖拽当成页面滚动，
+     浏览器随即发 pointercancel，全局拖拽引擎只能收场——表现就是「球怎么拖都不动」。
+     .pos-ball / .p3-actor 曾漏写这条（第 2 岛第 5 关的球拖不动就是这么来的）。 */
+  [data-drag], .pos-ball, .p3-actor { touch-action: none; }
+
   .option {
     position: relative;
     width: min(clamp(84px, 21vh, 168px), 27vw);
@@ -1139,6 +1144,7 @@
     height: 30%;
     transform: translate(-50%, -50%);
     z-index: 3;
+    touch-action: none;
     transition: top .82s cubic-bezier(.3, 1.25, .45, 1), width .4s ease, height .4s ease;
     will-change: top;
   }
@@ -1232,6 +1238,7 @@
     width: 28%;
     height: 28%;
     z-index: 2;
+    touch-action: none;
     transform: translate(-50%, -50%);
     transition: top .78s cubic-bezier(.32, 1.3, .5, 1), left .78s cubic-bezier(.32, 1.3, .5, 1),
                 width .4s ease, height .4s ease;
@@ -1756,6 +1763,7 @@
   .combo-card {
     display: flex;
     flex-wrap: wrap;
+    align-content: center;
     align-items: center;
     justify-content: center;
     gap: 2%;
@@ -1771,6 +1779,11 @@
     -webkit-user-drag: none;
     filter: drop-shadow(0 3px 6px rgba(150, 120, 90, .2));
   }
+
+  /* 数量必须按档缩：42% + 两列时 5 个会折成 3 行，第 5 个被挤出卡片
+     （手机端表现为「只看得见 4 个苹果」）。5 个改成三列 27%，4 个略收，1–3 个维持原尺寸。 */
+  .combo-card[data-count="4"] .card-fruit { width: 40%; height: 40%; }
+  .combo-card[data-count="5"] .card-fruit { width: 27%; height: 27%; }
 
   .option.card-opt { background: linear-gradient(180deg, #fffefb, #f4fbff); }
 
@@ -3640,6 +3653,20 @@
    */
   var currentDone = null;
 
+  /** 预热：把这一题要用的语音元素建好并 load()，让 duration / 缓冲就绪（不改播放状态） */
+  function warmAudio(keys) {
+    if (!keys) return;
+    var list = Array.isArray(keys) ? keys : [keys];
+    for (var i = 0; i < list.length; i++) {
+      var el = getAudio(list[i]);
+      if (!el) continue;
+      /* 正在播的那一条绝不能 load()：会把当前这句打断（表现为「念半句就没了」）。
+         已有元数据的也不用重复 load()。 */
+      if (el === current || el.readyState >= 1) continue;
+      try { el.preload = 'auto'; el.load(); } catch (e) { /* 预热失败不影响流程 */ }
+    }
+  }
+
   function stop() {
     clearGuard();
     setSpeaking(false);
@@ -3650,6 +3677,8 @@
       current = null;
       el.onended = null;
       el.onerror = null;
+      el.onstalled = null;
+      el.onwaiting = null;
       try { el.pause(); } catch (e) { /* 忽略 */ }
       try { el.currentTime = 0; } catch (e) { /* 忽略 */ }
     }
@@ -3666,7 +3695,7 @@
     return !!t.closest('.topbar, #btnReplay, #btnBack, #btnCloud, .icon-btn, #cloudSheet, .sheet');
   }
 
-  function speak(key, onDone) {
+  function speak(key, onDone, onFail) {
     var el = getAudio(key);
     if (!el) {
       /* 不再静默失败：key 拼错 / 语音没生成时留一条明确痕迹，方便排查 */
@@ -3680,23 +3709,54 @@
     setSpeaking(true);
 
     var finished = false;
-    function finish() {
+    /* failed=true 表示「这一句根本没播成」（被系统拒绝 / 解码出错 / play 抛错），
+       必须交给调用方决定重试，绝不能当成「已播完」继续下一句——
+       手机端一次瞬时的 play() 拒绝就会让整段题面少一句（用户反馈的「念题不全」）。 */
+    function finish(failed) {
       if (finished) return;
       finished = true;
       clearGuard();
       currentDone = null;
       if (current === el) { current = null; setSpeaking(false); }
+      if (failed && onFail) { onFail(); return; }
       if (onDone) onDone();
     }
     currentDone = { fn: finish, tut: !!(state && state.tut) };
 
-    el.onended = finish;
-    el.onerror = finish;
+    el.onended = function () { finish(false); };
+    el.onerror = function () { finish(true); };
+    /* 手机端缓冲/解码抖动会让播放自己停住（waiting / stalled），此时主动续播一次，
+       不用等保险丝到点——否则孩子先听到半句静音空档再继续，听感就是「念题不全」。 */
+    var wake = function () {
+      if (finished || current !== el) return;
+      setTimeout(function () {
+        if (finished || current !== el || !el.paused) return;
+        try { el.play(); } catch (e) { /* 续播失败交给保险丝 */ }
+      }, 420);
+    };
+    el.onstalled = wake;
+    el.onwaiting = wake;
     /* 只在已有元数据时回零：未加载时写 currentTime 在部分移动端会抛 InvalidStateError */
     if (el.readyState > 0) { try { el.currentTime = 0; } catch (e) { /* 忽略 */ } }
 
     var dur = (isFinite(el.duration) && el.duration > 0) ? el.duration * 1000 : 8000;
-    guardTimer = setTimeout(finish, dur + 1600);
+    /* 保险丝：到点还没播完，说明中途被卡住了（手机解码 / 缓冲抖动）。
+       以前直接 finish() 当作「播完」→ 孩子听到半句就没了（用户反馈的「第一遍念题不全」）。
+       这里先按当前进度续播一次（最多一次），真的续不动才收场。 */
+    var resumed = false;
+    function guard() {
+      if (finished) return;
+      var cur = 0, total = el.duration;
+      try { cur = el.currentTime || 0; } catch (e) { cur = 0; }
+      if (!resumed && isFinite(total) && total > 0 && cur < total - 0.45) {
+        resumed = true;
+        try { el.play(); } catch (e) { /* 续播失败就走收场 */ }
+        guardTimer = setTimeout(guard, 1800);
+        return;
+      }
+      finish(false);
+    }
+    guardTimer = setTimeout(guard, dur + 1600);
 
     var p;
     try {
@@ -3704,7 +3764,7 @@
     } catch (err) {
       /* play() 同步抛错不能冒泡进教学流程，否则这一步会直接断掉（没有定格、也没有下一句） */
       console.warn('[voice] play() 同步失败：' + (err && err.name));
-      finish();
+      finish(true);
       return true;
     }
     if (p && typeof p.catch === 'function') {
@@ -3715,7 +3775,8 @@
          * 否则本次手势之后的所有语音都会永久静默。
          */
         if (err && err.name === 'NotAllowedError') audioUnlocked = false;
-        finish();
+        console.warn('[voice] play() 被拒绝：' + (err && err.name));
+        finish(true);
       });
     }
     return true;
@@ -3764,11 +3825,26 @@
       if (myToken !== speakToken) return;   // 还有下一条、但这次 say 已被顶掉 → 不再继续
       step();
     }
+    /* 单句播放失败（含手机端 NotAllowedError / 解码抖动）重试一次再放行：
+       以前这里直接 next()，一次瞬时失败就等于永久少一句题面。 */
+    function attempt(key, tries) {
+      if (myToken !== speakToken) return;
+      var handoff = false;
+      function done() { if (handoff) return; handoff = true; next(); }
+      function retry() {
+        if (handoff) return;
+        handoff = true;
+        if (myToken !== speakToken) return;
+        if (tries < 1) { setTimeout(function () { attempt(key, tries + 1); }, 200); return; }
+        next();
+      }
+      if (!speak(key, done, retry)) retry();
+    }
     function step() {
       if (myToken !== speakToken) return;
       if (i >= list.length) { deliver(); return; }
       var key = list[i++];
-      if (!speak(key, next)) next();
+      attempt(key, 0);
     }
     step();
   }
@@ -6842,15 +6918,22 @@
     '<path d="M64 60 Q60 80 66 90 Q72 94 74 86 Q70 78 72 62" fill="#9aa7b5" stroke="#74808e" stroke-width="2.6" stroke-linejoin="round"/>' +
     '<circle cx="74" cy="42" r="2.6" fill="#3a3a3a"/>' +
     '<path d="M60 66 l-7 5" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>';
+  /* 猴子：旧的画法把两只耳朵画在头顶内侧、又没有浅色脸盘，孩子看图会认成小熊
+     （用户反馈「题目说猴子、图上是熊」）。猴子的辨识特征是**耳朵在头两侧 + 大面积浅色脸盘 + 小鼻孔**，
+     这里按这三个特征重画，耳朵下沉到头部中线，浅色脸盘几乎盖住整张脸。 */
   var B4_MONKEY =
-    '<circle cx="33" cy="33" r="11" fill="#8a5a3b" stroke="#6d452b" stroke-width="2.6"/>' +
-    '<circle cx="67" cy="33" r="11" fill="#8a5a3b" stroke="#6d452b" stroke-width="2.6"/>' +
-    '<circle cx="50" cy="48" r="26" fill="#a06a44" stroke="#7d4e30" stroke-width="3"/>' +
-    '<ellipse cx="50" cy="57" rx="16" ry="13" fill="#ecd0b0"/>' +
-    '<circle cx="41" cy="43" r="3" fill="#3a2410"/>' +
-    '<circle cx="59" cy="43" r="3" fill="#3a2410"/>' +
-    '<ellipse cx="50" cy="55" rx="2.6" ry="2" fill="#7d4e30"/>' +
-    '<path d="M44 61 q6 5 12 0" stroke="#3a2410" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+    '<circle cx="21" cy="54" r="10.5" fill="#a06a44" stroke="#7d4e30" stroke-width="2.8"/>' +
+    '<circle cx="21" cy="54" r="4.6" fill="#ecd0b0" stroke="#d8b892" stroke-width="1.6"/>' +
+    '<circle cx="79" cy="54" r="10.5" fill="#a06a44" stroke="#7d4e30" stroke-width="2.8"/>' +
+    '<circle cx="79" cy="54" r="4.6" fill="#ecd0b0" stroke="#d8b892" stroke-width="1.6"/>' +
+    '<circle cx="50" cy="48" r="25" fill="#a06a44" stroke="#7d4e30" stroke-width="3"/>' +
+    '<path d="M50 24 q5 -9 13 -7 q-4 6 -9 8" fill="#8a5a3b" stroke="#6d452b" stroke-width="2.2"/>' +
+    '<ellipse cx="50" cy="55" rx="18" ry="17" fill="#ecd0b0" stroke="#d8b892" stroke-width="2"/>' +
+    '<circle cx="41" cy="46" r="3.2" fill="#3a2410"/>' +
+    '<circle cx="59" cy="46" r="3.2" fill="#3a2410"/>' +
+    '<circle cx="47" cy="53" r="1.5" fill="#8a5a3b"/>' +
+    '<circle cx="53" cy="53" r="1.5" fill="#8a5a3b"/>' +
+    '<path d="M43 61 q7 6 14 0" stroke="#3a2410" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
   var B4_APPLE =
     '<circle cx="50" cy="60" r="28" fill="#e8453c" stroke="#b62a2a" stroke-width="3.2"/>' +
     '<path d="M50 32 q-2 -10 7 -14" stroke="#6b4a2b" stroke-width="4" fill="none" stroke-linecap="round"/>' +
@@ -34576,6 +34659,7 @@
         btn.classList.add('card-opt');
         var card = document.createElement('div');
         card.className = 'combo-card';
+        card.dataset.count = String(opt.count);   // 数量分档尺寸（5 个要三列排，否则第 5 个被挤出卡片）
         for (var ci = 0; ci < opt.count; ci++) {
           var cimg = assetImg(opt.fruit + '_' + opt.color.id, 'card-fruit');
           if (cimg) card.appendChild(cimg);
@@ -34943,6 +35027,8 @@
 
     renderDisplay(q);
     renderOptions(q);
+    /* 先预热本题的语音元素：手机端首次播放若还在等元数据，容易被判成「没播成」而丢句 */
+    warmAudio(q.audio);
     say(q.audio);
   }
 
