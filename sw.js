@@ -14,11 +14,13 @@
    改版本号即可让孩子设备上下一次联网时换新缓存。
    ============================================================ */
 
-var CACHE = 'lilearn-v10';
+var CACHE = 'lilearn-v11';
 var SHELL = [
   './',
   './index.html',
   './manifest.json',
+  './style.css',
+  './skin-live.css',
   /* 语音分块：索引 + 公共语音随 SW 一起预缓存（0.7MB），
      其余 voice/chunks/island_*.js 走运行时缓存（首次进岛时缓存，之后离线可玩）。
      注意：v4 及更早缓存里存着单体 voice.js（35MB），activate 时会整体删掉。 */
