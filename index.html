@@ -1770,11 +1770,9 @@
 
   /** 按当前关卡生成一道题 */
     /* 关卡出题器注册表：由 LEVEL_DEFS.make 标签映射到出题函数，按岛分组。
-   * 原先是 59 条 if 链，等价数据化；外部岛文件可通过 window.__LLMakers 注入同名实现。 */
+   * 岛 1 的 4 个出题器已外置到 levels/island-01.js，通过 window.__LLMakers 注册；
+   * newQuestion 优先查 __LLMakers，因此表中不再列出它们。 */
   var QUESTION_MAKERS = {
-    /* 岛 1 */
-    makeW2: makeQuestionW2, makeW3: makeQuestionW3, makeW4: makeQuestionW4,
-    makeW5: makeQuestionW5,
     /* 岛 2 */
     makeS1: makeQuestionS1, makeP2: makeQuestionP2, makeP3: makeQuestionP3,
     makeP4: makeQuestionP4, makeP5: makeQuestionP5,
@@ -1894,111 +1892,10 @@
   var usedPairs = {};   // 本局已用过的「数字-水果」组合，避免重复出题
 
   /** 第 2 关题库：数字 16–20 × 四种水果，题型 A/B/C 轮转 */
-  function makeQuestionW2(type, prev) {
-    var num, fruit, pairKey, guard = 0;
-    do {
-      num = pick(NUMBERS_W2, prev ? prev.num : null);
-      fruit = pick(FRUITS, prev ? prev.fruit : null);
-      pairKey = num + '-' + fruit.id;
-      guard += 1;
-    } while (usedPairs[pairKey] && guard < 60);
-    usedPairs[pairKey] = true;
-
-    if (type === 0) {
-      // 题型 A：屏幕三堆不同数量的十格阵果堆，听数字选对应堆
-      var counts = withDistractors(NUMBERS_W2, num);
-      return {
-        type: 'W2A', num: num, fruit: fruit,
-        options: counts.map(function (v) { return { kind: 'tf', count: v, fruit: fruit }; }),
-        correct: counts.indexOf(num),
-        audio: ['n' + num]
-      };
-    }
-
-    if (type === 1) {
-      // 题型 B：三张数字标牌（带小水果图标），听 "Find seventeen bananas." 选标牌
-      var nums = withDistractors(NUMBERS_W2, num);
-      return {
-        type: 'W2B', num: num, fruit: fruit,
-        options: nums.map(function (v) { return { kind: 'sign2', value: v, fruit: fruit }; }),
-        correct: nums.indexOf(num),
-        audio: ['q_' + num + '_' + fruit.id]
-      };
-    }
-
-    // 题型 C：喂食机。三堆松散水果（约 5 / 约 num / 约 35），凭估数选对的喂怪兽
-    var small = 5;
-    var big = 35;
-    var spread = shuffle([small, num, big]);
-    return {
-      type: 'W2C', num: num, fruit: fruit,
-      options: spread.map(function (v) { return { kind: 'loose', count: v, fruit: fruit }; }),
-      correct: spread.indexOf(num),
-      audio: ['c_' + num + '_' + fruit.id]
-    };
-  }
+  
 
   /** 第 3 关题库：数字 21–29 与短句组合，题型 A/B/C 轮转 */
-  function makeQuestionW3(type, prev) {
-    var pairKey, guard = 0;
-
-    if (type === 1) {
-      // 题型 B：听短句找组合图。答案 = (小数量 2–5, 水果)。
-      // 三个选项的「数量 + 水果」各不相同（如 2 苹果 / 3 香蕉 / 4 草莓），
-      // 必须整句都听懂才能选对，不能靠"数一数"或"只看水果"蒙。
-      var count, fruitB;
-      do {
-        count = pick(SMALL_COUNTS, prev && prev.type === 'W3B' ? prev.num : null);
-        fruitB = pick(FRUITS, prev && prev.type === 'W3B' ? prev.fruit : null);
-        pairKey = count + '-' + fruitB.id;
-        guard += 1;
-      } while (usedPairs[pairKey] && guard < 60);
-      usedPairs[pairKey] = true;
-
-      var others = shuffle(FRUITS.filter(function (f) { return f.id !== fruitB.id; })).slice(0, 2);
-      var otherCounts = shuffle(SMALL_COUNTS.filter(function (c) { return c !== count; }));
-      var list = shuffle([fruitB].concat(others));
-      var order = list.map(function (f) { return f.id; });
-      return {
-        type: 'W3B', num: count, fruit: fruitB,
-        options: list.map(function (f) {
-          return { kind: 'combo', count: f.id === fruitB.id ? count : otherCounts.pop(), fruit: f };
-        }),
-        correct: order.indexOf(fruitB.id),
-        audio: ['q_' + count + '_' + fruitB.id]
-      };
-    }
-
-    var num, fruit;
-    do {
-      num = pick(NUMBERS_W3, prev ? prev.num : null);
-      fruit = pick(FRUITS, prev ? prev.fruit : null);
-      pairKey = num + '-' + fruit.id;
-      guard += 1;
-    } while (usedPairs[pairKey] && guard < 60);
-    usedPairs[pairKey] = true;
-
-    if (type === 0) {
-      // 题型 A：只听 "Twenty-four"，在三个巨大 3D 数字底板里点对的那个
-      var nums = withDistractors(NUMBERS_W3, num);
-      return {
-        type: 'W3A', num: num, fruit: fruit,
-        options: nums.map(function (v) { return { kind: 'slab', value: v }; }),
-        correct: nums.indexOf(num),
-        audio: ['n' + num]
-      };
-    }
-
-    // 题型 C：数数大挑战。中央十格阵果堆（如 10+10+5=25），
-    // 语音 "How many strawberries?" → "Twenty-five."，选三个数字之一
-    var counts = withDistractors(NUMBERS_W3, num);
-    return {
-      type: 'W3C', num: num, fruit: fruit,
-      options: counts.map(function (v) { return { kind: 'slab', value: v }; }),
-      correct: counts.indexOf(num),
-      audio: ['howmany_' + fruit.id, 'n' + num]
-    };
-  }
+  
 
   /** 第 4 关题库：颜色初体验（红/蓝/黄/绿），题型 A/B/C 轮转 */
   /**
@@ -2019,52 +1916,7 @@
     return chosen;
   }
 
-  function makeQuestionW4(type, prev) {
-    var prevKey = prev ? (prev.type + '|' + (prev.color ? prev.color.id : '') + '|' + (prev.item ? prev.item.id : '')) : null;
-
-    if (type === 2) {
-      // 题型 C：灰色物品 + 三个颜色按钮，"Make the car red."
-      var combosC = [];
-      PAINT_ITEMS.forEach(function (it) {
-        COLORS.forEach(function (c) {
-          combosC.push({ key: 'C|' + it.id + '|' + c.id, item: it, color: c });
-        });
-      });
-      var pickC = takeFresh(combosC, usedPairs, prevKey);
-      var paint = withColorDistractors(pickC.color);
-      return {
-        type: 'W4C', item: pickC.item, color: pickC.color,
-        options: paint.map(function (c) { return { kind: 'colorBtn', color: c }; }),
-        correct: paint.indexOf(pickC.color),
-        audio: ['mk_' + pickC.item.id + '_' + pickC.color.id]
-      };
-    }
-
-    var combos = COLORS.map(function (c) {
-      return { key: (type === 0 ? 'A|' : 'B|') + c.id, color: c };
-    });
-    var pk = takeFresh(combos, usedPairs, prevKey);
-    var color = pk.color;
-    var opts = withColorDistractors(color);
-
-    if (type === 0) {
-      // 题型 A：三个不同颜色的 3D 气球，只听颜色名
-      return {
-        type: 'W4A', color: color,
-        options: opts.map(function (c) { return { kind: 'colorBalloon', color: c }; }),
-        correct: opts.indexOf(color),
-        audio: ['col_' + color.id]
-      };
-    }
-
-    // 题型 B：三个不同颜色的苹果，"Find the red apple."
-    return {
-      type: 'W4B', color: color,
-      options: opts.map(function (c) { return { kind: 'colorFruit', color: c, fruit: 'apple' }; }),
-      correct: opts.indexOf(color),
-      audio: ['fb_' + color.id]
-    };
-  }
+  
 
   /** 把中央的灰色物品刷成目标颜色（题型 C 答对反馈） */
   function paintItem(asset, color) {
@@ -2078,107 +1930,7 @@
   }
 
   /** 第 5 关题库：游乐场终极考验（拖拽 + 综合运用） */
-  function makeQuestionW5(type, prev) {
-    var prevKey = prev ? (prev.type + '|' + (prev.color ? prev.color.id : '') + '|' +
-      (prev.item ? prev.item.id : '') + '|' + (prev.num || '')) : null;
-
-    if (type === 0) {
-      // 题型 A：把小怪兽要的果篮拖给它。三个篮子＝十格阵果堆，只有一篮数量正确
-      var combosA = [];
-      W5_NUMBERS.forEach(function (n) {
-        FRUITS.forEach(function (f) {
-          combosA.push({ key: 'A|' + n + '|' + f.id, num: n, fruit: f });
-        });
-      });
-      var pickA = takeFresh(combosA, usedPairs, prevKey);
-
-      // 干扰果堆：数量与正确值不同，且彼此不同
-      var others = shuffle(W5_PILE_POOL.filter(function (n) { return n !== pickA.num; })).slice(0, 2);
-      var counts = shuffle([pickA.num].concat(others));
-
-      return {
-        type: 'W5A', num: pickA.num, fruit: pickA.fruit,
-        options: counts.map(function (c) { return { kind: 'basketPile', count: c, fruit: pickA.fruit }; }),
-        correct: counts.indexOf(pickA.num),
-        audio: ['c_' + pickA.num + '_' + pickA.fruit.id]
-      };
-    }
-
-    if (type === 1) {
-      // 题型 B：把指定颜色的水果拖进同色篮子
-      var combosB = [];
-      W5_COLORS.forEach(function (c) {
-        W5_CFRUITS.forEach(function (f) {
-          combosB.push({ key: 'B|' + c.id + '|' + f.id, color: c, fruit: f });
-        });
-      });
-      var pickB = takeFresh(combosB, usedPairs, prevKey);
-
-      // 托盘里 3 个水果：正确那一个 + 2 个干扰（颜色或水果不同）
-      var tray = [pickB];
-      var pool = [];
-      W5_COLORS.forEach(function (c) {
-        W5_CFRUITS.forEach(function (f) {
-          if (!(c.id === pickB.color.id && f.id === pickB.fruit.id)) {
-            pool.push({ color: c, fruit: f });
-          }
-        });
-      });
-      pool = shuffle(pool);
-      // 优先放一个「同色异果」，逼孩子两条线索都听懂
-      var sameColor = pool.filter(function (p) {
-        return p.color.id === pickB.color.id;
-      });
-      if (sameColor.length) {
-        tray.push(sameColor[0]);
-        pool = pool.filter(function (p) { return p !== sameColor[0]; });
-      }
-      while (tray.length < 3 && pool.length) tray.push(pool.pop());
-      shuffle(tray);
-
-      var correctFruit = tray.findIndex(function (t) {
-        return t.color.id === pickB.color.id && t.fruit.id === pickB.fruit.id;
-      });
-
-      var baskets = shuffle(W5_COLORS.map(function (c) { return { kind: 'basketColor', color: c }; }));
-
-      return {
-        type: 'W5B', color: pickB.color, fruit: pickB.fruit, item: pickB.fruit,
-        tray: tray, correctFruit: correctFruit,
-        options: baskets,
-        correct: baskets.map(function (b) { return b.color.id; }).indexOf(pickB.color.id),
-        audio: ['pb_' + pickB.color.id + '_' + pickB.fruit.id]
-      };
-    }
-
-    // 题型 C：三张大卡片 = (数量 + 颜色) 组合，直接点选
-    var combosC = [];
-    SMALL_COUNTS.forEach(function (n) {
-      W5_COLORS.forEach(function (c) {
-        combosC.push({ key: 'C|' + n + '|' + c.id, num: n, color: c });
-      });
-    });
-    var pickC = takeFresh(combosC, usedPairs, prevKey);
-
-    var cards = [pickC];
-    var otherPool = shuffle(combosC.filter(function (x) {
-      return !(x.num === pickC.num && x.color.id === pickC.color.id);
-    }));
-    while (cards.length < 3 && otherPool.length) cards.push(otherPool.pop());
-    // 干扰卡片不能与正确卡完全同值（数量/颜色各不相同）
-    shuffle(cards);
-
-    var correctCard = cards.findIndex(function (c) {
-      return c.num === pickC.num && c.color.id === pickC.color.id;
-    });
-
-    return {
-      type: 'W5C', num: pickC.num, color: pickC.color,
-      options: cards.map(function (c) { return { kind: 'comboCard', count: c.num, color: c.color, fruit: 'apple' }; }),
-      correct: correctCard,
-      audio: ['fc_' + pickC.num + '_' + pickC.color.id]
-    };
-  }
+  
 
   /* ---------------- 第 2 岛第 1 关：基础形状 ---------------- */
 
@@ -35339,7 +35091,29 @@
       merge: mergeProgress
     }
   };
+  /* 按岛拆分桥接：岛文件 levels/island-01.js 通过 window.__LLMakers 注册出题器，
+     这里导出它需要的 core 符号（可变对象共享同一引用）。 */
+  window.__LLCore = {
+    COLORS: COLORS,
+    FRUITS: FRUITS,
+    NUMBERS_W2: NUMBERS_W2,
+    NUMBERS_W3: NUMBERS_W3,
+    PAINT_ITEMS: PAINT_ITEMS,
+    SMALL_COUNTS: SMALL_COUNTS,
+    W5_CFRUITS: W5_CFRUITS,
+    W5_COLORS: W5_COLORS,
+    W5_NUMBERS: W5_NUMBERS,
+    W5_PILE_POOL: W5_PILE_POOL,
+    pick: pick,
+    shuffle: shuffle,
+    takeFresh: takeFresh,
+    usedPairs: usedPairs,
+    withColorDistractors: withColorDistractors,
+    withDistractors: withDistractors
+  };
+
 })();
 </script>
+<script src="levels/island-01.js"></script>
 </body>
 </html>

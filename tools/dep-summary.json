@@ -13,10 +13,40 @@
   "dispatch": {
     "tagField": "LEVEL_DEFS.make",
     "levels": 60,
-    "tags": 59,
+    "tags": 55,
     "before": "newQuestion() 内 59 条 if 链 + 1 个默认 makeQuestion",
     "after": "QUESTION_MAKERS 注册表（按岛分组）+ 可选 window.__LLMakers 外部注入",
-    "commit": "见本提交"
+    "commit": "见本提交",
+    "externalized": {
+      "island": 1,
+      "file": "levels/island-01.js",
+      "registered": [
+        "makeW2",
+        "makeW3",
+        "makeW4",
+        "makeW5"
+      ],
+      "bridgeSymbols": 16,
+      "coreBridged": [
+        "COLORS",
+        "FRUITS",
+        "NUMBERS_W2",
+        "NUMBERS_W3",
+        "PAINT_ITEMS",
+        "SMALL_COUNTS",
+        "W5_CFRUITS",
+        "W5_COLORS",
+        "W5_NUMBERS",
+        "W5_PILE_POOL",
+        "pick",
+        "shuffle",
+        "takeFresh",
+        "usedPairs",
+        "withColorDistractors",
+        "withDistractors"
+      ],
+      "note": "岛 1 的 4 个出题器已从 IIFE 搬出；QUESTION_MAKERS 表保留其余 55 项。"
+    }
   },
   "coreShared": [
     {
