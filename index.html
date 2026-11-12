@@ -3947,6 +3947,7 @@
   function showScreen(name) {
     view = name;
     document.body.dataset.view = name;   // 关卡内隐藏云存档按钮，把顶栏留给 12 颗星
+    if (name === 'map') delete document.body.dataset.island;
     screenMap.hidden = name !== 'map';
     screenIsland.hidden = name !== 'island';
     screenLevel.hidden = name !== 'level';
@@ -4035,6 +4036,7 @@
 
   function enterIsland(index) {
     currentIsland = index;
+    document.body.dataset.island = String(index);
     showScreen('island');
     renderIsland();
     /* 进岛即预取该岛语音分块：等孩子挑关卡、看地图的这几秒把语音拉下来，
