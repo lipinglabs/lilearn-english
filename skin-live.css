@@ -1,0 +1,159 @@
+/* skin-live.css — A 档视觉皮肤 v1.0（外挂式）
+ * 纯 CSS，零 API。全部规则以 body.live-skin 开头，接入时只需给 <body> 加一个 class；
+ * 去掉 class 即完全回退，不改任何现有布局尺寸，零回归风险。
+ * 遵守 RULES.md 二：低饱和粉彩 / 米色奶白底 / 顶部暖光 / 圆角≥16px /
+ * 2px 浅暖描边 / 柔和缓动 / 禁粗黑描边与刺激性动效（答错克制抖动为唯一例外）。
+ */
+
+:root {
+  --lv-cream: #FFF7EC;
+  --lv-paper: #FFFDF8;
+  --lv-line: #F0DECD;
+  --lv-ink: #5B4A3F;
+  --lv-ink-soft: #93806F;
+  --lv-shadow: 0 10px 0 rgba(0, 0, 0, .04), 0 16px 28px rgba(122, 92, 68, .13);
+  --lv-shadow-sm: 0 4px 0 rgba(0, 0, 0, .035), 0 8px 16px rgba(122, 92, 68, .10);
+  --lv-inset-hi: inset 0 6px 12px rgba(255, 255, 255, .8), inset 0 -8px 14px rgba(0, 0, 0, .04);
+  --lv-r-lg: 32px;
+  --lv-r-md: 22px;
+  --lv-r-sm: 16px;
+  --lv-ease-soft: cubic-bezier(.22, .61, .36, 1);
+  --lv-ease-jelly: cubic-bezier(.34, 1.56, .64, 1);
+  --lv-tint: rgba(243, 169, 160, .16);
+  --lv-tint-2: rgba(169, 203, 234, .14);
+}
+
+/* 12 岛各一套柔和色调，接入时给 body 设 data-island 即可 */
+body.live-skin[data-island="1"],
+body.live-skin[data-island="6"],
+body.live-skin[data-island="11"] { --lv-tint: rgba(243, 169, 160, .17); --lv-tint-2: rgba(247, 213, 138, .15); }
+body.live-skin[data-island="2"],
+body.live-skin[data-island="7"],
+body.live-skin[data-island="12"] { --lv-tint: rgba(169, 203, 234, .17); --lv-tint-2: rgba(198, 180, 228, .15); }
+body.live-skin[data-island="3"],
+body.live-skin[data-island="8"]  { --lv-tint: rgba(168, 213, 181, .17); --lv-tint-2: rgba(184, 224, 210, .15); }
+body.live-skin[data-island="4"],
+body.live-skin[data-island="9"]  { --lv-tint: rgba(246, 192, 142, .17); --lv-tint-2: rgba(242, 184, 198, .15); }
+body.live-skin[data-island="5"],
+body.live-skin[data-island="10"] { --lv-tint: rgba(214, 196, 236, .17); --lv-tint-2: rgba(191, 224, 240, .15); }
+
+/* 第 1 层 · 背景层：纯 CSS 云朵 / 山坡 / 暖光，不用任何图片 */
+body.live-skin .screen,
+body.live-skin .lv-screen {
+  isolation: isolate;
+  background:
+    radial-gradient(120% 58% at 50% -8%, rgba(255, 255, 255, .92), rgba(255, 247, 236, 0) 72%),
+    linear-gradient(180deg, var(--lv-cream), var(--lv-paper));
+}
+body.live-skin .screen::before,
+body.live-skin .lv-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 24% at 14% 101%, var(--lv-tint), transparent 72%),
+    radial-gradient(66% 28% at 88% 101%, var(--lv-tint-2), transparent 72%),
+    radial-gradient(16% 7% at 20% 16%, rgba(255, 255, 255, .95), transparent 74%),
+    radial-gradient(13% 6% at 76% 11%, rgba(255, 255, 255, .9), transparent 74%),
+    radial-gradient(4% 2% at 12% 44%, rgba(247, 213, 138, .5), transparent 70%),
+    radial-gradient(3% 2% at 86% 36%, rgba(242, 184, 198, .5), transparent 70%),
+    radial-gradient(3% 2% at 66% 62%, rgba(168, 213, 181, .45), transparent 70%);
+}
+
+/* 第 2 层 · 情境层：题目舞台卡，把空白收成一张有边界的场景 */
+body.live-skin .lv-stage {
+  position: relative;
+  background: rgba(255, 253, 248, .94);
+  border: 2px solid var(--lv-line);
+  border-radius: var(--lv-r-lg);
+  box-shadow: var(--lv-shadow), var(--lv-inset-hi);
+  padding: clamp(16px, 5vw, 28px);
+  min-height: 36vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 4vw, 28px);
+}
+body.live-skin .lv-stage::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 10px;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .72);
+  pointer-events: none;
+}
+body.live-skin .lv-anchor {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 247, 236, .95);
+  border: 2px solid var(--lv-line);
+  color: var(--lv-ink-soft);
+  font-size: 14px;
+  box-shadow: var(--lv-shadow-sm);
+}
+body.live-skin .lv-wave { display: inline-flex; align-items: flex-end; gap: 3px; height: 14px; }
+body.live-skin .lv-wave i {
+  display: block; width: 3px; border-radius: 2px; height: 6px;
+  background: #E9A13B; animation: lv-wave 1.1s var(--lv-ease-soft) infinite alternate;
+}
+body.live-skin .lv-wave i:nth-child(2) { height: 12px; animation-delay: .15s; }
+body.live-skin .lv-wave i:nth-child(3) { height: 8px; animation-delay: .3s; }
+body.live-skin .lv-wave i:nth-child(4) { height: 11px; animation-delay: .45s; }
+@keyframes lv-wave { from { transform: scaleY(.6); } to { transform: scaleY(1); } }
+
+/* 统一顶部条：关卡名 / 圆点进度 / 星标 / 返回 / 音量 */
+body.live-skin .lv-topbar {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 6px 4px 14px;
+}
+body.live-skin .lv-title { font-size: 17px; font-weight: 600; color: var(--lv-ink); flex: 1; }
+body.live-skin .lv-sub { display: block; font-size: 11px; font-weight: 400; color: var(--lv-ink-soft); letter-spacing: .04em; }
+body.live-skin .lv-dots { display: flex; gap: 5px; }
+body.live-skin .lv-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(147, 128, 111, .22); }
+body.live-skin .lv-dots i.on { background: #F2A67E; transform: scale(1.15); }
+body.live-skin .lv-round {
+  width: 38px; height: 38px; border-radius: 50%; flex: none;
+  background: var(--lv-paper); border: 2px solid var(--lv-line);
+  box-shadow: var(--lv-shadow-sm); display: grid; place-items: center; color: var(--lv-ink);
+}
+
+/* 第 3 层 · 反馈层与软拟物选项 */
+body.live-skin .option {
+  border-radius: var(--lv-r-md);
+  border: 2px solid rgba(255, 253, 248, .95);
+  box-shadow: var(--lv-shadow-sm), inset 0 1px 0 rgba(255, 255, 255, .9);
+  transition: transform .22s var(--lv-ease-soft), box-shadow .22s var(--lv-ease-soft), filter .3s var(--lv-ease-soft);
+}
+body.live-skin .option:active { transform: scale(.95); }
+body.live-skin .option.right {
+  box-shadow: 0 0 0 3px rgba(168, 213, 181, .6), var(--lv-shadow);
+  animation: lv-pop .5s var(--lv-ease-jelly);
+}
+body.live-skin .option.wrong { animation: lv-nudge .36s var(--lv-ease-soft); }
+@keyframes lv-pop { 0% { transform: scale(1); } 45% { transform: scale(1.06); } 100% { transform: scale(1); } }
+@keyframes lv-nudge {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+body.live-skin .lv-svg { width: clamp(72px, 22vw, 118px); height: clamp(72px, 22vw, 118px); display: block; }
+
+/* 岛设计保留（2026-11-12 用户反馈）：B 档「12 宫格 → 蜿蜒路径地图」已取消，
+   地图 DOM / 路径 / 节点结构与关卡数据一律不动。
+   以下仅为宫格卡片的柔和化增强，不改变任何结构。 */
+body.live-skin .island-card {
+  border-radius: var(--lv-r-lg);
+  border: 2px solid rgba(255, 253, 248, .95);
+  box-shadow: var(--lv-shadow), var(--lv-inset-hi);
+  transition: transform .22s var(--lv-ease-soft);
+}
+body.live-skin .island-card:active { transform: scale(.96); }
+body.live-skin .island-card.locked { filter: grayscale(1); opacity: .55; }
