@@ -32,12 +32,17 @@ fs.mkdirSync(SHOTS, { recursive: true });
 const PROBE = `<script>
 window.addEventListener('load',function(){setTimeout(function(){
  var b=document.body,cs=getComputedStyle(b);
+ /* 注意：主脚本在 IIFE 闭包内，NUMBERS / LEVEL_DEFS 等常量不在 window 上，
+    不能从页面外部探测。第 2 批验收前需先在闭包内暴露只读测试钩子。
+    这里只记录可观测的资源加载指标。 */
  document.title='DIAG'+JSON.stringify({
   iw:innerWidth, bodySW:b.scrollWidth, docSW:document.documentElement.scrollWidth,
   view:b.dataset.view||'', island:b.dataset.island||'',
   skin:b.classList.contains('live-skin'),
   tint:cs.getPropertyValue('--lv-tint').trim(),
-  islands:document.querySelectorAll('#islandGrid .island').length
+  islands:document.querySelectorAll('#islandGrid .island').length,
+  externalScripts:document.querySelectorAll('script[src]').length,
+  sheets:document.styleSheets.length
  });
 },1200);});
 </script>`;
