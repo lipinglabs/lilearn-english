@@ -1769,68 +1769,54 @@
   };
 
   /** 按当前关卡生成一道题 */
+    /* 关卡出题器注册表：由 LEVEL_DEFS.make 标签映射到出题函数，按岛分组。
+   * 原先是 59 条 if 链，等价数据化；外部岛文件可通过 window.__LLMakers 注入同名实现。 */
+  var QUESTION_MAKERS = {
+    /* 岛 1 */
+    makeW2: makeQuestionW2, makeW3: makeQuestionW3, makeW4: makeQuestionW4,
+    makeW5: makeQuestionW5,
+    /* 岛 2 */
+    makeS1: makeQuestionS1, makeP2: makeQuestionP2, makeP3: makeQuestionP3,
+    makeP4: makeQuestionP4, makeP5: makeQuestionP5,
+    /* 岛 3 */
+    makeB1: makeQuestionB1, makeB2: makeQuestionB2, makeB3: makeQuestionB3,
+    makeB4: makeQuestionB4, makeB5: makeQuestionB5,
+    /* 岛 4 */
+    makeF1: makeQuestionF1, makeF2: makeQuestionF2, makeF3: makeQuestionF3,
+    makeF4: makeQuestionF4, makeF5: makeQuestionF5,
+    /* 岛 5 */
+    makeF6: makeQuestionF6, makeF7: makeQuestionF7, makeF8: makeQuestionF8,
+    makeF9: makeQuestionF9, makeF10: makeQuestionF10,
+    /* 岛 6 */
+    makeF11: makeQuestionF11, makeF12: makeQuestionF12, makeF13: makeQuestionF13,
+    makeF14: makeQuestionF14, makeF15: makeQuestionF15,
+    /* 岛 7 */
+    makeG1: makeQuestionG1, makeG2: makeQuestionG2, makeG3: makeQuestionG3,
+    makeG4: makeQuestionG4, makeG5: makeQuestionG5,
+    /* 岛 8 */
+    makeH1: makeQuestionH1, makeH2: makeQuestionH2, makeH3: makeQuestionH3,
+    makeH4: makeQuestionH4, makeH5: makeQuestionH5,
+    /* 岛 9 */
+    makeL9: makeQuestionL9, makeL92: makeQuestionL92, makeL93: makeQuestionL93,
+    makeL94: makeQuestionL94, makeL95: makeQuestionL95,
+    /* 岛 10 */
+    makeL10: makeQuestionL10, makeL102: makeQuestionL102, makeL103: makeQuestionL103,
+    makeL104: makeQuestionL104, makeL105: makeQuestionL105,
+    /* 岛 11 */
+    makeL111: makeQuestionL111, makeL112: makeQuestionL112, makeL113: makeQuestionL113,
+    makeL114: makeQuestionL114, makeL115: makeQuestionL115,
+    /* 岛 12 */
+    makeL121: makeQuestionL121, makeL122: makeQuestionL122, makeL123: makeQuestionL123,
+    makeL124: makeQuestionL124, makeL125: makeQuestionL125
+  };
+
   function newQuestion(typeIdx, prev) {
     var def = levelDef(currentIsland, state.level);
-    if (def && def.make === 'makeW2') return makeQuestionW2(typeIdx, prev);
-    if (def && def.make === 'makeW3') return makeQuestionW3(typeIdx, prev);
-    if (def && def.make === 'makeW4') return makeQuestionW4(typeIdx, prev);
-    if (def && def.make === 'makeW5') return makeQuestionW5(typeIdx, prev);
-    if (def && def.make === 'makeS1') return makeQuestionS1(typeIdx, prev);
-    if (def && def.make === 'makeP2') return makeQuestionP2(typeIdx, prev);
-    if (def && def.make === 'makeP3') return makeQuestionP3(typeIdx, prev);
-    if (def && def.make === 'makeP4') return makeQuestionP4(typeIdx, prev);
-    if (def && def.make === 'makeP5') return makeQuestionP5(typeIdx, prev);
-    if (def && def.make === 'makeB1') return makeQuestionB1(typeIdx, prev);
-    if (def && def.make === 'makeB2') return makeQuestionB2(typeIdx, prev);
-    if (def && def.make === 'makeB3') return makeQuestionB3(typeIdx, prev);
-    if (def && def.make === 'makeB4') return makeQuestionB4(typeIdx, prev);
-    if (def && def.make === 'makeB5') return makeQuestionB5(typeIdx, prev);
-    if (def && def.make === 'makeF1') return makeQuestionF1(typeIdx, prev);
-    if (def && def.make === 'makeF2') return makeQuestionF2(typeIdx, prev);
-    if (def && def.make === 'makeF3') return makeQuestionF3(typeIdx, prev);
-    if (def && def.make === 'makeF4') return makeQuestionF4(typeIdx, prev);
-    if (def && def.make === 'makeF5') return makeQuestionF5(typeIdx, prev);
-    if (def && def.make === 'makeF6') return makeQuestionF6(typeIdx, prev);
-    if (def && def.make === 'makeF7') return makeQuestionF7(typeIdx, prev);
-    if (def && def.make === 'makeF8') return makeQuestionF8(typeIdx, prev);
-    if (def && def.make === 'makeF9') return makeQuestionF9(typeIdx, prev);
-    if (def && def.make === 'makeF10') return makeQuestionF10(typeIdx, prev);
-    if (def && def.make === 'makeF11') return makeQuestionF11(typeIdx, prev);
-    if (def && def.make === 'makeF12') return makeQuestionF12(typeIdx, prev);
-    if (def && def.make === 'makeF13') return makeQuestionF13(typeIdx, prev);
-    if (def && def.make === 'makeF14') return makeQuestionF14(typeIdx, prev);
-    if (def && def.make === 'makeF15') return makeQuestionF15(typeIdx, prev);
-    if (def && def.make === 'makeG1') return makeQuestionG1(typeIdx, prev);
-    if (def && def.make === 'makeG2') return makeQuestionG2(typeIdx, prev);
-    if (def && def.make === 'makeG3') return makeQuestionG3(typeIdx, prev);
-    if (def && def.make === 'makeG4') return makeQuestionG4(typeIdx, prev);
-    if (def && def.make === 'makeG5') return makeQuestionG5(typeIdx, prev);
-    if (def && def.make === 'makeH1') return makeQuestionH1(typeIdx, prev);
-    if (def && def.make === 'makeH2') return makeQuestionH2(typeIdx, prev);
-    if (def && def.make === 'makeH3') return makeQuestionH3(typeIdx, prev);
-    if (def && def.make === 'makeH4') return makeQuestionH4(typeIdx, prev);
-    if (def && def.make === 'makeH5') return makeQuestionH5(typeIdx, prev);
-    if (def && def.make === 'makeL9') return makeQuestionL9(typeIdx, prev);
-    if (def && def.make === 'makeL92') return makeQuestionL92(typeIdx, prev);
-    if (def && def.make === 'makeL93') return makeQuestionL93(typeIdx, prev);
-    if (def && def.make === 'makeL94') return makeQuestionL94(typeIdx, prev);
-    if (def && def.make === 'makeL95') return makeQuestionL95(typeIdx, prev);
-    if (def && def.make === 'makeL10') return makeQuestionL10(typeIdx, prev);
-    if (def && def.make === 'makeL102') return makeQuestionL102(typeIdx, prev);
-    if (def && def.make === 'makeL103') return makeQuestionL103(typeIdx, prev);
-    if (def && def.make === 'makeL104') return makeQuestionL104(typeIdx, prev);
-    if (def && def.make === 'makeL105') return makeQuestionL105(typeIdx, prev);
-    if (def && def.make === 'makeL111') return makeQuestionL111(typeIdx, prev);
-    if (def && def.make === 'makeL112') return makeQuestionL112(typeIdx, prev);
-    if (def && def.make === 'makeL113') return makeQuestionL113(typeIdx, prev);
-    if (def && def.make === 'makeL114') return makeQuestionL114(typeIdx, prev);
-    if (def && def.make === 'makeL115') return makeQuestionL115(typeIdx, prev);
-    if (def && def.make === 'makeL121') return makeQuestionL121(typeIdx, prev);
-    if (def && def.make === 'makeL122') return makeQuestionL122(typeIdx, prev);
-    if (def && def.make === 'makeL123') return makeQuestionL123(typeIdx, prev);
-    if (def && def.make === 'makeL124') return makeQuestionL124(typeIdx, prev);
-    if (def && def.make === 'makeL125') return makeQuestionL125(typeIdx, prev);
-    return makeQuestion(typeIdx, prev);
+    var tag = def && def.make;
+    var ext = window.__LLMakers && tag && window.__LLMakers[tag];
+    if (ext) return ext(typeIdx, prev);
+    var fn = tag && QUESTION_MAKERS[tag];
+    return fn ? fn(typeIdx, prev) : makeQuestion(typeIdx, prev);
   }
 
   /** 是否为本项目自定义题型的关卡（第 2/3 关），第 1 关保留新手小手提示 */

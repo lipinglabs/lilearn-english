@@ -1,0 +1,3637 @@
+{
+  "generatedAt": "2026-11-12T23:42:07.879Z",
+  "source": "index.html 内联主脚本 IIFE；用 acorn 8 解析，作用域近似（引用 ∩ 顶层声明 − 本声明内局部声明）",
+  "scriptChars": 1541788,
+  "topDecls": 1614,
+  "kinds": {
+    "exec": 29,
+    "function": 914,
+    "var": 654,
+    "if": 17
+  },
+  "topNames": 1595,
+  "dispatch": {
+    "tagField": "LEVEL_DEFS.make",
+    "levels": 60,
+    "tags": 59,
+    "before": "newQuestion() 内 59 条 if 链 + 1 个默认 makeQuestion",
+    "after": "QUESTION_MAKERS 注册表（按岛分组）+ 可选 window.__LLMakers 外部注入",
+    "commit": "见本提交"
+  },
+  "coreShared": [
+    {
+      "name": "randInt",
+      "kind": "function",
+      "line": 1714,
+      "start": 67533,
+      "end": 67621,
+      "bytes": 88,
+      "usedByIslands": 12
+    },
+    {
+      "name": "shuffle",
+      "kind": "function",
+      "line": 1716,
+      "start": 67625,
+      "end": 67823,
+      "bytes": 198,
+      "usedByIslands": 12
+    },
+    {
+      "name": "pick",
+      "kind": "function",
+      "line": 1724,
+      "start": 67827,
+      "end": 68018,
+      "bytes": 191,
+      "usedByIslands": 9
+    },
+    {
+      "name": "state",
+      "kind": "var",
+      "line": 1610,
+      "start": 61960,
+      "end": 62217,
+      "bytes": 257,
+      "usedByIslands": 4
+    },
+    {
+      "name": "takeFresh",
+      "kind": "function",
+      "line": 1874,
+      "start": 72975,
+      "end": 73419,
+      "bytes": 444,
+      "usedByIslands": 3
+    },
+    {
+      "name": "usedPairs",
+      "kind": "var",
+      "line": 1759,
+      "start": 69022,
+      "end": 69041,
+      "bytes": 19,
+      "usedByIslands": 3
+    },
+    {
+      "name": "ensureF9Css",
+      "kind": "function",
+      "line": 9731,
+      "start": 417007,
+      "end": 420927,
+      "bytes": 3920,
+      "usedByIslands": 2
+    },
+    {
+      "name": "ensureH4Css",
+      "kind": "function",
+      "line": 17479,
+      "start": 781636,
+      "end": 787539,
+      "bytes": 5903,
+      "usedByIslands": 2
+    }
+  ],
+  "islands": {
+    "1": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionW2",
+        "makeQuestionW3",
+        "makeQuestionW4",
+        "makeQuestionW5"
+      ],
+      "dataConsts": [
+        "NUMBERS",
+        "NUMBERS_W2",
+        "NUMBERS_W3"
+      ],
+      "closureSize": 22,
+      "ownCount": 17,
+      "spanBytes": 138900,
+      "own": [
+        {
+          "name": "NUMBERS_W3",
+          "kind": "var",
+          "line": 131,
+          "start": 4678,
+          "end": 4732,
+          "bytes": 54,
+          "usedByIslands": 1
+        },
+        {
+          "name": "NUMBERS_W2",
+          "kind": "var",
+          "line": 129,
+          "start": 4607,
+          "end": 4645,
+          "bytes": 38,
+          "usedByIslands": 1
+        },
+        {
+          "name": "NUMBERS",
+          "kind": "var",
+          "line": 127,
+          "start": 4541,
+          "end": 4576,
+          "bytes": 35,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionW5",
+          "kind": "function",
+          "line": 1946,
+          "start": 75453,
+          "end": 79078,
+          "bytes": 3625,
+          "usedByIslands": 1
+        },
+        {
+          "name": "W5_PILE_POOL",
+          "kind": "var",
+          "line": 148,
+          "start": 5279,
+          "end": 5327,
+          "bytes": 48,
+          "usedByIslands": 1
+        },
+        {
+          "name": "W5_NUMBERS",
+          "kind": "var",
+          "line": 147,
+          "start": 5219,
+          "end": 5253,
+          "bytes": 34,
+          "usedByIslands": 1
+        },
+        {
+          "name": "W5_COLORS",
+          "kind": "var",
+          "line": 149,
+          "start": 5344,
+          "end": 5577,
+          "bytes": 233,
+          "usedByIslands": 1
+        },
+        {
+          "name": "W5_CFRUITS",
+          "kind": "var",
+          "line": 154,
+          "start": 5580,
+          "end": 5767,
+          "bytes": 187,
+          "usedByIslands": 1
+        },
+        {
+          "name": "SMALL_COUNTS",
+          "kind": "var",
+          "line": 132,
+          "start": 4735,
+          "end": 4767,
+          "bytes": 32,
+          "usedByIslands": 1
+        },
+        {
+          "name": "FRUITS",
+          "kind": "var",
+          "line": 159,
+          "start": 5770,
+          "end": 5930,
+          "bytes": 160,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionW4",
+          "kind": "function",
+          "line": 1887,
+          "start": 73423,
+          "end": 75050,
+          "bytes": 1627,
+          "usedByIslands": 1
+        },
+        {
+          "name": "withColorDistractors",
+          "kind": "function",
+          "line": 3626,
+          "start": 143255,
+          "end": 143441,
+          "bytes": 186,
+          "usedByIslands": 1
+        },
+        {
+          "name": "COLORS",
+          "kind": "var",
+          "line": 134,
+          "start": 4794,
+          "end": 5032,
+          "bytes": 238,
+          "usedByIslands": 1
+        },
+        {
+          "name": "PAINT_ITEMS",
+          "kind": "var",
+          "line": 141,
+          "start": 5069,
+          "end": 5166,
+          "bytes": 97,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionW3",
+          "kind": "function",
+          "line": 1807,
+          "start": 70605,
+          "end": 72796,
+          "bytes": 2191,
+          "usedByIslands": 1
+        },
+        {
+          "name": "withDistractors",
+          "kind": "function",
+          "line": 1730,
+          "start": 68022,
+          "end": 68201,
+          "bytes": 179,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionW2",
+          "kind": "function",
+          "line": 1762,
+          "start": 69118,
+          "end": 70557,
+          "bytes": 1439,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "usedPairs",
+          "kind": "var",
+          "line": 1759,
+          "start": 69022,
+          "end": 69041,
+          "bytes": 19,
+          "usedByIslands": 3
+        },
+        {
+          "name": "takeFresh",
+          "kind": "function",
+          "line": 1874,
+          "start": 72975,
+          "end": 73419,
+          "bytes": 444,
+          "usedByIslands": 3
+        },
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        },
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        },
+        {
+          "name": "pick",
+          "kind": "function",
+          "line": 1724,
+          "start": 67827,
+          "end": 68018,
+          "bytes": 191,
+          "usedByIslands": 9
+        }
+      ],
+      "missingRoots": []
+    },
+    "2": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionS1",
+        "makeQuestionP2",
+        "makeQuestionP3",
+        "makeQuestionP4",
+        "makeQuestionP5"
+      ],
+      "dataConsts": [],
+      "closureSize": 28,
+      "ownCount": 22,
+      "spanBytes": 56164,
+      "own": [
+        {
+          "name": "makeQuestionP5",
+          "kind": "function",
+          "line": 3392,
+          "start": 133424,
+          "end": 135305,
+          "bytes": 1881,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P5_VERDICTS",
+          "kind": "var",
+          "line": 3314,
+          "start": 130702,
+          "end": 131032,
+          "bytes": 330,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P5_POS_SENT",
+          "kind": "var",
+          "line": 3304,
+          "start": 130352,
+          "end": 130470,
+          "bytes": 118,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P5_POS",
+          "kind": "var",
+          "line": 3303,
+          "start": 130313,
+          "end": 130349,
+          "bytes": 36,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P5_ITEMS",
+          "kind": "var",
+          "line": 3309,
+          "start": 130473,
+          "end": 130699,
+          "bytes": 226,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionP4",
+          "kind": "function",
+          "line": 3249,
+          "start": 128229,
+          "end": 130194,
+          "bytes": 1965,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P4_VERDICTS",
+          "kind": "var",
+          "line": 2950,
+          "start": 116783,
+          "end": 117002,
+          "bytes": 219,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P4_POS",
+          "kind": "var",
+          "line": 2944,
+          "start": 116553,
+          "end": 116589,
+          "bytes": 36,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P4_ITEMS",
+          "kind": "var",
+          "line": 2945,
+          "start": 116592,
+          "end": 116780,
+          "bytes": 188,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionP3",
+          "kind": "function",
+          "line": 2895,
+          "start": 114648,
+          "end": 116483,
+          "bytes": 1835,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P3_VERDICTS",
+          "kind": "var",
+          "line": 2603,
+          "start": 102156,
+          "end": 102569,
+          "bytes": 413,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P3_SENT",
+          "kind": "var",
+          "line": 2597,
+          "start": 101871,
+          "end": 101956,
+          "bytes": 85,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P3_POS",
+          "kind": "var",
+          "line": 2596,
+          "start": 101829,
+          "end": 101868,
+          "bytes": 39,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P3_ITEMS",
+          "kind": "var",
+          "line": 2598,
+          "start": 101959,
+          "end": 102153,
+          "bytes": 194,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionP2",
+          "kind": "function",
+          "line": 2546,
+          "start": 99872,
+          "end": 101748,
+          "bytes": 1876,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P2_VERDICTS",
+          "kind": "var",
+          "line": 2296,
+          "start": 88721,
+          "end": 89060,
+          "bytes": 339,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P2_SENTENCE",
+          "kind": "var",
+          "line": 2290,
+          "start": 88477,
+          "end": 88542,
+          "bytes": 65,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P2_POS",
+          "kind": "var",
+          "line": 2289,
+          "start": 88438,
+          "end": 88474,
+          "bytes": 36,
+          "usedByIslands": 1
+        },
+        {
+          "name": "P2_ITEMS",
+          "kind": "var",
+          "line": 2291,
+          "start": 88545,
+          "end": 88718,
+          "bytes": 173,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionS1",
+          "kind": "function",
+          "line": 2241,
+          "start": 87035,
+          "end": 88364,
+          "bytes": 1329,
+          "usedByIslands": 1
+        },
+        {
+          "name": "SHAPE_COLORS",
+          "kind": "var",
+          "line": 2058,
+          "start": 79333,
+          "end": 79419,
+          "bytes": 86,
+          "usedByIslands": 1
+        },
+        {
+          "name": "SHAPES",
+          "kind": "var",
+          "line": 2050,
+          "start": 79141,
+          "end": 79295,
+          "bytes": 154,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "usedPairs",
+          "kind": "var",
+          "line": 1759,
+          "start": 69022,
+          "end": 69041,
+          "bytes": 19,
+          "usedByIslands": 3
+        },
+        {
+          "name": "takeFresh",
+          "kind": "function",
+          "line": 1874,
+          "start": 72975,
+          "end": 73419,
+          "bytes": 444,
+          "usedByIslands": 3
+        },
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        },
+        {
+          "name": "state",
+          "kind": "var",
+          "line": 1610,
+          "start": 61960,
+          "end": 62217,
+          "bytes": 257,
+          "usedByIslands": 4
+        },
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        },
+        {
+          "name": "pick",
+          "kind": "function",
+          "line": 1724,
+          "start": 67827,
+          "end": 68018,
+          "bytes": 191,
+          "usedByIslands": 9
+        }
+      ],
+      "missingRoots": []
+    },
+    "3": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionB1",
+        "makeQuestionB2",
+        "makeQuestionB3",
+        "makeQuestionB4",
+        "makeQuestionB5"
+      ],
+      "dataConsts": [],
+      "closureSize": 27,
+      "ownCount": 22,
+      "spanBytes": 70689,
+      "own": [
+        {
+          "name": "makeQuestionB5",
+          "kind": "function",
+          "line": 4900,
+          "start": 204505,
+          "end": 206122,
+          "bytes": 1617,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureB5xCss",
+          "kind": "function",
+          "line": 4627,
+          "start": 190807,
+          "end": 197487,
+          "bytes": 6680,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B5X_SCENES",
+          "kind": "var",
+          "line": 4882,
+          "start": 203589,
+          "end": 203635,
+          "bytes": 46,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B5X_C_CASES",
+          "kind": "var",
+          "line": 4892,
+          "start": 204017,
+          "end": 204440,
+          "bytes": 423,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B5X_B_CASES",
+          "kind": "var",
+          "line": 4883,
+          "start": 203638,
+          "end": 203806,
+          "bytes": 168,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B5X_A_CASES",
+          "kind": "var",
+          "line": 4867,
+          "start": 202332,
+          "end": 203534,
+          "bytes": 1202,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionB4",
+          "kind": "function",
+          "line": 4455,
+          "start": 181872,
+          "end": 183395,
+          "bytes": 1523,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureB4Css",
+          "kind": "function",
+          "line": 4241,
+          "start": 170780,
+          "end": 175902,
+          "bytes": 5122,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B4_C_CASES",
+          "kind": "var",
+          "line": 4448,
+          "start": 181460,
+          "end": 181868,
+          "bytes": 408,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B4_B_CASES",
+          "kind": "var",
+          "line": 4441,
+          "start": 181022,
+          "end": 181409,
+          "bytes": 387,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B4_A_CASES",
+          "kind": "var",
+          "line": 4432,
+          "start": 180339,
+          "end": 180979,
+          "bytes": 640,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionB3",
+          "kind": "function",
+          "line": 4107,
+          "start": 163375,
+          "end": 165823,
+          "bytes": 2448,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionB2",
+          "kind": "function",
+          "line": 3553,
+          "start": 140119,
+          "end": 143220,
+          "bytes": 3101,
+          "usedByIslands": 1
+        },
+        {
+          "name": "b2CmpIndex",
+          "kind": "function",
+          "line": 3548,
+          "start": 139988,
+          "end": 140115,
+          "bytes": 127,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B2_FRUITS_C",
+          "kind": "var",
+          "line": 3545,
+          "start": 139871,
+          "end": 139942,
+          "bytes": 71,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B2_FRUITS_B",
+          "kind": "var",
+          "line": 3544,
+          "start": 139793,
+          "end": 139868,
+          "bytes": 75,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B2_FRUITS_A",
+          "kind": "var",
+          "line": 3543,
+          "start": 139719,
+          "end": 139790,
+          "bytes": 71,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionB1",
+          "kind": "function",
+          "line": 3468,
+          "start": 136513,
+          "end": 139642,
+          "bytes": 3129,
+          "usedByIslands": 1
+        },
+        {
+          "name": "b1Sentence",
+          "kind": "function",
+          "line": 3461,
+          "start": 136246,
+          "end": 136334,
+          "bytes": 88,
+          "usedByIslands": 1
+        },
+        {
+          "name": "b1IndexOfSize",
+          "kind": "function",
+          "line": 3463,
+          "start": 136376,
+          "end": 136509,
+          "bytes": 133,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B1_ITEMS",
+          "kind": "var",
+          "line": 3442,
+          "start": 135433,
+          "end": 135906,
+          "bytes": 473,
+          "usedByIslands": 1
+        },
+        {
+          "name": "B1_ANIMALS",
+          "kind": "var",
+          "line": 3454,
+          "start": 135947,
+          "end": 136242,
+          "bytes": 295,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        },
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        },
+        {
+          "name": "usedPairs",
+          "kind": "var",
+          "line": 1759,
+          "start": 69022,
+          "end": 69041,
+          "bytes": 19,
+          "usedByIslands": 3
+        },
+        {
+          "name": "takeFresh",
+          "kind": "function",
+          "line": 1874,
+          "start": 72975,
+          "end": 73419,
+          "bytes": 444,
+          "usedByIslands": 3
+        },
+        {
+          "name": "pick",
+          "kind": "function",
+          "line": 1724,
+          "start": 67827,
+          "end": 68018,
+          "bytes": 191,
+          "usedByIslands": 9
+        }
+      ],
+      "missingRoots": []
+    },
+    "4": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionF1",
+        "makeQuestionF2",
+        "makeQuestionF3",
+        "makeQuestionF4",
+        "makeQuestionF5"
+      ],
+      "dataConsts": [],
+      "closureSize": 31,
+      "ownCount": 28,
+      "spanBytes": 109689,
+      "own": [
+        {
+          "name": "makeQuestionF5",
+          "kind": "function",
+          "line": 7563,
+          "start": 324140,
+          "end": 325653,
+          "bytes": 1513,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureF5Css",
+          "kind": "function",
+          "line": 7450,
+          "start": 317722,
+          "end": 323159,
+          "bytes": 5437,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureF4Css",
+          "kind": "function",
+          "line": 6799,
+          "start": 289699,
+          "end": 295134,
+          "bytes": 5435,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureF3Css",
+          "kind": "function",
+          "line": 6178,
+          "start": 260450,
+          "end": 268521,
+          "bytes": 8071,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F5_C_CASES",
+          "kind": "var",
+          "line": 7359,
+          "start": 314306,
+          "end": 314778,
+          "bytes": 472,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F5_B_SETS",
+          "kind": "var",
+          "line": 7352,
+          "start": 314007,
+          "end": 314264,
+          "bytes": 257,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F5_A_CASES",
+          "kind": "var",
+          "line": 7340,
+          "start": 313263,
+          "end": 313860,
+          "bytes": 597,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF4",
+          "kind": "function",
+          "line": 6972,
+          "start": 298165,
+          "end": 300310,
+          "bytes": 2145,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F4_ZONE_OF",
+          "kind": "var",
+          "line": 6755,
+          "start": 288163,
+          "end": 288257,
+          "bytes": 94,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F4_SCENES",
+          "kind": "var",
+          "line": 6739,
+          "start": 287218,
+          "end": 287917,
+          "bytes": 699,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F4_POOL",
+          "kind": "var",
+          "line": 6752,
+          "start": 287971,
+          "end": 288062,
+          "bytes": 91,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F4_C_ITEMS",
+          "kind": "var",
+          "line": 6754,
+          "start": 288092,
+          "end": 288160,
+          "bytes": 68,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF3",
+          "kind": "function",
+          "line": 6382,
+          "start": 271596,
+          "end": 273314,
+          "bytes": 1718,
+          "usedByIslands": 1
+        },
+        {
+          "name": "f3SplitFrom",
+          "kind": "function",
+          "line": 6373,
+          "start": 271244,
+          "end": 271533,
+          "bytes": 289,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F3_ZONE_OF",
+          "kind": "var",
+          "line": 6011,
+          "start": 251861,
+          "end": 251953,
+          "bytes": 92,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F3_SCENES",
+          "kind": "var",
+          "line": 6029,
+          "start": 252629,
+          "end": 252991,
+          "bytes": 362,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F3_CANON",
+          "kind": "var",
+          "line": 6009,
+          "start": 251695,
+          "end": 251787,
+          "bytes": 92,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F3_ALL_ITEMS",
+          "kind": "var",
+          "line": 6010,
+          "start": 251790,
+          "end": 251858,
+          "bytes": 68,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F3_ACTIONS",
+          "kind": "var",
+          "line": 6007,
+          "start": 251595,
+          "end": 251644,
+          "bytes": 49,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF2",
+          "kind": "function",
+          "line": 5724,
+          "start": 240708,
+          "end": 242106,
+          "bytes": 1398,
+          "usedByIslands": 1
+        },
+        {
+          "name": "f2Split",
+          "kind": "function",
+          "line": 5710,
+          "start": 240270,
+          "end": 240652,
+          "bytes": 382,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureF2Css",
+          "kind": "function",
+          "line": 5580,
+          "start": 233308,
+          "end": 237980,
+          "bytes": 4672,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F2_JUNGLE",
+          "kind": "var",
+          "line": 5502,
+          "start": 228773,
+          "end": 228829,
+          "bytes": 56,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F2_FARM",
+          "kind": "var",
+          "line": 5503,
+          "start": 228832,
+          "end": 228875,
+          "bytes": 43,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F2_DESC",
+          "kind": "var",
+          "line": 5506,
+          "start": 228932,
+          "end": 229261,
+          "bytes": 329,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF1",
+          "kind": "function",
+          "line": 5328,
+          "start": 222619,
+          "end": 223508,
+          "bytes": 889,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureF1Css",
+          "kind": "function",
+          "line": 5207,
+          "start": 216345,
+          "end": 219212,
+          "bytes": 2867,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F1_ANIMALS",
+          "kind": "var",
+          "line": 5194,
+          "start": 215964,
+          "end": 216010,
+          "bytes": 46,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        },
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        },
+        {
+          "name": "state",
+          "kind": "var",
+          "line": 1610,
+          "start": 61960,
+          "end": 62217,
+          "bytes": 257,
+          "usedByIslands": 4
+        }
+      ],
+      "missingRoots": []
+    },
+    "5": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionF6",
+        "makeQuestionF7",
+        "makeQuestionF8",
+        "makeQuestionF9",
+        "makeQuestionF10"
+      ],
+      "dataConsts": [],
+      "closureSize": 33,
+      "ownCount": 30,
+      "spanBytes": 107993,
+      "own": [
+        {
+          "name": "makeQuestionF10",
+          "kind": "function",
+          "line": 10280,
+          "start": 438525,
+          "end": 439829,
+          "bytes": 1304,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F10_C_UTENSILS",
+          "kind": "var",
+          "line": 10277,
+          "start": 438424,
+          "end": 438470,
+          "bytes": 46,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F10_B_STATES",
+          "kind": "var",
+          "line": 10275,
+          "start": 438337,
+          "end": 438387,
+          "bytes": 50,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F10_A_CASES",
+          "kind": "var",
+          "line": 10269,
+          "start": 438134,
+          "end": 438288,
+          "bytes": 154,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF9",
+          "kind": "function",
+          "line": 9860,
+          "start": 423482,
+          "end": 424784,
+          "bytes": 1302,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F9_C_SCENES",
+          "kind": "var",
+          "line": 9857,
+          "start": 423375,
+          "end": 423429,
+          "bytes": 54,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F9_B_CASES",
+          "kind": "var",
+          "line": 9851,
+          "start": 423143,
+          "end": 423296,
+          "bytes": 153,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F9_A_STATES",
+          "kind": "var",
+          "line": 9849,
+          "start": 423049,
+          "end": 423096,
+          "bytes": 47,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF8",
+          "kind": "function",
+          "line": 9349,
+          "start": 402528,
+          "end": 404120,
+          "bytes": 1592,
+          "usedByIslands": 1
+        },
+        {
+          "name": "f8Distract",
+          "kind": "function",
+          "line": 9342,
+          "start": 402315,
+          "end": 402469,
+          "bytes": 154,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F8_ACTS",
+          "kind": "var",
+          "line": 8883,
+          "start": 380682,
+          "end": 380737,
+          "bytes": 55,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureF8Css",
+          "kind": "function",
+          "line": 9190,
+          "start": 395031,
+          "end": 398699,
+          "bytes": 3668,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F8_C_CASES",
+          "kind": "var",
+          "line": 9334,
+          "start": 401958,
+          "end": 402276,
+          "bytes": 318,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F8_B_CASES",
+          "kind": "var",
+          "line": 9326,
+          "start": 401559,
+          "end": 401875,
+          "bytes": 316,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F8_A_CASES",
+          "kind": "var",
+          "line": 9319,
+          "start": 401298,
+          "end": 401514,
+          "bytes": 216,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF7",
+          "kind": "function",
+          "line": 8673,
+          "start": 373029,
+          "end": 374655,
+          "bytes": 1626,
+          "usedByIslands": 1
+        },
+        {
+          "name": "f7Distract",
+          "kind": "function",
+          "line": 8666,
+          "start": 372815,
+          "end": 372970,
+          "bytes": 155,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F7_ITEMS",
+          "kind": "var",
+          "line": 8308,
+          "start": 355507,
+          "end": 355555,
+          "bytes": 48,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureF7Css",
+          "kind": "function",
+          "line": 8530,
+          "start": 366470,
+          "end": 370025,
+          "bytes": 3555,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F7_C_ITEMS",
+          "kind": "var",
+          "line": 8310,
+          "start": 355600,
+          "end": 355642,
+          "bytes": 42,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F7_C_CASES",
+          "kind": "var",
+          "line": 8659,
+          "start": 372623,
+          "end": 372774,
+          "bytes": 151,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F7_B_CASES",
+          "kind": "var",
+          "line": 8652,
+          "start": 372375,
+          "end": 372581,
+          "bytes": 206,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F7_A_CASES",
+          "kind": "var",
+          "line": 8645,
+          "start": 372136,
+          "end": 372330,
+          "bytes": 194,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF6",
+          "kind": "function",
+          "line": 8113,
+          "start": 348618,
+          "end": 349745,
+          "bytes": 1127,
+          "usedByIslands": 1
+        },
+        {
+          "name": "f6Distract",
+          "kind": "function",
+          "line": 8106,
+          "start": 348400,
+          "end": 348558,
+          "bytes": 158,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F6_FOOD_IDS",
+          "kind": "var",
+          "line": 7770,
+          "start": 331836,
+          "end": 331887,
+          "bytes": 51,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureF6Css",
+          "kind": "function",
+          "line": 7949,
+          "start": 340398,
+          "end": 345665,
+          "bytes": 5267,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F6_C_CASES",
+          "kind": "var",
+          "line": 8098,
+          "start": 348162,
+          "end": 348356,
+          "bytes": 194,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F6_B_CASES",
+          "kind": "var",
+          "line": 8092,
+          "start": 347965,
+          "end": 348159,
+          "bytes": 194,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F6_A_CASES",
+          "kind": "var",
+          "line": 8086,
+          "start": 347768,
+          "end": 347962,
+          "bytes": 194,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        },
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        },
+        {
+          "name": "ensureF9Css",
+          "kind": "function",
+          "line": 9731,
+          "start": 417007,
+          "end": 420927,
+          "bytes": 3920,
+          "usedByIslands": 2
+        }
+      ],
+      "missingRoots": []
+    },
+    "6": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionF11",
+        "makeQuestionF12",
+        "makeQuestionF13",
+        "makeQuestionF14",
+        "makeQuestionF15"
+      ],
+      "dataConsts": [],
+      "closureSize": 27,
+      "ownCount": 24,
+      "spanBytes": 72967,
+      "own": [
+        {
+          "name": "makeQuestionF15",
+          "kind": "function",
+          "line": 12171,
+          "start": 525180,
+          "end": 527092,
+          "bytes": 1912,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureF14Css",
+          "kind": "function",
+          "line": 11913,
+          "start": 510825,
+          "end": 514765,
+          "bytes": 3940,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureF11Css",
+          "kind": "function",
+          "line": 10630,
+          "start": 454125,
+          "end": 456269,
+          "bytes": 2144,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F15_C_CASES",
+          "kind": "var",
+          "line": 12164,
+          "start": 524434,
+          "end": 525176,
+          "bytes": 742,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F15_B_CASES",
+          "kind": "var",
+          "line": 12157,
+          "start": 523976,
+          "end": 524312,
+          "bytes": 336,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F15_A_CASES",
+          "kind": "var",
+          "line": 12147,
+          "start": 522868,
+          "end": 523848,
+          "bytes": 980,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF14",
+          "kind": "function",
+          "line": 12098,
+          "start": 520450,
+          "end": 522362,
+          "bytes": 1912,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F14_C_CASES",
+          "kind": "var",
+          "line": 12091,
+          "start": 519766,
+          "end": 520446,
+          "bytes": 680,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F14_B_CASES",
+          "kind": "var",
+          "line": 12085,
+          "start": 519410,
+          "end": 519725,
+          "bytes": 315,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F14_A_CASES",
+          "kind": "var",
+          "line": 12078,
+          "start": 518834,
+          "end": 519364,
+          "bytes": 530,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF13",
+          "kind": "function",
+          "line": 11603,
+          "start": 496867,
+          "end": 498398,
+          "bytes": 1531,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureF13Css",
+          "kind": "function",
+          "line": 11458,
+          "start": 490303,
+          "end": 492727,
+          "bytes": 2424,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F13_C_CASES",
+          "kind": "var",
+          "line": 11598,
+          "start": 496741,
+          "end": 496863,
+          "bytes": 122,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F13_B_CASES",
+          "kind": "var",
+          "line": 11592,
+          "start": 496462,
+          "end": 496713,
+          "bytes": 251,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F13_A_CASES",
+          "kind": "var",
+          "line": 11585,
+          "start": 495909,
+          "end": 496421,
+          "bytes": 512,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF12",
+          "kind": "function",
+          "line": 11184,
+          "start": 479230,
+          "end": 480877,
+          "bytes": 1647,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F12_C_CASES",
+          "kind": "var",
+          "line": 11178,
+          "start": 479031,
+          "end": 479179,
+          "bytes": 148,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F12_B_CASES",
+          "kind": "var",
+          "line": 11172,
+          "start": 478831,
+          "end": 478994,
+          "bytes": 163,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F12_A_CASES",
+          "kind": "var",
+          "line": 11165,
+          "start": 478591,
+          "end": 478789,
+          "bytes": 198,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionF11",
+          "kind": "function",
+          "line": 10751,
+          "start": 459399,
+          "end": 461010,
+          "bytes": 1611,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F11_FURN",
+          "kind": "var",
+          "line": 10730,
+          "start": 458657,
+          "end": 458706,
+          "bytes": 49,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F11_C_CASES",
+          "kind": "var",
+          "line": 10745,
+          "start": 459204,
+          "end": 459348,
+          "bytes": 144,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F11_B_CASES",
+          "kind": "var",
+          "line": 10739,
+          "start": 458998,
+          "end": 459168,
+          "bytes": 170,
+          "usedByIslands": 1
+        },
+        {
+          "name": "F11_A_CASES",
+          "kind": "var",
+          "line": 10732,
+          "start": 458748,
+          "end": 458944,
+          "bytes": 196,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        },
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        },
+        {
+          "name": "ensureF9Css",
+          "kind": "function",
+          "line": 9731,
+          "start": 417007,
+          "end": 420927,
+          "bytes": 3920,
+          "usedByIslands": 2
+        }
+      ],
+      "missingRoots": []
+    },
+    "7": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionG1",
+        "makeQuestionG2",
+        "makeQuestionG3",
+        "makeQuestionG4",
+        "makeQuestionG5"
+      ],
+      "dataConsts": [],
+      "closureSize": 33,
+      "ownCount": 30,
+      "spanBytes": 123542,
+      "own": [
+        {
+          "name": "makeQuestionG5",
+          "kind": "function",
+          "line": 14944,
+          "start": 660705,
+          "end": 661836,
+          "bytes": 1131,
+          "usedByIslands": 1
+        },
+        {
+          "name": "g4SceneSig",
+          "kind": "function",
+          "line": 14615,
+          "start": 645176,
+          "end": 645283,
+          "bytes": 107,
+          "usedByIslands": 1
+        },
+        {
+          "name": "g4Scene",
+          "kind": "function",
+          "line": 14489,
+          "start": 640498,
+          "end": 641079,
+          "bytes": 581,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G4_KIDS",
+          "kind": "var",
+          "line": 14267,
+          "start": 627491,
+          "end": 628138,
+          "bytes": 647,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G4_SKIN",
+          "kind": "var",
+          "line": 14261,
+          "start": 627086,
+          "end": 627153,
+          "bytes": 67,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G4_ACTS",
+          "kind": "var",
+          "line": 14265,
+          "start": 627360,
+          "end": 627431,
+          "bytes": 71,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureG5Css",
+          "kind": "function",
+          "line": 14872,
+          "start": 656174,
+          "end": 659122,
+          "bytes": 2948,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureG4Css",
+          "kind": "function",
+          "line": 14426,
+          "start": 635828,
+          "end": 640381,
+          "bytes": 4553,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G5_C_CASES",
+          "kind": "var",
+          "line": 14936,
+          "start": 660176,
+          "end": 660701,
+          "bytes": 525,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G5_B_CASES",
+          "kind": "var",
+          "line": 14928,
+          "start": 659617,
+          "end": 660116,
+          "bytes": 499,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G5_A_ACTS",
+          "kind": "var",
+          "line": 14921,
+          "start": 659260,
+          "end": 659549,
+          "bytes": 289,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionG4",
+          "kind": "function",
+          "line": 14619,
+          "start": 645287,
+          "end": 646924,
+          "bytes": 1637,
+          "usedByIslands": 1
+        },
+        {
+          "name": "g4SceneC",
+          "kind": "function",
+          "line": 14528,
+          "start": 641952,
+          "end": 642716,
+          "bytes": 764,
+          "usedByIslands": 1
+        },
+        {
+          "name": "g4Scene2",
+          "kind": "function",
+          "line": 14504,
+          "start": 641124,
+          "end": 641802,
+          "bytes": 678,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G4_SENT",
+          "kind": "var",
+          "line": 14596,
+          "start": 644123,
+          "end": 644387,
+          "bytes": 264,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G4_B_CASES",
+          "kind": "var",
+          "line": 14608,
+          "start": 644690,
+          "end": 645172,
+          "bytes": 482,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G4_A_CASES",
+          "kind": "var",
+          "line": 14602,
+          "start": 644390,
+          "end": 644687,
+          "bytes": 297,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionG3",
+          "kind": "function",
+          "line": 14061,
+          "start": 619058,
+          "end": 620806,
+          "bytes": 1748,
+          "usedByIslands": 1
+        },
+        {
+          "name": "g3CmdKey",
+          "kind": "function",
+          "line": 14053,
+          "start": 618816,
+          "end": 619054,
+          "bytes": 238,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureG3Css",
+          "kind": "function",
+          "line": 13804,
+          "start": 604613,
+          "end": 613730,
+          "bytes": 9117,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G3_THEN_KEY",
+          "kind": "var",
+          "line": 13590,
+          "start": 589399,
+          "end": 589488,
+          "bytes": 89,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G3_C_CASES",
+          "kind": "var",
+          "line": 14044,
+          "start": 618541,
+          "end": 618755,
+          "bytes": 214,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G3_B_CASES",
+          "kind": "var",
+          "line": 14038,
+          "start": 618325,
+          "end": 618538,
+          "bytes": 213,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G3_A_CASES",
+          "kind": "var",
+          "line": 14032,
+          "start": 618171,
+          "end": 618322,
+          "bytes": 151,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionG2",
+          "kind": "function",
+          "line": 13299,
+          "start": 577852,
+          "end": 579179,
+          "bytes": 1327,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureG2Css",
+          "kind": "function",
+          "line": 13118,
+          "start": 568433,
+          "end": 574041,
+          "bytes": 5608,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G2_PARTS",
+          "kind": "var",
+          "line": 13041,
+          "start": 564403,
+          "end": 564443,
+          "bytes": 40,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionG1",
+          "kind": "function",
+          "line": 12711,
+          "start": 550513,
+          "end": 552031,
+          "bytes": 1518,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureG1Css",
+          "kind": "function",
+          "line": 12466,
+          "start": 538989,
+          "end": 545246,
+          "bytes": 6257,
+          "usedByIslands": 1
+        },
+        {
+          "name": "G1_PARTS",
+          "kind": "var",
+          "line": 12444,
+          "start": 538294,
+          "end": 538341,
+          "bytes": 47,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        },
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        },
+        {
+          "name": "pick",
+          "kind": "function",
+          "line": 1724,
+          "start": 67827,
+          "end": 68018,
+          "bytes": 191,
+          "usedByIslands": 9
+        }
+      ],
+      "missingRoots": []
+    },
+    "8": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionH1",
+        "makeQuestionH2",
+        "makeQuestionH3",
+        "makeQuestionH4",
+        "makeQuestionH5"
+      ],
+      "dataConsts": [],
+      "closureSize": 30,
+      "ownCount": 25,
+      "spanBytes": 145662,
+      "own": [
+        {
+          "name": "makeQuestionH5",
+          "kind": "function",
+          "line": 18254,
+          "start": 818262,
+          "end": 819827,
+          "bytes": 1565,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureH5Css",
+          "kind": "function",
+          "line": 18166,
+          "start": 812265,
+          "end": 818185,
+          "bytes": 5920,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H5_EMO",
+          "kind": "var",
+          "line": 17945,
+          "start": 801991,
+          "end": 802040,
+          "bytes": 49,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H5_C_KEYS",
+          "kind": "var",
+          "line": 17960,
+          "start": 802551,
+          "end": 802748,
+          "bytes": 197,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H5_B_KEY",
+          "kind": "var",
+          "line": 17959,
+          "start": 802442,
+          "end": 802548,
+          "bytes": 106,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H5_A_CAUSES",
+          "kind": "var",
+          "line": 17953,
+          "start": 802255,
+          "end": 802439,
+          "bytes": 184,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionH4",
+          "kind": "function",
+          "line": 17564,
+          "start": 787618,
+          "end": 789264,
+          "bytes": 1646,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H4_EMO",
+          "kind": "var",
+          "line": 17283,
+          "start": 769536,
+          "end": 769585,
+          "bytes": 49,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H4_B_CAUSES",
+          "kind": "var",
+          "line": 17287,
+          "start": 769889,
+          "end": 770151,
+          "bytes": 262,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H4_A_SITS",
+          "kind": "var",
+          "line": 17284,
+          "start": 769588,
+          "end": 769654,
+          "bytes": 66,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H4_A_KEY",
+          "kind": "var",
+          "line": 17286,
+          "start": 769775,
+          "end": 769886,
+          "bytes": 111,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionH3",
+          "kind": "function",
+          "line": 16919,
+          "start": 755344,
+          "end": 757103,
+          "bytes": 1759,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureH3Css",
+          "kind": "function",
+          "line": 16833,
+          "start": 749464,
+          "end": 755266,
+          "bytes": 5802,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H3_DISTRACT",
+          "kind": "var",
+          "line": 16643,
+          "start": 738435,
+          "end": 738480,
+          "bytes": 45,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H3_COMFORT",
+          "kind": "var",
+          "line": 16642,
+          "start": 738398,
+          "end": 738432,
+          "bytes": 34,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionH2",
+          "kind": "function",
+          "line": 16265,
+          "start": 723977,
+          "end": 725864,
+          "bytes": 1887,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureH2Css",
+          "kind": "function",
+          "line": 16174,
+          "start": 717772,
+          "end": 723900,
+          "bytes": 6128,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H2_STATES",
+          "kind": "var",
+          "line": 16005,
+          "start": 707962,
+          "end": 708010,
+          "bytes": 48,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H2_NEED",
+          "kind": "var",
+          "line": 16006,
+          "start": 708013,
+          "end": 708083,
+          "bytes": 70,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H2_FIND_KEY",
+          "kind": "var",
+          "line": 16008,
+          "start": 708166,
+          "end": 708263,
+          "bytes": 97,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionH1",
+          "kind": "function",
+          "line": 15630,
+          "start": 693652,
+          "end": 695203,
+          "bytes": 1551,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureH1Css",
+          "kind": "function",
+          "line": 15510,
+          "start": 686165,
+          "end": 693073,
+          "bytes": 6908,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H1_MOODS",
+          "kind": "var",
+          "line": 15279,
+          "start": 674165,
+          "end": 674206,
+          "bytes": 41,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H1_B_TARGETS",
+          "kind": "var",
+          "line": 15618,
+          "start": 693256,
+          "end": 693529,
+          "bytes": 273,
+          "usedByIslands": 1
+        },
+        {
+          "name": "H1_B_POOL",
+          "kind": "var",
+          "line": 15624,
+          "start": 693532,
+          "end": 693648,
+          "bytes": 116,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "state",
+          "kind": "var",
+          "line": 1610,
+          "start": 61960,
+          "end": 62217,
+          "bytes": 257,
+          "usedByIslands": 4
+        },
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        },
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        },
+        {
+          "name": "pick",
+          "kind": "function",
+          "line": 1724,
+          "start": 67827,
+          "end": 68018,
+          "bytes": 191,
+          "usedByIslands": 9
+        },
+        {
+          "name": "ensureH4Css",
+          "kind": "function",
+          "line": 17479,
+          "start": 781636,
+          "end": 787539,
+          "bytes": 5903,
+          "usedByIslands": 2
+        }
+      ],
+      "missingRoots": []
+    },
+    "9": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionL9",
+        "makeQuestionL92",
+        "makeQuestionL93",
+        "makeQuestionL94",
+        "makeQuestionL95"
+      ],
+      "dataConsts": [],
+      "closureSize": 39,
+      "ownCount": 34,
+      "spanBytes": 111662,
+      "own": [
+        {
+          "name": "makeQuestionL95",
+          "kind": "function",
+          "line": 21178,
+          "start": 944126,
+          "end": 946481,
+          "bytes": 2355,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureL95Css",
+          "kind": "function",
+          "line": 20994,
+          "start": 936492,
+          "end": 938179,
+          "bytes": 1687,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureL94Css",
+          "kind": "function",
+          "line": 20572,
+          "start": 918144,
+          "end": 920988,
+          "bytes": 2844,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureL92Css",
+          "kind": "function",
+          "line": 19411,
+          "start": 868498,
+          "end": 873650,
+          "bytes": 5152,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureL9Css",
+          "kind": "function",
+          "line": 18929,
+          "start": 848021,
+          "end": 852648,
+          "bytes": 4627,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L95_SILLY_SET",
+          "kind": "var",
+          "line": 20978,
+          "start": 935337,
+          "end": 935386,
+          "bytes": 49,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L95_C_COMBOS",
+          "kind": "var",
+          "line": 20973,
+          "start": 934920,
+          "end": 935334,
+          "bytes": 414,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL94",
+          "kind": "function",
+          "line": 20628,
+          "start": 921583,
+          "end": 923240,
+          "bytes": 1657,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L94_SLOT",
+          "kind": "var",
+          "line": 20451,
+          "start": 913698,
+          "end": 913759,
+          "bytes": 61,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L94_SILLY",
+          "kind": "var",
+          "line": 20616,
+          "start": 921155,
+          "end": 921359,
+          "bytes": 204,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L94_NORMAL",
+          "kind": "var",
+          "line": 20621,
+          "start": 921362,
+          "end": 921420,
+          "bytes": 58,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L94_ITEMS",
+          "kind": "var",
+          "line": 20449,
+          "start": 913619,
+          "end": 913661,
+          "bytes": 42,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L94_C",
+          "kind": "var",
+          "line": 20622,
+          "start": 921423,
+          "end": 921579,
+          "bytes": 156,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L94_A_KEY",
+          "kind": "var",
+          "line": 20615,
+          "start": 921071,
+          "end": 921152,
+          "bytes": 81,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL93",
+          "kind": "function",
+          "line": 20096,
+          "start": 899884,
+          "end": 901398,
+          "bytes": 1514,
+          "usedByIslands": 1
+        },
+        {
+          "name": "ensureL93Css",
+          "kind": "function",
+          "line": 20044,
+          "start": 896395,
+          "end": 899807,
+          "bytes": 3412,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L93_STATES",
+          "kind": "var",
+          "line": 19902,
+          "start": 889660,
+          "end": 889701,
+          "bytes": 41,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L93_SKY",
+          "kind": "var",
+          "line": 19901,
+          "start": 889627,
+          "end": 889657,
+          "bytes": 30,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L93_NEED",
+          "kind": "var",
+          "line": 19904,
+          "start": 889742,
+          "end": 889789,
+          "bytes": 47,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L93_ITEMS",
+          "kind": "var",
+          "line": 19903,
+          "start": 889704,
+          "end": 889739,
+          "bytes": 35,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L93_C_KEY",
+          "kind": "var",
+          "line": 19907,
+          "start": 889936,
+          "end": 889993,
+          "bytes": 57,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L93_B_KEY",
+          "kind": "var",
+          "line": 19906,
+          "start": 889856,
+          "end": 889933,
+          "bytes": 77,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L93_A_KEY",
+          "kind": "var",
+          "line": 19905,
+          "start": 889792,
+          "end": 889853,
+          "bytes": 61,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL92",
+          "kind": "function",
+          "line": 19487,
+          "start": 873723,
+          "end": 875100,
+          "bytes": 1377,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L92_ITEMS",
+          "kind": "var",
+          "line": 19311,
+          "start": 864706,
+          "end": 864756,
+          "bytes": 50,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L92_C_KEYS",
+          "kind": "var",
+          "line": 19314,
+          "start": 864967,
+          "end": 865213,
+          "bytes": 246,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L92_B_KEY",
+          "kind": "var",
+          "line": 19313,
+          "start": 864863,
+          "end": 864964,
+          "bytes": 101,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L92_A_KEY",
+          "kind": "var",
+          "line": 19312,
+          "start": 864759,
+          "end": 864860,
+          "bytes": 101,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL9",
+          "kind": "function",
+          "line": 18999,
+          "start": 852728,
+          "end": 854306,
+          "bytes": 1578,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L9_PART",
+          "kind": "var",
+          "line": 18692,
+          "start": 834872,
+          "end": 834977,
+          "bytes": 105,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L9_ITEMS",
+          "kind": "var",
+          "line": 18691,
+          "start": 834819,
+          "end": 834869,
+          "bytes": 50,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L9_C_KEY",
+          "kind": "var",
+          "line": 18695,
+          "start": 835190,
+          "end": 835288,
+          "bytes": 98,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L9_B_KEY",
+          "kind": "var",
+          "line": 18694,
+          "start": 835089,
+          "end": 835187,
+          "bytes": 98,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L9_A_KEY",
+          "kind": "var",
+          "line": 18693,
+          "start": 834980,
+          "end": 835086,
+          "bytes": 106,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        },
+        {
+          "name": "pick",
+          "kind": "function",
+          "line": 1724,
+          "start": 67827,
+          "end": 68018,
+          "bytes": 191,
+          "usedByIslands": 9
+        },
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        },
+        {
+          "name": "ensureH4Css",
+          "kind": "function",
+          "line": 17479,
+          "start": 781636,
+          "end": 787539,
+          "bytes": 5903,
+          "usedByIslands": 2
+        },
+        {
+          "name": "state",
+          "kind": "var",
+          "line": 1610,
+          "start": 61960,
+          "end": 62217,
+          "bytes": 257,
+          "usedByIslands": 4
+        }
+      ],
+      "missingRoots": []
+    },
+    "10": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionL10",
+        "makeQuestionL102",
+        "makeQuestionL103",
+        "makeQuestionL104",
+        "makeQuestionL105"
+      ],
+      "dataConsts": [],
+      "closureSize": 27,
+      "ownCount": 24,
+      "spanBytes": 125994,
+      "own": [
+        {
+          "name": "makeQuestionL105",
+          "kind": "function",
+          "line": 24115,
+          "start": 1080070,
+          "end": 1081201,
+          "bytes": 1131,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L105_PICS",
+          "kind": "var",
+          "line": 23718,
+          "start": 1061209,
+          "end": 1061267,
+          "bytes": 58,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L105_ICONS",
+          "kind": "var",
+          "line": 23725,
+          "start": 1061406,
+          "end": 1061455,
+          "bytes": 49,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L105_C_KEY",
+          "kind": "var",
+          "line": 23734,
+          "start": 1061732,
+          "end": 1061841,
+          "bytes": 109,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L105_B_KEY",
+          "kind": "var",
+          "line": 23729,
+          "start": 1061607,
+          "end": 1061729,
+          "bytes": 122,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL104",
+          "kind": "function",
+          "line": 23520,
+          "start": 1052966,
+          "end": 1054305,
+          "bytes": 1339,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L104_WEATHERS",
+          "kind": "var",
+          "line": 23197,
+          "start": 1036764,
+          "end": 1036813,
+          "bytes": 49,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L104_ITEM_OF",
+          "kind": "var",
+          "line": 23199,
+          "start": 1036879,
+          "end": 1036941,
+          "bytes": 62,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L104_C_KEY",
+          "kind": "var",
+          "line": 23203,
+          "start": 1037180,
+          "end": 1037263,
+          "bytes": 83,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L104_B_KEY",
+          "kind": "var",
+          "line": 23202,
+          "start": 1037111,
+          "end": 1037177,
+          "bytes": 66,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L104_A_KEY",
+          "kind": "var",
+          "line": 23201,
+          "start": 1037017,
+          "end": 1037108,
+          "bytes": 91,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL103",
+          "kind": "function",
+          "line": 23042,
+          "start": 1030422,
+          "end": 1031690,
+          "bytes": 1268,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L103_PICS",
+          "kind": "var",
+          "line": 22719,
+          "start": 1015447,
+          "end": 1015498,
+          "bytes": 51,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL102",
+          "kind": "function",
+          "line": 22450,
+          "start": 1004701,
+          "end": 1006555,
+          "bytes": 1854,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L102_SLOW",
+          "kind": "var",
+          "line": 21980,
+          "start": 980376,
+          "end": 980423,
+          "bytes": 47,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L102_FAST",
+          "kind": "var",
+          "line": 21979,
+          "start": 980326,
+          "end": 980373,
+          "bytes": 47,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L102_D_PAIRS",
+          "kind": "var",
+          "line": 21990,
+          "start": 980733,
+          "end": 980928,
+          "bytes": 195,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL10",
+          "kind": "function",
+          "line": 21801,
+          "start": 972524,
+          "end": 973486,
+          "bytes": 962,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L10_VEHICLES",
+          "kind": "var",
+          "line": 21456,
+          "start": 955289,
+          "end": 955341,
+          "bytes": 52,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L10_SCENE_OF",
+          "kind": "var",
+          "line": 21458,
+          "start": 955390,
+          "end": 955469,
+          "bytes": 79,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L10_SCENES",
+          "kind": "var",
+          "line": 21455,
+          "start": 955207,
+          "end": 955250,
+          "bytes": 43,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L10_C_KEY",
+          "kind": "var",
+          "line": 21464,
+          "start": 955707,
+          "end": 955806,
+          "bytes": 99,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L10_B_KEY",
+          "kind": "var",
+          "line": 21463,
+          "start": 955605,
+          "end": 955704,
+          "bytes": 99,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L10_A_KEY",
+          "kind": "var",
+          "line": 21459,
+          "start": 955472,
+          "end": 955602,
+          "bytes": 130,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        },
+        {
+          "name": "pick",
+          "kind": "function",
+          "line": 1724,
+          "start": 67827,
+          "end": 68018,
+          "bytes": 191,
+          "usedByIslands": 9
+        },
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        }
+      ],
+      "missingRoots": []
+    },
+    "11": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionL111",
+        "makeQuestionL112",
+        "makeQuestionL113",
+        "makeQuestionL114",
+        "makeQuestionL115"
+      ],
+      "dataConsts": [],
+      "closureSize": 35,
+      "ownCount": 32,
+      "spanBytes": 129979,
+      "own": [
+        {
+          "name": "makeQuestionL115",
+          "kind": "function",
+          "line": 27148,
+          "start": 1214883,
+          "end": 1216419,
+          "bytes": 1536,
+          "usedByIslands": 1
+        },
+        {
+          "name": "l115ShuffleAvoid",
+          "kind": "function",
+          "line": 27124,
+          "start": 1214121,
+          "end": 1214315,
+          "bytes": 194,
+          "usedByIslands": 1
+        },
+        {
+          "name": "l115PickWho",
+          "kind": "function",
+          "line": 27141,
+          "start": 1214700,
+          "end": 1214879,
+          "bytes": 179,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L115_WHO_LAST",
+          "kind": "var",
+          "line": 27122,
+          "start": 1214092,
+          "end": 1214117,
+          "bytes": 25,
+          "usedByIslands": 1
+        },
+        {
+          "name": "l115PickSide",
+          "kind": "function",
+          "line": 27129,
+          "start": 1214318,
+          "end": 1214697,
+          "bytes": 379,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L115_SIDE_HIST",
+          "kind": "var",
+          "line": 27121,
+          "start": 1214065,
+          "end": 1214089,
+          "bytes": 24,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L115_LAST_ANS",
+          "kind": "var",
+          "line": 27120,
+          "start": 1214017,
+          "end": 1214062,
+          "bytes": 45,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L115_C_AUDIO",
+          "kind": "var",
+          "line": 27113,
+          "start": 1213788,
+          "end": 1213844,
+          "bytes": 56,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L115_B_SETS",
+          "kind": "var",
+          "line": 27108,
+          "start": 1213581,
+          "end": 1213785,
+          "bytes": 204,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L115_A_SETS",
+          "kind": "var",
+          "line": 27103,
+          "start": 1213358,
+          "end": 1213578,
+          "bytes": 220,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL114",
+          "kind": "function",
+          "line": 26612,
+          "start": 1193260,
+          "end": 1195137,
+          "bytes": 1877,
+          "usedByIslands": 1
+        },
+        {
+          "name": "l114SlotsDiff",
+          "kind": "function",
+          "line": 26607,
+          "start": 1193066,
+          "end": 1193257,
+          "bytes": 191,
+          "usedByIslands": 1
+        },
+        {
+          "name": "l114ShuffleDiff",
+          "kind": "function",
+          "line": 26602,
+          "start": 1192870,
+          "end": 1193063,
+          "bytes": 193,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L114_STORY_IDS",
+          "kind": "var",
+          "line": 26230,
+          "start": 1177451,
+          "end": 1177497,
+          "bytes": 46,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L114_STORIES",
+          "kind": "var",
+          "line": 26277,
+          "start": 1179467,
+          "end": 1180528,
+          "bytes": 1061,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L114_PREV",
+          "kind": "var",
+          "line": 26601,
+          "start": 1192822,
+          "end": 1192867,
+          "bytes": 45,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL113",
+          "kind": "function",
+          "line": 26037,
+          "start": 1169935,
+          "end": 1170955,
+          "bytes": 1020,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L113_STATES",
+          "kind": "var",
+          "line": 25623,
+          "start": 1149796,
+          "end": 1149838,
+          "bytes": 42,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L113_SIZES",
+          "kind": "var",
+          "line": 25625,
+          "start": 1149912,
+          "end": 1149954,
+          "bytes": 42,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L113_B_KEY",
+          "kind": "var",
+          "line": 25629,
+          "start": 1150177,
+          "end": 1150260,
+          "bytes": 83,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L113_A_KEY",
+          "kind": "var",
+          "line": 25628,
+          "start": 1150093,
+          "end": 1150174,
+          "bytes": 81,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL112",
+          "kind": "function",
+          "line": 25402,
+          "start": 1141493,
+          "end": 1142575,
+          "bytes": 1082,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L112_SCENES",
+          "kind": "var",
+          "line": 24994,
+          "start": 1120616,
+          "end": 1120664,
+          "bytes": 48,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L112_CHARS",
+          "kind": "var",
+          "line": 24992,
+          "start": 1120496,
+          "end": 1120543,
+          "bytes": 47,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L112_B_KEY",
+          "kind": "var",
+          "line": 24997,
+          "start": 1120792,
+          "end": 1120885,
+          "bytes": 93,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L112_A_KEY",
+          "kind": "var",
+          "line": 24996,
+          "start": 1120741,
+          "end": 1120789,
+          "bytes": 48,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL111",
+          "kind": "function",
+          "line": 24767,
+          "start": 1111955,
+          "end": 1112898,
+          "bytes": 943,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L111_MATS",
+          "kind": "var",
+          "line": 24269,
+          "start": 1086552,
+          "end": 1086595,
+          "bytes": 43,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L111_C_KEY",
+          "kind": "var",
+          "line": 24275,
+          "start": 1086935,
+          "end": 1086984,
+          "bytes": 49,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L111_CHARS",
+          "kind": "var",
+          "line": 24267,
+          "start": 1086440,
+          "end": 1086483,
+          "bytes": 43,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L111_B_KEY",
+          "kind": "var",
+          "line": 24274,
+          "start": 1086845,
+          "end": 1086932,
+          "bytes": 87,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L111_A_KEY",
+          "kind": "var",
+          "line": 24273,
+          "start": 1086757,
+          "end": 1086842,
+          "bytes": 85,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "pick",
+          "kind": "function",
+          "line": 1724,
+          "start": 67827,
+          "end": 68018,
+          "bytes": 191,
+          "usedByIslands": 9
+        },
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        },
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        }
+      ],
+      "missingRoots": []
+    },
+    "12": {
+      "levels": 5,
+      "entries": [
+        "makeQuestionL121",
+        "makeQuestionL122",
+        "makeQuestionL123",
+        "makeQuestionL124",
+        "makeQuestionL125"
+      ],
+      "dataConsts": [],
+      "closureSize": 35,
+      "ownCount": 32,
+      "spanBytes": 141450,
+      "own": [
+        {
+          "name": "makeQuestionL125",
+          "kind": "function",
+          "line": 30470,
+          "start": 1365473,
+          "end": 1366584,
+          "bytes": 1111,
+          "usedByIslands": 1
+        },
+        {
+          "name": "l125Draw",
+          "kind": "function",
+          "line": 30458,
+          "start": 1365119,
+          "end": 1365469,
+          "bytes": 350,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L125_LAST",
+          "kind": "var",
+          "line": 30452,
+          "start": 1364869,
+          "end": 1364921,
+          "bytes": 52,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L125_DECK",
+          "kind": "var",
+          "line": 30454,
+          "start": 1364988,
+          "end": 1365028,
+          "bytes": 40,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L125_PARTS",
+          "kind": "var",
+          "line": 30450,
+          "start": 1364814,
+          "end": 1364865,
+          "bytes": 51,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L125_C",
+          "kind": "var",
+          "line": 30444,
+          "start": 1364623,
+          "end": 1364811,
+          "bytes": 188,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L125_B",
+          "kind": "var",
+          "line": 30437,
+          "start": 1364198,
+          "end": 1364619,
+          "bytes": 421,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L125_A",
+          "kind": "var",
+          "line": 30430,
+          "start": 1363836,
+          "end": 1364194,
+          "bytes": 358,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL124",
+          "kind": "function",
+          "line": 29917,
+          "start": 1339360,
+          "end": 1340699,
+          "bytes": 1339,
+          "usedByIslands": 1
+        },
+        {
+          "name": "l124TrayIds",
+          "kind": "function",
+          "line": 29833,
+          "start": 1336490,
+          "end": 1336580,
+          "bytes": 90,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L124_PEOPLE",
+          "kind": "var",
+          "line": 29266,
+          "start": 1307162,
+          "end": 1307195,
+          "bytes": 33,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L124_LAST",
+          "kind": "var",
+          "line": 29908,
+          "start": 1339055,
+          "end": 1339115,
+          "bytes": 60,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L124_ITEMS",
+          "kind": "var",
+          "line": 29265,
+          "start": 1307124,
+          "end": 1307159,
+          "bytes": 35,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L124_BQ",
+          "kind": "var",
+          "line": 29910,
+          "start": 1339119,
+          "end": 1339356,
+          "bytes": 237,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL123",
+          "kind": "function",
+          "line": 29030,
+          "start": 1298030,
+          "end": 1299727,
+          "bytes": 1697,
+          "usedByIslands": 1
+        },
+        {
+          "name": "l123ShuffleAvoid",
+          "kind": "function",
+          "line": 29018,
+          "start": 1297671,
+          "end": 1297862,
+          "bytes": 191,
+          "usedByIslands": 1
+        },
+        {
+          "name": "l123PickDiff",
+          "kind": "function",
+          "line": 29024,
+          "start": 1297866,
+          "end": 1298026,
+          "bytes": 160,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L123_LAST",
+          "kind": "var",
+          "line": 29016,
+          "start": 1297589,
+          "end": 1297667,
+          "bytes": 78,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L123_ITEMS",
+          "kind": "var",
+          "line": 28548,
+          "start": 1273482,
+          "end": 1273552,
+          "bytes": 70,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L123_FACE_BOX",
+          "kind": "var",
+          "line": 28557,
+          "start": 1273848,
+          "end": 1273899,
+          "bytes": 51,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L123_FACES",
+          "kind": "var",
+          "line": 28549,
+          "start": 1273555,
+          "end": 1273598,
+          "bytes": 43,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L123_BQ",
+          "kind": "var",
+          "line": 28550,
+          "start": 1273601,
+          "end": 1273792,
+          "bytes": 191,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L123_ANIMALS",
+          "kind": "var",
+          "line": 28547,
+          "start": 1273438,
+          "end": 1273479,
+          "bytes": 41,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL122",
+          "kind": "function",
+          "line": 28307,
+          "start": 1264635,
+          "end": 1265946,
+          "bytes": 1311,
+          "usedByIslands": 1
+        },
+        {
+          "name": "l122ShuffleAvoid",
+          "kind": "function",
+          "line": 28301,
+          "start": 1264437,
+          "end": 1264631,
+          "bytes": 194,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L122_LETTER_OF",
+          "kind": "var",
+          "line": 28008,
+          "start": 1250488,
+          "end": 1250545,
+          "bytes": 57,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L122_LETTERS",
+          "kind": "var",
+          "line": 28003,
+          "start": 1250208,
+          "end": 1250243,
+          "bytes": 35,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L122_LAST",
+          "kind": "var",
+          "line": 28299,
+          "start": 1264393,
+          "end": 1264433,
+          "bytes": 40,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L122_ITEMS",
+          "kind": "var",
+          "line": 28009,
+          "start": 1250548,
+          "end": 1250590,
+          "bytes": 42,
+          "usedByIslands": 1
+        },
+        {
+          "name": "makeQuestionL121",
+          "kind": "function",
+          "line": 27773,
+          "start": 1241415,
+          "end": 1243113,
+          "bytes": 1698,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L121_LAST",
+          "kind": "var",
+          "line": 27771,
+          "start": 1241373,
+          "end": 1241411,
+          "bytes": 38,
+          "usedByIslands": 1
+        },
+        {
+          "name": "L121_IDS",
+          "kind": "var",
+          "line": 27419,
+          "start": 1225134,
+          "end": 1225172,
+          "bytes": 38,
+          "usedByIslands": 1
+        }
+      ],
+      "sharedDeps": [
+        {
+          "name": "shuffle",
+          "kind": "function",
+          "line": 1716,
+          "start": 67625,
+          "end": 67823,
+          "bytes": 198,
+          "usedByIslands": 12
+        },
+        {
+          "name": "pick",
+          "kind": "function",
+          "line": 1724,
+          "start": 67827,
+          "end": 68018,
+          "bytes": 191,
+          "usedByIslands": 9
+        },
+        {
+          "name": "randInt",
+          "kind": "function",
+          "line": 1714,
+          "start": 67533,
+          "end": 67621,
+          "bytes": 88,
+          "usedByIslands": 12
+        }
+      ],
+      "missingRoots": []
+    }
+  },
+  "notes": [
+    "岛专属符号在文件中不连续（每岛跨度 53–141 KB，中间夹着 core 与其他岛函数），无法按「抽一段」拆文件。",
+    "LEVEL_DEFS 直接引用 NUMBERS / NUMBERS_W2 / NUMBERS_W3 等闭包变量；newQuestion 原先直接引用全部 59 个出题函数。",
+    "要外置岛文件，必须先把 core 共享符号显式桥接到全局（window），再按函数节点边界逐个搬移并改写引用。",
+    "真正的岛文件外置还会引入额外 HTTP 请求、SW 预缓存与加载顺序依赖；当前注册表已提供 __LLMakers 注入点，但尚未启用。"
+  ]
+}
