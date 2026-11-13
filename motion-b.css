@@ -1,0 +1,289 @@
+/* motion-b.css — B 档动画层 v1.0（外挂式，零 API、零新增位图）
+ * ------------------------------------------------------------
+ * 三块内容：
+ *   ① 动作真的动起来：第 4 岛「动物与动作」的 3D 主体图补上躯体动作
+ *      （跑 = 前后小幅位移 + 上下起伏；睡 = 呼吸缩放；吃 = 低头啄食；飞 = 漂浮）
+ *   ② 伙伴角色「小熊」：地图标题旁、岛内页标题旁、关卡封面
+ *   ③ 关卡封面小剧场：云 / 山坡 / 草地 + 小熊进场 → 挥手 → 退场
+ *
+ * 遵守 RULES.md：
+ *   二.1 全部为图形，页面不新增任何可见英文文本（SVG 只有 path / circle）；
+ *   二.3 只 ease-in-out + 轻微缩放与小幅位移，无闪烁、无抖动；
+ *   二.4 不遮挡答题区：地图小熊只占标题右侧空白，封面剧场在「开始游戏」上方；
+ *   二.7 只动 transform / opacity；
+ *   三.6 纯 CSS，不碰语音时序、不用定时器；
+ *   三.11 动作型知识点必须真的动，且跑 / 跳 / 睡 / 吃 的剪影可区分。
+ *
+ * 去掉本文件或 <link> 即完全回退：所有类名以 mb- 开头，不改动任何既有规则。
+ */
+
+/* ============================================================
+   伙伴角色：小熊
+   ============================================================ */
+.mb-buddy {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* 待机：呼吸 + 轻微起伏（只 transform） */
+.mb-buddy .mb-idle {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: mb-breathe 3.4s ease-in-out infinite;
+}
+
+/* 挥手：肩点为轴，摆三次后停住 */
+.mb-buddy .mb-arm {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+  animation: mb-wave 2.9s ease-in-out infinite;
+}
+
+/* 眨眼：4.6s 一次，只压扁眼睛 */
+.mb-buddy .mb-eye {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: mb-blink 4.6s ease-in-out infinite;
+}
+
+@keyframes mb-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-1.6%) scale(1.018); }
+}
+
+@keyframes mb-wave {
+  0%, 52%, 100% { transform: rotate(0deg); }
+  66%           { transform: rotate(-19deg); }
+  82%           { transform: rotate(9deg); }
+}
+
+@keyframes mb-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(.12); }
+}
+
+/* 地图标题右侧的小熊：只占标题旁空白，不压住 12 宫格 */
+.mb-maphead {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.mb-maphead .mb-map-buddy {
+  position: absolute;
+  left: calc(100% + 6px);
+  top: 50%;
+  width: clamp(30px, 7.4vw, 42px);
+  height: auto;
+  transform: translateY(-50%);
+}
+
+/* 岛内页：跟在岛名后面，像随行的小伙伴 */
+.mb-island-buddy {
+  width: clamp(32px, 8.4vw, 50px);
+  flex: none;
+  margin-left: auto;
+}
+
+/* ============================================================
+   关卡封面小剧场
+   ============================================================ */
+.mb-theater {
+  position: relative;
+  flex: none;
+  width: min(86vw, 420px);
+  height: clamp(118px, 20vh, 190px);
+  border-radius: 26px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 78% at 50% -18%, #ffffff 0%, #fff8ee 62%, #fff3e4 100%);
+  border: 2px solid rgba(255, 255, 255, .95);
+  box-shadow: 0 8px 20px rgba(122, 92, 68, .10), inset 0 1px 0 rgba(255, 255, 255, .9);
+  pointer-events: none;
+}
+
+/* 草地：底部一条缓坡，剧场的地平面 */
+.mb-theater::after {
+  content: '';
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: -6px;
+  height: 26%;
+  border-radius: 50% 50% 0 0 / 42% 42% 0 0;
+  background: linear-gradient(180deg, #E2EFD7, #CCE0C0);
+}
+
+.mb-hill {
+  position: absolute;
+  bottom: 10%;
+  width: 62%;
+  height: 52%;
+  border-radius: 50% 50% 0 0 / 62% 62% 0 0;
+  background: linear-gradient(180deg, #E7F1DE, #D3E5C8);
+  opacity: .92;
+}
+
+.mb-hill.h1 { left: -10%; }
+.mb-hill.h2 { right: -14%; height: 44%; background: linear-gradient(180deg, #E0EED5, #C9DEBD); }
+
+.mb-cloud {
+  position: absolute;
+  width: clamp(46px, 13vw, 66px);
+  height: clamp(14px, 3.6vw, 20px);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .95);
+  box-shadow: 0 2px 8px rgba(150, 120, 90, .07);
+  animation: mb-drift 24s linear infinite;
+}
+
+.mb-cloud::before,
+.mb-cloud::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.mb-cloud::before { width: 40%; height: 128%; left: 14%; top: -64%; }
+.mb-cloud::after  { width: 28%; height: 92%;  right: 16%; top: -44%; }
+
+.mb-cloud.c1 { top: 14%; left: -22%; animation-delay: -2s; }
+.mb-cloud.c2 { top: 34%; left: -22%; animation-delay: -10s; transform: scale(.78); opacity: .8; }
+.mb-cloud.c3 { top: 22%; left: -22%; animation-delay: -17s; transform: scale(.9); opacity: .88; }
+
+@keyframes mb-drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(520px); }
+}
+
+/* 小熊：进场 → 站定挥手 → 退场，10s 一轮。
+   z-index 必须高于草地伪元素，否则腿会被草地盖住、看着像「半截埋在土里」。 */
+.mb-actor {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 5%;
+  width: 32%;
+  max-width: 124px;
+  /* 基准位移就是「站在正中」：系统开了「减少动态效果」动画被关掉时，
+     小熊仍然居中站定，不会因为少了 -50% 而偏到右边半截。 */
+  transform: translateX(-50%);
+  animation: mb-scene 10s ease-in-out infinite;
+}
+
+@keyframes mb-scene {
+  0%   { transform: translateX(calc(-50% - 300%)); opacity: 0; }
+  6%   { transform: translateX(calc(-50% - 300%)); opacity: 1; }
+  18%  { transform: translateX(-50%); opacity: 1; }
+  24%  { transform: translateX(-50%) translateY(0); }
+  30%  { transform: translateX(-50%) translateY(-6%); }
+  36%  { transform: translateX(-50%) translateY(0); }
+  76%  { transform: translateX(-50%); opacity: 1; }
+  90%  { transform: translateX(calc(-50% + 300%)); opacity: 0; }
+  100% { transform: translateX(calc(-50% + 300%)); opacity: 0; }
+}
+
+/* ============================================================
+   ① 动起来：第 4 岛动作主体的躯体动作
+   ------------------------------------------------------------
+   只在「主体是 3D 图片」时接管：小人 SVG 已有自己的肢体动画，
+   苹果 / 食物等装饰图不能被带动（所以一律用 > img / .f4-actor > img 限死层级）。
+   ============================================================ */
+
+/* 跑：前后小幅位移 + 上下起伏。速度线由原有 .f3-speed 提供。
+   只选 .f3-img（动物主体图），避免把吃题的苹果（.f3-bit）一起带动。 */
+.f3-cell.mb-act-run > img.f3-img,
+.f4-card.mb-act-run .f4-actor > img {
+  animation: mb-run .74s ease-in-out infinite;
+}
+
+/* 睡：呼吸起伏，以脚底为原点，避免整体上下漂 */
+.f3-cell.mb-act-sleep > img.f3-img,
+.f4-card.mb-act-sleep .f4-actor > img {
+  transform-origin: 50% 100%;
+  animation: mb-sleep 3.8s ease-in-out infinite;
+}
+
+/* 吃：低头啄食，幅度克制（不摇头、不抖） */
+.f3-cell.mb-act-eat > img.f3-img,
+.f4-card.mb-act-eat .f4-actor > img {
+  transform-origin: 50% 94%;
+  animation: mb-eat 1.3s ease-in-out infinite;
+}
+
+/* 飞：缓慢漂浮 */
+.f3-cell.mb-act-fly > img.f3-img,
+.f4-card.mb-act-fly .f4-actor > img {
+  animation: mb-fly 2.8s ease-in-out infinite;
+}
+
+/* 跳：第 4 岛第 4 关的场景卡此前依赖第 5 关的样式表才起跳，
+   这里补一条独立规则，保证 4-4 的青蛙 / 袋鼠也会跳（不改原 f5hop） */
+.f4-card.mb-act-jump .f4-actor > img {
+  animation: mb-hop .95s ease-in-out infinite;
+}
+
+@keyframes mb-run {
+  0%, 100% { transform: translate(-1.4%, 0) rotate(-.6deg); }
+  50%      { transform: translate(1.4%, -3.2%) rotate(.6deg); }
+}
+
+@keyframes mb-sleep {
+  0%, 100% { transform: scale(1, 1); }
+  50%      { transform: scale(1.012, 1.04); }
+}
+
+@keyframes mb-eat {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  38%      { transform: rotate(-3.4deg) translateY(2%); }
+  62%      { transform: rotate(1deg) translateY(0); }
+}
+
+@keyframes mb-fly {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(-4%) rotate(1deg); }
+}
+
+@keyframes mb-hop {
+  0%, 100% { transform: translateY(0); }
+  45%      { transform: translateY(-12%); }
+}
+
+/* ============================================================
+   小屏保护：矮屏与窄屏下把剧场收起 / 压扁，保证「开始游戏」永远可见
+   ============================================================ */
+@media (max-height: 620px) {
+  .mb-theater { display: none; }
+}
+
+@media (max-width: 360px) {
+  .mb-theater { width: 92vw; height: 108px; }
+  .mb-maphead .mb-map-buddy { width: 28px; }
+}
+
+/* ============================================================
+   减少动态效果：小剧场的锚点必须直接落到「站在正中」
+   ------------------------------------------------------------
+   motion.css 把动画时长压到 .01ms 后，部分内核会把动画停在 0% 那一帧，
+   而 0% 正是「还在台外」。这里对小剧场角色直接取消动画并写死终态，
+   保证开了系统「减少动态效果」的孩子看到的是完整封面，而不是空舞台。
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .mb-actor {
+    animation: none !important;
+    transform: translateX(-50%) !important;
+    opacity: 1 !important;
+  }
+  /* 云不动，但也不能全挤在台外：给三个固定位置，静帧也是一片完整天空 */
+  .mb-cloud { animation: none !important; }
+  .mb-cloud.c1 { left: 10%; top: 15%; }
+  .mb-cloud.c2 { left: 62%; top: 31%; }
+  .mb-cloud.c3 { left: 36%; top: 7%; }
+}

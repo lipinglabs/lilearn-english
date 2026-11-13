@@ -14,7 +14,7 @@
    改版本号即可让孩子设备上下一次联网时换新缓存。
    ============================================================ */
 
-var CACHE = 'lilearn-v14';
+var CACHE = 'lilearn-v15';
 var SHELL = [
   './',
   './index.html',
@@ -22,6 +22,7 @@ var SHELL = [
   './style.css',
   './skin-live.css',
   './motion.css',
+  './motion-b.css',
   './levels/island-01.js',
   './levels/island-02.js',
   './levels/island-03.js',

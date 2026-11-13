@@ -57,6 +57,7 @@
 <link rel="stylesheet" href="style.css" />
 <link rel="stylesheet" href="skin-live.css" />
 <link rel="stylesheet" href="motion.css" />
+<link rel="stylesheet" href="motion-b.css" />
 </head>
 <body class="live-skin motion-skin">
 
@@ -450,6 +451,71 @@
     svg.appendChild(path);
     return svg;
   }
+
+  /* ---------------- 伙伴角色「小熊」 ----------------
+     纯手写矢量，零位图、零接口（RULES §二.17）。三处出现：
+     地图标题右侧、岛内页标题后面、关卡封面的小剧场里。
+     所有节点都只有图形，没有任何文本，所以不会给页面引入英文字母。 */
+  var MB_BUDDY_MARKUP =
+    '<ellipse cx="50" cy="106" rx="25" ry="4.6" fill="#EADFD0" opacity=".6"/>' +
+    '<g class="mb-idle">' +
+    '<circle cx="27" cy="29" r="12.5" fill="#D9A87C" stroke="#FFFDF7" stroke-width="3"/>' +
+    '<circle cx="27" cy="29" r="5.6" fill="#F4C0D1"/>' +
+    '<circle cx="73" cy="29" r="12.5" fill="#D9A87C" stroke="#FFFDF7" stroke-width="3"/>' +
+    '<circle cx="73" cy="29" r="5.6" fill="#F4C0D1"/>' +
+    '<rect x="33" y="78" width="34" height="26" rx="13" fill="#C8A47F"/>' +
+    '<ellipse cx="41" cy="103" rx="7.5" ry="4.8" fill="#C8A47F"/>' +
+    '<ellipse cx="59" cy="103" rx="7.5" ry="4.8" fill="#C8A47F"/>' +
+    '<path class="mb-arm" d="M63 87 L81 73" fill="none" stroke="#E8BE95" stroke-width="10" ' +
+    'stroke-linecap="round"/>' +
+    '<circle cx="50" cy="53" r="30.5" fill="#E8BE95" stroke="#FFFDF7" stroke-width="3"/>' +
+    '<ellipse cx="50" cy="65" rx="14.5" ry="11.5" fill="#FFF3E2"/>' +
+    '<ellipse class="mb-eye" cx="39" cy="48" rx="2.7" ry="3.5" fill="#5B4A3F"/>' +
+    '<ellipse class="mb-eye" cx="61" cy="48" rx="2.7" ry="3.5" fill="#5B4A3F"/>' +
+    '<ellipse cx="50" cy="60" rx="4.4" ry="3.3" fill="#5B4A3F"/>' +
+    '<path d="M44 67q6 5 12 0" fill="none" stroke="#5B4A3F" stroke-width="2.1" stroke-linecap="round"/>' +
+    '<circle cx="31" cy="61" r="4" fill="#F4C0D1" opacity=".62"/>' +
+    '<circle cx="69" cy="61" r="4" fill="#F4C0D1" opacity=".62"/>' +
+    '</g>';
+
+  function buddyNode(cls) {
+    var svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 100 112');
+    svg.setAttribute('class', 'mb-buddy' + (cls ? ' ' + cls : ''));
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    svg.innerHTML = MB_BUDDY_MARKUP;
+    return svg;
+  }
+
+  /* 地图：把小熊挂在标题右侧的空白处（绝对定位，不参与 12 宫格布局） */
+  function mountMapBuddy() {
+    var title = screenMap.querySelector('.screen-title');
+    if (!title || title.parentNode.classList.contains('mb-maphead')) return;
+    var head = document.createElement('div');
+    head.className = 'mb-maphead';
+    title.parentNode.insertBefore(head, title);
+    head.appendChild(title);
+    head.appendChild(buddyNode('mb-map-buddy'));
+  }
+
+  /* 关卡封面：云 / 山坡 / 草地 + 进场挥手退场的小剧场（纯装饰，不接管任何点击） */
+  function mountCoverTheater() {
+    if (!viewStart || viewStart.querySelector('.mb-theater')) return;
+    var th = document.createElement('div');
+    th.className = 'mb-theater';
+    th.setAttribute('aria-hidden', 'true');
+    th.innerHTML =
+      '<span class="mb-hill h1"></span><span class="mb-hill h2"></span>' +
+      '<span class="mb-cloud c1"></span><span class="mb-cloud c2"></span>' +
+      '<span class="mb-cloud c3"></span>';
+    var actor = document.createElement('div');
+    actor.className = 'mb-actor';
+    actor.appendChild(buddyNode());
+    th.appendChild(actor);
+    viewStart.insertBefore(th, btnStart);
+  }
+
   var LEVELS_PER_ISLAND = 5;
 
   var ISLANDS = [
@@ -1730,6 +1796,7 @@
     titles.appendChild(t2);
     islandHead.appendChild(icon);
     islandHead.appendChild(titles);
+    islandHead.appendChild(buddyNode('mb-island-buddy'));
 
     nodeList.innerHTML = '';
     for (var level = 1; level <= LEVELS_PER_ISLAND; level++) {
@@ -5343,6 +5410,8 @@
     cell.className = 'f3-cell' + (cls ? ' ' + cls : '');
     cell.dataset.subj = subj;
     if (!def) return cell;
+    // 动作型知识点必须真的动（RULES §三.11）：类名交给 motion-b.css 加躯体动作
+    if (def.act) cell.classList.add('mb-act-' + def.act);
     if (def.kid) {
       cell.appendChild(f3KidSvg(def.kid, true));
     } else {
@@ -5948,6 +6017,8 @@
     card.dataset.subj = subj;
     if (!def) return card;
     card.dataset.act = def.act;   // 只给样式用：跑 / 跳 / 吃 / 睡 的装饰能不能看清，靠它选中
+    // 同一套动作语义也挂成类：motion-b.css 用它给 3D 主体加躯体动作（RULES §三.11）
+    if (def.act) card.classList.add('mb-act-' + def.act);
     var bg = svgEl('svg');
     bg.setAttribute('viewBox', '0 0 160 130');
     bg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
@@ -31651,6 +31722,7 @@
     viewAsk.hidden = true;
     viewDone.hidden = true;
     btnStart.hidden = false;
+    mountCoverTheater();   // 封面小剧场（首次进关才建，之后复用）
     confettiBox.hidden = true;
     confettiBox.innerHTML = '';
   }
@@ -31683,14 +31755,18 @@
       ? ['#ffb3ba', '#ffd9a0', '#ffe97a', '#b9f2c4', '#b9ddf2', '#dcc6f7', '#ffc2e2', '#fff3b0']
       : ['#ffcfa3', '#ffd9a0', '#c8e6b4', '#b9ddf2', '#e3cdf5', '#ffbfa8'];
     var count = grand ? 200 : 90;
+    /* 分三波洒落：同总量、只改节奏。三波起点分别错开 0.34s / 0.45s，
+       每波内部再留一点随机抖动，避免出现「一块砖」似的整排下落。 */
+    var waveStep = grand ? 0.45 : 0.34;
+    var jitter = grand ? 0.8 : 0.55;
     for (var i = 0; i < count; i++) {
       var piece = document.createElement('i');
       piece.style.left = (Math.random() * 100) + '%';
       piece.style.background = colors[i % colors.length];
       piece.style.width = (grand ? 6 : 5 + Math.random() * 7) + (grand ? Math.random() * 8 : 0) + 'px';
       piece.style.height = (grand ? 12 : 9 + Math.random() * 12) + (grand ? Math.random() * 12 : 0) + 'px';
-      piece.style.animationDuration = (grand ? 3.2 + Math.random() * 3.4 : 2.6 + Math.random() * 3) + 's';
-      piece.style.animationDelay = (Math.random() * (grand ? 3.4 : 2.6)) + 's';
+      piece.style.animationDuration = (grand ? 3.2 + Math.random() * 3.4 : 2.4 + Math.random() * 2.6) + 's';
+      piece.style.animationDelay = ((i % 3) * waveStep + Math.random() * jitter) + 's';
       if (grand && i % 3 === 0) piece.style.borderRadius = '50%';
       confettiBox.appendChild(piece);
     }
@@ -32127,6 +32203,7 @@
   loadProgress();
   buildStars();
   showScreen('map');
+  mountMapBuddy();
   renderMap();
 
   // 云存档：有令牌就先连（云端优先），连不上就继续用本地缓存

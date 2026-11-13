@@ -97,4 +97,15 @@ body.motion-skin .mo-idle     { animation: mo-breathe var(--mo-idle) ease-in-out
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* 关键修正（2026-11-13）：入场动画不能只靠「把时长压到 .01ms」来降级。
+     实测 Windows Edge 在强制 reduce 下，.screen / .view 会永久停在 mo-in 的
+     起始帧（opacity:0），整屏空白、连「开始游戏」都看不见。
+     这里对承载内容的容器直接取消动画并显式写出终态，保证任何内核下都可见。 */
+  body.motion-skin .screen,
+  body.motion-skin .view {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
