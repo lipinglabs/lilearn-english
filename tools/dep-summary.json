@@ -307,6 +307,23 @@
       "bridgeBefore": 260,
       "bridgeAfter": 93,
       "note": "167 个岛专属题库常量搬进各自 levels/island-NN.js；被引擎引用或跨岛共享的 93 个符号仍经 __LLCore 桥接。"
+    },
+    "loading": {
+      "mode": "on-demand",
+      "tags": 0,
+      "loader": [
+        "ensureIslandScript",
+        "islandScriptReady",
+        "whenIslandScriptReady"
+      ],
+      "hooks": [
+        "enterIsland",
+        "enterLevel",
+        "startGame(waitLevelVoice callback)"
+      ],
+      "timeoutMs": 8000,
+      "sw": "lilearn-v13 仍预缓存全部 12 个岛文件，离线全量可玩",
+      "note": "首屏不再加载 12 个同步 script；进岛时动态加载 1 个，出题前等待注册完成，超时回落默认出题器。"
     }
   },
   "coreShared": [

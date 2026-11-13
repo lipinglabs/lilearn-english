@@ -263,6 +263,36 @@
     }
     setTimeout(fire, maxMs);
   }
+  /* ---------- 岛文件按需加载 ----------
+     12 个出题器文件不再随首页同步加载：进岛时发起请求，点「开始」时在
+     waitLevelVoice 的既有等待链里再等它注册完成。SW 仍预缓存全部 12 个，
+     所以离线可玩；超时后继续，newQuestion 会回落默认出题器而不会白屏。 */
+  var islandScriptLoading = {};
+  function islandScriptReady(island) {
+    var M = window.__LLMakers || {};
+    var prefix = island + '-';
+    for (var k in LEVEL_DEFS) {
+      if (k.indexOf(prefix) !== 0) continue;
+      if (LEVEL_DEFS[k].make && !M[LEVEL_DEFS[k].make]) return false;
+    }
+    return true;
+  }
+  function ensureIslandScript(island) {
+    if (!island || islandScriptReady(island) || islandScriptLoading[island]) return;
+    islandScriptLoading[island] = true;
+    var s = document.createElement('script');
+    s.src = 'levels/island-' + (island < 10 ? '0' : '') + island + '.js';
+    s.onload = s.onerror = function () { delete islandScriptLoading[island]; };
+    document.head.appendChild(s);
+  }
+  function whenIslandScriptReady(island, maxMs, onReady) {
+    var t0 = Date.now();
+    (function poll() {
+      if (islandScriptReady(island) || Date.now() - t0 >= maxMs) { onReady(); return; }
+      setTimeout(poll, 40);
+    })();
+  }
+
 
   /* 启动即预取公共语音（开场 / 再试一次 / 通关夸奖），不等用户操作 */
   loadVoiceChunk(window.VOICE_CORE_CHUNK || 'core');
@@ -1457,6 +1487,7 @@
     /* 进岛即预取该岛语音分块：等孩子挑关卡、看地图的这几秒把语音拉下来，
        真正开始教学时就能同步播放（iOS 要求 play() 落在用户手势里，不能等异步）。 */
     prefetchIslandVoice(index);
+    ensureIslandScript(index);
   }
 
   /* 可玩关卡登记表：新增关卡只往这里加一行（RULES §三.5） */
@@ -31594,6 +31625,7 @@
     state.level = level || 1;
     /* 先把这一关的语音请求发出去（一关约 0.5MB），孩子看关卡封面的这几秒正好用来下载 */
     prefetchLevelVoice(currentIsland, state.level);
+    ensureIslandScript(currentIsland);
     showScreen('level');
     buildStars();
     state.phase = 'idle';
@@ -31632,10 +31664,15 @@
     waitLevelVoice(currentIsland, state.level, 20000, function () {
       if (state.phase !== 'intro') return;   // 等待期间被返回键取消了
       btnStart.hidden = true;
-      // 带教学环节的关卡（第 2 岛第 2 关起）：先进教学模式，不放开场白
-      var def = levelDef(currentIsland, state.level);
-      if (def && def.tutorial) { startTutorial(); return; }
-      say(['intro'], function () { beginRounds(); });
+      /* 岛文件按需加载：等当前岛出题器注册完成再继续（最多 8 秒）。
+         超时仍继续，newQuestion 会回落到默认出题器，不会白屏。 */
+      whenIslandScriptReady(currentIsland, 8000, function () {
+        if (state.phase !== 'intro') return;
+        // 带教学环节的关卡（第 2 岛第 2 关起）：先进教学模式，不放开场白
+        var def = levelDef(currentIsland, state.level);
+        if (def && def.tutorial) { startTutorial(); return; }
+        say(['intro'], function () { beginRounds(); });
+      });
     });
   }
 
@@ -32567,17 +32604,5 @@
 
 })();
 </script>
-<script src="levels/island-01.js"></script>
-<script src="levels/island-02.js"></script>
-<script src="levels/island-03.js"></script>
-<script src="levels/island-04.js"></script>
-<script src="levels/island-05.js"></script>
-<script src="levels/island-06.js"></script>
-<script src="levels/island-07.js"></script>
-<script src="levels/island-08.js"></script>
-<script src="levels/island-09.js"></script>
-<script src="levels/island-10.js"></script>
-<script src="levels/island-11.js"></script>
-<script src="levels/island-12.js"></script>
 </body>
 </html>
