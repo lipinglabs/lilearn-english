@@ -103,7 +103,9 @@ body.motion-skin .mo-idle     { animation: mo-breathe var(--mo-idle) ease-in-out
      起始帧（opacity:0），整屏空白、连「开始游戏」都看不见。
      这里对承载内容的容器直接取消动画并显式写出终态，保证任何内核下都可见。 */
   body.motion-skin .screen,
-  body.motion-skin .view {
+  body.motion-skin .view,
+  body.motion-skin .sheet-card,
+  body.motion-skin .island {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
