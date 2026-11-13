@@ -14,13 +14,14 @@
    改版本号即可让孩子设备上下一次联网时换新缓存。
    ============================================================ */
 
-var CACHE = 'lilearn-v13';
+var CACHE = 'lilearn-v14';
 var SHELL = [
   './',
   './index.html',
   './manifest.json',
   './style.css',
   './skin-live.css',
+  './motion.css',
   './levels/island-01.js',
   './levels/island-02.js',
   './levels/island-03.js',

@@ -1,0 +1,100 @@
+/* motion.css — A 档动画编排层 v1.0（外挂式，零 API）
+ * 纯 CSS，不新增任何图片、不改 DOM、不引入 JS。全部规则以 body.motion-skin 开头，
+ * 去掉这个 class 即完全回退，零回归风险。
+ *
+ * 遵守 RULES.md：
+ *   二.3 只 ease-in-out + 轻微缩放 / 低饱和粉彩 / 禁闪烁抖动；
+ *   二.4 动画不遮挡答题区、不引入等待空档（纯视觉，JS 流程不变）；
+ *   二.7 只用 transform / opacity，避免手机发烫；
+ *   三.6 不碰语音时序，不用定时器猜音频；
+ *   二.1 页面不新增任何可见英文文本。
+ *
+ * 刻意避开已有的动画规则：.star.on（star-bounce / star-glow）、
+ * .confetti i（fall）、.option.right / .wrong（right-burst / shake）、
+ * .island.tapped（island-tap）一概不覆盖，只做增量。
+ */
+
+body.motion-skin {
+  --mo-enter: .32s;
+  --mo-emph: .42s;
+  --mo-feedback: .38s;
+  --mo-idle: 2.8s;
+  --mo-ease: cubic-bezier(.22, .61, .36, 1);
+  --mo-stagger: 26ms;
+  --mo-shift: 10px;
+}
+
+/* 四类语义关键帧：入场 / 强调 / 反馈 / 待机，全部只动 transform 与 opacity */
+@keyframes mo-in {
+  from { opacity: 0; transform: translateY(var(--mo-shift)) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes mo-emph {
+  0%, 100% { transform: scale(1); }
+  45%      { transform: scale(1.045); }
+}
+@keyframes mo-feedback {
+  0%   { opacity: .55; transform: scale(.96); }
+  55%  { opacity: 1;   transform: scale(1.03); }
+  100% { opacity: 1;   transform: scale(1); }
+}
+@keyframes mo-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-3px) scale(1.012); }
+}
+
+/* ① 转场：screen / view 每次从 hidden 切出时轻柔入场。
+      hidden 属性变化会让元素重新进入渲染树，CSS 动画自然重播，无需任何 JS。 */
+body.motion-skin .screen:not([hidden]) {
+  animation: mo-in var(--mo-enter) var(--mo-ease) backwards;
+}
+body.motion-skin .view:not([hidden]) {
+  animation: mo-in calc(var(--mo-enter) * .8) var(--mo-ease) backwards;
+}
+
+/* ② 地图 12 张岛卡错峰浮现，总时长约 320ms。
+      用 :not(.tapped) 避开点击反馈 island-tap，不覆盖原动画。 */
+body.motion-skin[data-view="map"] .island:not(.tapped) {
+  animation: mo-in var(--mo-enter) var(--mo-ease) backwards;
+}
+body.motion-skin[data-view="map"] .island:nth-child(1):not(.tapped)  { animation-delay: calc(var(--mo-stagger) * 0); }
+body.motion-skin[data-view="map"] .island:nth-child(2):not(.tapped)  { animation-delay: calc(var(--mo-stagger) * 1); }
+body.motion-skin[data-view="map"] .island:nth-child(3):not(.tapped)  { animation-delay: calc(var(--mo-stagger) * 2); }
+body.motion-skin[data-view="map"] .island:nth-child(4):not(.tapped)  { animation-delay: calc(var(--mo-stagger) * 3); }
+body.motion-skin[data-view="map"] .island:nth-child(5):not(.tapped)  { animation-delay: calc(var(--mo-stagger) * 4); }
+body.motion-skin[data-view="map"] .island:nth-child(6):not(.tapped)  { animation-delay: calc(var(--mo-stagger) * 5); }
+body.motion-skin[data-view="map"] .island:nth-child(7):not(.tapped)  { animation-delay: calc(var(--mo-stagger) * 6); }
+body.motion-skin[data-view="map"] .island:nth-child(8):not(.tapped)  { animation-delay: calc(var(--mo-stagger) * 7); }
+body.motion-skin[data-view="map"] .island:nth-child(9):not(.tapped)  { animation-delay: calc(var(--mo-stagger) * 8); }
+body.motion-skin[data-view="map"] .island:nth-child(10):not(.tapped) { animation-delay: calc(var(--mo-stagger) * 9); }
+body.motion-skin[data-view="map"] .island:nth-child(11):not(.tapped) { animation-delay: calc(var(--mo-stagger) * 10); }
+body.motion-skin[data-view="map"] .island:nth-child(12):not(.tapped) { animation-delay: calc(var(--mo-stagger) * 11); }
+
+/* ③ 反馈柔和化：只加过渡，不加 animation（.option.right / .wrong 已有自己的动画）。
+      答对时已有的 right-burst 照常播放，这里只让状态切换与按压更顺。 */
+body.motion-skin .option {
+  transition: transform .28s var(--mo-ease), opacity .28s var(--mo-ease),
+              box-shadow .28s var(--mo-ease), background .28s var(--mo-ease);
+}
+body.motion-skin .option:active { transform: scale(.96); }
+
+/* ④ 语义 token 类：供后续关卡 / B 档动画复用，当前不挂到任何具体元素。 */
+body.motion-skin .mo-enter    { animation: mo-in var(--mo-enter) var(--mo-ease) backwards; }
+body.motion-skin .mo-emph     { animation: mo-emph var(--mo-emph) var(--mo-ease) 1; }
+body.motion-skin .mo-feedback { animation: mo-feedback var(--mo-feedback) var(--mo-ease) 1; }
+body.motion-skin .mo-idle     { animation: mo-breathe var(--mo-idle) ease-in-out infinite; }
+
+/* ⑤ 无障碍：系统开启「减少动态效果」时，把所有无限动画与过渡一次性降级。
+      四秒小手指引会变成静止但仍在，仍起指示作用；flyStar 走 Web Animations
+      API，不受 CSS 影响，答题流程照常推进。 */
+@media (prefers-reduced-motion: reduce) {
+  body.motion-skin *,
+  body.motion-skin *::before,
+  body.motion-skin *::after {
+    animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

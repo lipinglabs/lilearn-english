@@ -324,6 +324,23 @@
       "timeoutMs": 8000,
       "sw": "lilearn-v13 仍预缓存全部 12 个岛文件，离线全量可玩",
       "note": "首屏不再加载 12 个同步 script；进岛时动态加载 1 个，出题前等待注册完成，超时回落默认出题器。"
+    },
+    "motion": {
+      "file": "motion.css",
+      "bodyClass": "motion-skin",
+      "tokens": [
+        "mo-enter",
+        "mo-emph",
+        "mo-feedback",
+        "mo-idle"
+      ],
+      "layers": [
+        "screen/view 入场",
+        "地图 12 卡错峰",
+        "选项柔和过渡",
+        "prefers-reduced-motion 降级"
+      ],
+      "note": "外挂式，去掉 body.motion-skin 即完全回退；不覆盖 star / confetti / right / wrong / tapped 的既有动画。"
     }
   },
   "coreShared": [
