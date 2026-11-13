@@ -7,26 +7,51 @@
 (function () {
   var L = window.__LLCore || {};
   var L121_IDS = L.L121_IDS;
-  var L121_LAST = L.L121_LAST;
+  var L121_LAST = { ans: -1, pair: '' };
   var L122_ITEMS = L.L122_ITEMS;
-  var L122_LAST = L.L122_LAST;
+  var L122_LAST = { A: -1, B: -1, C: '' };
   var L122_LETTERS = L.L122_LETTERS;
   var L122_LETTER_OF = L.L122_LETTER_OF;
-  var L123_ANIMALS = L.L123_ANIMALS;
-  var L123_BQ = L.L123_BQ;
-  var L123_FACES = L.L123_FACES;
-  var L123_FACE_BOX = L.L123_FACE_BOX;
-  var L123_ITEMS = L.L123_ITEMS;
-  var L123_LAST = L.L123_LAST;
-  var L124_BQ = L.L124_BQ;
+  var L123_ANIMALS = ['dog', 'cat', 'ele'];
+  var L123_BQ = [
+      { ans: 'milk',  key: 'l123_b_milk'  },
+      { ans: 'bread', key: 'l123_b_bread' },
+      { ans: 'hat',   key: 'l123_b_hat'   },
+      { ans: 'light', key: 'l123_b_light' }
+    ];
+  var L123_FACES = ['cry', 'laugh', 'sleep'];
+  var L123_FACE_BOX = { cry: 'sad', laugh: 'happy' };
+  var L123_ITEMS = ['milk', 'bread', 'apple', 'banana', 'hat', 'light'];
+  var L123_LAST = { A: -1, B: -1, beast: '', ask: '', target: '', sadSide: '' };
+  var L124_BQ = [
+      { k: 'g3_cmd_nose_clap', acts: ['nose', 'clap'] },
+      { k: 'g3_cmd_ears_clap', acts: ['ears', 'clap'] },
+      { k: 'g3_cmd_eyes_clap', acts: ['eyes', 'clap'] },
+      { k: 'g3_c_head_nose', acts: ['head', 'nose'] }
+    ];
   var L124_ITEMS = L.L124_ITEMS;
-  var L124_LAST = L.L124_LAST;
+  var L124_LAST = { Akey: '', Bkey: '', Cwho: '', Ctray: '' };
   var L124_PEOPLE = L.L124_PEOPLE;
-  var L125_A = L.L125_A;
-  var L125_B = L.L125_B;
-  var L125_C = L.L125_C;
+  var L125_A = [
+      { key: 'l125_a_big_ele', want: 'ele', opts: ['ele', 'cat', 'bread'] },
+      { key: 'l125_a_red_car', want: 'redcar', opts: ['redcar', 'bluecar', 'banana'] },
+      { key: 'l125_a_green_apple', want: 'greenapple', opts: ['greenapple', 'apple', 'milk'] },
+      { key: 'l125_a_blue_car', want: 'bluecar', opts: ['bluecar', 'redcar', 'hat'] }
+    ];
+  var L125_B = [
+      { key: 'l125_b_apple_car', seq: ['apple', 'redcar'], tray: ['apple', 'redcar', 'cat', 'milk'] },
+      { key: 'l125_b_cat_bread', seq: ['cat', 'bread'], tray: ['cat', 'bread', 'greenapple', 'bluecar'] },
+      { key: 'l125_b_banana_hat', seq: ['banana', 'hat'], tray: ['banana', 'hat', 'dog', 'redcar'] },
+      { key: 'l125_b_dog_milk', seq: ['dog', 'milk'], tray: ['dog', 'milk', 'apple', 'bluecar'] }
+    ];
+  var L125_C = [
+      { key: 'l125_c_star', part: 'star' },
+      { key: 'l125_c_heart', part: 'heart' },
+      { key: 'l125_c_ring', part: 'ring' },
+      { key: 'l125_c_flag', part: 'flag' }
+    ];
   var L125_LAST = L.L125_LAST;
-  var L125_PARTS = L.L125_PARTS;
+  var L125_PARTS = ['star', 'heart', 'ring', 'flag'];
   var l122ShuffleAvoid = L.l122ShuffleAvoid;
   var l123PickDiff = L.l123PickDiff;
   var l123ShuffleAvoid = L.l123ShuffleAvoid;

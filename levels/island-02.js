@@ -6,23 +6,60 @@
    ============================================================ */
 (function () {
   var L = window.__LLCore || {};
-  var P2_ITEMS = L.P2_ITEMS;
-  var P2_POS = L.P2_POS;
-  var P2_SENTENCE = L.P2_SENTENCE;
-  var P2_VERDICTS = L.P2_VERDICTS;
-  var P3_ITEMS = L.P3_ITEMS;
-  var P3_POS = L.P3_POS;
-  var P3_SENT = L.P3_SENT;
-  var P3_VERDICTS = L.P3_VERDICTS;
-  var P4_ITEMS = L.P4_ITEMS;
-  var P4_POS = L.P4_POS;
-  var P4_VERDICTS = L.P4_VERDICTS;
-  var P5_ITEMS = L.P5_ITEMS;
-  var P5_POS = L.P5_POS;
-  var P5_POS_SENT = L.P5_POS_SENT;
-  var P5_VERDICTS = L.P5_VERDICTS;
+  var P2_ITEMS = [
+      { key: 'apple', id: 'apple', audio: 'pt_apple' },
+      { key: 'book', id: 'book', audio: 'pt_book' },
+      { key: 'cup', id: 'cup', audio: 'pt_cup' }
+    ];
+  var P2_POS = ['in', 'on', 'beside'];
+  var P2_SENTENCE = { in: 's_in', on: 's_on', beside: 's_beside' };
+  var P2_VERDICTS = [
+      { key: 'catPlate', kind: 'catPlate', match: 's_cat_on', mismatch: 's_cat_in' },
+      { key: 'catBox', kind: 'catInBox', match: 's_cat_in', mismatch: 's_cat_on' },
+      { key: 'ballIn', kind: 'ballInBox', match: 's_in', mismatch: 's_on' },
+      { key: 'ballOn', kind: 'ballOnBox', match: 's_on', mismatch: 's_in' }
+    ];
+  var P3_ITEMS = [
+      { key: 'dog', id: 'dog', audio: 'put_dog_behind' },
+      { key: 'ball', id: 'ball', audio: 'put_ball_behind' },
+      { key: 'book', id: 'book', audio: 'put_book_behind' }
+    ];
+  var P3_POS = ['under', 'behind', 'on'];
+  var P3_SENT = { under: 's_cat_under', behind: 's_cat_behind', on: 's_cat_chair_on' };
+  var P3_VERDICTS = [
+      { key: 'ballUnderBed', kind: 'ballUnderBed', match: 's_ball_under', mismatch: 's_ball_on' },
+      { key: 'ballOnBed', kind: 'ballOnBed', match: 's_ball_on', mismatch: 's_ball_under' },
+      { key: 'boyBehindDoor', kind: 'boyBehindDoor', match: 's_boy_behind', mismatch: 's_boy_under' },
+      { key: 'catUnderChair', kind: 'catUnderChair', match: 's_cat_under', mismatch: 's_cat_behind' }
+    ];
+  var P4_ITEMS = [
+      { key: 'book', id: 'book', audio: 'cb_book_in' },
+      { key: 'apple', id: 'apple', audio: 'cb_apple_in' },
+      { key: 'pizza', id: 'pizza', audio: 'cb_pizza_in' }
+    ];
+  var P4_POS = ['on', 'in', 'beside'];
+  var P4_VERDICTS = [
+      { key: 'triOnSquare', kind: 'triOnSquare', match: 'cb_tri_on', mismatch: 'cb_tri_in' },
+      { key: 'circleInSquare', kind: 'circleInSquare', match: 'cb_circle_in', mismatch: 'cb_circle_on' }
+    ];
+  var P5_ITEMS = [
+      { key: 'apple', id: 'apple', audio: 'cb_apple_in' },   // 圆形的苹果
+      { key: 'pizza', id: 'pizza', audio: 'cb_pizza_in' },   // 三角形的披萨
+      { key: 'book',  id: 'book',  audio: 'cb_book_in'  }    // 长方形的书
+    ];
+  var P5_POS = ['on', 'in', 'behind'];
+  var P5_POS_SENT = {
+      on: 'cb_star_on_circle',
+      in: 'cb_star_in_circle',
+      behind: 'p5_star_behind_circle'
+    };
+  var P5_VERDICTS = [
+      { key: 'triOn',      kind: 'triOnSquare',      match: 'cb_tri_on',      mismatch: 'cb_tri_in' },
+      { key: 'circleIn',   kind: 'circleInSquare',   match: 'cb_circle_in',   mismatch: 'cb_circle_on' },
+      { key: 'rectBehind', kind: 'rectBehindSquare', match: 'p5_rect_behind', mismatch: 'p5_rect_on' }
+    ];
   var SHAPES = L.SHAPES;
-  var SHAPE_COLORS = L.SHAPE_COLORS;
+  var SHAPE_COLORS = ['#EA5A4F', '#F3B93E', '#4C8FE8', '#57B96B', '#B07CD8', '#F08CB0'];
   var pick = L.pick;
   var shuffle = L.shuffle;
   var state = L.state;

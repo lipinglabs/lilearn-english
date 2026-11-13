@@ -6,18 +6,71 @@
    ============================================================ */
 (function () {
   var L = window.__LLCore || {};
-  var B1_ANIMALS = L.B1_ANIMALS;
-  var B1_ITEMS = L.B1_ITEMS;
-  var B2_FRUITS_A = L.B2_FRUITS_A;
-  var B2_FRUITS_B = L.B2_FRUITS_B;
-  var B2_FRUITS_C = L.B2_FRUITS_C;
-  var B4_A_CASES = L.B4_A_CASES;
-  var B4_B_CASES = L.B4_B_CASES;
-  var B4_C_CASES = L.B4_C_CASES;
-  var B5X_A_CASES = L.B5X_A_CASES;
-  var B5X_B_CASES = L.B5X_B_CASES;
-  var B5X_C_CASES = L.B5X_C_CASES;
-  var B5X_SCENES = L.B5X_SCENES;
+  var B1_ANIMALS = [
+      { id: 'elephant', big: 'l3_el_big',    small: 'l3_el_small' },
+      { id: 'dog',      big: 'l3_dog_big',   small: 'l3_dog_small' },
+      { id: 'cat',      big: 'l3_cat_big',   small: 'l3_cat_small' },
+      { id: 'mouse',    big: 'l3_mouse_big', small: 'l3_mouse_small' }
+    ];
+  var B1_ITEMS = [
+      { id: 'apple',   asset: 'apple',
+        big: 'l3_find_big_apple',   small: 'l3_find_small_apple',
+        putBig: 'l3_put_big_apple', putSmall: 'l3_put_small_apple' },
+      { id: 'balloon', asset: 'balloon_red',
+        big: 'l3_find_big_balloon', small: 'l3_find_small_balloon',
+        putBig: 'l3_put_big_balloon', putSmall: 'l3_put_small_balloon' },
+      { id: 'car',     asset: 'car_red',
+        big: 'l3_find_big_car',     small: 'l3_find_small_car' }
+    ];
+  var B2_FRUITS_A = [{ id: 'apple' }, { id: 'banana' }, { id: 'grape' }];
+  var B2_FRUITS_B = [{ id: 'apple' }, { id: 'strawberry' }, { id: 'grape' }];
+  var B2_FRUITS_C = [{ id: 'apple' }, { id: 'banana' }, { id: 'grape' }];
+  var B4_A_CASES = [
+      { items: ['elephant', 'feather', 'apple'],  ans: 'elephant', weight: 'heavy', key: 'b4_a_heavy' },
+      { items: ['rock', 'balloon', 'elephant'],   ans: 'balloon',  weight: 'light', key: 'b4_a_light' },
+      { items: ['rock', 'feather', 'balloon'],    ans: 'rock',     weight: 'heavy', key: 'b4_a_heavy' },
+      { items: ['elephant', 'apple', 'rock'],     ans: 'apple',    weight: 'light', key: 'b4_a_light' },
+      { items: ['rock', 'apple', 'balloon'],      ans: 'rock',     weight: 'heavy', key: 'b4_a_heavy' },
+      { items: ['elephant', 'feather', 'rock'],   ans: 'feather',  weight: 'light', key: 'b4_a_light' }
+    ];
+  var B4_B_CASES = [
+      { left: 'elephant', right: 'monkey',  ask: 'heavy', key: 'b4_b_elephant_monkey_heavy' },
+      { left: 'rock',     right: 'balloon', ask: 'light', key: 'b4_b_rock_balloon_light' },
+      { left: 'elephant', right: 'feather', ask: 'heavy', key: 'b4_b_elephant_feather_heavy' },
+      { left: 'rock',     right: 'apple',   ask: 'light', key: 'b4_b_rock_apple_light' }
+    ];
+  var B4_C_CASES = [
+      { items: ['rock', 'balloon'],    ansItem: 'rock',    ansBox: 'heavy', key: 'b4_c_rock' },
+      { items: ['balloon', 'rock'],    ansItem: 'balloon', ansBox: 'light', key: 'b4_c_balloon' },
+      { items: ['elephant', 'feather'], ansItem: 'elephant', ansBox: 'heavy', key: 'b4_c_elephant' },
+      { items: ['apple', 'rock'],      ansItem: 'apple',   ansBox: 'light', key: 'b4_c_apple' }
+    ];
+  var B5X_A_CASES = [
+      { items: ['elephant', 'balloon'],      ans: 'elephant',   cmp: 'heavy', key: 'b5x_a_heavy' },
+      { items: ['rock', 'feather'],          ans: 'rock',       cmp: 'heavy', key: 'b5x_a_heavy' },
+      { items: ['mouse', 'elephant'],        ans: 'elephant',   cmp: 'big',   key: 'b5_a_bigger' },
+      { items: ['car', 'train'],             ans: 'train',      cmp: 'long',  key: 'b5_a_longer' },
+      { items: ['apple', 'rock'],            ans: 'apple',      cmp: 'light', key: 'b5x_a_light' },
+      { items: ['key_small', 'key_big'],     ans: 'key_big',    cmp: 'big',   key: 'b5_a_bigger' },
+      { items: ['board_short', 'board_long'], ans: 'board_long', cmp: 'long',  key: 'b5_a_longer' },
+      { items: ['elephant', 'mouse'],        ans: 'mouse',      cmp: 'small', key: 'b5_a_smaller' },
+      { items: ['train', 'car'],             ans: 'car',        cmp: 'short', key: 'b5_a_shorter' },
+      { items: ['balloon', 'rock'],          ans: 'balloon',    cmp: 'light', key: 'b5x_a_light' },
+      { items: ['feather', 'elephant'],      ans: 'elephant',   cmp: 'heavy', key: 'b5x_a_heavy' },
+      { items: ['apple', 'feather'],         ans: 'feather',    cmp: 'light', key: 'b5x_a_light' }
+    ];
+  var B5X_B_CASES = [
+      { ansScene: 'bridge', key: 'b5x_b_bridge' },
+      { ansScene: 'gate',   key: 'b5x_b_gate' },
+      { ansScene: 'seesaw', key: 'b5x_b_seesaw' }
+    ];
+  var B5X_C_CASES = [
+      { items: ['elephant', 'feather'], ansItem: 'elephant', ansBox: 'heavy', key: 'b4_c_elephant' },
+      { items: ['feather', 'elephant'], ansItem: 'feather',  ansBox: 'light', key: 'b5x_c_feather' },
+      { items: ['elephant', 'apple'],   ansItem: 'elephant', ansBox: 'heavy', key: 'b4_c_elephant' },
+      { items: ['apple', 'feather'],    ansItem: 'feather',  ansBox: 'light', key: 'b5x_c_feather' }
+    ];
+  var B5X_SCENES = ['bridge', 'gate', 'seesaw'];
   var b1IndexOfSize = L.b1IndexOfSize;
   var b1Sentence = L.b1Sentence;
   var b2CmpIndex = L.b2CmpIndex;

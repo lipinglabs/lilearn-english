@@ -286,7 +286,28 @@
       ],
       "note": "12 岛 59 个出题器全部外置；core 保留空注册表作为兜底。usedPairs 的两处整体替换改为原地清空，保证桥接引用一致。"
     },
-    "registry": "QUESTION_MAKERS = {} (all 59 makers externalized)"
+    "registry": "QUESTION_MAKERS = {} (all 59 makers externalized)",
+    "bridgeSymbols": 93,
+    "dataSplit": {
+      "constantsMoved": 167,
+      "perIsland": {
+        "1": 6,
+        "2": 16,
+        "3": 12,
+        "4": 14,
+        "5": 16,
+        "6": 16,
+        "7": 10,
+        "8": 11,
+        "9": 20,
+        "10": 17,
+        "11": 15,
+        "12": 14
+      },
+      "bridgeBefore": 260,
+      "bridgeAfter": 93,
+      "note": "167 个岛专属题库常量搬进各自 levels/island-NN.js；被引擎引用或跨岛共享的 93 个符号仍经 __LLCore 桥接。"
+    }
   },
   "coreShared": [
     {

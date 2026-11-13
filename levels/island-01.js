@@ -12,12 +12,23 @@
   var FRUITS = L.FRUITS;
   var NUMBERS_W2 = L.NUMBERS_W2;
   var NUMBERS_W3 = L.NUMBERS_W3;
-  var PAINT_ITEMS = L.PAINT_ITEMS;
-  var SMALL_COUNTS = L.SMALL_COUNTS;
-  var W5_CFRUITS = L.W5_CFRUITS;
-  var W5_COLORS = L.W5_COLORS;
-  var W5_NUMBERS = L.W5_NUMBERS;
-  var W5_PILE_POOL = L.W5_PILE_POOL;
+  var PAINT_ITEMS = [
+      { id: 'car', asset: 'car' },
+      { id: 'balloon', asset: 'balloon' }
+    ];
+  var SMALL_COUNTS = [2, 3, 4, 5];
+  var W5_CFRUITS = [                           // 有染色素材、可用于题型 B 的水果
+      { id: 'apple', name: 'apple' },
+      { id: 'strawberry', name: 'strawberry' },
+      { id: 'grape', name: 'grape' }
+    ];
+  var W5_COLORS = [                            // 题型 B/C 只用红蓝黄三种篮子
+      { id: 'red',    css: '#E8463C', deep: '#B92F27' },
+      { id: 'blue',   css: '#3D8BE8', deep: '#2A63B4' },
+      { id: 'yellow', css: '#F5BE3C', deep: '#D19A18' }
+    ];
+  var W5_NUMBERS = [12, 18, 22, 28];
+  var W5_PILE_POOL = [12, 15, 18, 20, 22, 25, 28];
   var pick = L.pick;
   var shuffle = L.shuffle;
   var takeFresh = L.takeFresh;

@@ -6,25 +6,39 @@
    ============================================================ */
 (function () {
   var L = window.__LLCore || {};
-  var L102_D_PAIRS = L.L102_D_PAIRS;
-  var L102_FAST = L.L102_FAST;
-  var L102_SLOW = L.L102_SLOW;
-  var L103_PICS = L.L103_PICS;
-  var L104_A_KEY = L.L104_A_KEY;
-  var L104_B_KEY = L.L104_B_KEY;
-  var L104_C_KEY = L.L104_C_KEY;
-  var L104_ITEM_OF = L.L104_ITEM_OF;
-  var L104_WEATHERS = L.L104_WEATHERS;
-  var L105_B_KEY = L.L105_B_KEY;
-  var L105_C_KEY = L.L105_C_KEY;
-  var L105_ICONS = L.L105_ICONS;
-  var L105_PICS = L.L105_PICS;
-  var L10_A_KEY = L.L10_A_KEY;
-  var L10_B_KEY = L.L10_B_KEY;
-  var L10_C_KEY = L.L10_C_KEY;
+  var L102_D_PAIRS = [
+      { fast: 'rocket', slow: 'snail',  fKey: 'l102_d_rocket', sKey: 'l102_d_snail' },
+      { fast: 'car',    slow: 'turtle', fKey: 'l102_d_car',    sKey: 'l102_d_turtle' }
+    ];
+  var L102_FAST = ['racecar', 'rocket', 'train'];
+  var L102_SLOW = ['turtle', 'snail', 'bicycle'];
+  var L103_PICS = ['green_go', 'red_stop', 'red_go'];
+  var L104_A_KEY = { sunny: 'l104_a_sunny', rainy: 'l104_a_rainy', cloudy: 'l104_a_cloudy' };
+  var L104_B_KEY = { sunny: 'l104_b_sunny', rainy: 'l104_b_rainy' };
+  var L104_C_KEY = { sun: 'l104_c_sun', rain: 'l104_c_rain', cloud: 'l104_c_cloud' };
+  var L104_ITEM_OF = { sunny: 'sunglasses', rainy: 'umbrella' };
+  var L104_WEATHERS = ['sunny', 'rainy', 'cloudy'];
+  var L105_B_KEY = {
+      green_go: 'l103_b_green_go',
+      red_stop: 'l103_b_red_stop',
+      rain_umbrella: 'l105_b_rain'
+    };
+  var L105_C_KEY = {
+      sun: 'l104_a_sunny',
+      umbrella: 'l105_c_umbrella',
+      redlight: 'l105_c_stop'
+    };
+  var L105_ICONS = ['sun', 'umbrella', 'redlight'];
+  var L105_PICS = ['green_go', 'red_stop', 'rain_umbrella'];
+  var L10_A_KEY = {
+      car: 'l10_a_car_road', bus: 'l10_a_bus_road',
+      train: 'l10_a_train_tracks', plane: 'l10_a_plane_sky'
+    };
+  var L10_B_KEY = { car: 'l10_b_car', bus: 'l10_b_bus', train: 'l10_b_train', plane: 'l10_b_plane' };
+  var L10_C_KEY = { car: 'l10_c_car', bus: 'l10_c_bus', train: 'l10_c_train', plane: 'l10_c_plane' };
   var L10_SCENES = L.L10_SCENES;
   var L10_SCENE_OF = L.L10_SCENE_OF;
-  var L10_VEHICLES = L.L10_VEHICLES;
+  var L10_VEHICLES = ['car', 'bus', 'train', 'plane'];
   var pick = L.pick;
   var shuffle = L.shuffle;
 

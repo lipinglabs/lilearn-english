@@ -278,7 +278,7 @@
   var NUMBERS_W2 = [16, 17, 18, 19, 20];
   /* 第 3 关（W3）：21–29 与短句组合 */
   var NUMBERS_W3 = [21, 22, 23, 24, 25, 26, 27, 28, 29];
-  var SMALL_COUNTS = [2, 3, 4, 5];
+  
   /* 第 4 关（W4）：颜色初体验 */
   var COLORS = [
     { id: 'red',    css: '#E8463C', deep: '#B92F27' },
@@ -287,24 +287,13 @@
     { id: 'green',  css: '#4FB55F', deep: '#2F8C3F' }
   ];
   /* 题型 C 可染色的物品（灰色 → 点对颜色后上色） */
-  var PAINT_ITEMS = [
-    { id: 'car', asset: 'car' },
-    { id: 'balloon', asset: 'balloon' }
-  ];
+  
 
   /* 第 5 关（W5）：游乐场终极考验 —— 数字 / 数量 / 颜色综合 + 拖拽 */
-  var W5_NUMBERS = [12, 18, 22, 28];           // 有语音的正确答案池
-  var W5_PILE_POOL = [12, 15, 18, 20, 22, 25, 28]; // 干扰果堆可以用的数量
-  var W5_COLORS = [                            // 题型 B/C 只用红蓝黄三种篮子
-    { id: 'red',    css: '#E8463C', deep: '#B92F27' },
-    { id: 'blue',   css: '#3D8BE8', deep: '#2A63B4' },
-    { id: 'yellow', css: '#F5BE3C', deep: '#D19A18' }
-  ];
-  var W5_CFRUITS = [                           // 有染色素材、可用于题型 B 的水果
-    { id: 'apple', name: 'apple' },
-    { id: 'strawberry', name: 'strawberry' },
-    { id: 'grape', name: 'grape' }
-  ];
+             // 有语音的正确答案池
+   // 干扰果堆可以用的数量
+  
+  
   var FRUITS = [
     { id: 'apple', emoji: '🍎' },
     { id: 'banana', emoji: '🍌' },
@@ -1908,7 +1897,7 @@
   ];
 
   // 鲜艳但柔和的颜色池：每道题随机分配，避免孩子靠颜色记答案
-  var SHAPE_COLORS = ['#EA5A4F', '#F3B93E', '#4C8FE8', '#57B96B', '#B07CD8', '#F08CB0'];
+  
   var svgSeq = 0;
 
   function lighten(hex, k) {
@@ -2095,19 +2084,10 @@
 
   /* ================= 第 2 岛第 2 关：空间方位（in / on） ================= */
 
-  var P2_POS = ['in', 'on', 'beside'];
-  var P2_SENTENCE = { in: 's_in', on: 's_on', beside: 's_beside' };
-  var P2_ITEMS = [
-    { key: 'apple', id: 'apple', audio: 'pt_apple' },
-    { key: 'book', id: 'book', audio: 'pt_book' },
-    { key: 'cup', id: 'cup', audio: 'pt_cup' }
-  ];
-  var P2_VERDICTS = [
-    { key: 'catPlate', kind: 'catPlate', match: 's_cat_on', mismatch: 's_cat_in' },
-    { key: 'catBox', kind: 'catInBox', match: 's_cat_in', mismatch: 's_cat_on' },
-    { key: 'ballIn', kind: 'ballInBox', match: 's_in', mismatch: 's_on' },
-    { key: 'ballOn', kind: 'ballOnBox', match: 's_on', mismatch: 's_in' }
-  ];
+  
+  
+  
+  
 
   var p2Uid = 0;   // 径向渐变要唯一 id，否则多个实例会互相顶掉
 
@@ -2356,19 +2336,10 @@
 
   /* ================= 第 2 岛第 3 关：空间进阶（under / behind） ================= */
 
-  var P3_POS = ['under', 'behind', 'on'];
-  var P3_SENT = { under: 's_cat_under', behind: 's_cat_behind', on: 's_cat_chair_on' };
-  var P3_ITEMS = [
-    { key: 'dog', id: 'dog', audio: 'put_dog_behind' },
-    { key: 'ball', id: 'ball', audio: 'put_ball_behind' },
-    { key: 'book', id: 'book', audio: 'put_book_behind' }
-  ];
-  var P3_VERDICTS = [
-    { key: 'ballUnderBed', kind: 'ballUnderBed', match: 's_ball_under', mismatch: 's_ball_on' },
-    { key: 'ballOnBed', kind: 'ballOnBed', match: 's_ball_on', mismatch: 's_ball_under' },
-    { key: 'boyBehindDoor', kind: 'boyBehindDoor', match: 's_boy_behind', mismatch: 's_boy_under' },
-    { key: 'catUnderChair', kind: 'catUnderChair', match: 's_cat_under', mismatch: 's_cat_behind' }
-  ];
+  
+  
+  
+  
 
   var p3Uid = 0;
 
@@ -2659,16 +2630,9 @@
 
   /* ================= 第 2 岛第 4 关：形状 + 空间组合 ================= */
 
-  var P4_POS = ['on', 'in', 'beside'];
-  var P4_ITEMS = [
-    { key: 'book', id: 'book', audio: 'cb_book_in' },
-    { key: 'apple', id: 'apple', audio: 'cb_apple_in' },
-    { key: 'pizza', id: 'pizza', audio: 'cb_pizza_in' }
-  ];
-  var P4_VERDICTS = [
-    { key: 'triOnSquare', kind: 'triOnSquare', match: 'cb_tri_on', mismatch: 'cb_tri_in' },
-    { key: 'circleInSquare', kind: 'circleInSquare', match: 'cb_circle_in', mismatch: 'cb_circle_on' }
-  ];
+  
+  
+  
 
   var p4Uid = 0;
   function p4G(prefix) { p4Uid += 1; return prefix + p4Uid; }
@@ -2969,22 +2933,10 @@
   /* ================= 第 2 岛第 5 关：形状与空间终极考验 ================= */
 
   /* 题型 A 的三个方位；题型 B 的三件物品（形状不同）；题型 C 的三组夸张场景 */
-  var P5_POS = ['on', 'in', 'behind'];
-  var P5_POS_SENT = {
-    on: 'cb_star_on_circle',
-    in: 'cb_star_in_circle',
-    behind: 'p5_star_behind_circle'
-  };
-  var P5_ITEMS = [
-    { key: 'apple', id: 'apple', audio: 'cb_apple_in' },   // 圆形的苹果
-    { key: 'pizza', id: 'pizza', audio: 'cb_pizza_in' },   // 三角形的披萨
-    { key: 'book',  id: 'book',  audio: 'cb_book_in'  }    // 长方形的书
-  ];
-  var P5_VERDICTS = [
-    { key: 'triOn',      kind: 'triOnSquare',      match: 'cb_tri_on',      mismatch: 'cb_tri_in' },
-    { key: 'circleIn',   kind: 'circleInSquare',   match: 'cb_circle_in',   mismatch: 'cb_circle_on' },
-    { key: 'rectBehind', kind: 'rectBehindSquare', match: 'p5_rect_behind', mismatch: 'p5_rect_on' }
-  ];
+  
+  
+  
+  
 
   /**
    * 星星与圆环（圈上 / 圈里 / 圈后）。
@@ -3063,24 +3015,10 @@
   /* ---------------- 第 3 岛第 1 关：大与小（Big / Small） ---------------- */
 
   /** 题型 A/C 的对比物品：同一件东西分大号与小号（用同一张 3D 素材，只改显示尺寸） */
-  var B1_ITEMS = [
-    { id: 'apple',   asset: 'apple',
-      big: 'l3_find_big_apple',   small: 'l3_find_small_apple',
-      putBig: 'l3_put_big_apple', putSmall: 'l3_put_small_apple' },
-    { id: 'balloon', asset: 'balloon_red',
-      big: 'l3_find_big_balloon', small: 'l3_find_small_balloon',
-      putBig: 'l3_put_big_balloon', putSmall: 'l3_put_small_balloon' },
-    { id: 'car',     asset: 'car_red',
-      big: 'l3_find_big_car',     small: 'l3_find_small_car' }
-  ];
+  
 
   /** 题型 B 的动物：每只动物都有「大 / 小」两条陈述句 */
-  var B1_ANIMALS = [
-    { id: 'elephant', big: 'l3_el_big',    small: 'l3_el_small' },
-    { id: 'dog',      big: 'l3_dog_big',   small: 'l3_dog_small' },
-    { id: 'cat',      big: 'l3_cat_big',   small: 'l3_cat_small' },
-    { id: 'mouse',    big: 'l3_mouse_big', small: 'l3_mouse_small' }
-  ];
+  
 
   function b1Sentence(animal, size) { return size === 'big' ? animal.big : animal.small; }
   /** 选项洗过牌，正确下标必须按「尺寸」重新找，不能写死 0/1 */
@@ -3093,9 +3031,9 @@
 
   /* ---------------- 第 3 岛第 2 关（多 / 少 More / Less） ---------------- */
 
-  var B2_FRUITS_A = [{ id: 'apple' }, { id: 'banana' }, { id: 'grape' }];
-  var B2_FRUITS_B = [{ id: 'apple' }, { id: 'strawberry' }, { id: 'grape' }];
-  var B2_FRUITS_C = [{ id: 'apple' }, { id: 'banana' }, { id: 'grape' }];
+  
+  
+  
 
   /** 选项洗过牌，正确下标必须按「多 / 少」重新找，不能写死 0/1 */
   function b2CmpIndex(opts, cmp) {
@@ -3854,28 +3792,11 @@
   }
 
   /** 题型 A：3 个物品里点出「重的 / 轻的」（只有一个正确重量） */
-  var B4_A_CASES = [
-    { items: ['elephant', 'feather', 'apple'],  ans: 'elephant', weight: 'heavy', key: 'b4_a_heavy' },
-    { items: ['rock', 'balloon', 'elephant'],   ans: 'balloon',  weight: 'light', key: 'b4_a_light' },
-    { items: ['rock', 'feather', 'balloon'],    ans: 'rock',     weight: 'heavy', key: 'b4_a_heavy' },
-    { items: ['elephant', 'apple', 'rock'],     ans: 'apple',    weight: 'light', key: 'b4_a_light' },
-    { items: ['rock', 'apple', 'balloon'],      ans: 'rock',     weight: 'heavy', key: 'b4_a_heavy' },
-    { items: ['elephant', 'feather', 'rock'],   ans: 'feather',  weight: 'light', key: 'b4_a_light' }
-  ];
+  
   /** 题型 B：跷跷板（左沉底=重，右翘起=轻），问谁重 / 谁轻 */
-  var B4_B_CASES = [
-    { left: 'elephant', right: 'monkey',  ask: 'heavy', key: 'b4_b_elephant_monkey_heavy' },
-    { left: 'rock',     right: 'balloon', ask: 'light', key: 'b4_b_rock_balloon_light' },
-    { left: 'elephant', right: 'feather', ask: 'heavy', key: 'b4_b_elephant_feather_heavy' },
-    { left: 'rock',     right: 'apple',   ask: 'light', key: 'b4_b_rock_apple_light' }
-  ];
+  
   /** 题型 C：把物品拖进对应的重量框（每题只有一个「正确物品 + 正确框」组合） */
-  var B4_C_CASES = [
-    { items: ['rock', 'balloon'],    ansItem: 'rock',    ansBox: 'heavy', key: 'b4_c_rock' },
-    { items: ['balloon', 'rock'],    ansItem: 'balloon', ansBox: 'light', key: 'b4_c_balloon' },
-    { items: ['elephant', 'feather'], ansItem: 'elephant', ansBox: 'heavy', key: 'b4_c_elephant' },
-    { items: ['apple', 'rock'],      ansItem: 'apple',   ansBox: 'light', key: 'b4_c_apple' }
-  ];
+  
 
   
 
@@ -4254,37 +4175,15 @@
   }
 
   /* ---- 题型 A：两件物品听比较词（每组只有一个正确答案） ---- */
-  var B5X_A_CASES = [
-    { items: ['elephant', 'balloon'],      ans: 'elephant',   cmp: 'heavy', key: 'b5x_a_heavy' },
-    { items: ['rock', 'feather'],          ans: 'rock',       cmp: 'heavy', key: 'b5x_a_heavy' },
-    { items: ['mouse', 'elephant'],        ans: 'elephant',   cmp: 'big',   key: 'b5_a_bigger' },
-    { items: ['car', 'train'],             ans: 'train',      cmp: 'long',  key: 'b5_a_longer' },
-    { items: ['apple', 'rock'],            ans: 'apple',      cmp: 'light', key: 'b5x_a_light' },
-    { items: ['key_small', 'key_big'],     ans: 'key_big',    cmp: 'big',   key: 'b5_a_bigger' },
-    { items: ['board_short', 'board_long'], ans: 'board_long', cmp: 'long',  key: 'b5_a_longer' },
-    { items: ['elephant', 'mouse'],        ans: 'mouse',      cmp: 'small', key: 'b5_a_smaller' },
-    { items: ['train', 'car'],             ans: 'car',        cmp: 'short', key: 'b5_a_shorter' },
-    { items: ['balloon', 'rock'],          ans: 'balloon',    cmp: 'light', key: 'b5x_a_light' },
-    { items: ['feather', 'elephant'],      ans: 'elephant',   cmp: 'heavy', key: 'b5x_a_heavy' },
-    { items: ['apple', 'feather'],         ans: 'feather',    cmp: 'light', key: 'b5x_a_light' }
-  ];
+  
   /* ---- 题型 B：三个固定场景（断桥 / 大门 / 跷跷板），听句子选画面 ---- */
-  var B5X_SCENES = ['bridge', 'gate', 'seesaw'];
-  var B5X_B_CASES = [
-    { ansScene: 'bridge', key: 'b5x_b_bridge' },
-    { ansScene: 'gate',   key: 'b5x_b_gate' },
-    { ansScene: 'seesaw', key: 'b5x_b_seesaw' }
-  ];
+  
+  
   /* ---- 题型 C：两个大框 + 两件物品，只有「正确物品 + 正确框」一组 ---- */
   /* 两个框的图标固定是「石头＝重 / 气球＝轻」，所以**物品里绝不出现石头和气球**——
      否则孩子不看题、只把同样的图配同样的图标就能过关（RULES §三.16 禁止视觉作弊）。
      句意与第 4 关完全一致的直接复用既有 key，避免同一句两个音色（RULES §一.12）。 */
-  var B5X_C_CASES = [
-    { items: ['elephant', 'feather'], ansItem: 'elephant', ansBox: 'heavy', key: 'b4_c_elephant' },
-    { items: ['feather', 'elephant'], ansItem: 'feather',  ansBox: 'light', key: 'b5x_c_feather' },
-    { items: ['elephant', 'apple'],   ansItem: 'elephant', ansBox: 'heavy', key: 'b4_c_elephant' },
-    { items: ['apple', 'feather'],    ansItem: 'feather',  ansBox: 'light', key: 'b5x_c_feather' }
-  ];
+  
 
   /** 结业关出题：A 综合判断（2 件）/ B 场景匹配（3 个场景）/ C 终极大拖拽（2 框 2 物品） */
   
@@ -4537,7 +4436,7 @@
            答错 again 温柔鼓励、通关 playRandomPraise(playLevelComplete)（§1.11）。
      图片：assets.js 的 ANIMAL_IMG（dog / cat / pig / cow），不调用任何生图接口（§二.13）。 */
 
-  var F1_ANIMALS = ['dog', 'cat', 'pig', 'cow'];
+  
 
   /** 取动物图（统一 class；禁用原生 drag，避免与指针拖拽流程打架） */
   function f1Img(animal, cls) {
@@ -4820,15 +4719,10 @@
      图片：ANIMAL_IMG（lion / tiger / monkey / elephant + 农场 4 只）+ 内联 SVG 场景（§二.13）。 */
 
   var F2_JUNGLE = ['lion', 'tiger', 'monkey', 'elephant'];
-  var F2_FARM = ['dog', 'cat', 'pig', 'cow'];
+  
 
   /** 题型 B 的描述题：答案 + 允许的干扰项（干扰项必须都不具备该特征，否则题目有歧义） */
-  var F2_DESC = [
-    { key: 'stripes', ans: 'tiger',    pool: ['lion', 'monkey', 'elephant'] },
-    { key: 'king',    ans: 'lion',     pool: ['tiger', 'monkey', 'elephant'] },
-    { key: 'bananas', ans: 'monkey',   pool: ['lion', 'tiger', 'elephant'] },
-    { key: 'big',     ans: 'elephant', pool: ['monkey', 'dog', 'cat'] }
-  ];
+  
 
   /** 取动物图（禁用原生 drag，避免与指针拖拽流程打架） */
   function f2Img(animal, cls) {
@@ -5289,11 +5183,11 @@
            + 手写内联 SVG 小人（跑 / 走 / 睡；跑姿摆腿、睡姿盖被呼吸）。所有图形不含文字，
              「Z」用折线 path 画，绝不出现英文字母（RULES §二.1）。 */
 
-  var F3_ACTIONS = ['run', 'jump', 'eat', 'sleep'];
+  
   /** 每个动词的「标准画面」：题型 A 与教学互动都用它，保证同一动作的图始终一致 */
-  var F3_CANON = { run: 'boy_run', jump: 'kangaroo', eat: 'monkey_eat', sleep: 'bear_sleep' };
-  var F3_ALL_ITEMS = ['boy_run', 'dog_run', 'boy_sleep', 'cat_sleep'];
-  var F3_ZONE_OF = { boy_run: 'run', dog_run: 'run', boy_sleep: 'sleep', cat_sleep: 'sleep' };
+  
+  
+  
 
   /** 画面主体登记：kid = 内联 SVG 小人；img = ANIMAL_IMG 里的 3D 素材 */
   var F3_SUBJ = {
@@ -5311,12 +5205,7 @@
   };
 
   /** 题型 B：三条短句 + 一个提问，答案同时锁定「动物」与「动作」，因此干扰项不能重名 */
-  var F3_SCENES = [
-    { key: 'eat',   ans: 'monkey_eat', subs: ['bird_fly', 'cat_sleep', 'monkey_eat'] },
-    { key: 'sleep', ans: 'bear_sleep', subs: ['kangaroo', 'bear_sleep', 'boy_run'] },
-    { key: 'run',   ans: 'dog_run',    subs: ['frog', 'dog_run', 'pig_eat'] },
-    { key: 'jump',  ans: 'kangaroo',   subs: ['cat_sleep', 'monkey_eat', 'kangaroo'] }
-  ];
+  
 
   /** 小男孩三姿态的内联 SVG（纯图形，无任何 text 节点） */
   function f3KidMarkup(pose) {
@@ -5995,10 +5884,10 @@
   };
 
   /** 答题池：6 个「动物 + 动作」场景，任两个都能互相当干扰项（动物与动作都不同） */
-  var F4_POOL = ['dog_run', 'cat_sleep', 'monkey_eat', 'horse_run', 'pig_sleep', 'bear_eat'];
+  
   /** 题型 C 的 4 个可拖物品及归属 */
-  var F4_C_ITEMS = ['dog_run', 'cat_sleep', 'horse_run', 'pig_sleep'];
-  var F4_ZONE_OF = { dog_run: 'run', horse_run: 'run', cat_sleep: 'sleep', pig_sleep: 'sleep' };
+  
+  
 
   /** 主体（动物 + 动作装饰），定位在场景中心偏下 */
   function f4Actor(subj, cls) {
@@ -6529,31 +6418,15 @@
   Object.keys(F5_EXTRA_SCENES).forEach(function (k) { F4_SCENES[k] = F5_EXTRA_SCENES[k]; });
 
   /** 题型 A：6 组「动物 + 动作」（目标 + 2 个不同动作的干扰场景），语音逐条对应 */
-  var F5_A_CASES = [
-    { key: 'l4w5_a_run_dog',       target: 'dog_run',       set: ['frog_jump', 'cat_sleep'] },
-    { key: 'l4w5_a_run_horse',     target: 'horse_run',     set: ['kangaroo_jump', 'bear_sleep'] },
-    { key: 'l4w5_a_jump_frog',     target: 'frog_jump',     set: ['dog_run', 'cat_sleep'] },
-    { key: 'l4w5_a_jump_kangaroo', target: 'kangaroo_jump', set: ['horse_run', 'pig_sleep'] },
-    { key: 'l4w5_a_sleep_cat',     target: 'cat_sleep',     set: ['dog_run', 'frog_jump'] },
-    { key: 'l4w5_a_sleep_bear',    target: 'bear_sleep',    set: ['horse_run', 'kangaroo_jump'] }
-  ];
+  
 
   /** 题型 B：放大镜里的剪影 = 会做这个动作的三种动物之一。
       每组都要「剪影一眼能分开」：狗 / 马 / 猪、青蛙 / 袋鼠 / 猫、猫 / 熊 / 狮子。
       （最早那组是青蛙 / 袋鼠 / 猴，袋鼠和猴的剪影都是圆团＋两只小耳朵，几乎分不出来） */
-  var F5_B_SETS = [
-    { act: 'run',   animals: ['dog', 'horse', 'pig'],   key: 'l4w5_b_run' },
-    { act: 'jump',  animals: ['frog', 'kangaroo', 'cat'], key: 'l4w5_b_jump' },
-    { act: 'sleep', animals: ['cat', 'bear', 'lion'],   key: 'l4w5_b_sleep' }
-  ];
+  
 
   /** 题型 C：同一只动物 × 三种动作，永远只有一个正确答案 */
-  var F5_C_CASES = [
-    { animal: 'dog',   set: ['dog_run', 'dog_eat', 'dog_sleep'],       ans: 'dog_eat',     key: 'l4w5_c_dog' },
-    { animal: 'cat',   set: ['cat_run', 'cat_eat', 'cat_sleep'],       ans: 'cat_run',     key: 'l4w5_c_cat' },
-    { animal: 'horse', set: ['horse_run', 'horse_eat', 'horse_sleep'], ans: 'horse_sleep', key: 'l4w5_c_horse' },
-    { animal: 'pig',   set: ['pig_run', 'pig_eat', 'pig_sleep'],       ans: 'pig_eat',     key: 'l4w5_c_pig' }
-  ];
+  
 
   /** 相机按钮：本关唯一的新交互，孩子模仿完动作后由孩子或家长点它 */
   function f5CamButton(opts) {
@@ -7238,24 +7111,9 @@
     judge(ok, ok ? target : optionEls[itemIdx]);
   }
 
-  var F6_A_CASES = [
-    { food: 'milk',  key: 'l5w1_a_milk' },
-    { food: 'bread', key: 'l5w1_a_bread' },
-    { food: 'egg',   key: 'l5w1_a_egg' },
-    { food: 'rice',  key: 'l5w1_a_rice' }
-  ];
-  var F6_B_CASES = [
-    { food: 'milk',  key: 'l5w1_b_milk' },
-    { food: 'bread', key: 'l5w1_b_bread' },
-    { food: 'egg',   key: 'l5w1_b_egg' },
-    { food: 'rice',  key: 'l5w1_b_rice' }
-  ];
-  var F6_C_CASES = [
-    { food: 'milk',  key: 'l5w1_c_milk' },
-    { food: 'bread', key: 'l5w1_c_bread' },
-    { food: 'egg',   key: 'l5w1_c_egg' },
-    { food: 'rice',  key: 'l5w1_c_rice' }
-  ];
+  
+  
+  
 
   /** 两个干扰项：只从另外三种食物里抽（保证题目只有一个正确答案） */
   function f6Distract(target, n) {
@@ -7431,7 +7289,7 @@
 
   var F7_ITEMS = ['bowl', 'spoon', 'cup', 'fork'];
   /* 题型 C 的容器固定是碗，可拖的三件是这三样（碗自己不能放进碗里） */
-  var F7_C_ITEMS = ['spoon', 'fork', 'cup'];
+  
 
   /* 四件餐具共用一套调子：同一支暖色描边 #e0c9a6、同一道白色高光、同一片暖色落影。
      材质分工：碗 / 杯是暖白瓷，勺 / 叉是浅灰金属——同风格但不同材质，符合真实认知。 */
@@ -7766,25 +7624,11 @@
   }
 
   /** 题型 A：听音找餐具 */
-  var F7_A_CASES = [
-    { item: 'bowl',  key: 'l5w2_a_bowl' },
-    { item: 'spoon', key: 'l5w2_a_spoon' },
-    { item: 'cup',   key: 'l5w2_a_cup' },
-    { item: 'fork',  key: 'l5w2_a_fork' }
-  ];
+  
   /** 题型 B：听句子找场景（一张卡 = 一个整幅场景，不是单个餐具） */
-  var F7_B_CASES = [
-    { scene: 'soup',    key: 'l5w2_b_bowl' },
-    { scene: 'scSpoon', key: 'l5w2_b_spoon' },
-    { scene: 'scWater', key: 'l5w2_b_cup' },
-    { scene: 'scMeat',  key: 'l5w2_b_fork' }
-  ];
+  
   /** 题型 C：把餐具放进碗里（容器固定是碗，所以只有三件可放） */
-  var F7_C_CASES = [
-    { item: 'spoon', key: 'l5w2_c_spoon' },
-    { item: 'fork',  key: 'l5w2_c_fork' },
-    { item: 'cup',   key: 'l5w2_c_cup' }
-  ];
+  
 
   /** 干扰项：只从其余的餐具里抽（保证题目只有一个正确答案） */
   function f7Distract(target, n) {
@@ -8397,27 +8241,12 @@
   }
 
   /** 题型 A：听短语找画面（四个句型各一张标准画面） */
-  var F8_A_CASES = [
-    { scene: 'likeApple', key: 'l5w3_a_like' },
-    { scene: 'dislike',   key: 'l5w3_a_nolike' },
-    { scene: 'more',      key: 'l5w3_a_more' },
-    { scene: 'full',      key: 'l5w3_a_done' }
-  ];
+  
   /** 题型 B：听情境选回答（上方情境 → 三张「他说什么」里挑一张） */
-  var F8_B_CASES = [
-    { situation: 'appleBig',  answer: 'likeApple', key: 'l5w3_b_like' },
-    { situation: 'lemonBig',  answer: 'dislike',   key: 'l5w3_b_nolike' },
-    { situation: 'emptyCup',  answer: 'more',      key: 'l5w3_b_more' },
-    { situation: 'doneTable', answer: 'full',      key: 'l5w3_b_done' }
-  ];
+  
   /** 题型 C：把食物拖进「喜欢 / 不喜欢」框。托盘里固定两样（一件能吃、一件柠檬），
       保证只有唯一正确答案；柠檬永远进「不喜欢」框 */
-  var F8_C_CASES = [
-    { food: 'apple', box: 'happy', other: 'lemon', key: 'l5w3_c_apple' },
-    { food: 'milk',  box: 'happy', other: 'lemon', key: 'l5w3_c_milk' },
-    { food: 'lemon', box: 'sad',   other: 'apple', key: 'l5w3_c_lemon' },
-    { food: 'lemon', box: 'sad',   other: 'milk',  key: 'l5w3_c_lemon2' }
-  ];
+  
 
   /** 干扰项：从其余标准画面里抽，保证「只有一张是对的」 */
   function f8Distract(target, n) {
@@ -8884,15 +8713,11 @@
   }
 
   /** 题型 A：三张客人状态（hungry/full/eating），找 hungry */
-  var F9_A_STATES = ['hungry', 'full', 'eating'];
+  
   /** 题型 B：听需求配餐（面包 / 牛奶 / 苹果），拖对的食物给小客人 */
-  var F9_B_CASES = [
-    { food: 'bread', key: 'l5w4_b_bread' },
-    { food: 'milk',  key: 'l5w4_b_milk' },
-    { food: 'apple', key: 'l5w4_b_apple' }
-  ];
+  
   /** 题型 C：三张对话场景（giveApple/crying/sleeping），找「Here you are」+「Thank you」 */
-  var F9_C_SCENES = ['giveApple', 'crying', 'sleeping'];
+  
 
   /** 出题：0 = A 找客人状态 / 1 = B 配餐 / 2 = C 选对话场景 */
   
@@ -9265,15 +9090,11 @@
   }
 
   /** 题型 A：听需求配餐（面包 / 牛奶 / 苹果），拖对的食物给小客人 */
-  var F10_A_CASES = [
-    { food: 'bread', key: 'l5w5_a_bread' },
-    { food: 'milk',  key: 'l5w5_a_milk' },
-    { food: 'apple', key: 'l5w5_a_apple' }
-  ];
+  
   /** 题型 B：三张客人状态（在吃 / 不要了 / 还要更多），找「还要更多」 */
-  var F10_B_STATES = ['eating', 'fullPush', 'more'];
+  
   /** 题型 C：热汤要勺子（勺子 / 杯子 / 叉子） */
-  var F10_C_UTENSILS = ['spoon', 'cup', 'fork'];
+  
 
   /** 出题：0 = A 端菜（拖）/ 1 = B 找要更多的客人 / 2 = C 选餐具 */
   
@@ -9687,25 +9508,13 @@
     judge(ok, ok ? target : optionEls[itemIdx]);
   }
 
-  var F11_FURN = ['bed', 'table', 'chair', 'sofa'];
+  
   /** 题型 A：听音找家具（目标 + 2 随机干扰，抽 3 个） */
-  var F11_A_CASES = [
-    { furn: 'bed',   key: 'l6w1_a_bed' },
-    { furn: 'table', key: 'l6w1_a_table' },
-    { furn: 'chair', key: 'l6w1_a_chair' },
-    { furn: 'sofa',  key: 'l6w1_a_sofa' }
-  ];
+  
   /** 题型 B：听句子找场景（三张场景全上：男孩在床上 / 苹果在桌上 / 猫在沙发上） */
-  var F11_B_CASES = [
-    { scene: 'bedSleep',   key: 'l6w1_b_bed' },
-    { scene: 'tableApple', key: 'l6w1_b_table' },
-    { scene: 'sofaCat',    key: 'l6w1_b_sofa' }
-  ];
+  
   /** 题型 C：拖物品布置房间（枕头→床、猫→沙发） */
-  var F11_C_CASES = [
-    { item: 'pillow', target: 'bed',  key: 'l6w1_c_pillow' },
-    { item: 'cat',    target: 'sofa', key: 'l6w1_c_cat' }
-  ];
+  
 
   /** 出题：0 = A 找家具 / 1 = B 找场景 / 2 = C 布置房间 */
   
@@ -10079,23 +9888,11 @@
   }
 
   /** 题型 A：听音找动作（4 个动作，目标 + 2 干扰） */
-  var F12_A_CASES = [
-    { act: 'watchTV', key: 'l6w2_a_tv' },
-    { act: 'read',    key: 'l6w2_a_read' },
-    { act: 'bath',    key: 'l6w2_a_bath' },
-    { act: 'sleep',   key: 'l6w2_a_sleep' }
-  ];
+  
   /** 题型 B：听场景找房间（卧室 / 浴室 / 客厅 三选一） */
-  var F12_B_CASES = [
-    { scene: 'bathroom', key: 'l6w2_b_bath' },
-    { scene: 'living',   key: 'l6w2_b_tv' },
-    { scene: 'bedroom',  key: 'l6w2_b_sleep' }
-  ];
+  
   /** 题型 C：拖宝宝做日常（放床上睡觉、放浴缸洗澡） */
-  var F12_C_CASES = [
-    { item: 'babySleep', target: 'bed', key: 'l6w2_c_sleep' },
-    { item: 'babyBath',  target: 'tub', key: 'l6w2_c_bath' }
-  ];
+  
 
   /** 出题：0 = A 找动作 / 1 = B 找房间 / 2 = C 布置日常 */
   
@@ -10456,23 +10253,11 @@
   }
 
   /** 题型 A：3 家具各一球，目标（furn, place）由 audio 点明 */
-  var F13_A_CASES = [
-    { scene: [['bed', 'on'], ['sofa', 'on'], ['table', 'under']], furn: 'table', place: 'under', key: 'l6w3_a_under_table' },
-    { scene: [['bed', 'under'], ['sofa', 'on'], ['table', 'on']], furn: 'sofa', place: 'on', key: 'l6w3_a_on_sofa' },
-    { scene: [['bed', 'under'], ['sofa', 'on'], ['table', 'on']], furn: 'bed', place: 'under', key: 'l6w3_a_under_bed' },
-    { scene: [['bed', 'under'], ['sofa', 'under'], ['table', 'on']], furn: 'table', place: 'on', key: 'l6w3_a_on_table' }
-  ];
+  
   /** 题型 B：三张场景（球在沙发上 / 床底下 / 箱子里） */
-  var F13_B_CASES = [
-    { scene: 'onSofa', furn: 'sofa', place: 'on', key: 'l6w3_b_on_sofa' },
-    { scene: 'underBed', furn: 'bed', place: 'under', key: 'l6w3_b_under_bed' },
-    { scene: 'inBox', furn: 'box', place: 'in', key: 'l6w3_b_in_box' }
-  ];
+  
   /** 题型 C：拖球到沙发 / 桌子 */
-  var F13_C_CASES = [
-    { target: 'sofa', key: 'l6w3_c_on_sofa' },
-    { target: 'table', key: 'l6w3_c_under_table' }
-  ];
+  
 
   
 
@@ -10911,25 +10696,11 @@
   }
 
   /** 题型 A：床/桌子 + 书/玩具，拖正确物品到正确家具 */
-  var F14_A_CASES = [
-    { items: ['book', 'toy'],  furns: ['bed', 'table'], item: 'book', target: 'bed',   place: 'on',   key: 'l6w4_a_book_bed' },
-    { items: ['book', 'ball'], furns: ['bed', 'table'], item: 'book', target: 'table', place: 'on',   key: 'pt_book' },
-    { items: ['toy', 'book'],  furns: ['box', 'bed'],   item: 'toy',  target: 'box',   place: 'in',   key: 'l6w4_a_toy_box' },
-    { items: ['ball', 'book'], furns: ['table', 'bed'], item: 'ball', target: 'table', place: 'under', key: 'l6w3_c_under_table' }
-  ];
+  
   /** 题型 B：三张复合场景（书在床上 / 球在桌下 / 玩具在箱子里） */
-  var F14_B_CASES = [
-    { target: 'bookBed',   item: 'book', furn: 'bed',   place: 'on',    key: 'l6w4_b_bookbed' },
-    { target: 'ballTable', item: 'ball', furn: 'table', place: 'under', key: 'l6w4_b_balltable' },
-    { target: 'toyBox',    item: 'toy',  furn: 'box',   place: 'in',    key: 'l6w4_b_toybox' }
-  ];
+  
   /** 题型 C：多步指令（先放 X 到 Y，再放 X 到 Y） */
-  var F14_C_CASES = [
-    { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['book', 'bed', 'on'], ['ball', 'table', 'under']], s: ['l6w4_c1_s1', 'l6w4_c1_s2'] },
-    { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['toy', 'box', 'in'], ['book', 'table', 'on']],    s: ['l6w4_c2_s1', 'l6w4_c2_s2'] },
-    { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['ball', 'table', 'under'], ['toy', 'box', 'in']], s: ['l6w4_c3_s1', 'l6w4_c3_s2'] },
-    { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['book', 'bed', 'on'], ['toy', 'box', 'in']],      s: ['l6w4_c1_s1', 'l6w4_c3_s2'] }
-  ];
+  
 
   
 
@@ -10941,29 +10712,13 @@
        C 多步指令（First… Then…，两步按顺序拖拽）。复用 F14 的那套渲染 / 判定 / 拖拽引擎（本题型 kind 仍用 f14item / f14scene）。 */
 
   /** 题型 A：单步整理（3 物品 + 3 家具，拖正确物品到正确家具） */
-  var F15_A_CASES = [
-    { items: ['book', 'toy', 'ball'],     furns: ['bed', 'table', 'chair'],   item: 'book',    target: 'bed',       place: 'on',    key: 'l6w4_a_book_bed' },
-    { items: ['toy', 'book', 'clothes'],  furns: ['box', 'bed', 'table'],     item: 'toy',     target: 'box',       place: 'in',    key: 'l6w4_a_toy_box' },
-    { items: ['clothes', 'toy', 'ball'],  furns: ['bed', 'chair', 'table'],   item: 'clothes', target: 'bed',       place: 'on',    key: 'f15_a_clothes_bed' },
-    { items: ['book', 'toy', 'clothes'],  furns: ['bookshelf', 'bed', 'box'], item: 'book',    target: 'bookshelf', place: 'on',    key: 'f15_a_book_shelf' },
-    { items: ['ball', 'book', 'toy'],     furns: ['table', 'bed', 'chair'],   item: 'ball',    target: 'table',     place: 'under', key: 'l6w3_c_under_table' },
-    { items: ['clothes', 'ball', 'book'], furns: ['chair', 'table', 'box'],   item: 'clothes', target: 'chair',     place: 'on',    key: 'f15_a_clothes_chair' }
-  ];
+  
   /** 题型 B：三张复合场景（书在床上 / 玩具在箱子里 / 衣服在椅子上）。
       前两句与第 4 关 l6w4_b_bookbed / l6w4_b_toybox 完全相同，直接复用（RULES §1.12：同句同 key）。 */
-  var F15_B_CASES = [
-    { target: 'bookBed',      item: 'book',    furn: 'bed',   place: 'on',    key: 'l6w4_b_bookbed' },
-    { target: 'toyBox',       item: 'toy',     furn: 'box',   place: 'in',    key: 'l6w4_b_toybox' },
-    { target: 'clothesChair', item: 'clothes', furn: 'chair', place: 'on',    key: 'f15_b_clothes_chair' }
-  ];
+  
   /** 题型 C：多步指令（First… Then…，先放 X 到 Y，再放 Z 到 W）。
       与第 4 关 C 组重复的句子一律复用既有 key（RULES §1.12 同句同 key），只新增 3 条真正的新句。 */
-  var F15_C_CASES = [
-    { furns: ['bed', 'table', 'box'],       items: ['book', 'ball', 'toy'],    steps: [['book', 'bed', 'on'], ['ball', 'table', 'under']],       s: ['l6w4_c1_s1', 'l6w4_c1_s2'] },
-    { furns: ['bed', 'table', 'box'],       items: ['toy', 'clothes', 'book'], steps: [['toy', 'box', 'in'], ['clothes', 'bed', 'on']],          s: ['l6w4_c2_s1', 'f15_c2_s2'] },
-    { furns: ['bed', 'table', 'bookshelf'], items: ['ball', 'book', 'toy'],    steps: [['ball', 'table', 'under'], ['book', 'bookshelf', 'on']],  s: ['l6w4_c3_s1', 'f15_c3_s2'] },
-    { furns: ['chair', 'table', 'box'],     items: ['clothes', 'toy', 'ball'], steps: [['clothes', 'chair', 'on'], ['toy', 'box', 'in']],         s: ['f15_c4_s1', 'l6w4_c3_s2'] }
-  ];
+  
 
   
 
@@ -12272,7 +12027,7 @@
   var G3_BTN_D = '#e0a93b';
   var G3_BLUSH = '#ffb3c1';
   var G3_ACT_CN = { head: '头', nose: '鼻子', ears: '耳朵', eyes: '眼睛', clap: '拍手', stomp: '跺脚', jump: '跳' };
-  var G3_THEN_KEY = { clap: 'g3_then_clap', stomp: 'g3_then_stomp', jump: 'g3_then_jump' };
+  
 
   /** 四角星（「摸到这个部位」的闪光） */
   function g3Spark(cx, cy, r) {
@@ -12714,26 +12469,9 @@
   }
 
   /* ---------------- 出题：A 两步动作 / B 顺序拖拽 / C 找错误 ---------------- */
-  var G3_A_CASES = [
-    { a1: 'ears', a2: 'clap' },
-    { a1: 'head', a2: 'stomp' },
-    { a1: 'nose', a2: 'jump' },
-    { a1: 'eyes', a2: 'clap' }
-  ];
-  var G3_B_CASES = [
-    { a1: 'nose', a2: 'clap', extra: 'jump' },
-    { a1: 'head', a2: 'stomp', extra: 'clap' },
-    { a1: 'eyes', a2: 'jump', extra: 'stomp' },
-    { a1: 'ears', a2: 'clap', extra: 'stomp' }
-  ];
-  var G3_C_CASES = [
-    { a1: 'head', a2: 'nose' },
-    { a1: 'nose', a2: 'head' },
-    { a1: 'ears', a2: 'nose' },
-    { a1: 'nose', a2: 'ears' },
-    { a1: 'head', a2: 'ears' },
-    { a1: 'ears', a2: 'head' }
-  ];
+  
+  
+  
   /** 复合指令语音 key（同句同 key，RULES §1.12：教学 3 句与答题 A/B 共用） */
   function g3CmdKey(a1, a2) {
     var k = a1 + '+' + a2;
@@ -13238,24 +12976,9 @@
   }
 
   /* ---------------- 出题：A 单目标 / B 双目标 / C 动作纠错 ---------------- */
-  var G4_SENT = {
-    'boy+ear': 'g4_t_ear', 'girl+clap': 'g4_t_clap',
-    'boy+stomp': 'g4_a_boy_stomp', 'girl+jump': 'g4_a_girl_jump',
-    'boy+nose': 'g4_a_boy_nose', 'girl+eyes': 'g4_a_girl_eyes',
-    'boy+head': 'g4_a_boy_head', 'girl+ear': 'g4_a_girl_ear'
-  };
-  var G4_A_CASES = [
-    { gender: 'boy', act: 'ear' }, { gender: 'girl', act: 'clap' },
-    { gender: 'boy', act: 'stomp' }, { gender: 'girl', act: 'jump' },
-    { gender: 'boy', act: 'nose' }, { gender: 'girl', act: 'eyes' },
-    { gender: 'boy', act: 'head' }, { gender: 'girl', act: 'ear' }
-  ];
-  var G4_B_CASES = [
-    { s1: { gender: 'boy', act: 'nose' }, s2: { gender: 'girl', act: 'jump' }, key: 'g4_b1', then: 'g4_b1_then' },
-    { s1: { gender: 'girl', act: 'ear' }, s2: { gender: 'boy', act: 'clap' }, key: 'g4_b2', then: 'g4_b2_then' },
-    { s1: { gender: 'boy', act: 'head' }, s2: { gender: 'girl', act: 'stomp' }, key: 'g4_b3', then: 'g4_b3_then' },
-    { s1: { gender: 'girl', act: 'eyes' }, s2: { gender: 'boy', act: 'jump' }, key: 'g4_b4', then: 'g4_b4_then' }
-  ];
+  
+  
+  
 
   function g4SceneSig(scene) {
     return scene.map(function (k) { return k.kid.id + k.act; }).join(',');
@@ -13524,28 +13247,11 @@
 
   /* ---------------- 出题：A 单步动作 / B 复合指令 / C 找小人 ---------------- */
   /* A：单步动作（clap/stomp/head/nose 复用既有 key，jump/ears/闭眼 本关新生成） */
-  var G5_A_ACTS = [
-    { act: 'clap', key: 'g2_t_hand2' }, { act: 'stomp', key: 'g2_t_foot2' },
-    { act: 'jump', key: 'g5_a_jump' },   { act: 'head', key: 'g2_b_head' },
-    { act: 'nose', key: 'g1_c_nose' },   { act: 'ears', key: 'g5_a_ears' },
-    { act: 'eyes', key: 'g5_a_eyes' }
-  ];
+  
   /* B：复合指令（复用 G3 的 8 条 First... Then... 句；ears+jump 为本关示例新句） */
-  var G5_B_CASES = [
-    { a1: 'head', a2: 'clap', key: 'g3_t_cmd1' }, { a1: 'nose', a2: 'stomp', key: 'g3_t_cmd2' },
-    { a1: 'eyes', a2: 'jump', key: 'g3_t_cmd3' }, { a1: 'ears', a2: 'clap', key: 'g3_cmd_ears_clap' },
-    { a1: 'head', a2: 'stomp', key: 'g3_cmd_head_stomp' }, { a1: 'nose', a2: 'jump', key: 'g3_cmd_nose_jump' },
-    { a1: 'eyes', a2: 'clap', key: 'g3_cmd_eyes_clap' }, { a1: 'nose', a2: 'clap', key: 'g3_cmd_nose_clap' },
-    { a1: 'ears', a2: 'jump', key: 'g5_b_ears_jump' }
-  ];
+  
   /* C：听指令找小人（复用 G4 的 8 条 Find... 句；boy+eyes 为本关示例新句） */
-  var G5_C_CASES = [
-    { gender: 'boy', act: 'ear', key: 'g4_t_ear' }, { gender: 'girl', act: 'clap', key: 'g4_t_clap' },
-    { gender: 'boy', act: 'stomp', key: 'g4_a_boy_stomp' }, { gender: 'girl', act: 'jump', key: 'g4_a_girl_jump' },
-    { gender: 'boy', act: 'nose', key: 'g4_a_boy_nose' }, { gender: 'girl', act: 'eyes', key: 'g4_a_girl_eyes' },
-    { gender: 'boy', act: 'head', key: 'g4_a_boy_head' }, { gender: 'girl', act: 'ear', key: 'g4_a_girl_ear' },
-    { gender: 'boy', act: 'eyes', key: 'g5_c_boy_eyes' }
-  ];
+  
 
   
 
@@ -14191,17 +13897,8 @@
   /* ---------------- 出题：A 听音找脸谱 / B 听情景找情绪 / C 拼脸谱 ---------------- */
   /* 答题 B 题库：目标情景（语音描述它）→ 每种情绪再补一个同情绪干扰情景。
      约束：3 张卡必须是 3 种不同情绪（语音说 "Find the sad face." 时不能有两张难过脸）。 */
-  var H1_B_TARGETS = [
-    { scene: 'ice_eat',  mood: 'happy', key: 'h1_b_ice_eat' },
-    { scene: 'ice_fall', mood: 'sad',   key: 'h1_b_ice_fall' },
-    { scene: 'toy',      mood: 'angry', key: 'h1_b_toy' },
-    { scene: 'balloon',  mood: 'sad',   key: 'h1_b_balloon' }
-  ];
-  var H1_B_POOL = {
-    happy: ['ice_eat', 'gift'],
-    sad: ['ice_fall', 'balloon'],
-    angry: ['toy', 'block']
-  };
+  
+  
 
   
 
@@ -14542,7 +14239,7 @@
   var H2_STATES = ['hungry', 'thirsty', 'sleepy'];
   var H2_NEED = { hungry: 'bread', thirsty: 'water', sleepy: 'pillow' };
   /* 语音复用（RULES §1.12 同句同 key）：hungry 的「Find the hungry boy.」复用 5-4 的 l5w4_a */
-  var H2_FIND_KEY = { hungry: 'l5w4_a', thirsty: 'h2_t_thirsty_find', sleepy: 'h2_t_sleepy_find' };
+  
 
   function h2Arms(st) {
     if (st === 'hungry') {
@@ -15130,8 +14827,8 @@
   var H3_SKIN = '#ffddc4', H3_SKIN_S = '#e8b895';
   var H3_BODY = '#ffe08a', H3_BODY_S = '#e6bf5f';
   var H3_HAIR = '#6b4a34';
-  var H3_COMFORT = ['toy', 'candy'];
-  var H3_DISTRACT = ['pepper', 'book', 'rock'];
+  
+  
 
   /* ---- 婴儿手臂（cry 求抱抱 / happy 张开 / sad 垂下） ---- */
   function h3Arms(st) {
@@ -15730,15 +15427,10 @@
   var H4_BODY = '#8fd3b0', H4_BODY_S = '#5faa86';
   var H4_HAIR = '#5a3d2b';
   var H4_EMO = ['happy', 'sad', 'angry', 'sleepy'];
-  var H4_A_SITS = ['ice_fall', 'eat_apple', 'play_toy', 'toy_gone'];
+  
   var H4_EMO_OF = { ice_fall: 'sad', eat_apple: 'happy', play_toy: 'happy', toy_gone: 'angry', sleep_bed: 'sleepy' };
-  var H4_A_KEY = { ice_fall: 'h4_a_ice', eat_apple: 'h4_a_apple', play_toy: 'h4_a_play', toy_gone: 'h4_a_gone' };
-  var H4_B_CAUSES = [
-    { sit: 'ice_fall',  emo: 'sad',    key: 'h4_b_sad' },
-    { sit: 'toy_gone',  emo: 'angry',  key: 'h4_b_angry' },
-    { sit: 'sleep_bed', emo: 'sleepy', key: 'h4_b_sleepy' },
-    { sit: 'eat_apple', emo: 'happy',  key: 'h4_b_happy' }
-  ];
+  
+  
 
   /* ---- 婴儿/小人脸（happy/sad/angry/sleepy/neutral） ---- */
   function h4Face(emo) {
@@ -16358,19 +16050,9 @@
     angry: ['#ffc9c4', '#d97a72'],
     sleepy: ['#dccdf2', '#9b86c9']
   };
-  var H5_A_CAUSES = [
-    { emo: 'sad',    key: 'h5_a_ice' },
-    { emo: 'angry',  key: 'h5_a_toy' },
-    { emo: 'happy',  key: 'h5_a_gift' },
-    { emo: 'sleepy', key: 'h5_a_bed' }
-  ];
-  var H5_B_KEY = { happy: 'h5_b_happy', hungry: 'h5_b_hungry', angry: 'h5_b_angry', sleepy: 'h5_b_sleepy' };
-  var H5_C_KEYS = [
-    { emo: 'thirsty', key: 'h5_c_thirsty' },
-    { emo: 'hungry',  key: 'h5_c_hungry' },
-    { emo: 'sleepy',  key: 'h5_c_sleepy' },
-    { emo: 'happy',   key: 'h5_c_happy' }
-  ];
+  
+  
+  
 
   /* ---- 五官：happy/sad/angry/sleepy 复用 H4，新增 hungry / thirsty ---- */
   function h5Face(st) {
@@ -17060,9 +16742,9 @@
      ====================================================================== */
   var L9_ITEMS = ['shirt', 'pants', 'shoes', 'hat'];
   var L9_PART = { shirt: 'body', pants: 'legs', shoes: 'feet', hat: 'head', tshirt: 'body', coat: 'body' };
-  var L9_A_KEY = { shirt: 'l9_t_shirt_put', pants: 'l9_t_pants_put', shoes: 'l9_t_shoes', hat: 'l9_t_hat' };
-  var L9_B_KEY = { shirt: 'l9_b_shirt', pants: 'l9_b_pants', shoes: 'l9_b_shoes', hat: 'l9_b_hat' };
-  var L9_C_KEY = { shirt: 'l9_c_shirt', pants: 'l9_c_pants', shoes: 'l9_c_shoes', hat: 'l9_c_hat' };
+  
+  
+  
 
   var L9_SKIN = '#ffddc4', L9_SKIN_S = '#e8b895', L9_INK = '#5a4a42', L9_HAIR = '#6b4a34';
   var L9_UNDER = '#f7f9fc', L9_UNDER_S = '#d3dde8';
@@ -17639,14 +17321,9 @@
      TPR 用巨大 👍 且永远判对（§三.12）。
      ====================================================================== */
   var L92_ITEMS = ['hat', 'coat', 'pants', 'shoes'];
-  var L92_A_KEY = { hat: 'l92_a_hat', shoes: 'l92_a_shoes', coat: 'l92_a_coat', pants: 'l92_a_pants' };
-  var L92_B_KEY = { hat: 'l92_b_hat', shoes: 'l92_b_shoes', coat: 'l92_b_coat', pants: 'l92_b_pants' };
-  var L92_C_KEYS = [
-    { act: 'on',  item: 'hat',  key: 'l92_c_on_hat' },
-    { act: 'off', item: 'hat',  key: 'l92_c_off_hat' },
-    { act: 'on',  item: 'coat', key: 'l92_c_on_coat' },
-    { act: 'off', item: 'coat', key: 'l92_c_off_coat' }
-  ];
+  
+  
+  
 
   /* ---- 小人卡：底图不带衣物，衣物是「可拖的叠加层」（脱下时才拿得动） ---- */
   function l92WearNode(item) {
@@ -18192,13 +17869,13 @@
      拖拽热区 = 整个小人 +12% 外扩，没命中平滑弹回、不判错不消失（§二.11）；
      TPR 用巨大 👍 且永远判对（§三.12）。
      ====================================================================== */
-  var L93_SKY = ['hot', 'cold'];
-  var L93_STATES = ['hot', 'cold', 'rain'];
-  var L93_ITEMS = ['tshirt', 'coat'];
-  var L93_NEED = { hot: 'tshirt', cold: 'coat' };
-  var L93_A_KEY = { hot: 'l93_t_hot_put', cold: 'l92_b_coat' };
-  var L93_B_KEY = { hot: 'l93_b_hot', cold: 'l93_b_cold', rain: 'l93_b_rain' };
-  var L93_C_KEY = { hot: 'l93_c_hot', cold: 'l93_c_cold' };
+  
+  
+  
+  
+  
+  
+  
 
   /* ---- 天气背景：太阳（光晕慢转）/ 雪花（8 颗下落），纯 CSS 动画、零图片 ---- */
   function l93Sky(kind) {
@@ -18701,7 +18378,7 @@
      拖拽热区 = 整个小人 +12%，**落在小人身上任意位置都算成功**（§二.11，绝不要求对准部位）；
      TPR 用巨大 👍 且永远判对（§三.12）。
      ====================================================================== */
-  var L94_ITEMS = ['hat', 'shoes', 'pants'];
+  
   /* 每件衣物的「捣蛋默认槽位」（音效里说的部位就是它） */
   var L94_SLOT = { shoes: 'head', pants: 'arms', hat: 'foot' };
   /* 错位贴合：按「衣物本地区间 → 目标部位」逐一换算（120×175 小人坐标） */
@@ -18867,18 +18544,10 @@
   }
 
   /* ---------------- 出题：A 听指令搞破坏 / B 听语句找荒诞图 / C TPR 极速搞怪 ---------------- */
-  var L94_A_KEY = { hat: 'l94_a_hat', shoes: 'l94_a_shoes', pants: 'l94_a_pants' };
-  var L94_SILLY = [
-    { look: 'shoes@head', key: 'l94_b_shoes', item: 'shoes' },
-    { look: 'pants@arms', key: 'l94_b_pants', item: 'pants' },
-    { look: 'hat@foot', key: 'l94_b_hat', item: 'hat' }
-  ];
-  var L94_NORMAL = ['hat@head', 'pants@legs', 'shoes@feet'];
-  var L94_C = [
-    { key: 'l94_c_hand', look: 'shoes@head' },
-    { key: 'l94_c_nose', look: 'hat@foot' },
-    { key: 'l94_c_jump', look: 'pants@arms' }
-  ];
+  
+  
+  
+  
 
   
 
@@ -19184,12 +18853,8 @@
         拖到空白处 / 方向不对 → 平滑弹回、绝不消失（§二.11）。
      ====================================================================== */
   var L95_ITEMS = ['hat', 'coat', 'pants', 'shoes', 'tshirt'];
-  var L95_C_COMBOS = [
-    { key: 'l95_c_pants_hat',  steps: [{ op: 'put', item: 'pants', slot: 'legs' }, { op: 'take', item: 'hat',  slot: 'head' }] },
-    { key: 'l95_c_shoes_coat', steps: [{ op: 'put', item: 'shoes', slot: 'feet' }, { op: 'take', item: 'coat', slot: 'body' }] },
-    { key: 'l95_c_coat_hat',   steps: [{ op: 'put', item: 'coat',  slot: 'body' }, { op: 'take', item: 'hat',  slot: 'head' }] }
-  ];
-  var L95_SILLY_SET = ['pants@head', 'shoes@hand'];
+  
+  
 
   /* 阳光 / 雪花（极轻量 SVG，无动画，靠 CSS 渐变背景营造舞台灯光） */
   var L95_SUN_SVG = '<svg viewBox="0 0 100 100" aria-hidden="true">' +
@@ -19618,15 +19283,12 @@
   /* ================= 第 10 岛第 1 关：交通工具与场景分类（Car / Bus / Train / Plane） ================= */
 
   var L10_SCENES = ['sky', 'road', 'tracks'];      // 固定纵向顺序：天空在上、马路在中、铁轨在下（空间直觉）
-  var L10_VEHICLES = ['car', 'bus', 'train', 'plane'];
+  
   /** 每个交通工具「属于」的场景（题型 A 的正确答案 + 题型 C 的背景） */
   var L10_SCENE_OF = { car: 'road', bus: 'road', train: 'tracks', plane: 'sky' };
-  var L10_A_KEY = {
-    car: 'l10_a_car_road', bus: 'l10_a_bus_road',
-    train: 'l10_a_train_tracks', plane: 'l10_a_plane_sky'
-  };
-  var L10_B_KEY = { car: 'l10_b_car', bus: 'l10_b_bus', train: 'l10_b_train', plane: 'l10_b_plane' };
-  var L10_C_KEY = { car: 'l10_c_car', bus: 'l10_c_bus', train: 'l10_c_train', plane: 'l10_c_plane' };
+  
+  
+  
   var L10_LABEL = { car: '小汽车', bus: '公交车', train: '火车', plane: '飞机' };
   var L10_SCENE_LABEL = { road: '马路', sky: '天空', tracks: '铁轨' };
 
@@ -20116,8 +19778,8 @@
   var L102_LANES = ['left', 'mid', 'right'];
   var L102_LANE_LABEL = { left: '蓝色车道', mid: '中间车道', right: '黄色车道' };
   /* 快 / 慢 物品表：fast 组与 slow 组各取一个做对比 */
-  var L102_FAST = ['racecar', 'rocket', 'train'];
-  var L102_SLOW = ['turtle', 'snail', 'bicycle'];
+  
+  
   var L102_SPEED_OF = {
     racecar: 'fast', rocket: 'fast', train: 'fast', car: 'fast',
     turtle: 'slow', snail: 'slow', bicycle: 'slow'
@@ -20127,10 +19789,7 @@
     turtle: '乌龟', snail: '蜗牛', bicycle: '自行车'
   };
   /* 题型 D 的两组配对（每项都配好了语音 key） */
-  var L102_D_PAIRS = [
-    { fast: 'rocket', slow: 'snail',  fKey: 'l102_d_rocket', sKey: 'l102_d_snail' },
-    { fast: 'car',    slow: 'turtle', fKey: 'l102_d_car',    sKey: 'l102_d_turtle' }
-  ];
+  
 
   /* ---- 手写 SVG 美术（零位图、零渐变 defs、零 emoji） ---- */
   var L102_ART = {
@@ -20808,7 +20467,7 @@
   var L103_LIGHT_LABEL = { red: '红灯', green: '绿灯' };
   var L103_ACTOR_LABEL = { car: '小汽车', boy: '小朋友' };
   /* 题型 B 的三种画面：绿灯车走（对）/ 红灯车停（对）/ 红灯车还在走（闯红灯，错） */
-  var L103_PICS = ['green_go', 'red_stop', 'red_go'];
+  
 
   /* ---- 手写 SVG 美术（零位图、零 emoji） ---- */
   function l103LightSvg(state) {
@@ -21252,13 +20911,13 @@
 
   /* ================= 第 10 岛第 4 关：天气（Sunny / Rainy / Cloudy） ================= */
 
-  var L104_WEATHERS = ['sunny', 'rainy', 'cloudy'];
+  
   var L104_LABEL = { sunny: '晴天', rainy: '雨天', cloudy: '阴天' };
-  var L104_ITEM_OF = { sunny: 'sunglasses', rainy: 'umbrella' };
+  
   var L104_ITEM_LABEL = { sunglasses: '墨镜', umbrella: '雨伞', hat: '帽子' };
-  var L104_A_KEY = { sunny: 'l104_a_sunny', rainy: 'l104_a_rainy', cloudy: 'l104_a_cloudy' };
-  var L104_B_KEY = { sunny: 'l104_b_sunny', rainy: 'l104_b_rainy' };
-  var L104_C_KEY = { sun: 'l104_c_sun', rain: 'l104_c_rain', cloud: 'l104_c_cloud' };
+  
+  
+  
   var L104_SCENE_LABEL = { sun: '太阳下戴墨镜', rain: '雨里打伞', cloud: '看天上的乌云' };
 
   /* ---- 手写 SVG 美术（零位图、零 emoji；雨滴与云只做 transform/opacity 动画） ---- */
@@ -21740,27 +21399,19 @@
   var L105_WEATHER_LABEL = { sunny: '晴天', rainy: '雨天', cloudy: '阴天' };
 
   /* 题型 B 的三张画面（顺序洗牌后上屏） */
-  var L105_PICS = ['green_go', 'red_stop', 'rain_umbrella'];
+  
   var L105_PIC_LABEL = {
     green_go: '绿灯，汽车开了过去',
     red_stop: '红灯，汽车停在停止线前',
     rain_umbrella: '下雨，小朋友打着伞'
   };
   /* 题型 C 的三个图标 */
-  var L105_ICONS = ['sun', 'umbrella', 'redlight'];
+  
   var L105_ICON_LABEL = { sun: '太阳，晴天', umbrella: '雨伞，雨天', redlight: '红灯，要停下' };
 
   /* 题型 B / C 的语音：绿 / 红 / 晴三句与 10-3、10-4 完全同句，直接复用同一 key（§一.12） */
-  var L105_B_KEY = {
-    green_go: 'l103_b_green_go',
-    red_stop: 'l103_b_red_stop',
-    rain_umbrella: 'l105_b_rain'
-  };
-  var L105_C_KEY = {
-    sun: 'l104_a_sunny',
-    umbrella: 'l105_c_umbrella',
-    redlight: 'l105_c_stop'
-  };
+  
+  
 
   /* ---- 手写 SVG 美术（零位图、零 emoji） ---- */
 
@@ -22260,13 +21911,13 @@
 
   var L111_CHARS = ['wolf', 'pig', 'hunter'];
   var L111_CHAR_LABEL = { wolf: '大灰狼', pig: '小猪', hunter: '猎人' };
-  var L111_MATS = ['straw', 'wood', 'brick'];
+  
   var L111_MAT_LABEL = { straw: '稻草', wood: '木头', brick: '砖头' };
   var L111_HOUSE_LABEL = { straw: '草房子', wood: '木头房子', brick: '砖头房子' };
   /* A / B / C 的语音 */
-  var L111_A_KEY = { wolf: 'l111_a_wolf', pig: 'l111_a_pig', hunter: 'l111_a_hunter' };
-  var L111_B_KEY = { straw: 'l111_b_straw', wood: 'l111_b_wood', brick: 'l111_b_brick' };
-  var L111_C_KEY = ['l111_c_wolf', 'l111_c_knock'];
+  
+  
+  
 
   /* ---- 手写 SVG 美术（零位图、零 emoji） ---- */
 
@@ -22958,10 +22609,10 @@
 
   var L112_CHARS = ['wolf', 'hunter', 'grandma'];
   var L112_CHAR_LABEL = { wolf: '大灰狼', hunter: '猎人', grandma: '奶奶' };
-  var L112_SCENES = ['grandma', 'school', 'park'];
+  
   var L112_SCENE_LABEL = { grandma: '奶奶家的小屋', school: '学校', park: '公园' };
-  var L112_A_KEY = ['l112_a_where', 'l112_a_who'];
-  var L112_B_KEY = { wolf: 'l112_b_wolf', hunter: 'l112_b_hunter', grandma: 'l112_b_grandma' };
+  
+  
   var L112_LINE = 'l112_line_grandma';   // 剧情台词：To Grandma's house!
 
   /* ---- 手写 SVG 美术（零位图、零 emoji） ---- */
@@ -23562,8 +23213,8 @@
   var L113_SIZES = ['big', 'just', 'small'];
   var L113_SIZE_LABEL = { big: '大椅子', just: '刚好的椅子', small: '小椅子' };
   var L113_BEAR_LABEL = { papa: '熊爸爸', mama: '熊妈妈', baby: '熊宝宝' };
-  var L113_A_KEY = { hot: 'l113_a_hot', cold: 'l113_a_cold', just: 'l113_a_just' };
-  var L113_B_KEY = { big: 'l113_b_big', just: 'l113_b_just', small: 'l113_b_small' };
+  
+  
   var L113_LINE = 'l113_line_just';   // 剧情台词：Just right!
 
   /* ---- 手写 SVG 美术（零位图、零 emoji） ---- */
@@ -24136,7 +23787,7 @@
      防背题：1/2/3 三个框每轮随机左右排列，下方三张图也每轮打乱（§三.28）。 */
 
   var L114_LINE = 'l114_line_order';   // 剧情台词：First, then, finally!
-  var L114_STORY_IDS = ['pigs', 'red', 'goldi'];
+  
   var L114_STORY_LABEL = { pigs: '三只小猪', red: '小红帽', goldi: '金发姑娘' };
 
   function l114Flower(cx, cy, r, color) {
@@ -24507,7 +24158,7 @@
 
   /* ---------------- 出题：A 排三张 / B 找首尾 / C 判断对错 ---------------- */
   /* 与上一题不同的洗牌：连续两轮绝不会给出同一排列，避免「随机了但看起来没变」 */
-  var L114_PREV = { items: null, slots: null };
+  
   function l114ShuffleDiff(prevOrder) {
     var a = shuffle([0, 1, 2]);
     for (var k = 0; k < 4 && prevOrder && a.join('') === prevOrder.join(''); k++) a = shuffle([0, 1, 2]);
@@ -24963,24 +24614,16 @@
   }
 
   /* ---------------- 出题：A 找细节 / B 找角色 / C 两个角色各回各家 ---------------- */
-  var L115_A_SETS = [
-    { sig: 'A:grandma', audio: 'l115_a_grandma', want: 'red' },
-    { sig: 'A:house', audio: 'l115_a_house', want: 'house' },
-    { sig: 'A:porridge', audio: 'l115_a_porridge', want: 'porridge' }
-  ];
-  var L115_B_SETS = [
-    { sig: 'B:knock', audio: 'l115_b_knock', want: 'pig' },
-    { sig: 'B:blow', audio: 'l115_b_blow', want: 'wolf' },
-    { sig: 'B:basket', audio: 'l115_b_basket', want: 'red' }
-  ];
-  var L115_C_AUDIO = ['l115_c_red_pig', 'l115_c_pig_red'];
+  
+  
+  
 
   /* 防背题（用户重点要求）：位置随机 + 「不许连续重复」
      — A/B 的答案位不能与上一轮相同；
      — C 的奶奶家不能连续三轮在同一侧（任意四轮必然左右都出现）；
      — C 底部两个角色的先后不能与上一轮相同。
      这样「正确位置/正确排列」永远在变，且探针能稳定验证（不靠概率碰运气）。 */
-  var L115_LAST_ANS = { L115A: -1, L115B: -1 };
+  
   var L115_SIDE_HIST = [];
   var L115_WHO_LAST = null;
 
@@ -25590,7 +25233,7 @@
   }
 
   /* ---------------- 出题：A 听音找人 / B 听对话选回答 / C 拖拽匹配名字 ---------------- */
-  var L121_LAST = { ans: -1, pair: '' };
+  
 
   
 
@@ -26075,7 +25718,7 @@
 
   /* ---------------- 出题：12 轮 4/4/4 ---------------- */
   /* 防背题（§三.28）：A/B 的正确位置不与上一轮相同；C 抽到的物品不与上一轮相同。 */
-  var L122_LAST = { A: -1, B: -1, C: '' };
+  
 
   function l122ShuffleAvoid(kinds, want, prevAns) {
     var a = shuffle(kinds.slice());
@@ -26288,17 +25931,12 @@
      全局：演示语音播完定格等点按（§三.14）、互动 4 秒小手（§二.12）、
            答对只音效 + 星星（§1.6）、拖到空白不判错不消失（§二.11）。 */
 
-  var L123_ANIMALS = ['dog', 'cat', 'ele'];
-  var L123_ITEMS = ['milk', 'bread', 'apple', 'banana', 'hat', 'light'];
-  var L123_FACES = ['cry', 'laugh', 'sleep'];
-  var L123_BQ = [
-    { ans: 'milk',  key: 'l123_b_milk'  },
-    { ans: 'bread', key: 'l123_b_bread' },
-    { ans: 'hat',   key: 'l123_b_hat'   },
-    { ans: 'light', key: 'l123_b_light' }
-  ];
+  
+  
+  
+  
   /* 宝宝 → 该进的框（cry 只属于难过框、laugh 只属于开心框，语义唯一不产生歧义） */
-  var L123_FACE_BOX = { cry: 'sad', laugh: 'happy' };
+  
 
   /* ---------------- 手写 SVG ---------------- */
 
@@ -26757,7 +26395,7 @@
   /* ---------------- 出题：12 轮 4/4/4 ---------------- */
   /* 防背题（§三.28）：A/B 答案位与上一轮不同、题面不连续重复；
      C 的题面不连续重复、两个框左右每轮换边（且不与上一轮同侧）。 */
-  var L123_LAST = { A: -1, B: -1, beast: '', ask: '', target: '', sadSide: '' };
+  
 
   function l123ShuffleAvoid(list, want, prevPos) {
     var a = shuffle(list.slice());
@@ -27610,14 +27248,9 @@
   /* 防背题（§三.28）：A 的「物品 × 人」组合不与上一轮相同；
      B 的两步动作组合不与上一轮相同 + 两个小孩左右随机；
      C 的题面（给谁）交替、四张候选图的排列不与上一轮相同。 */
-  var L124_LAST = { Akey: '', Bkey: '', Cwho: '', Ctray: '' };
+  
 
-  var L124_BQ = [
-    { k: 'g3_cmd_nose_clap', acts: ['nose', 'clap'] },
-    { k: 'g3_cmd_ears_clap', acts: ['ears', 'clap'] },
-    { k: 'g3_cmd_eyes_clap', acts: ['eyes', 'clap'] },
-    { k: 'g3_c_head_nose', acts: ['head', 'nose'] }
-  ];
+  
 
   
 
@@ -28099,27 +27732,12 @@
 
   /* ---------------- 题目数据 ---------------- */
 
-  var L125_A = [
-    { key: 'l125_a_big_ele', want: 'ele', opts: ['ele', 'cat', 'bread'] },
-    { key: 'l125_a_red_car', want: 'redcar', opts: ['redcar', 'bluecar', 'banana'] },
-    { key: 'l125_a_green_apple', want: 'greenapple', opts: ['greenapple', 'apple', 'milk'] },
-    { key: 'l125_a_blue_car', want: 'bluecar', opts: ['bluecar', 'redcar', 'hat'] }
-  ];
+  
 
-  var L125_B = [
-    { key: 'l125_b_apple_car', seq: ['apple', 'redcar'], tray: ['apple', 'redcar', 'cat', 'milk'] },
-    { key: 'l125_b_cat_bread', seq: ['cat', 'bread'], tray: ['cat', 'bread', 'greenapple', 'bluecar'] },
-    { key: 'l125_b_banana_hat', seq: ['banana', 'hat'], tray: ['banana', 'hat', 'dog', 'redcar'] },
-    { key: 'l125_b_dog_milk', seq: ['dog', 'milk'], tray: ['dog', 'milk', 'apple', 'bluecar'] }
-  ];
+  
 
-  var L125_C = [
-    { key: 'l125_c_star', part: 'star' },
-    { key: 'l125_c_heart', part: 'heart' },
-    { key: 'l125_c_ring', part: 'ring' },
-    { key: 'l125_c_flag', part: 'flag' }
-  ];
-  var L125_PARTS = ['star', 'heart', 'ring', 'flag'];
+  
+  
 
   var L125_LAST = { a: '', b: '', c: '', cparts: '' };
   /* 每关发 4 张、牌堆发完再洗（4 种变体 × 4 轮 = 每种恰好出现一次），首张不与上一轮相同（§三.28） */
@@ -32848,209 +32466,43 @@
       merge: mergeProgress
     }
   };
-  /* 按岛拆分桥接：levels/island-01..12.js 通过 window.__LLMakers 注册出题器，
-     这里导出它们需要的 core 符号（对象/数组/函数均为同一引用）。 */
+  /* 按岛拆分桥接：levels/island-01..12.js 通过 window.__LLMakers 注册出题器。
+     167 个岛专属题库常量已搬进各自岛文件，这里只保留被引擎引用或跨岛共享的
+     93 个 core 符号（对象/数组/函数均为同一引用）。 */
   window.__LLCore = {
-    B1_ANIMALS: B1_ANIMALS,
-    B1_ITEMS: B1_ITEMS,
-    B2_FRUITS_A: B2_FRUITS_A,
-    B2_FRUITS_B: B2_FRUITS_B,
-    B2_FRUITS_C: B2_FRUITS_C,
-    B4_A_CASES: B4_A_CASES,
-    B4_B_CASES: B4_B_CASES,
-    B4_C_CASES: B4_C_CASES,
-    B5X_A_CASES: B5X_A_CASES,
-    B5X_B_CASES: B5X_B_CASES,
-    B5X_C_CASES: B5X_C_CASES,
-    B5X_SCENES: B5X_SCENES,
     COLORS: COLORS,
-    F10_A_CASES: F10_A_CASES,
-    F10_B_STATES: F10_B_STATES,
-    F10_C_UTENSILS: F10_C_UTENSILS,
-    F11_A_CASES: F11_A_CASES,
-    F11_B_CASES: F11_B_CASES,
-    F11_C_CASES: F11_C_CASES,
-    F11_FURN: F11_FURN,
-    F12_A_CASES: F12_A_CASES,
-    F12_B_CASES: F12_B_CASES,
-    F12_C_CASES: F12_C_CASES,
-    F13_A_CASES: F13_A_CASES,
-    F13_B_CASES: F13_B_CASES,
-    F13_C_CASES: F13_C_CASES,
-    F14_A_CASES: F14_A_CASES,
-    F14_B_CASES: F14_B_CASES,
-    F14_C_CASES: F14_C_CASES,
-    F15_A_CASES: F15_A_CASES,
-    F15_B_CASES: F15_B_CASES,
-    F15_C_CASES: F15_C_CASES,
-    F1_ANIMALS: F1_ANIMALS,
-    F2_DESC: F2_DESC,
-    F2_FARM: F2_FARM,
     F2_JUNGLE: F2_JUNGLE,
-    F3_ACTIONS: F3_ACTIONS,
-    F3_ALL_ITEMS: F3_ALL_ITEMS,
-    F3_CANON: F3_CANON,
-    F3_SCENES: F3_SCENES,
-    F3_ZONE_OF: F3_ZONE_OF,
-    F4_C_ITEMS: F4_C_ITEMS,
-    F4_POOL: F4_POOL,
     F4_SCENES: F4_SCENES,
-    F4_ZONE_OF: F4_ZONE_OF,
-    F5_A_CASES: F5_A_CASES,
-    F5_B_SETS: F5_B_SETS,
-    F5_C_CASES: F5_C_CASES,
-    F6_A_CASES: F6_A_CASES,
-    F6_B_CASES: F6_B_CASES,
-    F6_C_CASES: F6_C_CASES,
-    F7_A_CASES: F7_A_CASES,
-    F7_B_CASES: F7_B_CASES,
-    F7_C_CASES: F7_C_CASES,
-    F7_C_ITEMS: F7_C_ITEMS,
     F8_ACTS: F8_ACTS,
-    F8_A_CASES: F8_A_CASES,
-    F8_B_CASES: F8_B_CASES,
-    F8_C_CASES: F8_C_CASES,
-    F9_A_STATES: F9_A_STATES,
-    F9_B_CASES: F9_B_CASES,
-    F9_C_SCENES: F9_C_SCENES,
     FRUITS: FRUITS,
     G1_PARTS: G1_PARTS,
     G2_PARTS: G2_PARTS,
-    G3_A_CASES: G3_A_CASES,
-    G3_B_CASES: G3_B_CASES,
-    G3_C_CASES: G3_C_CASES,
-    G3_THEN_KEY: G3_THEN_KEY,
-    G4_A_CASES: G4_A_CASES,
-    G4_B_CASES: G4_B_CASES,
-    G4_SENT: G4_SENT,
-    G5_A_ACTS: G5_A_ACTS,
-    G5_B_CASES: G5_B_CASES,
-    G5_C_CASES: G5_C_CASES,
-    H1_B_POOL: H1_B_POOL,
-    H1_B_TARGETS: H1_B_TARGETS,
     H1_MOODS: H1_MOODS,
-    H2_FIND_KEY: H2_FIND_KEY,
     H2_NEED: H2_NEED,
     H2_STATES: H2_STATES,
-    H3_COMFORT: H3_COMFORT,
-    H3_DISTRACT: H3_DISTRACT,
-    H4_A_KEY: H4_A_KEY,
-    H4_A_SITS: H4_A_SITS,
-    H4_B_CAUSES: H4_B_CAUSES,
     H4_EMO: H4_EMO,
-    H5_A_CAUSES: H5_A_CAUSES,
-    H5_B_KEY: H5_B_KEY,
-    H5_C_KEYS: H5_C_KEYS,
     H5_EMO: H5_EMO,
-    L102_D_PAIRS: L102_D_PAIRS,
-    L102_FAST: L102_FAST,
-    L102_SLOW: L102_SLOW,
-    L103_PICS: L103_PICS,
-    L104_A_KEY: L104_A_KEY,
-    L104_B_KEY: L104_B_KEY,
-    L104_C_KEY: L104_C_KEY,
-    L104_ITEM_OF: L104_ITEM_OF,
-    L104_WEATHERS: L104_WEATHERS,
-    L105_B_KEY: L105_B_KEY,
-    L105_C_KEY: L105_C_KEY,
-    L105_ICONS: L105_ICONS,
-    L105_PICS: L105_PICS,
-    L10_A_KEY: L10_A_KEY,
-    L10_B_KEY: L10_B_KEY,
-    L10_C_KEY: L10_C_KEY,
     L10_SCENES: L10_SCENES,
     L10_SCENE_OF: L10_SCENE_OF,
-    L10_VEHICLES: L10_VEHICLES,
-    L111_A_KEY: L111_A_KEY,
-    L111_B_KEY: L111_B_KEY,
     L111_CHARS: L111_CHARS,
-    L111_C_KEY: L111_C_KEY,
-    L111_MATS: L111_MATS,
-    L112_A_KEY: L112_A_KEY,
-    L112_B_KEY: L112_B_KEY,
     L112_CHARS: L112_CHARS,
-    L112_SCENES: L112_SCENES,
-    L113_A_KEY: L113_A_KEY,
-    L113_B_KEY: L113_B_KEY,
     L113_SIZES: L113_SIZES,
     L113_STATES: L113_STATES,
-    L114_PREV: L114_PREV,
     L114_STORIES: L114_STORIES,
-    L114_STORY_IDS: L114_STORY_IDS,
-    L115_A_SETS: L115_A_SETS,
-    L115_B_SETS: L115_B_SETS,
-    L115_C_AUDIO: L115_C_AUDIO,
-    L115_LAST_ANS: L115_LAST_ANS,
     L121_IDS: L121_IDS,
-    L121_LAST: L121_LAST,
     L122_ITEMS: L122_ITEMS,
-    L122_LAST: L122_LAST,
     L122_LETTERS: L122_LETTERS,
     L122_LETTER_OF: L122_LETTER_OF,
-    L123_ANIMALS: L123_ANIMALS,
-    L123_BQ: L123_BQ,
-    L123_FACES: L123_FACES,
-    L123_FACE_BOX: L123_FACE_BOX,
-    L123_ITEMS: L123_ITEMS,
-    L123_LAST: L123_LAST,
-    L124_BQ: L124_BQ,
     L124_ITEMS: L124_ITEMS,
-    L124_LAST: L124_LAST,
     L124_PEOPLE: L124_PEOPLE,
-    L125_A: L125_A,
-    L125_B: L125_B,
-    L125_C: L125_C,
     L125_LAST: L125_LAST,
-    L125_PARTS: L125_PARTS,
-    L92_A_KEY: L92_A_KEY,
-    L92_B_KEY: L92_B_KEY,
-    L92_C_KEYS: L92_C_KEYS,
     L92_ITEMS: L92_ITEMS,
-    L93_A_KEY: L93_A_KEY,
-    L93_B_KEY: L93_B_KEY,
-    L93_C_KEY: L93_C_KEY,
-    L93_ITEMS: L93_ITEMS,
-    L93_NEED: L93_NEED,
-    L93_SKY: L93_SKY,
-    L93_STATES: L93_STATES,
-    L94_A_KEY: L94_A_KEY,
-    L94_C: L94_C,
-    L94_ITEMS: L94_ITEMS,
-    L94_NORMAL: L94_NORMAL,
-    L94_SILLY: L94_SILLY,
     L94_SLOT: L94_SLOT,
-    L95_C_COMBOS: L95_C_COMBOS,
-    L95_SILLY_SET: L95_SILLY_SET,
-    L9_A_KEY: L9_A_KEY,
-    L9_B_KEY: L9_B_KEY,
-    L9_C_KEY: L9_C_KEY,
     L9_ITEMS: L9_ITEMS,
     L9_PART: L9_PART,
     NUMBERS_W2: NUMBERS_W2,
     NUMBERS_W3: NUMBERS_W3,
-    P2_ITEMS: P2_ITEMS,
-    P2_POS: P2_POS,
-    P2_SENTENCE: P2_SENTENCE,
-    P2_VERDICTS: P2_VERDICTS,
-    P3_ITEMS: P3_ITEMS,
-    P3_POS: P3_POS,
-    P3_SENT: P3_SENT,
-    P3_VERDICTS: P3_VERDICTS,
-    P4_ITEMS: P4_ITEMS,
-    P4_POS: P4_POS,
-    P4_VERDICTS: P4_VERDICTS,
-    P5_ITEMS: P5_ITEMS,
-    P5_POS: P5_POS,
-    P5_POS_SENT: P5_POS_SENT,
-    P5_VERDICTS: P5_VERDICTS,
-    PAINT_ITEMS: PAINT_ITEMS,
     SHAPES: SHAPES,
-    SHAPE_COLORS: SHAPE_COLORS,
-    SMALL_COUNTS: SMALL_COUNTS,
-    W5_CFRUITS: W5_CFRUITS,
-    W5_COLORS: W5_COLORS,
-    W5_NUMBERS: W5_NUMBERS,
-    W5_PILE_POOL: W5_PILE_POOL,
     b1IndexOfSize: b1IndexOfSize,
     b1Sentence: b1Sentence,
     b2CmpIndex: b2CmpIndex,

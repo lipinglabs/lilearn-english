@@ -8,16 +8,65 @@
   var L = window.__LLCore || {};
   var G1_PARTS = L.G1_PARTS;
   var G2_PARTS = L.G2_PARTS;
-  var G3_A_CASES = L.G3_A_CASES;
-  var G3_B_CASES = L.G3_B_CASES;
-  var G3_C_CASES = L.G3_C_CASES;
-  var G3_THEN_KEY = L.G3_THEN_KEY;
-  var G4_A_CASES = L.G4_A_CASES;
-  var G4_B_CASES = L.G4_B_CASES;
-  var G4_SENT = L.G4_SENT;
-  var G5_A_ACTS = L.G5_A_ACTS;
-  var G5_B_CASES = L.G5_B_CASES;
-  var G5_C_CASES = L.G5_C_CASES;
+  var G3_A_CASES = [
+      { a1: 'ears', a2: 'clap' },
+      { a1: 'head', a2: 'stomp' },
+      { a1: 'nose', a2: 'jump' },
+      { a1: 'eyes', a2: 'clap' }
+    ];
+  var G3_B_CASES = [
+      { a1: 'nose', a2: 'clap', extra: 'jump' },
+      { a1: 'head', a2: 'stomp', extra: 'clap' },
+      { a1: 'eyes', a2: 'jump', extra: 'stomp' },
+      { a1: 'ears', a2: 'clap', extra: 'stomp' }
+    ];
+  var G3_C_CASES = [
+      { a1: 'head', a2: 'nose' },
+      { a1: 'nose', a2: 'head' },
+      { a1: 'ears', a2: 'nose' },
+      { a1: 'nose', a2: 'ears' },
+      { a1: 'head', a2: 'ears' },
+      { a1: 'ears', a2: 'head' }
+    ];
+  var G3_THEN_KEY = { clap: 'g3_then_clap', stomp: 'g3_then_stomp', jump: 'g3_then_jump' };
+  var G4_A_CASES = [
+      { gender: 'boy', act: 'ear' }, { gender: 'girl', act: 'clap' },
+      { gender: 'boy', act: 'stomp' }, { gender: 'girl', act: 'jump' },
+      { gender: 'boy', act: 'nose' }, { gender: 'girl', act: 'eyes' },
+      { gender: 'boy', act: 'head' }, { gender: 'girl', act: 'ear' }
+    ];
+  var G4_B_CASES = [
+      { s1: { gender: 'boy', act: 'nose' }, s2: { gender: 'girl', act: 'jump' }, key: 'g4_b1', then: 'g4_b1_then' },
+      { s1: { gender: 'girl', act: 'ear' }, s2: { gender: 'boy', act: 'clap' }, key: 'g4_b2', then: 'g4_b2_then' },
+      { s1: { gender: 'boy', act: 'head' }, s2: { gender: 'girl', act: 'stomp' }, key: 'g4_b3', then: 'g4_b3_then' },
+      { s1: { gender: 'girl', act: 'eyes' }, s2: { gender: 'boy', act: 'jump' }, key: 'g4_b4', then: 'g4_b4_then' }
+    ];
+  var G4_SENT = {
+      'boy+ear': 'g4_t_ear', 'girl+clap': 'g4_t_clap',
+      'boy+stomp': 'g4_a_boy_stomp', 'girl+jump': 'g4_a_girl_jump',
+      'boy+nose': 'g4_a_boy_nose', 'girl+eyes': 'g4_a_girl_eyes',
+      'boy+head': 'g4_a_boy_head', 'girl+ear': 'g4_a_girl_ear'
+    };
+  var G5_A_ACTS = [
+      { act: 'clap', key: 'g2_t_hand2' }, { act: 'stomp', key: 'g2_t_foot2' },
+      { act: 'jump', key: 'g5_a_jump' },   { act: 'head', key: 'g2_b_head' },
+      { act: 'nose', key: 'g1_c_nose' },   { act: 'ears', key: 'g5_a_ears' },
+      { act: 'eyes', key: 'g5_a_eyes' }
+    ];
+  var G5_B_CASES = [
+      { a1: 'head', a2: 'clap', key: 'g3_t_cmd1' }, { a1: 'nose', a2: 'stomp', key: 'g3_t_cmd2' },
+      { a1: 'eyes', a2: 'jump', key: 'g3_t_cmd3' }, { a1: 'ears', a2: 'clap', key: 'g3_cmd_ears_clap' },
+      { a1: 'head', a2: 'stomp', key: 'g3_cmd_head_stomp' }, { a1: 'nose', a2: 'jump', key: 'g3_cmd_nose_jump' },
+      { a1: 'eyes', a2: 'clap', key: 'g3_cmd_eyes_clap' }, { a1: 'nose', a2: 'clap', key: 'g3_cmd_nose_clap' },
+      { a1: 'ears', a2: 'jump', key: 'g5_b_ears_jump' }
+    ];
+  var G5_C_CASES = [
+      { gender: 'boy', act: 'ear', key: 'g4_t_ear' }, { gender: 'girl', act: 'clap', key: 'g4_t_clap' },
+      { gender: 'boy', act: 'stomp', key: 'g4_a_boy_stomp' }, { gender: 'girl', act: 'jump', key: 'g4_a_girl_jump' },
+      { gender: 'boy', act: 'nose', key: 'g4_a_boy_nose' }, { gender: 'girl', act: 'eyes', key: 'g4_a_girl_eyes' },
+      { gender: 'boy', act: 'head', key: 'g4_a_boy_head' }, { gender: 'girl', act: 'ear', key: 'g4_a_girl_ear' },
+      { gender: 'boy', act: 'eyes', key: 'g5_c_boy_eyes' }
+    ];
   var ensureG1Css = L.ensureG1Css;
   var ensureG2Css = L.ensureG2Css;
   var ensureG3Css = L.ensureG3Css;

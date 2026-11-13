@@ -6,26 +6,34 @@
    ============================================================ */
 (function () {
   var L = window.__LLCore || {};
-  var L111_A_KEY = L.L111_A_KEY;
-  var L111_B_KEY = L.L111_B_KEY;
+  var L111_A_KEY = { wolf: 'l111_a_wolf', pig: 'l111_a_pig', hunter: 'l111_a_hunter' };
+  var L111_B_KEY = { straw: 'l111_b_straw', wood: 'l111_b_wood', brick: 'l111_b_brick' };
   var L111_CHARS = L.L111_CHARS;
-  var L111_C_KEY = L.L111_C_KEY;
-  var L111_MATS = L.L111_MATS;
-  var L112_A_KEY = L.L112_A_KEY;
-  var L112_B_KEY = L.L112_B_KEY;
+  var L111_C_KEY = ['l111_c_wolf', 'l111_c_knock'];
+  var L111_MATS = ['straw', 'wood', 'brick'];
+  var L112_A_KEY = ['l112_a_where', 'l112_a_who'];
+  var L112_B_KEY = { wolf: 'l112_b_wolf', hunter: 'l112_b_hunter', grandma: 'l112_b_grandma' };
   var L112_CHARS = L.L112_CHARS;
-  var L112_SCENES = L.L112_SCENES;
-  var L113_A_KEY = L.L113_A_KEY;
-  var L113_B_KEY = L.L113_B_KEY;
+  var L112_SCENES = ['grandma', 'school', 'park'];
+  var L113_A_KEY = { hot: 'l113_a_hot', cold: 'l113_a_cold', just: 'l113_a_just' };
+  var L113_B_KEY = { big: 'l113_b_big', just: 'l113_b_just', small: 'l113_b_small' };
   var L113_SIZES = L.L113_SIZES;
   var L113_STATES = L.L113_STATES;
-  var L114_PREV = L.L114_PREV;
+  var L114_PREV = { items: null, slots: null };
   var L114_STORIES = L.L114_STORIES;
-  var L114_STORY_IDS = L.L114_STORY_IDS;
-  var L115_A_SETS = L.L115_A_SETS;
-  var L115_B_SETS = L.L115_B_SETS;
-  var L115_C_AUDIO = L.L115_C_AUDIO;
-  var L115_LAST_ANS = L.L115_LAST_ANS;
+  var L114_STORY_IDS = ['pigs', 'red', 'goldi'];
+  var L115_A_SETS = [
+      { sig: 'A:grandma', audio: 'l115_a_grandma', want: 'red' },
+      { sig: 'A:house', audio: 'l115_a_house', want: 'house' },
+      { sig: 'A:porridge', audio: 'l115_a_porridge', want: 'porridge' }
+    ];
+  var L115_B_SETS = [
+      { sig: 'B:knock', audio: 'l115_b_knock', want: 'pig' },
+      { sig: 'B:blow', audio: 'l115_b_blow', want: 'wolf' },
+      { sig: 'B:basket', audio: 'l115_b_basket', want: 'red' }
+    ];
+  var L115_C_AUDIO = ['l115_c_red_pig', 'l115_c_pig_red'];
+  var L115_LAST_ANS = { L115A: -1, L115B: -1 };
   var l114ShuffleDiff = L.l114ShuffleDiff;
   var l114SlotsDiff = L.l114SlotsDiff;
   var l115PickSide = L.l115PickSide;

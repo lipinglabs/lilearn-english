@@ -6,22 +6,48 @@
    ============================================================ */
 (function () {
   var L = window.__LLCore || {};
-  var F1_ANIMALS = L.F1_ANIMALS;
-  var F2_DESC = L.F2_DESC;
-  var F2_FARM = L.F2_FARM;
+  var F1_ANIMALS = ['dog', 'cat', 'pig', 'cow'];
+  var F2_DESC = [
+      { key: 'stripes', ans: 'tiger',    pool: ['lion', 'monkey', 'elephant'] },
+      { key: 'king',    ans: 'lion',     pool: ['tiger', 'monkey', 'elephant'] },
+      { key: 'bananas', ans: 'monkey',   pool: ['lion', 'tiger', 'elephant'] },
+      { key: 'big',     ans: 'elephant', pool: ['monkey', 'dog', 'cat'] }
+    ];
+  var F2_FARM = ['dog', 'cat', 'pig', 'cow'];
   var F2_JUNGLE = L.F2_JUNGLE;
-  var F3_ACTIONS = L.F3_ACTIONS;
-  var F3_ALL_ITEMS = L.F3_ALL_ITEMS;
-  var F3_CANON = L.F3_CANON;
-  var F3_SCENES = L.F3_SCENES;
-  var F3_ZONE_OF = L.F3_ZONE_OF;
-  var F4_C_ITEMS = L.F4_C_ITEMS;
-  var F4_POOL = L.F4_POOL;
+  var F3_ACTIONS = ['run', 'jump', 'eat', 'sleep'];
+  var F3_ALL_ITEMS = ['boy_run', 'dog_run', 'boy_sleep', 'cat_sleep'];
+  var F3_CANON = { run: 'boy_run', jump: 'kangaroo', eat: 'monkey_eat', sleep: 'bear_sleep' };
+  var F3_SCENES = [
+      { key: 'eat',   ans: 'monkey_eat', subs: ['bird_fly', 'cat_sleep', 'monkey_eat'] },
+      { key: 'sleep', ans: 'bear_sleep', subs: ['kangaroo', 'bear_sleep', 'boy_run'] },
+      { key: 'run',   ans: 'dog_run',    subs: ['frog', 'dog_run', 'pig_eat'] },
+      { key: 'jump',  ans: 'kangaroo',   subs: ['cat_sleep', 'monkey_eat', 'kangaroo'] }
+    ];
+  var F3_ZONE_OF = { boy_run: 'run', dog_run: 'run', boy_sleep: 'sleep', cat_sleep: 'sleep' };
+  var F4_C_ITEMS = ['dog_run', 'cat_sleep', 'horse_run', 'pig_sleep'];
+  var F4_POOL = ['dog_run', 'cat_sleep', 'monkey_eat', 'horse_run', 'pig_sleep', 'bear_eat'];
   var F4_SCENES = L.F4_SCENES;
-  var F4_ZONE_OF = L.F4_ZONE_OF;
-  var F5_A_CASES = L.F5_A_CASES;
-  var F5_B_SETS = L.F5_B_SETS;
-  var F5_C_CASES = L.F5_C_CASES;
+  var F4_ZONE_OF = { dog_run: 'run', horse_run: 'run', cat_sleep: 'sleep', pig_sleep: 'sleep' };
+  var F5_A_CASES = [
+      { key: 'l4w5_a_run_dog',       target: 'dog_run',       set: ['frog_jump', 'cat_sleep'] },
+      { key: 'l4w5_a_run_horse',     target: 'horse_run',     set: ['kangaroo_jump', 'bear_sleep'] },
+      { key: 'l4w5_a_jump_frog',     target: 'frog_jump',     set: ['dog_run', 'cat_sleep'] },
+      { key: 'l4w5_a_jump_kangaroo', target: 'kangaroo_jump', set: ['horse_run', 'pig_sleep'] },
+      { key: 'l4w5_a_sleep_cat',     target: 'cat_sleep',     set: ['dog_run', 'frog_jump'] },
+      { key: 'l4w5_a_sleep_bear',    target: 'bear_sleep',    set: ['horse_run', 'kangaroo_jump'] }
+    ];
+  var F5_B_SETS = [
+      { act: 'run',   animals: ['dog', 'horse', 'pig'],   key: 'l4w5_b_run' },
+      { act: 'jump',  animals: ['frog', 'kangaroo', 'cat'], key: 'l4w5_b_jump' },
+      { act: 'sleep', animals: ['cat', 'bear', 'lion'],   key: 'l4w5_b_sleep' }
+    ];
+  var F5_C_CASES = [
+      { animal: 'dog',   set: ['dog_run', 'dog_eat', 'dog_sleep'],       ans: 'dog_eat',     key: 'l4w5_c_dog' },
+      { animal: 'cat',   set: ['cat_run', 'cat_eat', 'cat_sleep'],       ans: 'cat_run',     key: 'l4w5_c_cat' },
+      { animal: 'horse', set: ['horse_run', 'horse_eat', 'horse_sleep'], ans: 'horse_sleep', key: 'l4w5_c_horse' },
+      { animal: 'pig',   set: ['pig_run', 'pig_eat', 'pig_sleep'],       ans: 'pig_eat',     key: 'l4w5_c_pig' }
+    ];
   var ensureF1Css = L.ensureF1Css;
   var ensureF2Css = L.ensureF2Css;
   var ensureF3Css = L.ensureF3Css;

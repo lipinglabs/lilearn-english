@@ -6,22 +6,88 @@
    ============================================================ */
 (function () {
   var L = window.__LLCore || {};
-  var F11_A_CASES = L.F11_A_CASES;
-  var F11_B_CASES = L.F11_B_CASES;
-  var F11_C_CASES = L.F11_C_CASES;
-  var F11_FURN = L.F11_FURN;
-  var F12_A_CASES = L.F12_A_CASES;
-  var F12_B_CASES = L.F12_B_CASES;
-  var F12_C_CASES = L.F12_C_CASES;
-  var F13_A_CASES = L.F13_A_CASES;
-  var F13_B_CASES = L.F13_B_CASES;
-  var F13_C_CASES = L.F13_C_CASES;
-  var F14_A_CASES = L.F14_A_CASES;
-  var F14_B_CASES = L.F14_B_CASES;
-  var F14_C_CASES = L.F14_C_CASES;
-  var F15_A_CASES = L.F15_A_CASES;
-  var F15_B_CASES = L.F15_B_CASES;
-  var F15_C_CASES = L.F15_C_CASES;
+  var F11_A_CASES = [
+      { furn: 'bed',   key: 'l6w1_a_bed' },
+      { furn: 'table', key: 'l6w1_a_table' },
+      { furn: 'chair', key: 'l6w1_a_chair' },
+      { furn: 'sofa',  key: 'l6w1_a_sofa' }
+    ];
+  var F11_B_CASES = [
+      { scene: 'bedSleep',   key: 'l6w1_b_bed' },
+      { scene: 'tableApple', key: 'l6w1_b_table' },
+      { scene: 'sofaCat',    key: 'l6w1_b_sofa' }
+    ];
+  var F11_C_CASES = [
+      { item: 'pillow', target: 'bed',  key: 'l6w1_c_pillow' },
+      { item: 'cat',    target: 'sofa', key: 'l6w1_c_cat' }
+    ];
+  var F11_FURN = ['bed', 'table', 'chair', 'sofa'];
+  var F12_A_CASES = [
+      { act: 'watchTV', key: 'l6w2_a_tv' },
+      { act: 'read',    key: 'l6w2_a_read' },
+      { act: 'bath',    key: 'l6w2_a_bath' },
+      { act: 'sleep',   key: 'l6w2_a_sleep' }
+    ];
+  var F12_B_CASES = [
+      { scene: 'bathroom', key: 'l6w2_b_bath' },
+      { scene: 'living',   key: 'l6w2_b_tv' },
+      { scene: 'bedroom',  key: 'l6w2_b_sleep' }
+    ];
+  var F12_C_CASES = [
+      { item: 'babySleep', target: 'bed', key: 'l6w2_c_sleep' },
+      { item: 'babyBath',  target: 'tub', key: 'l6w2_c_bath' }
+    ];
+  var F13_A_CASES = [
+      { scene: [['bed', 'on'], ['sofa', 'on'], ['table', 'under']], furn: 'table', place: 'under', key: 'l6w3_a_under_table' },
+      { scene: [['bed', 'under'], ['sofa', 'on'], ['table', 'on']], furn: 'sofa', place: 'on', key: 'l6w3_a_on_sofa' },
+      { scene: [['bed', 'under'], ['sofa', 'on'], ['table', 'on']], furn: 'bed', place: 'under', key: 'l6w3_a_under_bed' },
+      { scene: [['bed', 'under'], ['sofa', 'under'], ['table', 'on']], furn: 'table', place: 'on', key: 'l6w3_a_on_table' }
+    ];
+  var F13_B_CASES = [
+      { scene: 'onSofa', furn: 'sofa', place: 'on', key: 'l6w3_b_on_sofa' },
+      { scene: 'underBed', furn: 'bed', place: 'under', key: 'l6w3_b_under_bed' },
+      { scene: 'inBox', furn: 'box', place: 'in', key: 'l6w3_b_in_box' }
+    ];
+  var F13_C_CASES = [
+      { target: 'sofa', key: 'l6w3_c_on_sofa' },
+      { target: 'table', key: 'l6w3_c_under_table' }
+    ];
+  var F14_A_CASES = [
+      { items: ['book', 'toy'],  furns: ['bed', 'table'], item: 'book', target: 'bed',   place: 'on',   key: 'l6w4_a_book_bed' },
+      { items: ['book', 'ball'], furns: ['bed', 'table'], item: 'book', target: 'table', place: 'on',   key: 'pt_book' },
+      { items: ['toy', 'book'],  furns: ['box', 'bed'],   item: 'toy',  target: 'box',   place: 'in',   key: 'l6w4_a_toy_box' },
+      { items: ['ball', 'book'], furns: ['table', 'bed'], item: 'ball', target: 'table', place: 'under', key: 'l6w3_c_under_table' }
+    ];
+  var F14_B_CASES = [
+      { target: 'bookBed',   item: 'book', furn: 'bed',   place: 'on',    key: 'l6w4_b_bookbed' },
+      { target: 'ballTable', item: 'ball', furn: 'table', place: 'under', key: 'l6w4_b_balltable' },
+      { target: 'toyBox',    item: 'toy',  furn: 'box',   place: 'in',    key: 'l6w4_b_toybox' }
+    ];
+  var F14_C_CASES = [
+      { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['book', 'bed', 'on'], ['ball', 'table', 'under']], s: ['l6w4_c1_s1', 'l6w4_c1_s2'] },
+      { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['toy', 'box', 'in'], ['book', 'table', 'on']],    s: ['l6w4_c2_s1', 'l6w4_c2_s2'] },
+      { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['ball', 'table', 'under'], ['toy', 'box', 'in']], s: ['l6w4_c3_s1', 'l6w4_c3_s2'] },
+      { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['book', 'bed', 'on'], ['toy', 'box', 'in']],      s: ['l6w4_c1_s1', 'l6w4_c3_s2'] }
+    ];
+  var F15_A_CASES = [
+      { items: ['book', 'toy', 'ball'],     furns: ['bed', 'table', 'chair'],   item: 'book',    target: 'bed',       place: 'on',    key: 'l6w4_a_book_bed' },
+      { items: ['toy', 'book', 'clothes'],  furns: ['box', 'bed', 'table'],     item: 'toy',     target: 'box',       place: 'in',    key: 'l6w4_a_toy_box' },
+      { items: ['clothes', 'toy', 'ball'],  furns: ['bed', 'chair', 'table'],   item: 'clothes', target: 'bed',       place: 'on',    key: 'f15_a_clothes_bed' },
+      { items: ['book', 'toy', 'clothes'],  furns: ['bookshelf', 'bed', 'box'], item: 'book',    target: 'bookshelf', place: 'on',    key: 'f15_a_book_shelf' },
+      { items: ['ball', 'book', 'toy'],     furns: ['table', 'bed', 'chair'],   item: 'ball',    target: 'table',     place: 'under', key: 'l6w3_c_under_table' },
+      { items: ['clothes', 'ball', 'book'], furns: ['chair', 'table', 'box'],   item: 'clothes', target: 'chair',     place: 'on',    key: 'f15_a_clothes_chair' }
+    ];
+  var F15_B_CASES = [
+      { target: 'bookBed',      item: 'book',    furn: 'bed',   place: 'on',    key: 'l6w4_b_bookbed' },
+      { target: 'toyBox',       item: 'toy',     furn: 'box',   place: 'in',    key: 'l6w4_b_toybox' },
+      { target: 'clothesChair', item: 'clothes', furn: 'chair', place: 'on',    key: 'f15_b_clothes_chair' }
+    ];
+  var F15_C_CASES = [
+      { furns: ['bed', 'table', 'box'],       items: ['book', 'ball', 'toy'],    steps: [['book', 'bed', 'on'], ['ball', 'table', 'under']],       s: ['l6w4_c1_s1', 'l6w4_c1_s2'] },
+      { furns: ['bed', 'table', 'box'],       items: ['toy', 'clothes', 'book'], steps: [['toy', 'box', 'in'], ['clothes', 'bed', 'on']],          s: ['l6w4_c2_s1', 'f15_c2_s2'] },
+      { furns: ['bed', 'table', 'bookshelf'], items: ['ball', 'book', 'toy'],    steps: [['ball', 'table', 'under'], ['book', 'bookshelf', 'on']],  s: ['l6w4_c3_s1', 'f15_c3_s2'] },
+      { furns: ['chair', 'table', 'box'],     items: ['clothes', 'toy', 'ball'], steps: [['clothes', 'chair', 'on'], ['toy', 'box', 'in']],         s: ['f15_c4_s1', 'l6w4_c3_s2'] }
+    ];
   var ensureF11Css = L.ensureF11Css;
   var ensureF13Css = L.ensureF13Css;
   var ensureF14Css = L.ensureF14Css;

@@ -6,21 +6,45 @@
    ============================================================ */
 (function () {
   var L = window.__LLCore || {};
-  var H1_B_POOL = L.H1_B_POOL;
-  var H1_B_TARGETS = L.H1_B_TARGETS;
+  var H1_B_POOL = {
+      happy: ['ice_eat', 'gift'],
+      sad: ['ice_fall', 'balloon'],
+      angry: ['toy', 'block']
+    };
+  var H1_B_TARGETS = [
+      { scene: 'ice_eat',  mood: 'happy', key: 'h1_b_ice_eat' },
+      { scene: 'ice_fall', mood: 'sad',   key: 'h1_b_ice_fall' },
+      { scene: 'toy',      mood: 'angry', key: 'h1_b_toy' },
+      { scene: 'balloon',  mood: 'sad',   key: 'h1_b_balloon' }
+    ];
   var H1_MOODS = L.H1_MOODS;
-  var H2_FIND_KEY = L.H2_FIND_KEY;
+  var H2_FIND_KEY = { hungry: 'l5w4_a', thirsty: 'h2_t_thirsty_find', sleepy: 'h2_t_sleepy_find' };
   var H2_NEED = L.H2_NEED;
   var H2_STATES = L.H2_STATES;
-  var H3_COMFORT = L.H3_COMFORT;
-  var H3_DISTRACT = L.H3_DISTRACT;
-  var H4_A_KEY = L.H4_A_KEY;
-  var H4_A_SITS = L.H4_A_SITS;
-  var H4_B_CAUSES = L.H4_B_CAUSES;
+  var H3_COMFORT = ['toy', 'candy'];
+  var H3_DISTRACT = ['pepper', 'book', 'rock'];
+  var H4_A_KEY = { ice_fall: 'h4_a_ice', eat_apple: 'h4_a_apple', play_toy: 'h4_a_play', toy_gone: 'h4_a_gone' };
+  var H4_A_SITS = ['ice_fall', 'eat_apple', 'play_toy', 'toy_gone'];
+  var H4_B_CAUSES = [
+      { sit: 'ice_fall',  emo: 'sad',    key: 'h4_b_sad' },
+      { sit: 'toy_gone',  emo: 'angry',  key: 'h4_b_angry' },
+      { sit: 'sleep_bed', emo: 'sleepy', key: 'h4_b_sleepy' },
+      { sit: 'eat_apple', emo: 'happy',  key: 'h4_b_happy' }
+    ];
   var H4_EMO = L.H4_EMO;
-  var H5_A_CAUSES = L.H5_A_CAUSES;
-  var H5_B_KEY = L.H5_B_KEY;
-  var H5_C_KEYS = L.H5_C_KEYS;
+  var H5_A_CAUSES = [
+      { emo: 'sad',    key: 'h5_a_ice' },
+      { emo: 'angry',  key: 'h5_a_toy' },
+      { emo: 'happy',  key: 'h5_a_gift' },
+      { emo: 'sleepy', key: 'h5_a_bed' }
+    ];
+  var H5_B_KEY = { happy: 'h5_b_happy', hungry: 'h5_b_hungry', angry: 'h5_b_angry', sleepy: 'h5_b_sleepy' };
+  var H5_C_KEYS = [
+      { emo: 'thirsty', key: 'h5_c_thirsty' },
+      { emo: 'hungry',  key: 'h5_c_hungry' },
+      { emo: 'sleepy',  key: 'h5_c_sleepy' },
+      { emo: 'happy',   key: 'h5_c_happy' }
+    ];
   var H5_EMO = L.H5_EMO;
   var ensureH1Css = L.ensureH1Css;
   var ensureH2Css = L.ensureH2Css;

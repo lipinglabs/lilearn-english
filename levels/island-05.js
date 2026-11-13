@@ -6,23 +6,75 @@
    ============================================================ */
 (function () {
   var L = window.__LLCore || {};
-  var F10_A_CASES = L.F10_A_CASES;
-  var F10_B_STATES = L.F10_B_STATES;
-  var F10_C_UTENSILS = L.F10_C_UTENSILS;
-  var F6_A_CASES = L.F6_A_CASES;
-  var F6_B_CASES = L.F6_B_CASES;
-  var F6_C_CASES = L.F6_C_CASES;
-  var F7_A_CASES = L.F7_A_CASES;
-  var F7_B_CASES = L.F7_B_CASES;
-  var F7_C_CASES = L.F7_C_CASES;
-  var F7_C_ITEMS = L.F7_C_ITEMS;
+  var F10_A_CASES = [
+      { food: 'bread', key: 'l5w5_a_bread' },
+      { food: 'milk',  key: 'l5w5_a_milk' },
+      { food: 'apple', key: 'l5w5_a_apple' }
+    ];
+  var F10_B_STATES = ['eating', 'fullPush', 'more'];
+  var F10_C_UTENSILS = ['spoon', 'cup', 'fork'];
+  var F6_A_CASES = [
+      { food: 'milk',  key: 'l5w1_a_milk' },
+      { food: 'bread', key: 'l5w1_a_bread' },
+      { food: 'egg',   key: 'l5w1_a_egg' },
+      { food: 'rice',  key: 'l5w1_a_rice' }
+    ];
+  var F6_B_CASES = [
+      { food: 'milk',  key: 'l5w1_b_milk' },
+      { food: 'bread', key: 'l5w1_b_bread' },
+      { food: 'egg',   key: 'l5w1_b_egg' },
+      { food: 'rice',  key: 'l5w1_b_rice' }
+    ];
+  var F6_C_CASES = [
+      { food: 'milk',  key: 'l5w1_c_milk' },
+      { food: 'bread', key: 'l5w1_c_bread' },
+      { food: 'egg',   key: 'l5w1_c_egg' },
+      { food: 'rice',  key: 'l5w1_c_rice' }
+    ];
+  var F7_A_CASES = [
+      { item: 'bowl',  key: 'l5w2_a_bowl' },
+      { item: 'spoon', key: 'l5w2_a_spoon' },
+      { item: 'cup',   key: 'l5w2_a_cup' },
+      { item: 'fork',  key: 'l5w2_a_fork' }
+    ];
+  var F7_B_CASES = [
+      { scene: 'soup',    key: 'l5w2_b_bowl' },
+      { scene: 'scSpoon', key: 'l5w2_b_spoon' },
+      { scene: 'scWater', key: 'l5w2_b_cup' },
+      { scene: 'scMeat',  key: 'l5w2_b_fork' }
+    ];
+  var F7_C_CASES = [
+      { item: 'spoon', key: 'l5w2_c_spoon' },
+      { item: 'fork',  key: 'l5w2_c_fork' },
+      { item: 'cup',   key: 'l5w2_c_cup' }
+    ];
+  var F7_C_ITEMS = ['spoon', 'fork', 'cup'];
   var F8_ACTS = L.F8_ACTS;
-  var F8_A_CASES = L.F8_A_CASES;
-  var F8_B_CASES = L.F8_B_CASES;
-  var F8_C_CASES = L.F8_C_CASES;
-  var F9_A_STATES = L.F9_A_STATES;
-  var F9_B_CASES = L.F9_B_CASES;
-  var F9_C_SCENES = L.F9_C_SCENES;
+  var F8_A_CASES = [
+      { scene: 'likeApple', key: 'l5w3_a_like' },
+      { scene: 'dislike',   key: 'l5w3_a_nolike' },
+      { scene: 'more',      key: 'l5w3_a_more' },
+      { scene: 'full',      key: 'l5w3_a_done' }
+    ];
+  var F8_B_CASES = [
+      { situation: 'appleBig',  answer: 'likeApple', key: 'l5w3_b_like' },
+      { situation: 'lemonBig',  answer: 'dislike',   key: 'l5w3_b_nolike' },
+      { situation: 'emptyCup',  answer: 'more',      key: 'l5w3_b_more' },
+      { situation: 'doneTable', answer: 'full',      key: 'l5w3_b_done' }
+    ];
+  var F8_C_CASES = [
+      { food: 'apple', box: 'happy', other: 'lemon', key: 'l5w3_c_apple' },
+      { food: 'milk',  box: 'happy', other: 'lemon', key: 'l5w3_c_milk' },
+      { food: 'lemon', box: 'sad',   other: 'apple', key: 'l5w3_c_lemon' },
+      { food: 'lemon', box: 'sad',   other: 'milk',  key: 'l5w3_c_lemon2' }
+    ];
+  var F9_A_STATES = ['hungry', 'full', 'eating'];
+  var F9_B_CASES = [
+      { food: 'bread', key: 'l5w4_b_bread' },
+      { food: 'milk',  key: 'l5w4_b_milk' },
+      { food: 'apple', key: 'l5w4_b_apple' }
+    ];
+  var F9_C_SCENES = ['giveApple', 'crying', 'sleeping'];
   var ensureF6Css = L.ensureF6Css;
   var ensureF7Css = L.ensureF7Css;
   var ensureF8Css = L.ensureF8Css;

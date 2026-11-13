@@ -6,28 +6,45 @@
    ============================================================ */
 (function () {
   var L = window.__LLCore || {};
-  var L92_A_KEY = L.L92_A_KEY;
-  var L92_B_KEY = L.L92_B_KEY;
-  var L92_C_KEYS = L.L92_C_KEYS;
+  var L92_A_KEY = { hat: 'l92_a_hat', shoes: 'l92_a_shoes', coat: 'l92_a_coat', pants: 'l92_a_pants' };
+  var L92_B_KEY = { hat: 'l92_b_hat', shoes: 'l92_b_shoes', coat: 'l92_b_coat', pants: 'l92_b_pants' };
+  var L92_C_KEYS = [
+      { act: 'on',  item: 'hat',  key: 'l92_c_on_hat' },
+      { act: 'off', item: 'hat',  key: 'l92_c_off_hat' },
+      { act: 'on',  item: 'coat', key: 'l92_c_on_coat' },
+      { act: 'off', item: 'coat', key: 'l92_c_off_coat' }
+    ];
   var L92_ITEMS = L.L92_ITEMS;
-  var L93_A_KEY = L.L93_A_KEY;
-  var L93_B_KEY = L.L93_B_KEY;
-  var L93_C_KEY = L.L93_C_KEY;
-  var L93_ITEMS = L.L93_ITEMS;
-  var L93_NEED = L.L93_NEED;
-  var L93_SKY = L.L93_SKY;
-  var L93_STATES = L.L93_STATES;
-  var L94_A_KEY = L.L94_A_KEY;
-  var L94_C = L.L94_C;
-  var L94_ITEMS = L.L94_ITEMS;
-  var L94_NORMAL = L.L94_NORMAL;
-  var L94_SILLY = L.L94_SILLY;
+  var L93_A_KEY = { hot: 'l93_t_hot_put', cold: 'l92_b_coat' };
+  var L93_B_KEY = { hot: 'l93_b_hot', cold: 'l93_b_cold', rain: 'l93_b_rain' };
+  var L93_C_KEY = { hot: 'l93_c_hot', cold: 'l93_c_cold' };
+  var L93_ITEMS = ['tshirt', 'coat'];
+  var L93_NEED = { hot: 'tshirt', cold: 'coat' };
+  var L93_SKY = ['hot', 'cold'];
+  var L93_STATES = ['hot', 'cold', 'rain'];
+  var L94_A_KEY = { hat: 'l94_a_hat', shoes: 'l94_a_shoes', pants: 'l94_a_pants' };
+  var L94_C = [
+      { key: 'l94_c_hand', look: 'shoes@head' },
+      { key: 'l94_c_nose', look: 'hat@foot' },
+      { key: 'l94_c_jump', look: 'pants@arms' }
+    ];
+  var L94_ITEMS = ['hat', 'shoes', 'pants'];
+  var L94_NORMAL = ['hat@head', 'pants@legs', 'shoes@feet'];
+  var L94_SILLY = [
+      { look: 'shoes@head', key: 'l94_b_shoes', item: 'shoes' },
+      { look: 'pants@arms', key: 'l94_b_pants', item: 'pants' },
+      { look: 'hat@foot', key: 'l94_b_hat', item: 'hat' }
+    ];
   var L94_SLOT = L.L94_SLOT;
-  var L95_C_COMBOS = L.L95_C_COMBOS;
-  var L95_SILLY_SET = L.L95_SILLY_SET;
-  var L9_A_KEY = L.L9_A_KEY;
-  var L9_B_KEY = L.L9_B_KEY;
-  var L9_C_KEY = L.L9_C_KEY;
+  var L95_C_COMBOS = [
+      { key: 'l95_c_pants_hat',  steps: [{ op: 'put', item: 'pants', slot: 'legs' }, { op: 'take', item: 'hat',  slot: 'head' }] },
+      { key: 'l95_c_shoes_coat', steps: [{ op: 'put', item: 'shoes', slot: 'feet' }, { op: 'take', item: 'coat', slot: 'body' }] },
+      { key: 'l95_c_coat_hat',   steps: [{ op: 'put', item: 'coat',  slot: 'body' }, { op: 'take', item: 'hat',  slot: 'head' }] }
+    ];
+  var L95_SILLY_SET = ['pants@head', 'shoes@hand'];
+  var L9_A_KEY = { shirt: 'l9_t_shirt_put', pants: 'l9_t_pants_put', shoes: 'l9_t_shoes', hat: 'l9_t_hat' };
+  var L9_B_KEY = { shirt: 'l9_b_shirt', pants: 'l9_b_pants', shoes: 'l9_b_shoes', hat: 'l9_b_hat' };
+  var L9_C_KEY = { shirt: 'l9_c_shirt', pants: 'l9_c_pants', shoes: 'l9_c_shoes', hat: 'l9_c_hat' };
   var L9_ITEMS = L.L9_ITEMS;
   var L9_PART = L.L9_PART;
   var ensureL92Css = L.ensureL92Css;
