@@ -545,6 +545,7 @@
   var LEVELS_PER_ISLAND = 5;
 
   var ISLANDS = [
+    { icon: '🔤', name: '字母与首音' },
     { icon: '🍎', name: '数字与水果' },
     { icon: '🔺', name: '形状与空间' },
     { icon: '🐘', name: '比较与分类' },
@@ -556,8 +557,7 @@
     { icon: '👕', name: '衣物穿戴' },
     { icon: '🚗', name: '交通工具' },
     { icon: '🐷', name: '童话故事' },
-    { icon: '📛', name: '自我介绍' },
-    { icon: '🔤', name: '字母与首音' }
+    { icon: '📛', name: '自我介绍' }
   ];
 
   var PRAISE_KEYS = ['praise_1', 'praise_2', 'praise_3', 'praise_4', 'praise_5', 'praise_6'];
@@ -599,14 +599,14 @@
   /* 存档内部版本。v2 全部是「只加不改」的追加字段，v1 老档读进来就是空值，
      不需要写迁移代码；将来若给岛上加/改号（例如把新岛插到第 1 位），
      才需要升到 v3 并按版本号重映射 cleared / stars / unlockedLevel 的岛号。 */
-  var PROGRESS_VERSION = 2;
+  var PROGRESS_VERSION = 3;
 
   function defaultProgress() {
     return {
       version: PROGRESS_VERSION,
       unlockedIsland: 1, unlockedLevel: { 1: 1 }, cleared: {}, stars: {},
       lastPlayed: null,      // { island, level, at } 地图上的「继续」用它
-      levelMistakes: {},     // '4-3' → 累计答错次数（挑复习关卡用）
+      levelMistakes: {},     // '5-3' → 累计答错次数（挑复习关卡用）
       wordStats: {},         // 词 key → { r: 对, w: 错, t: 最后出现时间 }
       daily: {}              // 'YYYY-MM-DD' → { ms: 毫秒, r: 对, w: 错 }
     };
@@ -905,10 +905,14 @@
        实测后果：devExit 中途抛错 → 沙盒退不出去；云端存档读回即崩 →
        被 catch 误报成「连接失败」，还会顺手清掉令牌。 */
     var out = {
+      version: PROGRESS_VERSION,
       unlockedIsland: 1, unlockedLevel: { 1: 1 }, cleared: {}, stars: {},
       lastPlayed: null, levelMistakes: {}, wordStats: {}, daily: {}
     };
     if (!raw || typeof raw !== 'object') return out;
+    /* 岛序重编号（2026-11-13）：第 13 岛提到第 1，其余顺移。旧档的 12-5 现在
+       对应「自我介绍」，进度会整片错位，所以版本不符一律按空档处理。 */
+    if (raw.version !== PROGRESS_VERSION) return out;
     out.unlockedIsland = Math.max(1, Math.min(ISLANDS.length, raw.unlockedIsland | 0 || 1));
     if (raw.unlockedLevel && typeof raw.unlockedLevel === 'object') {
       Object.keys(raw.unlockedLevel).forEach(function (k) {
@@ -2112,71 +2116,71 @@
 
   /* 可玩关卡登记表：新增关卡只往这里加一行（RULES §三.5） */
   var LEVEL_DEFS = {
-    '1-1': { numbers: NUMBERS,    make: null,     title: '第 1 关' },
-    '1-2': { numbers: NUMBERS_W2, make: 'makeW2', title: '第 2 关' },
-    '1-3': { numbers: NUMBERS_W3, make: 'makeW3', title: '第 3 关' },
-    '1-4': { numbers: null,       make: 'makeW4', title: '第 4 关' },
-    '1-5': { numbers: null,       make: 'makeW5', title: '第 5 关' },
-    '2-1': { numbers: null,       make: 'makeS1', title: '第 1 关' },
-    '2-2': { numbers: null,       make: 'makeP2', title: '第 2 关', tutorial: true },
-    '2-3': { numbers: null,       make: 'makeP3', title: '第 3 关', tutorial: true },
-    '2-4': { numbers: null,       make: 'makeP4', title: '第 4 关', tutorial: true },
-    '2-5': { numbers: null,       make: 'makeP5', title: '第 5 关', tutorial: true },
-    '3-1': { numbers: null,       make: 'makeB1', title: '第 1 关', tutorial: true },
-    '3-2': { numbers: null,       make: 'makeB2', title: '第 2 关', tutorial: true },
-    '3-3': { numbers: null,       make: 'makeB3', title: '第 3 关', tutorial: true },
-    '3-4': { numbers: null,       make: 'makeB4', title: '第 4 关', tutorial: true },
-    '3-5': { numbers: null,       make: 'makeB5', title: '第 5 关', tutorial: true },
-    '4-1': { numbers: null,       make: 'makeF1', title: '第 1 关', tutorial: true },
-    '4-2': { numbers: null,       make: 'makeF2', title: '第 2 关', tutorial: true },
-    '4-3': { numbers: null,       make: 'makeF3', title: '第 3 关', tutorial: true },
-    '4-4': { numbers: null,       make: 'makeF4', title: '第 4 关', tutorial: true },
-    '4-5': { numbers: null,       make: 'makeF5', title: '第 5 关', tutorial: true },
-    '5-1': { numbers: null,       make: 'makeF6', title: '第 1 关', tutorial: true },
-    '5-2': { numbers: null,       make: 'makeF7', title: '第 2 关', tutorial: true },
-    '5-3': { numbers: null,       make: 'makeF8', title: '第 3 关', tutorial: true },
-    '5-4': { numbers: null,       make: 'makeF9', title: '第 4 关', tutorial: true },
-    '5-5': { numbers: null,       make: 'makeF10', title: '第 5 关', tutorial: true },
-    '6-1': { numbers: null,       make: 'makeF11', title: '第 1 关', tutorial: true },
-    '6-2': { numbers: null,       make: 'makeF12', title: '第 2 关', tutorial: true },
-    '6-3': { numbers: null,       make: 'makeF13', title: '第 3 关', tutorial: true },
-    '6-4': { numbers: null,       make: 'makeF14', title: '第 4 关', tutorial: true },
-    '6-5': { numbers: null,       make: 'makeF15', title: '第 5 关', tutorial: true },
-    '7-1': { numbers: null,       make: 'makeG1',  title: '第 1 关', tutorial: true },
-    '7-2': { numbers: null, make: 'makeG2', title: '第 2 关', tutorial: true },
-    '7-3': { numbers: null, make: 'makeG3', title: '第 3 关', tutorial: true },
-    '7-4': { numbers: null, make: 'makeG4', title: '第 4 关', tutorial: true },
-    '7-5': { numbers: null, make: 'makeG5', title: '第 5 关', tutorial: true },
-    '8-1': { numbers: null, make: 'makeH1', title: '第 1 关', tutorial: true },
-    '8-2': { numbers: null, make: 'makeH2', title: '第 2 关', tutorial: true },
-    '8-3': { numbers: null, make: 'makeH3', title: '第 3 关', tutorial: true },
-    '8-4': { numbers: null, make: 'makeH4', title: '第 4 关', tutorial: true },
-    '8-5': { numbers: null, make: 'makeH5', title: '第 5 关', tutorial: true },
-    '9-1': { numbers: null, make: 'makeL9', title: '第 1 关', tutorial: true },
-    '9-2': { numbers: null, make: 'makeL92', title: '第 2 关', tutorial: true },
-    '9-3': { numbers: null, make: 'makeL93', title: '第 3 关', tutorial: true },
-    '9-4': { numbers: null, make: 'makeL94', title: '第 4 关', tutorial: true },
-    '9-5': { numbers: null, make: 'makeL95', title: '第 5 关', tutorial: true, types: 4 },
-    '10-1': { numbers: null, make: 'makeL10', title: '第 1 关', tutorial: true },
-    '10-2': { numbers: null, make: 'makeL102', title: '第 2 关', tutorial: true, types: 4 },
-    '10-3': { numbers: null, make: 'makeL103', title: '第 3 关', tutorial: true },
-    '10-4': { numbers: null, make: 'makeL104', title: '第 4 关', tutorial: true },
-    '10-5': { numbers: null, make: 'makeL105', title: '第 5 关', tutorial: true },
-    '11-1': { numbers: null, make: 'makeL111', title: '第 1 关', tutorial: true },
-    '11-2': { numbers: null, make: 'makeL112', title: '第 2 关', tutorial: true },
-    '11-3': { numbers: null, make: 'makeL113', title: '第 3 关', tutorial: true },
-    '11-4': { numbers: null, make: 'makeL114', title: '第 4 关', tutorial: true },
-    '11-5': { numbers: null, make: 'makeL115', title: '第 5 关', tutorial: true },
-    '12-1': { numbers: null, make: 'makeL121', title: '第 1 关', tutorial: true },
-    '12-2': { numbers: null, make: 'makeL122', title: '第 2 关', tutorial: true },
-    '12-3': { numbers: null, make: 'makeL123', title: '第 3 关', tutorial: true },
-    '12-4': { numbers: null, make: 'makeL124', title: '第 4 关', tutorial: true },
-    '12-5': { numbers: null, make: 'makeL125', title: '第 5 关', tutorial: true },
-    '13-1': { numbers: null, make: 'makeL131', title: '第 1 关', tutorial: true },
-    '13-2': { numbers: null, make: 'makeL132', title: '第 2 关', tutorial: true },
-    '13-3': { numbers: null, make: 'makeL133', title: '第 3 关', tutorial: true },
-    '13-4': { numbers: null, make: 'makeL134', title: '第 4 关', tutorial: true },
-    '13-5': { numbers: null, make: 'makeL135', title: '第 5 关', tutorial: true }
+    '2-1': { numbers: NUMBERS,    make: null,     title: '第 1 关' },
+    '2-2': { numbers: NUMBERS_W2, make: 'makeW2', title: '第 2 关' },
+    '2-3': { numbers: NUMBERS_W3, make: 'makeW3', title: '第 3 关' },
+    '2-4': { numbers: null,       make: 'makeW4', title: '第 4 关' },
+    '2-5': { numbers: null,       make: 'makeW5', title: '第 5 关' },
+    '3-1': { numbers: null,       make: 'makeS1', title: '第 1 关' },
+    '3-2': { numbers: null,       make: 'makeP2', title: '第 2 关', tutorial: true },
+    '3-3': { numbers: null,       make: 'makeP3', title: '第 3 关', tutorial: true },
+    '3-4': { numbers: null,       make: 'makeP4', title: '第 4 关', tutorial: true },
+    '3-5': { numbers: null,       make: 'makeP5', title: '第 5 关', tutorial: true },
+    '4-1': { numbers: null,       make: 'makeB1', title: '第 1 关', tutorial: true },
+    '4-2': { numbers: null,       make: 'makeB2', title: '第 2 关', tutorial: true },
+    '4-3': { numbers: null,       make: 'makeB3', title: '第 3 关', tutorial: true },
+    '4-4': { numbers: null,       make: 'makeB4', title: '第 4 关', tutorial: true },
+    '4-5': { numbers: null,       make: 'makeB5', title: '第 5 关', tutorial: true },
+    '5-1': { numbers: null,       make: 'makeF1', title: '第 1 关', tutorial: true },
+    '5-2': { numbers: null,       make: 'makeF2', title: '第 2 关', tutorial: true },
+    '5-3': { numbers: null,       make: 'makeF3', title: '第 3 关', tutorial: true },
+    '5-4': { numbers: null,       make: 'makeF4', title: '第 4 关', tutorial: true },
+    '5-5': { numbers: null,       make: 'makeF5', title: '第 5 关', tutorial: true },
+    '6-1': { numbers: null,       make: 'makeF6', title: '第 1 关', tutorial: true },
+    '6-2': { numbers: null,       make: 'makeF7', title: '第 2 关', tutorial: true },
+    '6-3': { numbers: null,       make: 'makeF8', title: '第 3 关', tutorial: true },
+    '6-4': { numbers: null,       make: 'makeF9', title: '第 4 关', tutorial: true },
+    '6-5': { numbers: null,       make: 'makeF10', title: '第 5 关', tutorial: true },
+    '7-1': { numbers: null,       make: 'makeF11', title: '第 1 关', tutorial: true },
+    '7-2': { numbers: null,       make: 'makeF12', title: '第 2 关', tutorial: true },
+    '7-3': { numbers: null,       make: 'makeF13', title: '第 3 关', tutorial: true },
+    '7-4': { numbers: null,       make: 'makeF14', title: '第 4 关', tutorial: true },
+    '7-5': { numbers: null,       make: 'makeF15', title: '第 5 关', tutorial: true },
+    '8-1': { numbers: null,       make: 'makeG1',  title: '第 1 关', tutorial: true },
+    '8-2': { numbers: null, make: 'makeG2', title: '第 2 关', tutorial: true },
+    '8-3': { numbers: null, make: 'makeG3', title: '第 3 关', tutorial: true },
+    '8-4': { numbers: null, make: 'makeG4', title: '第 4 关', tutorial: true },
+    '8-5': { numbers: null, make: 'makeG5', title: '第 5 关', tutorial: true },
+    '9-1': { numbers: null, make: 'makeH1', title: '第 1 关', tutorial: true },
+    '9-2': { numbers: null, make: 'makeH2', title: '第 2 关', tutorial: true },
+    '9-3': { numbers: null, make: 'makeH3', title: '第 3 关', tutorial: true },
+    '9-4': { numbers: null, make: 'makeH4', title: '第 4 关', tutorial: true },
+    '9-5': { numbers: null, make: 'makeH5', title: '第 5 关', tutorial: true },
+    '10-1': { numbers: null, make: 'makeL9', title: '第 1 关', tutorial: true },
+    '10-2': { numbers: null, make: 'makeL92', title: '第 2 关', tutorial: true },
+    '10-3': { numbers: null, make: 'makeL93', title: '第 3 关', tutorial: true },
+    '10-4': { numbers: null, make: 'makeL94', title: '第 4 关', tutorial: true },
+    '10-5': { numbers: null, make: 'makeL95', title: '第 5 关', tutorial: true, types: 4 },
+    '11-1': { numbers: null, make: 'makeL10', title: '第 1 关', tutorial: true },
+    '11-2': { numbers: null, make: 'makeL102', title: '第 2 关', tutorial: true, types: 4 },
+    '11-3': { numbers: null, make: 'makeL103', title: '第 3 关', tutorial: true },
+    '11-4': { numbers: null, make: 'makeL104', title: '第 4 关', tutorial: true },
+    '11-5': { numbers: null, make: 'makeL105', title: '第 5 关', tutorial: true },
+    '12-1': { numbers: null, make: 'makeL111', title: '第 1 关', tutorial: true },
+    '12-2': { numbers: null, make: 'makeL112', title: '第 2 关', tutorial: true },
+    '12-3': { numbers: null, make: 'makeL113', title: '第 3 关', tutorial: true },
+    '12-4': { numbers: null, make: 'makeL114', title: '第 4 关', tutorial: true },
+    '12-5': { numbers: null, make: 'makeL115', title: '第 5 关', tutorial: true },
+    '13-1': { numbers: null, make: 'makeL121', title: '第 1 关', tutorial: true },
+    '13-2': { numbers: null, make: 'makeL122', title: '第 2 关', tutorial: true },
+    '13-3': { numbers: null, make: 'makeL123', title: '第 3 关', tutorial: true },
+    '13-4': { numbers: null, make: 'makeL124', title: '第 4 关', tutorial: true },
+    '13-5': { numbers: null, make: 'makeL125', title: '第 5 关', tutorial: true },
+    '1-1': { numbers: null, make: 'makeL131', title: '第 1 关', tutorial: true },
+    '1-2': { numbers: null, make: 'makeL132', title: '第 2 关', tutorial: true },
+    '1-3': { numbers: null, make: 'makeL133', title: '第 3 关', tutorial: true },
+    '1-4': { numbers: null, make: 'makeL134', title: '第 4 关', tutorial: true },
+    '1-5': { numbers: null, make: 'makeL135', title: '第 5 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -2289,7 +2293,7 @@
       return carIcon;
     }
     // 第 11 岛是「童话故事」，地图图标用手写小猪脸 SVG（免费 SVG，RULES §二.17，不用 emoji 字符）
-    if (index === 11) {
+    if (index === 12) {
       var pigIcon = document.createElementNS(SVG_NS, 'svg');
       pigIcon.setAttribute('viewBox', '0 0 100 100');
       pigIcon.setAttribute('class', 'mini-shapes');
@@ -2305,7 +2309,7 @@
       return pigIcon;
     }
     // 第 12 岛是「自我介绍」，地图图标用手写「挂名字牌的小孩」SVG（免费 SVG，RULES §二.5 不用 emoji 字符）
-    if (index === 12) {
+    if (index === 13) {
       var kidIcon = document.createElementNS(SVG_NS, 'svg');
       kidIcon.setAttribute('viewBox', '0 0 100 100');
       kidIcon.setAttribute('class', 'mini-shapes');
@@ -2322,7 +2326,7 @@
     }
     // 第 13 岛是「字母与首音」，地图图标用三块字母积木 + 一支铅笔（手写 SVG）
     // 积木上**不写字**：地图不是白名单容器，写 A/B/C 会直接撞「页面无英文字母」断言（§二.1）
-    if (index === 13) {
+    if (index === 1) {
       var blocks = document.createElementNS(SVG_NS, 'svg');
       blocks.setAttribute('viewBox', '0 0 100 100');
       blocks.setAttribute('class', 'mini-shapes');
@@ -32117,7 +32121,7 @@
    * 教学期间不给星星、不显示选项栏；完成才回调 beginRounds()。
    */
   var TUTORIALS = {
-    '2-2': {
+    '3-2': {
       steps: [
         { pos: 'in', from: 'above', word: 't_in', sentence: 's_in', ask: 't_in_ask' },
         { pos: 'on', from: 'above', word: 't_on', sentence: 's_on', ask: 't_on_ask' }
@@ -32126,7 +32130,7 @@
       scene: function (pos) { return posSceneNode(pos); },
       hit: function () { return true; }
     },
-    '2-3': {
+    '3-3': {
       steps: [
         { pos: 'under', from: 'on', word: 'u_under', sentence: 's_bear_under', ask: 'u_under_ask' },
         { pos: 'behind', from: 'on', word: 'u_behind', sentence: 's_bear_behind', ask: 'u_behind_ask' }
@@ -32140,7 +32144,7 @@
         return true;
       }
     },
-    '2-4': {
+    '3-4': {
       // 组合指令（形状 + 方位）教学：结构与「两个位置对比」不同，走 custom 分支
       custom: runComboTutorial,
       steps: [{ pos: 'on' }],
@@ -32159,7 +32163,7 @@
         setTimeout(function () { if (state.tut === me) tutFinish(me); }, 950);
       }
     },
-    '2-5': {
+    '3-5': {
       // 形状 + 方位大复习：五个阶段（形状 → 摸一摸 → in/on → under/behind → 组合指令），
       // 结构与「两个位置对比」完全不同，走 custom 分支，收尾仍复用 tutFinish()
       custom: runP5Tutorial,
@@ -32167,7 +32171,7 @@
       onDrop: function (target, ratio) { return runP5Tutorial.check(target, ratio); },
       onSuccess: function (target, me) { runP5Tutorial.success(target, me); }
     },
-    '3-1': {
+    '4-1': {
       // 大 / 小：大象与老鼠依次出场 → 摸一摸 → 一大一小两个苹果做对比测试，
       // 全程点选，结构与「两个位置对比」不同，走 custom 分支，收尾复用 tutFinish()
       custom: runB1Tutorial,
@@ -32175,7 +32179,7 @@
       onDrop: function () { return runB1Tutorial.check(); },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '3-2': {
+    '4-2': {
       // 多 / 少：左筐 5 苹果、右筐 1 苹果依次出场 → 发光弹跳 / 缩小 → 互动找「更多的筐」，
       // 全程点选，走 custom 分支，收尾复用 tutFinish()
       custom: runB2Tutorial,
@@ -32183,14 +32187,14 @@
       onDrop: function () { return runB2Tutorial.check(); },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '3-3': {
+    '4-3': {
       // 长 / 短：四个教学案例（长蛇/长面包/短铅笔/短围巾）→ 两道互动跟做 → 收尾复用 tutFinish()
       custom: runB3Tutorial,
       steps: [],
       onDrop: function () { return runB3Tutorial.check(); },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '3-4': {
+    '4-4': {
       // 重量感知（Heavy / Light）：石头vs羽毛(演示) → 石头坠地(演示) → 大象vs气球(互动) → 羽毛特写(演示) →
       // 跷跷板(演示) → 书vs羽毛(互动) → 过渡，共 7 环节；演示点按推进、互动 4 秒小手指
       custom: runB4Tutorial,
@@ -32198,7 +32202,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '3-5': {
+    '4-5': {
       // 游乐场综合大考（结业关）：大门钥匙(演示) → 大象vs老鼠(互动) → 断桥木板(演示) →
       // 长火车vs短汽车(互动) → 硬币(演示) → 跷跷板(演示) → 石头放跷跷板(互动·拖拽) → 过渡，共 8 环节
       custom: runB5Tutorial,
@@ -32206,112 +32210,112 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '4-1': {
+    '5-1': {
       // 农场动物：狗 → 猫 → 动手找狗 → 猪 → 牛 → 动手找牛（4 秒小手指）→ 过渡语进答题
       custom: runF1Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '4-2': {
+    '5-2': {
       // 野生动物（RULES §三.10 双倍量）：每个词 2 次演示 + 2 次互动，共 16 环节 + 过渡语
       custom: runF2Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '4-3': {
+    '5-3': {
       // 动词（RULES §三.10 双倍量）：4 个动词 × 4 环节 + 1 综合互动 + 过渡语 = 18 环节
       custom: runF3Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '4-4': {
+    '5-4': {
       // 动物 + 动作短句（RULES §三.10 双倍量）：3 个句型 × 4 环节 + 综合 + 对错示范 2 步 + 过渡语 = 16 环节
       custom: runF4Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '4-5': {
+    '5-5': {
       // 结业关：相机示范 1 步 + 3 个动作 × 4 环节（2 演示 + 2 互动）+ 过渡语 = 14 环节
       custom: runF5Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '5-1': {
+    '6-1': {
       // 常见食物（RULES §三.10 双倍量）：4 个词 × 4 环节（2 演示 + 2 互动）+ 过渡语 = 17 环节
       custom: runF6Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '5-2': {
+    '6-2': {
       // 餐具（RULES §三.10 双倍量）：4 个词 × 4 环节（2 演示 + 2 互动）+ 过渡语 = 17 环节
       custom: runF7Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '5-3': {
+    '6-3': {
       // 喜好与需求表达（RULES §三.10 双倍量）：4 个句型 × 4 环节（2 演示 + 2 互动）+ 过渡语 = 17 环节
       custom: runF8Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '5-4': {
+    '6-4': {
       // 餐厅点餐（RULES §三.10 双倍量）：I am hungry / I want / Here you are / Thank you，13 环节
       custom: runF9Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '5-5': {
+    '6-5': {
       // 上菜终极挑战（结业关，RULES §三.9）：全岛语言点综合复习，24 环节延长版
       custom: runF10Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '6-1': {
+    '7-1': {
       // 家具（Bed / Table / Chair / Sofa）：演示点按推进（RULES §三.14）+ 双倍量，17 环节
       custom: runF11Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '6-2': {
+    '7-2': {
       // 家里的小日常（Watch TV / Read a book / Take a bath / Go to sleep）：演示点按推进 + 双倍量，17 环节
       custom: runF12Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '6-3': {
+    '7-3': {
       // 找东西（Where is the ball? on/under/in）：演示点按推进 + 双倍量，15 环节
       custom: runF13Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '6-4': {
+    '7-4': {
       // 听指令做家务（Put the [物品] on/in/under the [家具]）：演示点按推进 + 双倍量 + 多步，10 环节
       custom: runF14Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '6-5': {
+    '7-5': {
       // 帮小人整理房间综合大考（书/玩具/球/衣服 → 床/桌/箱/椅/书架）：演示点按推进 + 2 互动 + 过渡，7 环节
       custom: runF15Tutorial,
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '7-1': {
+    '8-1': {
       // 认识五官（eye / nose / mouth / ear）：眼鼻嘴耳各 2 演示 + 1 互动，最后一张完整脸点耳朵，共 13 环节；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、互动一律「把零件拖/点到脸上」
       custom: runG1Tutorial,
@@ -32319,7 +32323,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '7-2': {
+    '8-2': {
       // 身体部位与 TPR 动作（head / hand / foot）：头手脚各 2 演示 + 1 互动 + 1 综合互动 + TPR 模仿，共 11 环节；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、互动「把零件拖/点到身上」、TPR 👍 永远判对（§三.12）
       custom: runG2Tutorial,
@@ -32327,7 +32331,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '7-3': {
+    '8-3': {
       // 复合指令（First... Then...）：魔法机器人 + 两步动作；10 环节（唤醒 + 3 组「2 演示 + 1 互动」+ 过渡）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、互动「机器人演示 + 孩子模仿 + 点大按钮」👍 永远判对（§三.12）
       custom: runG3Tutorial,
@@ -32335,7 +32339,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '7-4': {
+    '8-4': {
       // 快速反应群像找茬（I Spy）：3–5 个手写小人同屏听指令找人；13 环节（3 知识点 × 2 演示 + 2 互动 + 过渡）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、C 型名词陷阱防「听到名词就点」
       custom: runG4Tutorial,
@@ -32343,7 +32347,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '7-5': {
+    '8-5': {
       // TPR 终极游乐场（结业关，RULES §三.9 只考不教新词）：街机跳舞机场景 + 巨大👍按钮；
       // 7 环节热身复习（摸头+拍手 / 摸鼻+跺脚 各 2 演示 + 1 互动 + 过渡）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、👍 永远判对（§三.12）
@@ -32352,7 +32356,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '8-1': {
+    '9-1': {
       // 基础情绪（Happy / Sad / Angry）：空白脸谱 + 情绪零件；13 环节
       // （3 个情绪 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、模仿互动👍永远判对（§三.12）
@@ -32361,7 +32365,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '8-2': {
+    '9-2': {
       // 身体感受（Hungry / Thirsty / Sleepy）：手写小人三姿态 + 面包 / 水 / 枕头；13 环节
       // （3 个感受 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、答错 again + 不推进
@@ -32370,7 +32374,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '8-3': {
+    '9-3': {
       // 安慰别人（Give him a toy / a hug / candy）：手写婴儿三状态 + 玩具/糖果/辣椒/书/石头 + 爱心；13 环节
       // （3 个安抚动作 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、拥抱👍永远判对（§三.12）
@@ -32379,7 +32383,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '8-4': {
+    '9-4': {
       // 综合感知·表情变变变（因果 → 情绪：冰淇淋掉了/玩具被抢）；9 环节
       // （2 个情境故事 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、生气脸👍永远判对（§三.12）
@@ -32388,7 +32392,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '8-5': {
+    '9-5': {
       // 游乐场·情绪与感受终极考验（变脸魔法师，第 8 岛结业关）：面具 4 张 + 6 种状态小人 + 拥抱；
       // 10 环节（换面具 2 演示 + 贴面具 1 互动 + 找感受 2 演示 + 找感受 1 互动
       // + 安慰 2 演示 + TPR 1 互动 + 过渡，RULES §三.10 双倍量）；
@@ -32398,7 +32402,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '9-1': {
+    '10-1': {
       // 衣物穿戴（Shirt / Pants / Shoes / Hat）：打底衫小人 + 4 件可穿脱衣物图层；10 环节
       // （Shirt 2 演示 + 1 互动 / Pants 2 演示 + 1 互动 / Shoes 1 演示 / Hat 1 演示 + 1 互动 / 过渡）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、拖拽热区 = 整个小人 +14%（§二.11）
@@ -32407,7 +32411,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '9-2': {
+    '10-2': {
       // 穿脱动作（Put on / Take off）：沿用 9-1 小人 + 衣物，新增外套；底部物品栏 = 「脱」的接收区；
       // 10 环节（Put on 2 演示 + 1 互动 / Take off 2 演示 + 1 互动 / 再 2 演示 + 1 互动 / 过渡）；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、双向拖拽未命中平滑弹回（§二.11）
@@ -32416,7 +32420,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '9-3': {
+    '10-3': {
       // 天气与衣服（Hot / Cold, Coat / T-shirt）：天气层用极轻量 CSS 动画（太阳光晕慢转 + 8 颗雪花下落），
       // 10 环节（Hot 2 演示 + 1 互动 / Cold 2 演示 + 1 互动 / 综合 2 演示 + 1 互动 / 过渡）；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖拽没命中平滑弹回（§二.11）
@@ -32425,7 +32429,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '9-4': {
+    '10-4': {
       // 找错误 · 捣蛋鬼换装：把衣物穿到「错」的部位（鞋子戴头上 / 裤子套胳膊 / 帽子穿脚）；
       // 9 环节（Shoes 2 演示 + 2 互动 / Pants 2 演示 + 2 互动 / 过渡）；演示点按推进（§三.14）、
       // 互动 4 秒小手（§二.12）、拖到小人身上任意处都算成功（§二.11，绝不要求对准部位）；
@@ -32435,7 +32439,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '9-5': {
+    '10-5': {
       // 游乐场·变装大秀综合考验：超模变装秀（2 穿上演示 + 1 穿上互动 / 2 脱下演示 + 1 脱下互动 / 过渡）；
       // 答题 4 题型（A 天气穿搭 / B 搞笑错位 / C 多步穿脱 / D 找捣蛋）；演示点按推进（§三.14）、
       // 互动 4 秒小手（§二.12）、双向拖拽（穿上落点大、脱下可拖回栏里）、空白处平滑弹回（§二.11）
@@ -32444,7 +32448,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '10-1': {
+    '11-1': {
       // 交通工具与场景分类（Car / Bus / Train / Plane）：10 环节
       // Car 2 演示 + 1 互动 → Plane 2 演示 + 1 互动 → Train/Bus 各 1 演示 → 综合互动 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错场景只弹回不判错（§二.11）
@@ -32453,7 +32457,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '10-2': {
+    '11-2': {
       // 快慢与方向（Fast / Slow / Left / Right）：11 环节
       // 赛跑 2 演示 → TPR 快/慢 2 互动 → 变道 2 演示 → 变道 1 互动 → 交警 2 演示 → 交警 1 互动 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错车道只弹回不判错（§二.11）
@@ -32462,7 +32466,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '10-3': {
+    '11-3': {
       // 听指令过马路（Red light / Green light）：9 环节
       // 红灯 2 演示 + 1 互动 → 绿灯 2 演示 + 1 互动 → 行人 2 演示 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错区域只弹回不判错（§二.11）
@@ -32471,7 +32475,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '10-4': {
+    '11-4': {
       // 天气（Sunny / Rainy / Cloudy）：10 环节
       // 晴天 2 演示 + 1 互动 → 雨天 2 演示 + 1 互动 → 阴天 2 演示 + 1 互动（点图）→ 过渡；
       // 本关**严禁 TPR**：互动只有「拖物品到小人」与「点图」两种。
@@ -32480,7 +32484,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '10-5': {
+    '11-5': {
       // 游乐场 · 交通与自然终极考验：岛末综合关，9 环节
       // 快/左转 2 演示 → 右转互动 → 红灯 2 演示 → 绿灯互动 → 下雨 2 演示 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错车道只弹回不判错（§二.11）
@@ -32489,7 +32493,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '11-1': {
+    '12-1': {
       // 三只小猪（童话故事岛开篇）：7 环节
       // 草房 2 演示（三只小猪 → 稻草飞过去搭房子）→ 砖房互动（拖砖头给第三只猪）→
       // 敲门 2 演示（敲门声 + 门抖 → 大灰狼现身）→ 找狼互动 → 过渡；
@@ -32499,7 +32503,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '11-2': {
+    '12-2': {
       // 小红帽（童话故事）：7 环节
       // 小红帽+猎人出场 → 猎人问路（她沿去奶奶家的路走）→ 拖她去奶奶家 → 狼进树林 → 狼特写 → 找狼 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错路只弹回不判错（§二.11）
@@ -32508,7 +32512,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '11-3': {
+    '12-3': {
       // 金发姑娘与三只小熊（童话故事）：7 环节
       // 太烫/太凉 2 演示 → 点冒热气的那碗 → 尝一口 2 演示（第二段冒爱心）→ 点刚好的椅子 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
@@ -32517,7 +32521,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '11-4': {
+    '12-4': {
       // 故事排序（童话故事）：4 环节
       // 讲三只小猪（三张图按序高亮）→ 演示图自己飞进 1/2/3 → 动手把三张图拖进框 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、放错只弹回不判错（§二.11）
@@ -32526,7 +32530,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '11-5': {
+    '12-5': {
       // 童话故事游乐场大结局（岛末综合关）：6 环节
       // 三个主角入场 → 逐个点名 → 点出小红帽 → 大灰狼出场 → 狼在森林 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
@@ -32535,7 +32539,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '12-1': {
+    '13-1': {
       // 自我介绍（第 12 岛开篇）：6 环节
       // 男孩+女孩出场 → 男孩问 → 女孩答 → 点出 Lily（互动）→ 男孩答 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
@@ -32544,7 +32548,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '12-2': {
+    '13-2': {
       // 字母音觉醒：6 环节
       // 大字母 A → A 的音 + 苹果跳 → 点出读该音的字母（互动）→ B + 球 → C + 猫 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
@@ -32553,7 +32557,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '12-3': {
+    '13-3': {
       // 综合听力大复习：6 环节
       // 红苹果 → 苹果在跳 → 听长句找蓝汽车（互动）→ 男孩饿了 → 想要面包 → 过渡
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
@@ -32562,7 +32566,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '12-4': {
+    '13-4': {
       // 情景闯关 · 多步指令：7 环节
       // 拿苹果 2 演示 + 1 互动 → 递给爸爸 2 演示 + 1 互动 → 过渡
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、两步都是拖拽（第一步交到手上、第二步递给人）
@@ -32571,7 +32575,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '12-5': {
+    '13-5': {
       // 年度游乐场 · 小岛寻宝大结局：6 环节
       // 藏宝图 + 金钥匙 → 地图特写（红叉）→ 点出红苹果（互动）→ 奖杯 → 奖杯 + 12 面小旗 → 过渡
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动播 again 不推进
@@ -32580,28 +32584,28 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '13-1': {
+    '1-1': {
       // 字母与首音 · 第一关 A–E：8 环节
       // 开场（本关五张字母卡排队）→ A+B 两演示 → 点出读该音的字母（互动）→ C+D 两演示 → 互动 → E 演示 → 过渡
       custom: runL13Tutorial,
       steps: [], onDrop: function () { return false; }, onSuccess: function () { }
     },
-    '13-2': {
+    '1-2': {
       // 第二关 F–J：8 环节（无开场，直接进 F）
       custom: runL13Tutorial,
       steps: [], onDrop: function () { return false; }, onSuccess: function () { }
     },
-    '13-3': {
+    '1-3': {
       // 第三关 K–O：8 环节
       custom: runL13Tutorial,
       steps: [], onDrop: function () { return false; }, onSuccess: function () { }
     },
-    '13-4': {
+    '1-4': {
       // 第四关 P–T：8 环节
       custom: runL13Tutorial,
       steps: [], onDrop: function () { return false; }, onSuccess: function () { }
     },
-    '13-5': {
+    '1-5': {
       // 第五关 U–Z：9 环节（六个字母，分成三组「两演示 + 一互动」）
       custom: runL13Tutorial,
       steps: [], onDrop: function () { return false; }, onSuccess: function () { }
