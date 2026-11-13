@@ -14,7 +14,7 @@
    改版本号即可让孩子设备上下一次联网时换新缓存。
    ============================================================ */
 
-var CACHE = 'lilearn-v12';
+var CACHE = 'lilearn-v13';
 var SHELL = [
   './',
   './index.html',
@@ -22,6 +22,17 @@ var SHELL = [
   './style.css',
   './skin-live.css',
   './levels/island-01.js',
+  './levels/island-02.js',
+  './levels/island-03.js',
+  './levels/island-04.js',
+  './levels/island-05.js',
+  './levels/island-06.js',
+  './levels/island-07.js',
+  './levels/island-08.js',
+  './levels/island-09.js',
+  './levels/island-10.js',
+  './levels/island-11.js',
+  './levels/island-12.js',
   /* 语音分块：索引 + 公共语音随 SW 一起预缓存（0.7MB），
      其余 voice/chunks/island_*.js 走运行时缓存（首次进岛时缓存，之后离线可玩）。
      注意：v4 及更早缓存里存着单体 voice.js（35MB），activate 时会整体删掉。 */

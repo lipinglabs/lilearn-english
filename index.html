@@ -1769,44 +1769,10 @@
   };
 
   /** 按当前关卡生成一道题 */
-    /* 关卡出题器注册表：由 LEVEL_DEFS.make 标签映射到出题函数，按岛分组。
-   * 岛 1 的 4 个出题器已外置到 levels/island-01.js，通过 window.__LLMakers 注册；
-   * newQuestion 优先查 __LLMakers，因此表中不再列出它们。 */
-  var QUESTION_MAKERS = {
-    /* 岛 2 */
-    makeS1: makeQuestionS1, makeP2: makeQuestionP2, makeP3: makeQuestionP3,
-    makeP4: makeQuestionP4, makeP5: makeQuestionP5,
-    /* 岛 3 */
-    makeB1: makeQuestionB1, makeB2: makeQuestionB2, makeB3: makeQuestionB3,
-    makeB4: makeQuestionB4, makeB5: makeQuestionB5,
-    /* 岛 4 */
-    makeF1: makeQuestionF1, makeF2: makeQuestionF2, makeF3: makeQuestionF3,
-    makeF4: makeQuestionF4, makeF5: makeQuestionF5,
-    /* 岛 5 */
-    makeF6: makeQuestionF6, makeF7: makeQuestionF7, makeF8: makeQuestionF8,
-    makeF9: makeQuestionF9, makeF10: makeQuestionF10,
-    /* 岛 6 */
-    makeF11: makeQuestionF11, makeF12: makeQuestionF12, makeF13: makeQuestionF13,
-    makeF14: makeQuestionF14, makeF15: makeQuestionF15,
-    /* 岛 7 */
-    makeG1: makeQuestionG1, makeG2: makeQuestionG2, makeG3: makeQuestionG3,
-    makeG4: makeQuestionG4, makeG5: makeQuestionG5,
-    /* 岛 8 */
-    makeH1: makeQuestionH1, makeH2: makeQuestionH2, makeH3: makeQuestionH3,
-    makeH4: makeQuestionH4, makeH5: makeQuestionH5,
-    /* 岛 9 */
-    makeL9: makeQuestionL9, makeL92: makeQuestionL92, makeL93: makeQuestionL93,
-    makeL94: makeQuestionL94, makeL95: makeQuestionL95,
-    /* 岛 10 */
-    makeL10: makeQuestionL10, makeL102: makeQuestionL102, makeL103: makeQuestionL103,
-    makeL104: makeQuestionL104, makeL105: makeQuestionL105,
-    /* 岛 11 */
-    makeL111: makeQuestionL111, makeL112: makeQuestionL112, makeL113: makeQuestionL113,
-    makeL114: makeQuestionL114, makeL115: makeQuestionL115,
-    /* 岛 12 */
-    makeL121: makeQuestionL121, makeL122: makeQuestionL122, makeL123: makeQuestionL123,
-    makeL124: makeQuestionL124, makeL125: makeQuestionL125
-  };
+    /* 关卡出题器全部外置到 levels/island-01..12.js（12 岛 / 59 个标签），
+   * 通过 window.__LLMakers 注册；newQuestion 优先查该注册表。
+   * 这里保留空表作为兜底：岛文件未加载时回落到默认 makeQuestion。 */
+  var QUESTION_MAKERS = {};
 
   function newQuestion(typeIdx, prev) {
     var def = levelDef(currentIsland, state.level);
@@ -2125,51 +2091,7 @@
   }
 
   /** 第 2 岛第 1 关题库：形状（A 找形状 / B 找物品 / C 拼图） */
-  function makeQuestionS1(type, prev) {
-    var prevShape = prev && prev.shape ? prev.shape : null;
-    var shape = pick(SHAPES, prevShape);
-
-    // 选项栏只有 3 个槽位，而形状有 4 种：本题正确答案 + 2 个干扰形状（顺序打乱）
-    var others = shuffle(SHAPES.filter(function (s2) { return s2.id !== shape.id; })).slice(0, 2);
-    var list = shuffle([shape].concat(others));
-    var palette = shuffle(SHAPE_COLORS.slice());
-
-    function colorFor(i) { return palette[i % palette.length]; }
-
-    if (type === 1) {
-      // 题型 B：生活物品联想
-      return {
-        type: 'S1B', shape: shape,
-        options: list.map(function (s, i) {
-          return { kind: 'object', shape: s, color: colorFor(i) };
-        }),
-        correct: list.indexOf(shape),
-        audio: ['ws_' + shape.id]
-      };
-    }
-
-    if (type === 2) {
-      // 题型 C：拼图房子，点形状按钮
-      return {
-        type: 'S1C', shape: shape,
-        options: list.map(function (s, i) {
-          return { kind: 'shapeBtn', shape: s, color: colorFor(i) };
-        }),
-        correct: list.indexOf(shape),
-        audio: ['fs_' + shape.id]
-      };
-    }
-
-    // 题型 A：三个彩色几何图形
-    return {
-      type: 'S1A', shape: shape,
-      options: list.map(function (s, i) {
-        return { kind: 'shape', shape: s, color: colorFor(i) };
-      }),
-      correct: list.indexOf(shape),
-      audio: ['fs_' + shape.id]
-    };
-  }
+  
 
   /* ================= 第 2 岛第 2 关：空间方位（in / on） ================= */
 
@@ -2430,53 +2352,7 @@
 
   /* ---- 题库 ---- */
 
-  function makeQuestionP2(type, prev) {
-    if (type === 0) {
-      // 题型 A：三个盒子场景（里面 / 上面 / 旁边），听整句找位置
-      var aCombos = P2_POS.map(function (p) { return { key: 'A-' + p, pos: p }; });
-      var aPrev = (prev && prev.type === 'P2A') ? 'A-' + prev.pos : null;
-      var pos = takeFresh(aCombos, usedPairs, aPrev).pos;
-      var list = shuffle(P2_POS.slice());
-      return {
-        type: 'P2A', pos: pos,
-        options: list.map(function (p) { return { kind: 'posScene', pos: p }; }),
-        correct: list.indexOf(pos),
-        audio: ['p_where', P2_SENTENCE[pos]]
-      };
-    }
-
-    if (type === 1) {
-      // 题型 B：听 "Put the apple on the table."，把对应物品拖到桌上
-      var bCombos = P2_ITEMS.map(function (it) { return { key: 'B-' + it.id, item: it }; });
-      var bPrev = (prev && prev.type === 'P2B') ? 'B-' + prev.item.id : null;
-      var item = takeFresh(bCombos, usedPairs, bPrev).item;
-      var itemOpts = shuffle(P2_ITEMS.slice());
-      return {
-        type: 'P2B', item: item,
-        options: itemOpts.map(function (it) { return { kind: 'p2item', item: it }; }),
-        correct: itemOpts.indexOf(item),
-        audio: [item.audio]
-      };
-    }
-
-    // 题型 C：看图判断句子对错（✅ / ❌）
-    var cCombos = P2_VERDICTS.map(function (v) { return { key: 'C-' + v.key, v: v }; });
-    var cPrev = (prev && prev.type === 'P2C') ? 'C-' + prev.verdict.key : null;
-    var verdict = takeFresh(cCombos, usedPairs, cPrev).v;
-
-    // 对错交替出现，保证一局里 ✅ 与 ❌ 都有，不靠运气
-    state.vFlip = !state.vFlip;
-    var truth = state.vFlip;
-    var sentence = truth ? verdict.match : verdict.mismatch;
-
-    var opts = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
-    return {
-      type: 'P2C', verdict: verdict, kind: verdict.kind, truth: truth, sentence: sentence,
-      options: opts,
-      correct: opts[0].val === truth ? 0 : 1,
-      audio: [sentence, 'yesno']
-    };
-  }
+  
 
   /* ================= 第 2 岛第 3 关：空间进阶（under / behind） ================= */
 
@@ -2779,52 +2655,7 @@
 
   /* ---- 题库 ---- */
 
-  function makeQuestionP3(type, prev) {
-    if (type === 0) {
-      // 题型 A：三张场景（椅子下 / 椅子后 / 椅子上），听整句找位置
-      var aCombos = P3_POS.map(function (p) { return { key: 'A-' + p, pos: p }; });
-      var aPrev = (prev && prev.type === 'P3A') ? 'A-' + prev.pos : null;
-      var pos = takeFresh(aCombos, usedPairs, aPrev).pos;
-      var list = shuffle(P3_POS.slice());
-      return {
-        type: 'P3A', pos: pos,
-        options: list.map(function (p) { return { kind: 'p3chair', pos: p }; }),
-        correct: list.indexOf(pos),
-        audio: ['p_where_cat', P3_SENT[pos]]
-      };
-    }
-
-    if (type === 1) {
-      // 题型 B：听 "Put the dog behind the box."，把对应物品放到箱子后面
-      var bCombos = P3_ITEMS.map(function (it) { return { key: 'B-' + it.id, item: it }; });
-      var bPrev = (prev && prev.type === 'P3B') ? 'B-' + prev.item.id : null;
-      var item = takeFresh(bCombos, usedPairs, bPrev).item;
-      var itemOpts = shuffle(P3_ITEMS.slice());
-      return {
-        type: 'P3B', item: item,
-        options: itemOpts.map(function (it) { return { kind: 'p3item', item: it }; }),
-        correct: itemOpts.indexOf(item),
-        audio: [item.audio]
-      };
-    }
-
-    // 题型 C：场景对错判断
-    var cCombos = P3_VERDICTS.map(function (v) { return { key: 'C-' + v.key, v: v }; });
-    var cPrev = (prev && prev.type === 'P3C') ? 'C-' + prev.verdict.key : null;
-    var verdict = takeFresh(cCombos, usedPairs, cPrev).v;
-
-    state.vFlip = !state.vFlip;
-    var truth = state.vFlip;
-    var sentence = truth ? verdict.match : verdict.mismatch;
-
-    var opts = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
-    return {
-      type: 'P3C', verdict: verdict, kind: verdict.kind, truth: truth, sentence: sentence,
-      options: opts,
-      correct: opts[0].val === truth ? 0 : 1,
-      audio: [sentence, 'yesno']
-    };
-  }
+  
 
   /* ================= 第 2 岛第 4 关：形状 + 空间组合 ================= */
 
@@ -3133,56 +2964,7 @@
 
   /* ---- 题库 ---- */
 
-  function makeQuestionP4(type, prev) {
-    if (type === 0) {
-      // 题型 A：三个场景（圈上 / 圈里 / 圈旁），指令可能是祈使句也可能是陈述句
-      var aCombos = P4_POS.map(function (p) { return { key: 'A-' + p, pos: p }; });
-      var aPrev = (prev && prev.type === 'P4A') ? 'A-' + prev.pos : null;
-      var pos = takeFresh(aCombos, usedPairs, aPrev).pos;
-
-      var form = Math.random() < 0.5 ? 'put' : 'is';
-      var audioKey = (form === 'put') ? ('cb_put_' + pos) : ('cb_star_' + pos + '_circle');
-
-      var list = shuffle(P4_POS.slice());
-      return {
-        type: 'P4A', pos: pos, form: form,
-        options: list.map(function (p) { return { kind: 'p4star', pos: p }; }),
-        correct: list.indexOf(pos),
-        audio: [audioKey]
-      };
-    }
-
-    if (type === 1) {
-      // 题型 B：把「正方形书本 / 圆形苹果 / 三角形披萨」拖进正方形
-      var bCombos = P4_ITEMS.map(function (it) { return { key: 'B-' + it.id, item: it }; });
-      var bPrev = (prev && prev.type === 'P4B') ? 'B-' + prev.item.id : null;
-      var item = takeFresh(bCombos, usedPairs, bPrev).item;
-      var itemOpts = shuffle(P4_ITEMS.slice());
-      return {
-        type: 'P4B', item: item,
-        options: itemOpts.map(function (it) { return { kind: 'p4item', item: it }; }),
-        correct: itemOpts.indexOf(item),
-        audio: [item.audio]
-      };
-    }
-
-    // 题型 C：夸张场景对错
-    var cCombos = P4_VERDICTS.map(function (v) { return { key: 'C-' + v.key, v: v }; });
-    var cPrev = (prev && prev.type === 'P4C') ? 'C-' + prev.verdict.key : null;
-    var verdict = takeFresh(cCombos, usedPairs, cPrev).v;
-
-    state.vFlip = !state.vFlip;
-    var truth = state.vFlip;
-    var sentence = truth ? verdict.match : verdict.mismatch;
-
-    var opts = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
-    return {
-      type: 'P4C', verdict: verdict, kind: verdict.kind, truth: truth, sentence: sentence,
-      options: opts,
-      correct: opts[0].val === truth ? 0 : 1,
-      audio: [sentence, 'yesno']
-    };
-  }
+  
 
   /* ================= 第 2 岛第 5 关：形状与空间终极考验 ================= */
 
@@ -3276,52 +3058,7 @@
     return d;
   }
 
-  function makeQuestionP5(type, prev) {
-    if (type === 0) {
-      // 题型 A：三个场景（星星在圈上 / 圈里 / 圈后），听 "Where is the star?" + 整句
-      var aCombos = P5_POS.map(function (p) { return { key: 'A-' + p, pos: p }; });
-      var aPrev = (prev && prev.type === 'P5A') ? 'A-' + prev.pos : null;
-      var pos = takeFresh(aCombos, usedPairs, aPrev).pos;
-      var list = shuffle(P5_POS.slice());
-      return {
-        type: 'P5A', pos: pos,
-        options: list.map(function (p) { return { kind: 'p5star', pos: p }; }),
-        correct: list.indexOf(pos),
-        audio: ['p5_where_star', P5_POS_SENT[pos]]
-      };
-    }
-
-    if (type === 1) {
-      // 题型 B：把"圆苹果 / 三角披萨 / 长方书"拖进中央的透明正方形
-      var bCombos = P5_ITEMS.map(function (it) { return { key: 'B-' + it.key, item: it }; });
-      var bPrev = (prev && prev.type === 'P5B') ? 'B-' + prev.item.key : null;
-      var item = takeFresh(bCombos, usedPairs, bPrev).item;
-      var itemOpts = shuffle(P5_ITEMS.slice());
-      return {
-        type: 'P5B', item: item,
-        options: itemOpts.map(function (it) { return { kind: 'p5item', item: it }; }),
-        correct: itemOpts.indexOf(item),
-        audio: [item.audio]
-      };
-    }
-
-    // 题型 C：夸张场景对错（三角形坐在正方形上 / 圆形在正方形里 / 长方形在正方形后）
-    var cCombos = P5_VERDICTS.map(function (v) { return { key: 'C-' + v.key, v: v }; });
-    var cPrev = (prev && prev.type === 'P5C') ? 'C-' + prev.verdict.key : null;
-    var verdict = takeFresh(cCombos, usedPairs, cPrev).v;
-
-    state.vFlip = !state.vFlip;
-    var truth = state.vFlip;
-    var sentence = truth ? verdict.match : verdict.mismatch;
-
-    var opts = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
-    return {
-      type: 'P5C', verdict: verdict, kind: verdict.kind, truth: truth, sentence: sentence,
-      options: opts,
-      correct: opts[0].val === truth ? 0 : 1,
-      audio: [sentence, 'yesno']
-    };
-  }
+  
 
   /* ---------------- 第 3 岛第 1 关：大与小（Big / Small） ---------------- */
 
@@ -3352,78 +3089,7 @@
     return 0;
   }
 
-  function makeQuestionB1(type, prev) {
-    if (type === 0) {
-      // 题型 A：一大一小两个相同物品，听 "Find the big car." 点大的那个
-      var aCombos = [];
-      B1_ITEMS.forEach(function (it) {
-        aCombos.push({ key: 'A-' + it.id + '-big', item: it, size: 'big' });
-        aCombos.push({ key: 'A-' + it.id + '-small', item: it, size: 'small' });
-      });
-      var aPrev = (prev && prev.type === 'B1A') ? 'A-' + prev.item.id + '-' + prev.size : null;
-      var pickA = takeFresh(aCombos, usedPairs, aPrev);
-      var aOpts = shuffle([
-        { kind: 'bsItem', asset: pickA.item.asset, size: 'big' },
-        { kind: 'bsItem', asset: pickA.item.asset, size: 'small' }
-      ]);
-      return {
-        type: 'B1A', item: pickA.item, size: pickA.size,
-        options: aOpts,
-        correct: b1IndexOfSize(aOpts, pickA.size),
-        audio: [pickA.size === 'big' ? pickA.item.big : pickA.item.small]
-      };
-    }
-
-    if (type === 1) {
-      // 题型 B：三只动物，只有一只与指令里的大小一致
-      //   例："The elephant is big." + "The cat is small." + "Find the big one." → 点大象
-      var bCombos = [];
-      B1_ANIMALS.forEach(function (an) {
-        bCombos.push({ key: 'B-' + an.id + '-big', animal: an, size: 'big' });
-        bCombos.push({ key: 'B-' + an.id + '-small', animal: an, size: 'small' });
-      });
-      var bPrev = (prev && prev.type === 'B1B') ? 'B-' + prev.animal.id + '-' + prev.size : null;
-      var pickB = takeFresh(bCombos, usedPairs, bPrev);
-      var othersB = shuffle(B1_ANIMALS.filter(function (a) { return a.id !== pickB.animal.id; })).slice(0, 2);
-      var opp = pickB.size === 'big' ? 'small' : 'big';
-      var bOpts = shuffle([
-        { kind: 'bsAnimal', animal: pickB.animal, size: pickB.size },
-        { kind: 'bsAnimal', animal: othersB[0], size: opp },
-        { kind: 'bsAnimal', animal: othersB[1], size: opp }
-      ]);
-      return {
-        type: 'B1B', animal: pickB.animal, size: pickB.size,
-        options: bOpts,
-        correct: bOpts.indexOf(bOpts.filter(function (o) {
-          return o.animal.id === pickB.animal.id && o.size === pickB.size;
-        })[0]),
-        audio: [
-          b1Sentence(pickB.animal, pickB.size),
-          b1Sentence(othersB[0], opp),
-          pickB.size === 'big' ? 'l3_find_big_one' : 'l3_find_small_one'
-        ]
-      };
-    }
-
-    // 题型 C：大箱子 / 小箱子分类，把对应大小的物品拖进同尺寸的箱子
-    var cCombos = [];
-    B1_ITEMS.filter(function (it) { return it.putBig; }).forEach(function (it) {
-      cCombos.push({ key: 'C-' + it.id + '-big', item: it, size: 'big' });
-      cCombos.push({ key: 'C-' + it.id + '-small', item: it, size: 'small' });
-    });
-    var cPrev = (prev && prev.type === 'B1C') ? 'C-' + prev.item.id + '-' + prev.size : null;
-    var pickC = takeFresh(cCombos, usedPairs, cPrev);
-    var cOpts = shuffle([
-      { kind: 'bsDrag', asset: pickC.item.asset, size: 'big' },
-      { kind: 'bsDrag', asset: pickC.item.asset, size: 'small' }
-    ]);
-    return {
-      type: 'B1C', item: pickC.item, size: pickC.size,
-      options: cOpts,
-      correct: b1IndexOfSize(cOpts, pickC.size),
-      audio: [pickC.size === 'big' ? pickC.item.putBig : pickC.item.putSmall]
-    };
-  }
+  
 
   /* ---------------- 第 3 岛第 2 关（多 / 少 More / Less） ---------------- */
 
@@ -3437,77 +3103,7 @@
     return 0;
   }
 
-  function makeQuestionB2(type, prev) {
-    if (type === 0) {
-      // 题型 A：两堆相同水果，听 "Which one has more / less <果>?" 点对应堆
-      var aCombos = [];
-      B2_FRUITS_A.forEach(function (f) {
-        aCombos.push({ key: 'A|' + f.id + '|more', fruit: f, cmp: 'more' });
-        aCombos.push({ key: 'A|' + f.id + '|less', fruit: f, cmp: 'less' });
-      });
-      var aPrev = (prev && prev.type === 'B2A') ? ('A|' + prev.fruit.id + '|' + prev.cmp) : null;
-      var pickA = takeFresh(aCombos, usedPairs, aPrev);
-      var moreCount = pick([5, 6, 7, 8]);
-      var lessCount = pick([1, 2, 3]);
-      var aOpts = shuffle([
-        { kind: 'b2Pile', fruit: pickA.fruit, count: moreCount, cmp: 'more' },
-        { kind: 'b2Pile', fruit: pickA.fruit, count: lessCount, cmp: 'less' }
-      ]);
-      return {
-        type: 'B2A', fruit: pickA.fruit, cmp: pickA.cmp,
-        moreCount: moreCount, lessCount: lessCount,
-        options: aOpts,
-        correct: b2CmpIndex(aOpts, pickA.cmp),
-        audio: [pickA.cmp === 'more' ? 'l3w2a_more_' + pickA.fruit.id : 'l3w2a_less_' + pickA.fruit.id]
-      };
-    }
-
-    if (type === 1) {
-      // 题型 B：三堆不同水果，听 "Find the group with less <果>"，点那一堆
-      //   （被点名的水果就是数量最少的那一堆，符合"点少的那堆"设计）
-      var bCombos = [];
-      B2_FRUITS_B.forEach(function (f) { bCombos.push({ key: 'B|' + f.id, fruit: f }); });
-      var bPrev = (prev && prev.type === 'B2B') ? ('B|' + prev.fruit.id) : null;
-      var pickB = takeFresh(bCombos, usedPairs, bPrev);
-      var others = shuffle(B2_FRUITS_B.filter(function (f) { return f.id !== pickB.fruit.id; })).slice(0, 2);
-      var tCount = pick([1, 2, 3]);
-      var oCounts = shuffle([6, 7, 8]).slice(0, 2);
-      var bOpts = shuffle([
-        { kind: 'b2Pile', fruit: pickB.fruit, count: tCount, cmp: 'less' },
-        { kind: 'b2Pile', fruit: others[0], count: oCounts[0], cmp: 'more' },
-        { kind: 'b2Pile', fruit: others[1], count: oCounts[1], cmp: 'more' }
-      ]);
-      return {
-        type: 'B2B', fruit: pickB.fruit,
-        options: bOpts,
-        correct: bOpts.indexOf(bOpts.filter(function (o) { return o.fruit.id === pickB.fruit.id; })[0]),
-        audio: ['l3w2b_less_' + pickB.fruit.id]
-      };
-    }
-
-    // 题型 C：两堆相同水果（多 / 少），拖进 More / Less 箱分类
-    var cCombos = [];
-    B2_FRUITS_C.forEach(function (f) {
-      cCombos.push({ key: 'C|' + f.id + '|more', fruit: f, cmp: 'more' });
-      cCombos.push({ key: 'C|' + f.id + '|less', fruit: f, cmp: 'less' });
-    });
-    var cPrev = (prev && prev.type === 'B2C') ? ('C|' + prev.fruit.id + '|' + prev.cmp) : null;
-    var pickC = takeFresh(cCombos, usedPairs, cPrev);
-    var cmp = pickC.cmp;
-    var cMore = pick([5, 6, 7, 8]);
-    var cLess = pick([1, 2, 3]);
-    var cOpts = shuffle([
-      { kind: 'b2Drag', fruit: pickC.fruit, count: cMore, cmp: 'more' },
-      { kind: 'b2Drag', fruit: pickC.fruit, count: cLess, cmp: 'less' }
-    ]);
-    return {
-      type: 'B2C', fruit: pickC.fruit, cmp: cmp,
-      moreCount: cMore, lessCount: cLess,
-      options: cOpts,
-      correct: b2CmpIndex(cOpts, cmp),
-      audio: ['l3w2c_' + cmp + '_' + pickC.fruit.id]
-    };
-  }
+  
 
   /** 正确颜色 + 两个不同颜色干扰项，顺序打乱 */
   function withColorDistractors(answer) {
@@ -3991,65 +3587,7 @@
   }
 
   /** 第 3 岛第 3 关（长 / 短）出题：题型 A 听音找长短 / B 听句找长动物 / C 拖拽分类 */
-  function makeQuestionB3(type, prev) {
-    if (type === 0) {
-      // 题型 A：两样相同物品（一长一短），听 "Find the long/short <物>" 点对应
-      var objs = ['snake', 'rope', 'pencil', 'bread', 'scarf', 'car'];
-      var aCombos = objs.map(function (k) { return { key: 'A|' + k, obj: k }; });
-      var aPrev = (prev && prev.type === 'B3A') ? ('A|' + prev.obj) : null;
-      var pickA = takeFresh(aCombos, usedPairs, aPrev);
-      var cmp = pick(['long', 'short']);
-      var aOpts = shuffle([
-        { kind: 'lsObj', obj: pickA.obj, cmp: 'long' },
-        { kind: 'lsObj', obj: pickA.obj, cmp: 'short' }
-      ]);
-      return {
-        type: 'B3A', obj: pickA.obj, cmp: cmp,
-        options: aOpts,
-        correct: aOpts.indexOf(aOpts.filter(function (o) { return o.cmp === cmp; })[0]),
-        audio: ['l3w3a_' + cmp + '_' + pickA.obj]
-      };
-    }
-
-    if (type === 1) {
-      // 题型 B：三只动物（长颈鹿/兔子/乌龟），听短句找「长」的那只
-      var scenes = [
-        { id: 'giraffe', word: 'l3w3b_long_giraffe' },
-        { id: 'rabbit',  word: 'l3w3b_long_rabbit' }
-      ];
-      var bPrev = (prev && prev.type === 'B3B') ? ('B|' + prev.animal) : null;
-      var pickScene = takeFresh(scenes.map(function (s) {
-        return { key: 'B|' + s.id, id: s.id, word: s.word };
-      }), usedPairs, bPrev);
-      var others = shuffle(['giraffe', 'rabbit', 'turtle'].filter(function (a) { return a !== pickScene.id; })).slice(0, 2);
-      var bOpts = shuffle([
-        { kind: 'lsAnimal', animal: pickScene.id },
-        { kind: 'lsAnimal', animal: others[0] },
-        { kind: 'lsAnimal', animal: others[1] }
-      ]);
-      return {
-        type: 'B3B', animal: pickScene.id,
-        options: bOpts,
-        correct: bOpts.indexOf(bOpts.filter(function (o) { return o.animal === pickScene.id; })[0]),
-        audio: [pickScene.word]
-      };
-    }
-
-    // 题型 C：长香蕉 / 短香蕉，拖进 Long / Short 箱分类
-    var cCombos = ['long', 'short'].map(function (c) { return { key: 'C|' + c, cmp: c }; });
-    var cPrev = (prev && prev.type === 'B3C') ? ('C|' + prev.cmp) : null;
-    var pickC = takeFresh(cCombos, usedPairs, cPrev);
-    var cOpts = shuffle([
-      { kind: 'b3Drag', obj: 'banana', cmp: 'long' },
-      { kind: 'b3Drag', obj: 'banana', cmp: 'short' }
-    ]);
-    return {
-      type: 'B3C', obj: 'banana', cmp: pickC.cmp,
-      options: cOpts,
-      correct: cOpts.indexOf(cOpts.filter(function (o) { return o.cmp === pickC.cmp; })[0]),
-      audio: ['l3w3c_' + pickC.cmp + '_banana']
-    };
-  }
+  
 
   /* ---------------- 第 3 岛第 3 关（长 / 短）教学：翻倍教学量 ---------------- */
 
@@ -4339,42 +3877,7 @@
     { items: ['apple', 'rock'],      ansItem: 'apple',   ansBox: 'light', key: 'b4_c_apple' }
   ];
 
-  function makeQuestionB4(type, prev) {
-    ensureB4Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var a = B4_A_CASES[randInt(0, B4_A_CASES.length - 1)];
-        var opts = a.items.map(function (it) { return { kind: 'b4item', item: it }; });
-        shuffle(opts);
-        var correct = opts.map(function (o) { return o.item; }).indexOf(a.ans);
-        q = {
-          type: 'B4A', sig: 'A:' + a.weight + ':' + opts.map(function (o) { return o.item; }).join(','),
-          weight: a.weight, options: opts, correct: correct, audio: [a.key]
-        };
-      } else if (type === 1) {
-        var b = B4_B_CASES[randInt(0, B4_B_CASES.length - 1)];
-        var bo = [{ kind: 'b4item', item: b.left }, { kind: 'b4item', item: b.right }];
-        var bcorrect = (b.ask === 'heavy') ? 0 : 1;   // 左=重、右=轻
-        q = {
-          type: 'B4B', sig: 'B:' + b.left + '_' + b.right + ':' + b.ask,
-          ask: b.ask, options: bo, correct: bcorrect, audio: [b.key]
-        };
-      } else {
-        var c = B4_C_CASES[randInt(0, B4_C_CASES.length - 1)];
-        var co = c.items.map(function (it) { return { kind: 'b4item', item: it }; });
-        shuffle(co);
-        q = {
-          type: 'B4C', sig: 'C:' + c.ansItem + ':' + c.ansBox,
-          ansItem: c.ansItem, ansBox: c.ansBox, options: co,
-          correct: co.map(function (o) { return o.item; }).indexOf(c.ansItem),
-          audio: [c.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ============================================================
      第 3 岛第 5 关（游乐场 · 综合比较大考）—— 结业关
@@ -4784,51 +4287,7 @@
   ];
 
   /** 结业关出题：A 综合判断（2 件）/ B 场景匹配（3 个场景）/ C 终极大拖拽（2 框 2 物品） */
-  function makeQuestionB5(type, prev) {
-    ensureB5xCss();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var a = B5X_A_CASES[randInt(0, B5X_A_CASES.length - 1)];
-        var opts = a.items.map(function (it) { return { kind: 'b5xitem', item: it }; });
-        shuffle(opts);
-        q = {
-          type: 'B5A',
-          sig: 'A:' + a.cmp + ':' + opts.map(function (o) { return o.item; }).join(','),
-          cmp: a.cmp,
-          options: opts,
-          correct: opts.map(function (o) { return o.item; }).indexOf(a.ans),
-          audio: [a.key]
-        };
-      } else if (type === 1) {
-        var b = B5X_B_CASES[randInt(0, B5X_B_CASES.length - 1)];
-        var sc = B5X_SCENES.slice();
-        shuffle(sc);
-        q = {
-          type: 'B5B',
-          sig: 'B:' + b.ansScene + ':' + sc.join(','),
-          ansScene: b.ansScene,
-          options: sc.map(function (s) { return { kind: 'b5xscene', scene: s }; }),
-          correct: sc.indexOf(b.ansScene),
-          audio: [b.key]
-        };
-      } else {
-        var c = B5X_C_CASES[randInt(0, B5X_C_CASES.length - 1)];
-        var co = c.items.map(function (it) { return { kind: 'b5xitem', item: it }; });
-        shuffle(co);
-        q = {
-          type: 'B5C',
-          sig: 'C:' + co.map(function (o) { return o.item; }).join(',') + ':' + c.ansBox,
-          ansItem: c.ansItem, ansBox: c.ansBox,
-          options: co,
-          correct: co.map(function (o) { return o.item; }).indexOf(c.ansItem),
-          audio: [c.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学：演示点按推进（§三.14）+ 互动 4 秒小手指（§二.12），收尾 tutFinish()。
      8 环节：大门钥匙 → 大象vs老鼠 → 断桥木板 → 长火车vs短汽车 → 硬币 → 跷跷板 → 石头放跷跷板 → 过渡 */
@@ -5212,33 +4671,7 @@
   }
 
   /** 出题：0 = 听名字找（A）/ 1 = 听叫声找（B）/ 2 = 拖进农场（C）。都是 1 正 + 2 干扰 */
-  function makeQuestionF1(type, prev) {
-    ensureF1Css();
-    var pickC, sig, guard = 0;
-    do {
-      pickC = F1_ANIMALS[randInt(0, F1_ANIMALS.length - 1)];
-      sig = type + ':' + pickC;
-      guard += 1;
-    } while (prev && prev.sig === sig && guard < 30);
-
-    var others = F1_ANIMALS.filter(function (a) { return a !== pickC; });
-    shuffle(others);
-    var opts = [
-      { kind: 'f1animal', animal: pickC },
-      { kind: 'f1animal', animal: others[0] },
-      { kind: 'f1animal', animal: others[1] }
-    ];
-    var answerOpt = opts[0];
-    shuffle(opts);
-    var correct = opts.indexOf(answerOpt);
-
-    var typeName = type === 0 ? 'F1A' : type === 1 ? 'F1B' : 'F1C';
-    var prefix = type === 0 ? 'l4w1_f_' : type === 1 ? 'l4w1_s_' : 'l4w1_c_';
-    return {
-      type: typeName, sig: sig, animal: pickC,
-      options: opts, correct: correct, audio: [prefix + pickC]
-    };
-  }
+  
 
   /** 题型 C 判定：点名的动物 + 落在农场门上才算对 */
   function resolveF1C(itemIdx, target) {
@@ -5608,42 +5041,7 @@
   }
 
   /** 出题：0 = A 听名字找 / 1 = B 听描述找 / 2 = C 拖进丛林或农场 */
-  function makeQuestionF2(type, prev) {
-    ensureF2Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var a1 = F2_JUNGLE[randInt(0, F2_JUNGLE.length - 1)];
-        var s1 = f2Split(a1, F2_JUNGLE);
-        q = {
-          type: 'F2A', sig: 'A:' + a1, animal: a1, options: s1.options, correct: s1.correct,
-          audio: ['l4w2_f_' + a1]
-        };
-      } else if (type === 1) {
-        var d = F2_DESC[randInt(0, F2_DESC.length - 1)];
-        var s2 = f2Split(d.ans, d.pool);
-        q = {
-          type: 'F2B', sig: 'B:' + d.key, animal: d.ans, desc: d.key,
-          options: s2.options, correct: s2.correct, audio: ['l4w2_b_' + d.key]
-        };
-      } else {
-        // 两个干扰项全部来自「另一种栖息地」：因此只有两个变量同时正确才算对
-        var zone = Math.random() < 0.5 ? 'jungle' : 'farm';
-        var same = zone === 'jungle' ? F2_JUNGLE : F2_FARM;
-        var other = zone === 'jungle' ? F2_FARM : F2_JUNGLE;
-        var a3 = same[randInt(0, same.length - 1)];
-        var s3 = f2Split(a3, other);
-        q = {
-          type: 'F2C', sig: 'C:' + zone + ':' + a3, animal: a3, zone: zone,
-          options: s3.options, correct: s3.correct,
-          // 农场的 4 句与第 1 关文本完全相同，直接复用 l4w1_c_*（RULES §1.12 不建同文本第二条 key）
-          audio: [(zone === 'farm' ? 'l4w1_c_' : 'l4w2_c_jungle_') + a3]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /** 题型 C 判定：点名的动物 + 落在指定栖息地，两个条件都满足才算对 */
   function resolveF2C(itemIdx, target) {
@@ -6266,46 +5664,7 @@
   }
 
   /** 出题：0 = A 听音找动作 / 1 = B 听三句短句找 / 2 = C 拖进「在跑 / 在睡」 */
-  function makeQuestionF3(type, prev) {
-    ensureF3Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var act = F3_ACTIONS[randInt(0, F3_ACTIONS.length - 1)];
-        var rest = F3_ACTIONS.filter(function (a) { return a !== act; });
-        shuffle(rest);
-        var s1 = f3SplitFrom(F3_CANON[act], [F3_CANON[rest[0]], F3_CANON[rest[1]]]);
-        q = {
-          type: 'F3A', sig: 'A:' + act, act: act,
-          options: s1.options, correct: s1.correct, audio: ['l4w3_a_' + act]
-        };
-      } else if (type === 1) {
-        var sc = F3_SCENES[randInt(0, F3_SCENES.length - 1)];
-        var opts = sc.subs.map(function (s2) { return { kind: 'f3act', subj: s2 }; });
-        var ansOpt = opts.filter(function (o) { return o.subj === sc.ans; })[0];
-        shuffle(opts);
-        q = {
-          type: 'F3B', sig: 'B:' + sc.key, act: sc.key, subj: sc.ans,
-          options: opts, correct: opts.indexOf(ansOpt), audio: ['l4w3_b_' + sc.key]
-        };
-      } else {
-        // 干扰项必须来自「另一个动作」：所以「动作对 + 筐对」两个条件同时成立才算对
-        var tgt = F3_ALL_ITEMS[randInt(0, F3_ALL_ITEMS.length - 1)];
-        var zone = F3_ZONE_OF[tgt];
-        var otherSet = zone === 'run' ? ['boy_sleep', 'cat_sleep'] : ['boy_run', 'dog_run'];
-        var other = otherSet[randInt(0, otherSet.length - 1)];
-        var opts3 = [{ kind: 'f3act', subj: tgt }, { kind: 'f3act', subj: other }];
-        var ans3 = opts3[0];
-        shuffle(opts3);
-        q = {
-          type: 'F3C', sig: 'C:' + zone + ':' + tgt, subj: tgt, zone: zone,
-          options: opts3, correct: opts3.indexOf(ans3), audio: ['l4w3_c_' + tgt]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /** 题型 C 判定：点名的动作 + 落进对应的筐，两个条件都满足才算对 */
   function resolveF3C(itemIdx, target) {
@@ -6856,61 +6215,7 @@
   }
 
   /** 出题：0 = A 听长句找场景 / 1 = B 看图判断句子对错 / 2 = C 拖进「在跑 / 在睡」 */
-  function makeQuestionF4(type, prev) {
-    ensureF4Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var tgt = F4_POOL[randInt(0, F4_POOL.length - 1)];
-        var rest = F4_POOL.filter(function (s) { return s !== tgt; });
-        shuffle(rest);
-        var optsA = [
-          { kind: 'f4scene', subj: tgt },
-          { kind: 'f4scene', subj: rest[0] },
-          { kind: 'f4scene', subj: rest[1] }
-        ];
-        var ansA = optsA[0];
-        shuffle(optsA);
-        q = {
-          type: 'F4A', sig: 'A:' + tgt, subj: tgt,
-          options: optsA, correct: optsA.indexOf(ansA),
-          audio: ['l4w4_a_' + F4_SCENES[tgt].key]
-        };
-      } else if (type === 1) {
-        // 题型 B：说出的句子与画面「有时对、有时不对」，✅ / ❌ 交替出现，不靠运气
-        var claim = F4_POOL[randInt(0, F4_POOL.length - 1)];
-        state.f4Flip = !state.f4Flip;
-        var truth = state.f4Flip;
-        var pic = claim;
-        if (!truth) {
-          var cand = F4_POOL.filter(function (s) { return s !== claim; });
-          pic = cand[randInt(0, cand.length - 1)];
-        }
-        var optsB = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
-        q = {
-          type: 'F4B', sig: 'B:' + claim + ':' + pic, claim: claim, pic: pic, truth: truth,
-          options: optsB, correct: optsB[0].val === truth ? 0 : 1,
-          audio: ['l4w4_b_' + F4_SCENES[claim].key, 'yesno']
-        };
-      } else {
-        // 干扰项必须来自「另一个动作」：所以「动作对 + 筐对」两个条件同时成立才算对
-        var ct = F4_C_ITEMS[randInt(0, F4_C_ITEMS.length - 1)];
-        var cz = F4_ZONE_OF[ct];
-        var pool2 = F4_C_ITEMS.filter(function (s) { return F4_ZONE_OF[s] !== cz; });
-        var other = pool2[randInt(0, pool2.length - 1)];
-        var optsC = [{ kind: 'f4scene', subj: ct }, { kind: 'f4scene', subj: other }];
-        var ansC = optsC[0];
-        shuffle(optsC);
-        q = {
-          type: 'F4C', sig: 'C:' + cz + ':' + ct, subj: ct, zone: cz,
-          options: optsC, correct: optsC.indexOf(ansC),
-          audio: ['l4w4_c_' + F4_SCENES[ct].key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /** 题型 C 判定：点名的场景 + 落进对应的筐，两个条件都满足才算对 */
   function resolveF4C(itemIdx, target) {
@@ -7447,44 +6752,7 @@
   }
 
   /** 出题：0 = A 听指令做动作 / 1 = B 看剪影猜动物 / 2 = C 找同一只动物里正在做那件事的 */
-  function makeQuestionF5(type, prev) {
-    ensureF5Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var ca = F5_A_CASES[randInt(0, F5_A_CASES.length - 1)];
-        var listA = [ca.target].concat(ca.set);
-        shuffle(listA);
-        var optsA = listA.map(function (s) { return { kind: 'f4scene', subj: s }; });
-        q = {
-          type: 'F5A', sig: 'A:' + ca.key, subj: ca.target,
-          options: optsA, correct: listA.indexOf(ca.target),
-          audio: [ca.key]
-        };
-      } else if (type === 1) {
-        var sb = F5_B_SETS[randInt(0, F5_B_SETS.length - 1)];
-        var animals = shuffle(sb.animals.slice());
-        var target = animals[randInt(0, animals.length - 1)];
-        var optsB = animals.map(function (a) { return { kind: 'f5animal', animal: a }; });
-        q = {
-          type: 'F5B', sig: 'B:' + sb.act + ':' + target, animal: target, act: sb.act,
-          options: optsB, correct: animals.indexOf(target),
-          audio: [sb.key]
-        };
-      } else {
-        var cc = F5_C_CASES[randInt(0, F5_C_CASES.length - 1)];
-        var listC = shuffle(cc.set.slice());
-        var optsC = listC.map(function (s) { return { kind: 'f4scene', subj: s }; });
-        q = {
-          type: 'F5C', sig: 'C:' + cc.animal + ':' + cc.ans, subj: cc.ans, animal: cc.animal,
-          options: optsC, correct: listC.indexOf(cc.ans),
-          audio: [cc.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学（custom 分支）：14 个环节，收尾仍走 tutFinish() */
   var runF5Tutorial = (function () {
@@ -7997,38 +7265,7 @@
   }
 
   /** 出题：0 = A 听音找食物 / 1 = B 听描述找食物 / 2 = C 把食物拖到盘子里 */
-  function makeQuestionF6(type, prev) {
-    ensureF6Css();
-    var q, guard = 0;
-    do {
-      if (type === 0 || type === 1) {
-        var c = (type === 0 ? F6_A_CASES : F6_B_CASES)[randInt(0, 3)];
-        var list = [c.food].concat(f6Distract(c.food, 2));
-        shuffle(list);
-        var optsAB = list.map(function (f) { return { kind: 'f6food', food: f }; });
-        q = {
-          type: type === 0 ? 'F6A' : 'F6B',
-          sig: (type === 0 ? 'A:' : 'B:') + c.key,
-          food: c.food, subj: c.food,
-          options: optsAB, correct: list.indexOf(c.food),
-          audio: [c.key]
-        };
-      } else {
-        var cc = F6_C_CASES[randInt(0, 3)];
-        var listC = [cc.food].concat(f6Distract(cc.food, 2));
-        shuffle(listC);
-        var optsC = listC.map(function (f) { return { kind: 'f6food', food: f }; });
-        q = {
-          type: 'F6C', sig: 'C:' + cc.key,
-          food: cc.food, subj: cc.food,
-          options: optsC, correct: listC.indexOf(cc.food),
-          audio: [cc.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学（custom 分支）：17 个环节，收尾仍走 tutFinish() */
   var runF6Tutorial = (function () {
@@ -8557,50 +7794,7 @@
   }
 
   /** 出题：0 = A 听音找餐具 / 1 = B 听句子找场景 / 2 = C 把餐具放进碗里 */
-  function makeQuestionF7(type, prev) {
-    ensureF7Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var c = F7_A_CASES[randInt(0, F7_A_CASES.length - 1)];
-        var list = [c.item].concat(f7Distract(c.item, 2));
-        shuffle(list);
-        q = {
-          type: 'F7A', sig: 'A:' + c.key,
-          utensil: c.item, subj: c.item,
-          options: list.map(function (f) { return { kind: 'f7item', item: f }; }),
-          correct: list.indexOf(c.item),
-          audio: [c.key]
-        };
-      } else if (type === 1) {
-        var b = F7_B_CASES[randInt(0, F7_B_CASES.length - 1)];
-        var rest = F7_B_CASES.filter(function (x) { return x.scene !== b.scene; });
-        shuffle(rest);
-        var scenes = [b.scene].concat(rest.slice(0, 2).map(function (x) { return x.scene; }));
-        shuffle(scenes);
-        q = {
-          type: 'F7B', sig: 'B:' + b.key,
-          scene: b.scene, subj: b.scene,
-          options: scenes.map(function (s) { return { kind: 'f7scene', scene: s }; }),
-          correct: scenes.indexOf(b.scene),
-          audio: [b.key]
-        };
-      } else {
-        var cc = F7_C_CASES[randInt(0, F7_C_CASES.length - 1)];
-        var listC = F7_C_ITEMS.slice();     // 碗当容器，所以三件餐具全上
-        shuffle(listC);
-        q = {
-          type: 'F7C', sig: 'C:' + cc.key,
-          utensil: cc.item, subj: cc.item,
-          options: listC.map(function (f) { return { kind: 'f7item', item: f }; }),
-          correct: listC.indexOf(cc.item),
-          audio: [cc.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学（custom 分支）：17 个环节，收尾仍走 tutFinish() */
   var runF7Tutorial = (function () {
@@ -9233,50 +8427,7 @@
   }
 
   /** 出题：0 = A 听短语找画面 / 1 = B 听情境选回答 / 2 = C 拖进喜欢的框 */
-  function makeQuestionF8(type, prev) {
-    ensureF8Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var c = F8_A_CASES[randInt(0, F8_A_CASES.length - 1)];
-        var list = [c.scene].concat(f8Distract(c.scene, 2));
-        shuffle(list);
-        q = {
-          type: 'F8A', sig: 'A:' + c.key,
-          scene: c.scene, subj: c.scene,
-          options: list.map(function (f) { return { kind: 'f8kid', scene: f }; }),
-          correct: list.indexOf(c.scene),
-          audio: [c.key]
-        };
-      } else if (type === 1) {
-        var b = F8_B_CASES[randInt(0, F8_B_CASES.length - 1)];
-        var rest = F8_ACTS.filter(function (x) { return x !== b.answer; });
-        shuffle(rest);
-        var faces = [b.answer].concat(rest.slice(0, 2));
-        shuffle(faces);
-        q = {
-          type: 'F8B', sig: 'B:' + b.key,
-          situation: b.situation, answer: b.answer, subj: b.answer,
-          options: faces.map(function (f) { return { kind: 'f8kid', scene: f }; }),
-          correct: faces.indexOf(b.answer),
-          audio: [b.key]
-        };
-      } else {
-        var cc = F8_C_CASES[randInt(0, F8_C_CASES.length - 1)];
-        var pair = [cc.food, cc.other];
-        shuffle(pair);
-        q = {
-          type: 'F8C', sig: 'C:' + cc.key,
-          food: cc.food, box: cc.box, subj: cc.food,
-          options: pair.map(function (f) { return { kind: 'f8food', food: f }; }),
-          correct: pair.indexOf(cc.food),
-          audio: [cc.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学（custom 分支）：17 个环节，收尾仍走 tutFinish() */
   var runF8Tutorial = (function () {
@@ -9744,46 +8895,7 @@
   var F9_C_SCENES = ['giveApple', 'crying', 'sleeping'];
 
   /** 出题：0 = A 找客人状态 / 1 = B 配餐 / 2 = C 选对话场景 */
-  function makeQuestionF9(type, prev) {
-    ensureF9Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var states = F9_A_STATES.slice();
-        shuffle(states);
-        q = {
-          type: 'F9A', sig: 'A:' + states.join(','),
-          subj: 'hungry',
-          options: states.map(function (s) { return { kind: 'f9scene', scene: s }; }),
-          correct: states.indexOf('hungry'),
-          audio: ['l5w4_a']
-        };
-      } else if (type === 1) {
-        var b = F9_B_CASES[randInt(0, F9_B_CASES.length - 1)];
-        var foods = ['bread', 'milk', 'apple'];
-        shuffle(foods);
-        q = {
-          type: 'F9B', sig: 'B:' + b.food,
-          subj: b.food, food: b.food,
-          options: foods.map(function (f) { return { kind: 'f9food', food: f }; }),
-          correct: foods.indexOf(b.food),
-          audio: [b.key]
-        };
-      } else {
-        var dlg = F9_C_SCENES.slice();
-        shuffle(dlg);
-        q = {
-          type: 'F9C', sig: 'C:' + dlg.join(','),
-          subj: 'giveApple',
-          options: dlg.map(function (s) { return { kind: 'f9scene', scene: s }; }),
-          correct: dlg.indexOf('giveApple'),
-          audio: ['l5w4_c']
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学（custom 分支）：13 个环节，收尾仍走 tutFinish() */
   var runF9Tutorial = (function () {
@@ -10164,46 +9276,7 @@
   var F10_C_UTENSILS = ['spoon', 'cup', 'fork'];
 
   /** 出题：0 = A 端菜（拖）/ 1 = B 找要更多的客人 / 2 = C 选餐具 */
-  function makeQuestionF10(type, prev) {
-    ensureF9Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var a = F10_A_CASES[randInt(0, F10_A_CASES.length - 1)];
-        var afoods = ['bread', 'milk', 'apple'];
-        shuffle(afoods);
-        q = {
-          type: 'F10A', sig: 'A:' + a.food,
-          subj: a.food, food: a.food,
-          options: afoods.map(function (f) { return { kind: 'f10food', food: f }; }),
-          correct: afoods.indexOf(a.food),
-          audio: [a.key]
-        };
-      } else if (type === 1) {
-        var bs = F10_B_STATES.slice();
-        shuffle(bs);
-        q = {
-          type: 'F10B', sig: 'B:' + bs.join(','),
-          subj: 'more',
-          options: bs.map(function (s) { return { kind: 'f10scene', scene: s }; }),
-          correct: bs.indexOf('more'),
-          audio: ['l5w5_b']
-        };
-      } else {
-        var us = F10_C_UTENSILS.slice();
-        shuffle(us);
-        q = {
-          type: 'F10C', sig: 'C:' + us.join(','),
-          subj: 'spoon', utensil: 'spoon',
-          options: us.map(function (u) { return { kind: 'f10utensil', utensil: u }; }),
-          correct: us.indexOf('spoon'),
-          audio: ['l5w5_c']
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学（custom 分支）：延长版综合复习，24 环节，收尾仍走 tutFinish() */
   var runF10Tutorial = (function () {
@@ -10635,50 +9708,7 @@
   ];
 
   /** 出题：0 = A 找家具 / 1 = B 找场景 / 2 = C 布置房间 */
-  function makeQuestionF11(type, prev) {
-    ensureF11Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var a = F11_A_CASES[randInt(0, F11_A_CASES.length - 1)];
-        var others = F11_FURN.filter(function (f) { return f !== a.furn; });
-        shuffle(others);
-        var picks = [a.furn, others[0], others[1]];
-        shuffle(picks);
-        q = {
-          type: 'F11A', sig: 'A:' + picks.join(','),
-          subj: a.furn,
-          options: picks.map(function (f) { return { kind: 'f11furn', scene: f }; }),
-          correct: picks.indexOf(a.furn),
-          audio: [a.key]
-        };
-      } else if (type === 1) {
-        var b = F11_B_CASES[randInt(0, F11_B_CASES.length - 1)];
-        var scenes = F11_B_CASES.map(function (c) { return c.scene; });
-        shuffle(scenes);
-        q = {
-          type: 'F11B', sig: 'B:' + scenes.join(','),
-          subj: b.scene,
-          options: scenes.map(function (s) { return { kind: 'f11scene', scene: s }; }),
-          correct: scenes.indexOf(b.scene),
-          audio: [b.key]
-        };
-      } else {
-        var c = F11_C_CASES[randInt(0, F11_C_CASES.length - 1)];
-        var items = ['pillow', 'cat'];
-        shuffle(items);
-        q = {
-          type: 'F11C', sig: 'C:' + c.item + ':' + items.join(','),
-          subj: c.item, item: c.item, target: c.target,
-          options: items.map(function (it) { return { kind: 'f11item', item: it }; }),
-          correct: items.indexOf(c.item),
-          audio: [c.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学（custom 分支）：演示阶段点按推进（RULES §三.13）+ 双倍量，收尾仍走 tutFinish() */
   var runF11Tutorial = (function () {
@@ -11068,50 +10098,7 @@
   ];
 
   /** 出题：0 = A 找动作 / 1 = B 找房间 / 2 = C 布置日常 */
-  function makeQuestionF12(type, prev) {
-    ensureF11Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var a = F12_A_CASES[randInt(0, F12_A_CASES.length - 1)];
-        var others = F12_A_CASES.map(function (c) { return c.act; }).filter(function (x) { return x !== a.act; });
-        shuffle(others);
-        var picks = [a.act, others[0], others[1]];
-        shuffle(picks);
-        q = {
-          type: 'F12A', sig: 'A:' + picks.join(','),
-          subj: a.act,
-          options: picks.map(function (s) { return { kind: 'f12act', scene: s }; }),
-          correct: picks.indexOf(a.act),
-          audio: [a.key]
-        };
-      } else if (type === 1) {
-        var b = F12_B_CASES[randInt(0, F12_B_CASES.length - 1)];
-        var rooms = F12_B_CASES.map(function (c) { return c.scene; });
-        shuffle(rooms);
-        q = {
-          type: 'F12B', sig: 'B:' + rooms.join(','),
-          subj: b.scene,
-          options: rooms.map(function (s) { return { kind: 'f12room', scene: s }; }),
-          correct: rooms.indexOf(b.scene),
-          audio: [b.key]
-        };
-      } else {
-        var c = F12_C_CASES[randInt(0, F12_C_CASES.length - 1)];
-        var items = ['babySleep', 'babyBath'];
-        shuffle(items);
-        q = {
-          type: 'F12C', sig: 'C:' + c.item + ':' + items.join(','),
-          subj: c.item, item: c.item, target: c.target,
-          options: items.map(function (it) { return { kind: 'f12item', item: it }; }),
-          correct: items.indexOf(c.item),
-          audio: [c.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学（custom 分支）：演示阶段点按推进（RULES §三.14，同 L6-W1 机制）+ 双倍量，收尾走 tutFinish() */
   var runF12Tutorial = (function () {
@@ -11487,45 +10474,7 @@
     { target: 'table', key: 'l6w3_c_under_table' }
   ];
 
-  function makeQuestionF13(type, prev) {
-    ensureF13Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var a = F13_A_CASES[randInt(0, F13_A_CASES.length - 1)];
-        var balls = a.scene.map(function (p) { return { kind: 'f13ball', furn: p[0], place: p[1] }; });
-        q = {
-          type: 'F13A', sig: 'A:' + a.furn + ':' + a.place,
-          subj: a.furn, furn: a.furn, place: a.place, scene: a.scene,
-          options: balls,
-          correct: a.scene.findIndex(function (p) { return p[0] === a.furn; }),
-          audio: [a.key]
-        };
-      } else if (type === 1) {
-        var b = F13_B_CASES[randInt(0, F13_B_CASES.length - 1)];
-        var scenes = F13_B_CASES.slice();
-        shuffle(scenes);
-        q = {
-          type: 'F13B', sig: 'B:' + b.scene + ':' + scenes.map(function (s) { return s.scene; }).join(','),
-          subj: b.scene,
-          options: scenes.map(function (s) { return { kind: 'f13scene', scene: s.scene, furn: s.furn, place: s.place }; }),
-          correct: scenes.findIndex(function (s) { return s.scene === b.scene; }),
-          audio: [b.key]
-        };
-      } else {
-        var c = F13_C_CASES[randInt(0, F13_C_CASES.length - 1)];
-        q = {
-          type: 'F13C', sig: 'C:' + c.target,
-          subj: 'ball', item: 'ball', target: c.target,
-          options: [{ kind: 'f13item', item: 'ball' }],
-          correct: 0,
-          audio: [c.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学（custom 分支）：演示点按推进 + 双倍量，收尾走 tutFinish() */
   var runF13Tutorial = (function () {
@@ -11982,46 +10931,7 @@
     { furns: ['bed', 'table', 'box'], items: ['book', 'ball', 'toy'], steps: [['book', 'bed', 'on'], ['toy', 'box', 'in']],      s: ['l6w4_c1_s1', 'l6w4_c3_s2'] }
   ];
 
-  function makeQuestionF14(type, prev) {
-    ensureF14Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var a = F14_A_CASES[randInt(0, F14_A_CASES.length - 1)];
-        q = {
-          type: 'F14A', sig: 'A:' + a.item + ':' + a.target + ':' + a.items.join(',') + ':' + a.furns.join(','),
-          subj: a.item, item: a.item, target: a.target, furns: a.furns,
-          options: a.items.map(function (it) { return { kind: 'f14item', item: it }; }),
-          steps: [{ item: a.item, target: a.target, place: a.place }], stepsDone: 0,
-          correct: a.items.indexOf(a.item), audio: [a.key]
-        };
-      } else if (type === 1) {
-        var b = F14_B_CASES[randInt(0, F14_B_CASES.length - 1)];
-        var scenes = F14_B_CASES.slice();
-        shuffle(scenes);
-        q = {
-          type: 'F14B', sig: 'B:' + b.target + ':' + scenes.map(function (s) { return s.target; }).join(','),
-          subj: b.target,
-          options: scenes.map(function (s) { return { kind: 'f14scene', item: s.item, furn: s.furn, place: s.place, target: s.target }; }),
-          correct: scenes.findIndex(function (s) { return s.target === b.target; }),
-          audio: [b.key]
-        };
-      } else {
-        var c = F14_C_CASES[randInt(0, F14_C_CASES.length - 1)];
-        q = {
-          type: 'F14C', sig: 'C:' + c.steps.map(function (s) { return s[0] + '_' + s[1]; }).join('+'),
-          subj: 'tasks', furns: c.furns, items: c.items,
-          options: c.items.map(function (it) { return { kind: 'f14item', item: it }; }),
-          steps: c.steps.map(function (s) { return { item: s[0], target: s[1], place: s[2] }; }),
-          stepsDone: 0, stepAudio: (function (ss) { return function (i) { return ss[i]; }; })(c.s),
-          stepAudios: c.s,
-          correct: 0, audio: [c.s[0]]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ==================== 第 6 岛第 5 关（L6-W5：游乐场 · 帮小人整理房间综合大考） ==================== */
   /* 综合复习关：把第 6 岛 W1–W4 的「家具 / 物品 / 方位」语言点汇总。句型仍是 Put the [物品] on/in/under the [家具]，
@@ -12055,46 +10965,7 @@
     { furns: ['chair', 'table', 'box'],     items: ['clothes', 'toy', 'ball'], steps: [['clothes', 'chair', 'on'], ['toy', 'box', 'in']],         s: ['f15_c4_s1', 'l6w4_c3_s2'] }
   ];
 
-  function makeQuestionF15(type, prev) {
-    ensureF14Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var a = F15_A_CASES[randInt(0, F15_A_CASES.length - 1)];
-        q = {
-          type: 'F15A', sig: 'A:' + a.item + ':' + a.target + ':' + a.items.join(',') + ':' + a.furns.join(','),
-          subj: a.item, item: a.item, target: a.target, furns: a.furns,
-          options: a.items.map(function (it) { return { kind: 'f14item', item: it }; }),
-          steps: [{ item: a.item, target: a.target, place: a.place }], stepsDone: 0,
-          correct: a.items.indexOf(a.item), audio: [a.key]
-        };
-      } else if (type === 1) {
-        var b = F15_B_CASES[randInt(0, F15_B_CASES.length - 1)];
-        var scenes = F15_B_CASES.slice();
-        shuffle(scenes);
-        q = {
-          type: 'F15B', sig: 'B:' + b.target + ':' + scenes.map(function (s) { return s.target; }).join(','),
-          subj: b.target,
-          options: scenes.map(function (s) { return { kind: 'f14scene', item: s.item, furn: s.furn, place: s.place, target: s.target }; }),
-          correct: scenes.findIndex(function (s) { return s.target === b.target; }),
-          audio: [b.key]
-        };
-      } else {
-        var c = F15_C_CASES[randInt(0, F15_C_CASES.length - 1)];
-        q = {
-          type: 'F15C', sig: 'C:' + c.steps.map(function (s) { return s[0] + '_' + s[1]; }).join('+'),
-          subj: 'tasks', furns: c.furns, items: c.items,
-          options: c.items.map(function (it) { return { kind: 'f14item', item: it }; }),
-          steps: c.steps.map(function (s) { return { item: s[0], target: s[1], place: s[2] }; }),
-          stepsDone: 0, stepAudio: (function (ss) { return function (i) { return ss[i]; }; })(c.s),
-          stepAudios: c.s,
-          correct: 0, audio: [c.s[0]]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学（custom 分支）：演示点按推进 + 双倍量 + 4 秒小手，收尾走 tutFinish()。
      做成工厂，第 6 岛第 4 / 5 关共用同一套「房间整理」教学引擎（差异只在 ACTS 与收尾三图）。 */
@@ -12595,46 +11466,7 @@
   }
 
   /* ---------------- 出题：A 拼脸 / B 找五官 / C 快速反应 ---------------- */
-  function makeQuestionG1(type, prev) {
-    ensureG1Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var want = pick(G1_PARTS);
-        var others = G1_PARTS.filter(function (p) { return p !== want; });
-        shuffle(others);
-        var optsA = [want].concat(others.slice(0, 2));
-        shuffle(optsA);
-        q = {
-          type: 'G1A', sig: 'A:' + want + ':' + optsA.join(','), part: want,
-          options: optsA.map(function (p) { return { kind: 'g1part', part: p }; }),
-          correct: optsA.indexOf(want), audio: ['g1_a_' + want]
-        };
-      } else if (type === 1) {
-        var hl = pick(G1_PARTS);
-        var rest = G1_PARTS.filter(function (p) { return p !== hl; });
-        shuffle(rest);
-        var faces = [hl].concat(rest.slice(0, 2));
-        shuffle(faces);
-        q = {
-          type: 'G1B', sig: 'B:' + hl + ':' + faces.join(','), hl: hl,
-          options: faces.map(function (p) { return { kind: 'g1face', hl: p }; }),
-          correct: faces.indexOf(hl), audio: ['g1_b_' + hl]
-        };
-      } else {
-        var target = pick(G1_PARTS);
-        var order = G1_PARTS.slice();
-        shuffle(order);
-        q = {
-          type: 'G1C', sig: 'C:' + target + ':' + order.join(','), part: target,
-          options: order.map(function (p) { return { kind: 'g1part', part: p }; }),
-          correct: order.indexOf(target), audio: ['g1_c_' + target]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /** 教学互动判定：把零件放到脸上（拖 / 点都走这里） */
   function resolveG1T(itemIdx, target) {
@@ -13183,41 +12015,7 @@
   }
 
   /* ---------------- 出题：A 拼身体 / B 听指令做动作 / C 找部位 ---------------- */
-  function makeQuestionG2(type, prev) {
-    ensureG2Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var want = pick(G2_PARTS);
-        var others = G2_PARTS.filter(function (p) { return p !== want; });
-        shuffle(others);
-        var optsA = [want].concat(others.slice(0, 2));
-        shuffle(optsA);
-        q = {
-          type: 'G2A', sig: 'A:' + want + ':' + optsA.join(','), part: want,
-          options: optsA.map(function (p) { return { kind: 'g2part', part: p }; }),
-          correct: optsA.indexOf(want), audio: ['g2_a_' + want]
-        };
-      } else if (type === 1) {
-        var actp = pick(G2_PARTS);
-        var bkey = actp === 'head' ? 'g2_b_head' : (actp === 'hand' ? 'g2_t_hand2' : 'g2_t_foot2');
-        q = {
-          type: 'G2B', sig: 'B:' + actp, act: actp, options: [], correct: 0, audio: [bkey]
-        };
-      } else {
-        var target = pick(G2_PARTS);
-        var order = G2_PARTS.slice();
-        shuffle(order);
-        q = {
-          type: 'G2C', sig: 'C:' + target + ':' + order.join(','), part: target,
-          options: order.map(function (p) { return { kind: 'g2body', hl: p }; }),
-          correct: order.indexOf(target), audio: ['g2_c_' + target]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /** 教学互动判定：把零件放到身上（拖 / 点都走这里） */
   function resolveG2T(itemIdx, target) {
@@ -13945,47 +12743,7 @@
     return 'g3_cmd_' + a1 + '_' + a2;
   }
 
-  function makeQuestionG3(type, prev) {
-    ensureG3Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var c = G3_A_CASES[randInt(0, G3_A_CASES.length - 1)];
-        q = {
-          type: 'G3A', sig: 'A:' + c.a1 + '+' + c.a2, a1: c.a1, a2: c.a2,
-          options: [], correct: 0, audio: [g3CmdKey(c.a1, c.a2)]
-        };
-      } else if (type === 1) {
-        var b = G3_B_CASES[randInt(0, G3_B_CASES.length - 1)];
-        var acts = shuffle([b.a1, b.a2, b.extra]);
-        q = {
-          type: 'G3B', sig: 'B:' + b.a1 + '+' + b.a2 + ':' + acts.join(','),
-          a1: b.a1, a2: b.a2,
-          options: acts.map(function (a) { return { kind: 'g3act', act: a }; }),
-          correct: acts.indexOf(b.a1),
-          steps: [{ act: b.a1, slot: 'step1' }, { act: b.a2, slot: 'step2' }],
-          stepsDone: 0,
-          stepAudios: [null, G3_THEN_KEY[b.a2]],
-          audio: [g3CmdKey(b.a1, b.a2)]
-        };
-      } else {
-        var cc = G3_C_CASES[randInt(0, G3_C_CASES.length - 1)];
-        // 画面顺序 50/50：与语音一致（做对了）或相反（做反了）。
-        // 没有语音就无法判断对错——防止孩子不看只听、或干脆无脑点同一个按钮（§三.16）。
-        var same = Math.random() < 0.5;
-        var pic = same ? [cc.a1, cc.a2] : [cc.a2, cc.a1];
-        var opts = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
-        q = {
-          type: 'G3C', sig: 'C:' + cc.a1 + '>' + cc.a2 + ':' + (same ? 'y' : 'n') + ':' + opts.map(function (o) { return o.val ? 'y' : 'n'; }).join(''),
-          a1: cc.a1, a2: cc.a2, pic: pic, right: same,
-          options: opts, correct: opts[0].val === same ? 0 : 1,
-          audio: ['g3_c_' + cc.a1 + '_' + cc.a2, 'g3_c_ask']
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学：唤醒 + 3 组复合指令（各 2 演示 + 1 互动）+ 过渡，共 10 环节。
      RULES §三.10 双倍量 + §三.14 点按推进 + §二.12 四秒小手 + §三.12 模仿型交互 */
@@ -14503,46 +13261,7 @@
     return scene.map(function (k) { return k.kid.id + k.act; }).join(',');
   }
 
-  function makeQuestionG4(type, prev) {
-    ensureG4Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var c = G4_A_CASES[randInt(0, G4_A_CASES.length - 1)];
-        var scene = g4Scene(4 + randInt(0, 1), c);   // 4–5 人
-        var ans = -1;
-        scene.forEach(function (k, i) { if (k.kid.gender === c.gender && k.act === c.act) ans = i; });
-        q = {
-          type: 'G4A', sig: 'A:' + c.gender + '+' + c.act + ':' + g4SceneSig(scene),
-          noun: c.gender, act: c.act, kids: scene, answer: ans, correct: ans, options: [],
-          audio: [G4_SENT[c.gender + '+' + c.act]]
-        };
-      } else if (type === 1) {
-        var b = G4_B_CASES[randInt(0, G4_B_CASES.length - 1)];
-        var sceneB = g4Scene2(5, b.s1, b.s2);
-        q = {
-          type: 'G4B', sig: 'B:' + b.key + ':' + g4SceneSig(sceneB),
-          noun: b.s1.gender, act: b.s1.act,
-          steps: [b.s1, b.s2], stepsDone: 0,
-          stepAudios: [null, b.then],
-          kids: sceneB, answer: -1, correct: -1, options: [],
-          audio: [b.key]
-        };
-      } else {
-        var cc = G4_A_CASES[randInt(0, G4_A_CASES.length - 1)];
-        var sceneC = g4SceneC(cc);
-        var ansC = -1;
-        sceneC.forEach(function (k, i) { if (k.act === cc.act) ansC = i; });
-        q = {
-          type: 'G4C', sig: 'C:' + cc.gender + '+' + cc.act + ':' + g4SceneSig(sceneC),
-          noun: cc.gender, act: cc.act, kids: sceneC, answer: ansC, correct: ansC, options: [],
-          audio: [G4_SENT[cc.gender + '+' + cc.act]]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* 教学：3 个知识点 × 2 演示 + 2 互动 + 过渡，共 13 环节。
      RULES §三.10 双倍量 + §三.14 点按推进 + §二.12 四秒小手 */
@@ -14828,37 +13547,7 @@
     { gender: 'boy', act: 'eyes', key: 'g5_c_boy_eyes' }
   ];
 
-  function makeQuestionG5(type, prev) {
-    ensureG5Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var a = G5_A_ACTS[randInt(0, G5_A_ACTS.length - 1)];
-        q = {
-          type: 'G5A', sig: 'A:' + a.act, act: a.act,
-          options: [], correct: 0, audio: [a.key]
-        };
-      } else if (type === 1) {
-        var b = G5_B_CASES[randInt(0, G5_B_CASES.length - 1)];
-        q = {
-          type: 'G5B', sig: 'B:' + b.a1 + '+' + b.a2, a1: b.a1, a2: b.a2,
-          options: [], correct: 0, audio: [b.key]
-        };
-      } else {
-        var c = G5_C_CASES[randInt(0, G5_C_CASES.length - 1)];
-        var scene = g4Scene(3, c);   // 3 个小人，目标（性别+动作）唯一
-        var ans = -1;
-        scene.forEach(function (k, i) { if (k.kid.gender === c.gender && k.act === c.act) ans = i; });
-        q = {
-          type: 'G5C', sig: 'C:' + c.gender + '+' + c.act + ':' + g4SceneSig(scene),
-          noun: c.gender, act: c.act, kids: scene, answer: ans, correct: ans,
-          options: [], audio: [c.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 答题渲染 ---------------- */
 
@@ -15514,46 +14203,7 @@
     angry: ['toy', 'block']
   };
 
-  function makeQuestionH1(type, prev) {
-    ensureH1Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：3 张情绪脸（开心/难过/生气），听 "Find the X face." 点目标 */
-        var want = pick(H1_MOODS);
-        var faces = shuffle(H1_MOODS.slice());
-        q = {
-          type: 'H1A', sig: 'A:' + want + ':' + faces.join(','), mood: want, faces: faces,
-          answer: faces.indexOf(want), correct: faces.indexOf(want),
-          options: [], audio: ['h1_a_' + want]
-        };
-      } else if (type === 1) {
-        /* B：3 张情景卡（3 种情绪各一张），听情景描述点对应脸谱 */
-        var tgt = pick(H1_B_TARGETS);
-        var others = [];
-        H1_MOODS.forEach(function (m) {
-          if (m !== tgt.mood) others.push(pick(H1_B_POOL[m]));
-        });
-        var scenes = shuffle([tgt.scene].concat(others));
-        q = {
-          type: 'H1B', sig: 'B:' + tgt.scene + ':' + scenes.join(','), mood: tgt.mood,
-          scene: tgt.scene, scenes: scenes, answer: scenes.indexOf(tgt.scene),
-          correct: scenes.indexOf(tgt.scene), options: [], audio: [tgt.key]
-        };
-      } else {
-        /* C：缺嘴巴的脸 + 3 个嘴巴选项（拖/点拼上去） */
-        var wantM = pick(H1_MOODS);
-        var opts = shuffle(H1_MOODS.slice());
-        q = {
-          type: 'H1C', sig: 'C:' + wantM + ':' + opts.join(','), mouth: wantM,
-          options: opts.map(function (m) { return { kind: 'h1mouth', mood: m }; }),
-          correct: opts.indexOf(wantM), audio: ['h1_c_' + wantM]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 答题渲染 ---------------- */
 
@@ -16149,53 +14799,7 @@
   }
 
   /* ---------------- 出题：A 听音找感受 / B 听音送物品 / C 听情景纠错 ---------------- */
-  function makeQuestionH2(type, prev) {
-    ensureH2Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：3 个不同感受的小人，听 "Find the X boy." 点目标 */
-        var want = pick(H2_STATES);
-        var states = shuffle(H2_STATES.slice());
-        q = {
-          type: 'H2A', sig: 'A:' + want + ':' + states.join(','), state: want, states: states,
-          answer: states.indexOf(want), correct: states.indexOf(want),
-          options: [], audio: [H2_FIND_KEY[want]]
-        };
-      } else if (type === 1) {
-        /* B：中央一个感受的小人 + 3 件物品，听句把对的东西拖给他 */
-        var kid = pick(H2_STATES);
-        var needed = H2_NEED[kid];
-        var items = shuffle(['bread', 'water', 'pillow']);
-        q = {
-          type: 'H2B', sig: 'B:' + kid + ':' + items.join(','), state: kid, items: items,
-          options: items.map(function (it) { return { kind: 'h2item', item: it }; }),
-          correct: items.indexOf(needed), audio: ['h2_b_' + kid]
-        };
-      } else {
-        /* C：中央一个完整小场景（小人 + 正确物品）+ ✅/❌ 判断语音描述是否与画面一致。
-           claimState 有 50/50 与画面相同 / 不同，只有听懂语音才能判断（无视觉作弊 §三.16）。 */
-        var scene = pick(H2_STATES);
-        state.h2Flip = !state.h2Flip;
-        var same = state.h2Flip;
-        var claim = scene;
-        if (!same) {
-          var others = H2_STATES.filter(function (s2) { return s2 !== scene; });
-          claim = pick(others);
-        }
-        var truth = (claim === scene);
-        var optsC = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
-        q = {
-          type: 'H2C', sig: 'C:' + scene + ':' + claim + ':' + truth, state: scene, claim: claim,
-          item: H2_NEED[scene], truth: truth,
-          options: optsC, correct: optsC[0].val === truth ? 0 : 1,
-          audio: ['h2_c_' + claim, 'yesno']
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 答题渲染 ---------------- */
 
@@ -16803,49 +15407,7 @@
   }
 
   /* ---------------- 出题：A 听音送物品 / B TPR 拥抱 / C 听情景纠错 ---------------- */
-  function makeQuestionH3(type, prev) {
-    ensureH3Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：中央哭泣婴儿 + 3 件物品，听 "Give him a toy/some candy." 送对的 */
-        var target = pick(H3_COMFORT);
-        var pool = H3_DISTRACT.slice();
-        shuffle(pool);
-        var items = shuffle([target, pool[0], pool[1]]);
-        q = {
-          type: 'H3A', sig: 'A:' + target + ':' + items.join(','), target: target, items: items,
-          options: items.map(function (it) { return { kind: 'h3item', item: it }; }),
-          answer: items.indexOf(target), correct: items.indexOf(target),
-          audio: ['h3_a_' + target]
-        };
-      } else if (type === 1) {
-        /* B：中央难过婴儿 + 巨大👍按钮（TPR，永远判对 §三.12） */
-        state.h3bFlip = !state.h3bFlip;
-        var hkey = state.h3bFlip ? 'h3_b_hug' : 'h3_b_hug2';
-        q = {
-          type: 'H3B', sig: 'B:' + hkey, state: 'sad', hug: hkey,
-          options: [], correct: 0, audio: [hkey]
-        };
-      } else {
-        /* C：中央一个完整小场景（哭婴 + 一件物品）+ ✅/❌。
-           claim 与画面物品 50/50 相同 / 不同，只有听懂语音才能判断（无视觉作弊 §三.16）。 */
-        var sceneItem = pick(H3_COMFORT);
-        state.h3Flip = !state.h3Flip;
-        var truth = state.h3Flip;
-        var claim = truth ? sceneItem : (sceneItem === 'toy' ? 'candy' : 'toy');
-        var optsC = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
-        q = {
-          type: 'H3C', sig: 'C:' + sceneItem + ':' + claim + ':' + truth,
-          state: 'cry', item: sceneItem, claim: claim, truth: truth,
-          options: optsC, correct: optsC[0].val === truth ? 0 : 1,
-          audio: ['h3_c_' + claim, 'yesno']
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 答题渲染 ---------------- */
 
@@ -17448,48 +16010,7 @@
   }
 
   /* ---------------- 出题：A 听音找情景 / B 听因果选表情 / C TPR 拥抱 ---------------- */
-  function makeQuestionH4(type, prev) {
-    ensureH4Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：3 幅情景（目标 + 2 干扰），听 voice 描述事件点目标画面 */
-        var target = pick(H4_A_SITS);
-        var others = H4_A_SITS.filter(function (s) { return s !== target; });
-        shuffle(others);
-        var sits = shuffle([target, others[0], others[1]]);
-        q = {
-          type: 'H4A', sig: 'A:' + target + ':' + sits.join(','), sitTarget: target, sits: sits,
-          answer: sits.indexOf(target), correct: sits.indexOf(target),
-          options: [], audio: [H4_A_KEY[target]]
-        };
-      } else if (type === 1) {
-        /* B：中央「无表情」情景 + 3 张情绪脸，听因果选对的脸 */
-        var cause = H4_B_CAUSES[randInt(0, H4_B_CAUSES.length - 1)];
-        var emo = cause.emo;
-        var pool = H4_EMO.filter(function (e) { return e !== emo; });
-        shuffle(pool);
-        var faces = shuffle([emo, pool[0], pool[1]]);
-        q = {
-          type: 'H4B', sig: 'B:' + cause.sit + ':' + emo + ':' + faces.join(','),
-          sit: cause.sit, emo: emo, faces: faces,
-          options: faces.map(function (f) { return { kind: 'h4face', emo: f }; }),
-          answer: faces.indexOf(emo), correct: faces.indexOf(emo),
-          audio: [cause.key]
-        };
-      } else {
-        /* C：TPR 情绪大爆发（巨大👍，永远判对 §三.12） */
-        state.h4cFlip = !state.h4cFlip;
-        var hkey = state.h4cFlip ? 'h4_c_hug' : 'h4_c_hug2';
-        q = {
-          type: 'H4C', sig: 'C:' + hkey, emo: 'sad',
-          options: [], correct: 0, audio: [hkey]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 答题渲染 ---------------- */
 
@@ -18138,45 +16659,7 @@
   }
 
   /* ---------------- 出题：A 听情景戴面具 / B 听长句找小人 / C TPR ---------------- */
-  function makeQuestionH5(type, prev) {
-    ensureH5Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：中央无表情小人 + 3 张面具；听情景把对的面具拖/点上去 */
-        var cause = H5_A_CAUSES[randInt(0, H5_A_CAUSES.length - 1)];
-        var emo = cause.emo;
-        var pool = H5_EMO.filter(function (e) { return e !== emo; });
-        shuffle(pool);
-        var masks = shuffle([emo, pool[0], pool[1]]);
-        q = {
-          type: 'H5A', sig: 'A:' + emo + ':' + masks.join(','), emo: emo, masks: masks,
-          options: masks.map(function (m) { return { kind: 'h5mask', emo: m }; }),
-          answer: masks.indexOf(emo), correct: masks.indexOf(emo),
-          audio: [cause.key]
-        };
-      } else if (type === 1) {
-        /* B：4 个不同状态的小人（开心吃冰淇淋 / 饿得哭 / 生气 / 困），听长句找目标 */
-        var target = pick(['happy', 'hungry', 'angry', 'sleepy']);
-        var states = shuffle(['happy', 'hungry', 'angry', 'sleepy']);
-        q = {
-          type: 'H5B', sig: 'B:' + target + ':' + states.join(','), states: states, target: target,
-          options: [], answer: states.indexOf(target), correct: states.indexOf(target),
-          audio: [H5_B_KEY[target]]
-        };
-      } else {
-        /* C：TPR 情绪大爆发（巨大👍，永远判对 §三.12） */
-        state.h5cIdx = ((state.h5cIdx || 0) + 1) % H5_C_KEYS.length;
-        var c = H5_C_KEYS[state.h5cIdx];
-        q = {
-          type: 'H5C', sig: 'C:' + c.key, emo: c.emo,
-          options: [], correct: 0, audio: [c.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 答题渲染 ---------------- */
 
@@ -18883,47 +17366,7 @@
   }
 
   /* ---------------- 出题：A 听音穿衣服 / B 听音找衣物 / C TPR 模仿穿衣 ---------------- */
-  function makeQuestionL9(type, prev) {
-    ensureL9Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：中央小人（打底衫）+ 3 件衣物，听指令把孩子拖到小人身上 */
-        var item = pick(L9_ITEMS);
-        var rest = L9_ITEMS.filter(function (x) { return x !== item; });
-        shuffle(rest);
-        var items = shuffle([item, rest[0], rest[1]]);
-        q = {
-          type: 'L9A', sig: 'A:' + item + ':' + items.join(','), item: item, items: items,
-          part: L9_PART[item],
-          options: items.map(function (it) { return { kind: 'l9item', item: it }; }),
-          answer: items.indexOf(item), correct: items.indexOf(item),
-          audio: [L9_A_KEY[item]]
-        };
-      } else if (type === 1) {
-        /* B：3 个各穿一件衣物的小人，听句子点目标 */
-        var target = pick(L9_ITEMS);
-        var pool = L9_ITEMS.filter(function (x) { return x !== target; });
-        shuffle(pool);
-        var kids = shuffle([target, pool[0], pool[1]]);
-        q = {
-          type: 'L9B', sig: 'B:' + target + ':' + kids.join(','), target: target, wearKids: kids,
-          options: [], answer: kids.indexOf(target), correct: kids.indexOf(target),
-          audio: [L9_B_KEY[target]]
-        };
-      } else {
-        /* C：TPR 模仿穿衣服（巨大👍，永远判对 §三.12） */
-        state.l9cIdx = ((state.l9cIdx || 0) + 1) % L9_ITEMS.length;
-        var it = L9_ITEMS[state.l9cIdx];
-        q = {
-          type: 'L9C', sig: 'C:' + it, item: it,
-          options: [], correct: 0, audio: [L9_C_KEY[it]]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 答题渲染 ---------------- */
 
@@ -19371,43 +17814,7 @@
   }
 
   /* ---------------- 出题：A 听指令脱 / B 听指令穿 / C TPR ---------------- */
-  function makeQuestionL92(type, prev) {
-    ensureL92Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：小人身上已穿着某件，听指令把它拖回底部物品栏 */
-        var off = pick(L92_ITEMS);
-        q = {
-          type: 'L92A', sig: 'A:' + off, item: off, act: 'off', from: 'body', to: 'tray',
-          options: [], correct: 0, audio: [L92_A_KEY[off]]
-        };
-      } else if (type === 1) {
-        /* B：小人光着，底部 3 件衣物，听指令把对的那件拖到身上 */
-        var on = pick(L92_ITEMS);
-        var rest = L92_ITEMS.filter(function (x) { return x !== on; });
-        shuffle(rest);
-        var items = shuffle([on, rest[0], rest[1]]);
-        q = {
-          type: 'L92B', sig: 'B:' + on + ':' + items.join(','), item: on, act: 'on', from: 'tray', to: 'kid',
-          items: items,
-          options: items.map(function (it) { return { kind: 'l92item', item: it }; }),
-          answer: items.indexOf(on), correct: items.indexOf(on),
-          audio: [L92_B_KEY[on]]
-        };
-      } else {
-        /* C：TPR 模仿穿脱（巨大👍，永远判对 §三.12） */
-        state.l92cIdx = ((state.l92cIdx || 0) + 1) % L92_C_KEYS.length;
-        var c = L92_C_KEYS[state.l92cIdx];
-        q = {
-          type: 'L92C', sig: 'C:' + c.key, item: c.item, act: c.act,
-          options: [], correct: 0, audio: [c.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 双向拖拽的判定与容错 ---------------- */
 
@@ -19980,46 +18387,7 @@
   }
 
   /* ---------------- 出题：A 听天气穿衣服 / B 找对应的小人 / C TPR ---------------- */
-  function makeQuestionL93(type, prev) {
-    ensureL93Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：屏幕随机出现太阳 / 雪花，下方 T 恤 + 外套，听指令拖对的那件 */
-        var sky = pick(L93_SKY);
-        var need = L93_NEED[sky];
-        var other = L93_ITEMS.filter(function (x) { return x !== need; })[0];
-        var items = shuffle([need, other]);
-        q = {
-          type: 'L93A', sig: 'A:' + sky + ':' + items.join(','),
-          sky: sky, state: sky, item: need, items: items,
-          options: items.map(function (it) { return { kind: 'l93item', item: it }; }),
-          answer: items.indexOf(need), correct: items.indexOf(need),
-          audio: [L93_A_KEY[sky]]
-        };
-      } else if (type === 1) {
-        /* B：3 个不同感受的小人（流汗 / 发抖 / 打伞），听句子点目标 */
-        var target = pick(L93_STATES);
-        var kids = shuffle(L93_STATES.slice());
-        q = {
-          type: 'L93B', sig: 'B:' + target + ':' + kids.join(','),
-          target: target, kidStates: kids,
-          options: [], answer: kids.indexOf(target), correct: kids.indexOf(target),
-          audio: [L93_B_KEY[target]]
-        };
-      } else {
-        /* C：TPR 模仿天气（巨大👍，永远判对 §三.12） */
-        state.l93cIdx = ((state.l93cIdx || 0) + 1) % L93_SKY.length;
-        var st = L93_SKY[state.l93cIdx];
-        q = {
-          type: 'L93C', sig: 'C:' + st, state: st,
-          options: [], correct: 0, audio: [L93_C_KEY[st]]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 拖 / 点的统一判定（只有「栏里的衣服 → 小人身上」这一条路） ---------------- */
 
@@ -20512,48 +18880,7 @@
     { key: 'l94_c_jump', look: 'pants@arms' }
   ];
 
-  function makeQuestionL94(type, prev) {
-    ensureL94Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：小人只穿打底衫，下方 3 件衣物，听指令把指定那件「穿到错的地方」 */
-        var item = pick(L94_ITEMS);
-        var rest = L94_ITEMS.filter(function (x) { return x !== item; });
-        shuffle(rest);
-        var items = shuffle([item, rest[0], rest[1]]);
-        q = {
-          type: 'L94A', sig: 'A:' + item + ':' + items.join(','),
-          l94Item: item, l94Slot: L94_SLOT[item], items: items,
-          look: item + '@' + L94_SLOT[item],
-          options: items.map(function (it) { return { kind: 'l94item', item: it }; }),
-          answer: items.indexOf(item), correct: items.indexOf(item),
-          audio: [L94_A_KEY[item]]
-        };
-      } else if (type === 1) {
-        /* B：3 张穿搭图（1 张荒诞 + 2 张正常），听句子点出「捣蛋的那张」 */
-        var S = pick(L94_SILLY);
-        var decoys = L94_NORMAL.filter(function (l) { return l.split('@')[0] !== S.item; });
-        var looks = shuffle([S.look, decoys[0], decoys[1]]);
-        q = {
-          type: 'L94B', sig: 'B:' + S.look + ':' + looks.join(','),
-          l94Looks: looks, l94Silly: S.look,
-          options: [], answer: looks.indexOf(S.look), correct: looks.indexOf(S.look),
-          audio: [S.key]
-        };
-      } else {
-        /* C：TPR 极速搞怪（巨大👍，永远判对 §三.12） */
-        state.l94cIdx = ((state.l94cIdx || 0) + 1) % L94_C.length;
-        var c = L94_C[state.l94cIdx];
-        q = {
-          type: 'L94C', sig: 'C:' + c.key, l94Look: c.look,
-          options: [], correct: 0, audio: [c.key]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 判定：只看「拿的是不是那件」，落点在小人身上任意处都算中（§二.11） ---------------- */
 
@@ -21062,56 +19389,7 @@
   }
 
   /* ---------------- 出题：A 天气穿搭 / B 搞破坏 / C 多步 / D 找捣蛋 ---------------- */
-  function makeQuestionL95(type, prev) {
-    ensureL95Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：屏幕出现太阳/雪花，下方 3 件衣物，听指令把对的拖到身上 */
-        var w = pick(['hot', 'cold']);
-        var need = (w === 'hot') ? 'tshirt' : 'coat';
-        var pool = ['coat', 'tshirt', 'pants', 'hat'].filter(function (x) { return x !== need; });
-        shuffle(pool);
-        var tray = shuffle([need, pool[0], pool[1]]);
-        q = {
-          type: 'L95A', sig: 'A:' + w + ':' + tray.join(','), weather: w, need: need, items: tray,
-          options: tray.map(function (it) { return { kind: 'l95item', item: it }; }),
-          answer: tray.indexOf(need), correct: tray.indexOf(need),
-          audio: [w === 'hot' ? 'l93_t_hot_put' : 'l92_b_coat']
-        };
-      } else if (type === 1) {
-        /* B：听长句，把指定衣物「穿到错的部位」（任意落点都算中，触发搞笑音效） */
-        var B = pick(['shoes', 'pants', 'hat']);
-        var slot = { shoes: 'head', pants: 'arms', hat: 'foot' }[B];
-        var restB = ['shoes', 'pants', 'hat'].filter(function (x) { return x !== B; });
-        shuffle(restB);
-        var itemsB = shuffle([B, restB[0], restB[1]]);
-        q = {
-          type: 'L95B', sig: 'B:' + B + ':' + itemsB.join(','), item: B, slot: slot, look: B + '@' + slot, items: itemsB,
-          options: itemsB.map(function (it) { return { kind: 'l95item', item: it }; }),
-          answer: itemsB.indexOf(B), correct: itemsB.indexOf(B),
-          audio: ['l95_b_' + B]
-        };
-      } else if (type === 2) {
-        /* C：多步指令（先穿 X 再脱 Y），双向拖拽 */
-        var C = pick(L95_C_COMBOS);
-        q = {
-          type: 'L95C', sig: 'C:' + C.key, steps: C.steps.slice(), audio: [C.key]
-        };
-      } else {
-        /* D：听音找捣蛋（正常 + 裤子套头上 + 手里拎鞋；任一个捣蛋都算对） */
-        var normalLook = pick(['shirt@body,pants@legs,shoes@feet', 'pants@legs,shoes@feet,hat@head', 'shirt@body,pants@legs']);
-        var looksD = shuffle([normalLook, 'pants@head', 'shoes@hand']);
-        var firstSilly = looksD.findIndex(function (l) { return L95_SILLY_SET.indexOf(l) >= 0; });
-        q = {
-          type: 'L95D', sig: 'D:' + looksD.join('|'), looks: looksD, sillySet: L95_SILLY_SET.slice(),
-          options: [], answer: firstSilly, correct: firstSilly, audio: ['l95_d_find']
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 答题渲染 ---------------- */
 
@@ -21685,32 +19963,7 @@
   }
 
   /* ---------------- 出题：A 听音放场景 / B 听音找工具 / C TPR ---------------- */
-  function makeQuestionL10(type, prev) {
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var item = pick(L10_VEHICLES);
-        q = {
-          type: 'L10A', sig: 'A:' + item, item: item, scene: L10_SCENE_OF[item],
-          sceneOrder: L10_SCENES.slice(), options: [], answer: 0,
-          audio: [L10_A_KEY[item]]
-        };
-      } else if (type === 1) {
-        var t = pick(L10_VEHICLES);
-        var others = shuffle(L10_VEHICLES.filter(function (x) { return x !== t; })).slice(0, 2);
-        var items = shuffle([t].concat(others));
-        q = {
-          type: 'L10B', sig: 'B:' + t, item: t, items: items, options: [],
-          answer: items.indexOf(t), audio: [L10_B_KEY[t]]
-        };
-      } else {
-        var c = pick(L10_VEHICLES);
-        q = { type: 'L10C', sig: 'C:' + c, item: c, options: [], answer: 0, audio: [L10_C_KEY[c]] };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：Car 2 演示 + 1 互动 / Plane 2 演示 + 1 互动 / Train + Bus 各 1 演示 / 综合互动 / 过渡 ---------------- */
   var runL10Tutorial = (function () {
@@ -22334,55 +20587,7 @@
   }
 
   /* ---------------- 出题：A 变道 / B 快慢对比 / C TPR / D 快慢分类 ---------------- */
-  function makeQuestionL102(type, prev) {
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：听指令变道（左 = 蓝，右 = 黄） */
-        var lane = pick(['left', 'right']);
-        q = {
-          type: 'L102A', sig: 'A:' + lane, lane: lane, item: null,
-          options: [], answer: 0,
-          audio: [lane === 'left' ? 'l102_t_left' : 'l102_t_right']
-        };
-      } else if (type === 1) {
-        /* B：一快一慢，听 fast / slow 点选 */
-        var wantFast = Math.random() < 0.5;
-        var f = pick(L102_FAST), s = pick(L102_SLOW);
-        var items = shuffle([f, s]);
-        q = {
-          type: 'L102B', sig: 'B:' + (wantFast ? 'f:' : 's:') + f + '|' + s,
-          want: wantFast ? 'fast' : 'slow',
-          item: wantFast ? f : s,
-          items: items, options: [],
-          answer: items.indexOf(wantFast ? f : s),
-          audio: [wantFast ? 'l102_b_fast' : 'l102_b_slow']
-        };
-      } else if (type === 2) {
-        /* C：TPR 快慢驾驶（永远判对） */
-        var fastC = Math.random() < 0.5;
-        q = {
-          type: 'L102C', sig: 'C:' + (fastC ? 'fast' : 'slow'),
-          want: fastC ? 'fast' : 'slow', item: null, options: [], answer: 0,
-          audio: [fastC ? 'l102_t_drive_fast' : 'l102_t_drive_slow']
-        };
-      } else {
-        /* D：快慢分类拖拽（把指定物品拖进快 / 慢框） */
-        var pair = pick(L102_D_PAIRS);
-        var askedFast = Math.random() < 0.5;
-        var askedItem = askedFast ? pair.fast : pair.slow;
-        q = {
-          type: 'L102D', sig: 'D:' + pair.fast + '|' + pair.slow + ':' + (askedFast ? 'f' : 's'),
-          item: askedItem, box: askedFast ? 'fast' : 'slow',
-          items: shuffle([pair.fast, pair.slow]),
-          options: [], answer: 0,
-          audio: [askedFast ? pair.fKey : pair.sKey]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：赛跑 2 演示 → TPR 快慢 2 互动 → 变道 2 演示 → 变道 1 互动 → 交警 2 演示 → 交警 1 互动 → 过渡 ---------------- */
   var runL102Tutorial = (function () {
@@ -22926,41 +21131,7 @@
   }
 
   /* ---------------- 出题：A 拖车/人 / B 找画面 / C TPR ---------------- */
-  function makeQuestionL103(type, prev) {
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var light = pick(['red', 'green']);
-        var actor = pick(['car', 'boy']);
-        var zone = light === 'red' ? 'stop' : 'past';
-        q = {
-          type: 'L103A', sig: 'A:' + light + ':' + actor,
-          light: light, actor: actor, item: actor, zone: zone,
-          options: [], answer: 0,
-          audio: ['l103_a_' + light + '_' + actor]
-        };
-      } else if (type === 1) {
-        /* B：正确画面 + 两个干扰画面（闯红灯 / 行为相反） */
-        var greenGo = Math.random() < 0.5;
-        var right = greenGo ? 'green_go' : 'red_stop';
-        var others = L103_PICS.filter(function (x) { return x !== right; });
-        var pics = shuffle([right].concat(others));
-        q = {
-          type: 'L103B', sig: 'B:' + right, pic: right, pics: pics,
-          options: [], answer: pics.indexOf(right),
-          audio: [greenGo ? 'l103_b_green_go' : 'l103_b_red_stop']
-        };
-      } else {
-        var lc = pick(['red', 'green']);
-        q = {
-          type: 'L103C', sig: 'C:' + lc, light: lc, options: [], answer: 0,
-          audio: ['l103_c_' + lc]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：红灯 2 演示 + 1 互动 → 绿灯 2 演示 + 1 互动 → 行人 2 演示 → 过渡 ---------------- */
   var runL103Tutorial = (function () {
@@ -23404,40 +21575,7 @@
   }
 
   /* ---------------- 出题：A 找天气 / B 配物品 / C 找场景 ---------------- */
-  function makeQuestionL104(type, prev) {
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：三个天气图标（顺序洗牌），听句子点出对应天气 */
-        var w = pick(L104_WEATHERS);
-        var icons = shuffle(L104_WEATHERS.slice());
-        q = {
-          type: 'L104A', sig: 'A:' + w, weather: w, icons: icons,
-          options: [], answer: icons.indexOf(w), audio: [L104_A_KEY[w]]
-        };
-      } else if (type === 1) {
-        /* B：只有晴 / 雨两种（阴天不配物品，避免「阴天该戴什么」的歧义） */
-        var wb = pick(['sunny', 'rainy']);
-        var needItem = L104_ITEM_OF[wb];
-        var others = shuffle(['sunglasses', 'umbrella', 'hat'].filter(function (x) { return x !== needItem; })).slice(0, 2);
-        var items = shuffle([needItem].concat(others));
-        q = {
-          type: 'L104B', sig: 'B:' + wb, weather: wb, item: needItem, items: items,
-          options: [], answer: items.indexOf(needItem), audio: [L104_B_KEY[wb]]
-        };
-      } else {
-        /* C：三张场景图，听句子点出对应那张 */
-        var kind = pick(['sun', 'rain', 'cloud']);
-        var pics = shuffle(['sun', 'rain', 'cloud']);
-        q = {
-          type: 'L104C', sig: 'C:' + kind, kind: kind, pics: pics,
-          options: [], answer: pics.indexOf(kind), audio: [L104_C_KEY[kind]]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：晴天 2 演示 + 1 互动 → 雨天 2 演示 + 1 互动 → 阴天 2 演示 + 1 互动 → 过渡 ----------------
      本关严禁 TPR：所有互动都是「拖物品到小人」或「点图」，没有任何模仿动作 / 大拇指确认。 */
@@ -23999,38 +22137,7 @@
   }
 
   /* ---------------- 出题：A 天气+方向 / B 三张场景 / C 三个图标 ---------------- */
-  function makeQuestionL105(type, prev) {
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：听「天气 + 方向」把车开到对应车道（左右颜色锚点沿用 10-2） */
-        var wA = pick(['sunny', 'rainy', 'cloudy']);
-        var laneA = pick(['left', 'right']);
-        q = {
-          type: 'L105A', sig: 'A:' + wA + ':' + laneA, weather: wA, lane: laneA,
-          options: [], answer: 0, audio: ['l105_a_' + wA + '_' + laneA]
-        };
-      } else if (type === 1) {
-        /* B：三张场景图，听句子点出对应那张 */
-        var kB = pick(L105_PICS);
-        var pics = shuffle(L105_PICS.slice());
-        q = {
-          type: 'L105B', sig: 'B:' + kB, kind: kB, pics: pics,
-          options: [], answer: pics.indexOf(kB), audio: [L105_B_KEY[kB]]
-        };
-      } else {
-        /* C：三个图标（天气 / 交通标志），听句子点出对应的那个 */
-        var kC = pick(L105_ICONS);
-        var icons = shuffle(L105_ICONS.slice());
-        q = {
-          type: 'L105C', sig: 'C:' + kC, kind: kC, icons: icons,
-          options: [], answer: icons.indexOf(kC), audio: [L105_C_KEY[kC]]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：快/左转 2 演示 → 右转互动 → 红灯 2 演示 → 绿灯互动 → 下雨 2 演示 → 过渡 ----------------
      9 环节；演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），拖错车道只弹回不判错（§二.11）。 */
@@ -24651,34 +22758,7 @@
   }
 
   /* ---------------- 出题：A 找角色 / B 找材料 / C 喊走狼 ---------------- */
-  function makeQuestionL111(type, prev) {
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var kA = pick(L111_CHARS);
-        var itemsA = shuffle(L111_CHARS.slice());
-        q = {
-          type: 'L111A', sig: 'A:' + kA, kind: kA, items: itemsA,
-          options: [], answer: itemsA.indexOf(kA), audio: [L111_A_KEY[kA]]
-        };
-      } else if (type === 1) {
-        var kB = pick(L111_MATS);
-        var itemsB = shuffle(L111_MATS.slice());
-        q = {
-          type: 'L111B', sig: 'B:' + kB, kind: kB, items: itemsB,
-          options: [], answer: itemsB.indexOf(kB), audio: [L111_B_KEY[kB]]
-        };
-      } else {
-        var cv = Math.random() < 0.5 ? 0 : 1;
-        q = {
-          type: 'L111C', sig: 'C:' + cv, kind: 'wolf', cv: cv, items: [],
-          options: [], answer: 0, audio: [L111_C_KEY[cv]]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：草房 2 演示 → 砖房互动 → 敲门 2 演示 → 找狼互动 → 过渡 ----------------
      7 环节；演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），拖错只弹回不判错（§二.11）。 */
@@ -25286,37 +23366,7 @@
   }
 
   /* ---------------- 出题：A 选回答 / B 找角色 / C 拖路 ---------------- */
-  function makeQuestionL112(type, prev) {
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：猎人问路，三张场景里选出「去奶奶家」 */
-        var ai = Math.floor(Math.random() * 2);
-        var itemsA = shuffle(L112_SCENES.slice());
-        q = {
-          type: 'L112A', sig: 'A:' + ai, kind: 'grandma', items: itemsA,
-          options: [], answer: itemsA.indexOf('grandma'), audio: [L112_A_KEY[ai]]
-        };
-      } else if (type === 1) {
-        /* B：三个角色里找出听到的那个 */
-        var kB = pick(L112_CHARS);
-        var itemsB = shuffle(L112_CHARS.slice());
-        q = {
-          type: 'L112B', sig: 'B:' + kB, kind: kB, items: itemsB,
-          options: [], answer: itemsB.indexOf(kB), audio: [L112_B_KEY[kB]]
-        };
-      } else {
-        /* C：岔路（奶奶家可能被翻到左边，防止背位置） */
-        var flip = Math.random() < 0.5 ? 1 : 0;
-        q = {
-          type: 'L112C', sig: 'C:' + flip, kind: 'grandma', flip: flip, items: [],
-          options: [], answer: 0, audio: ['l112_c_go']
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：问路 2 演示 → 送她去奶奶家 → 狼出现 2 演示 → 找狼 → 过渡 ----------------
      7 环节；演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），拖错只弹回不判错（§二.11）。 */
@@ -25921,35 +23971,7 @@
   }
 
   /* ---------------- 出题：A 找状态 / B 找椅子 / C 拖女孩 ---------------- */
-  function makeQuestionL113(type, prev) {
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var kA = pick(L113_STATES);
-        var itemsA = shuffle(L113_STATES.slice());
-        q = {
-          type: 'L113A', sig: 'A:' + kA, kind: kA, items: itemsA,
-          options: [], answer: itemsA.indexOf(kA), audio: [L113_A_KEY[kA]]
-        };
-      } else if (type === 1) {
-        var kB = pick(L113_SIZES);
-        var itemsB = shuffle(L113_SIZES.slice());
-        q = {
-          type: 'L113B', sig: 'B:' + kB, kind: kB, items: itemsB,
-          options: [], answer: itemsB.indexOf(kB), audio: [L113_B_KEY[kB]]
-        };
-      } else {
-        /* C：「刚好」的椅子每轮随机在左或右（防背位置，§三.27 的反面要求） */
-        var side = Math.random() < 0.5 ? 'left' : 'right';
-        q = {
-          type: 'L113C', sig: 'C:' + side, kind: 'just', justSide: side, items: [],
-          options: [], answer: 0, audio: ['l113_c_chair']
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：太烫/太凉 2 演示 → 点热的那碗 → 尝一口 2 演示 → 点刚好的椅子 → 过渡 ----------------
      7 环节；演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），点错只抖动不判错。 */
@@ -26496,53 +24518,7 @@
     for (var k = 0; k < 4 && prevOrder && a.join('') === prevOrder.join(''); k++) a = shuffle([1, 2, 3]);
     return a;
   }
-  function makeQuestionL114(type, prev) {
-    var q, guard = 0;
-    do {
-      var story = pick(L114_STORY_IDS);
-      if (type === 0) {
-        var itemsA = l114ShuffleDiff(L114_PREV.items);
-        var slotsA = l114SlotsDiff(L114_PREV.slots);
-        L114_PREV.items = itemsA.slice();
-        L114_PREV.slots = slotsA.slice();
-        q = {
-          type: 'L114A', sig: 'A:' + story, story: story,
-          items: itemsA,                      /* 底部三张图的顺序每轮打乱（且不与上一轮相同） */
-          slots: slotsA,                      /* 1/2/3 三个框的左右位置每轮随机 */
-          options: [], answer: 0, audio: [L114_STORIES[story].audio]
-        };
-      } else if (type === 1) {
-        var ask = Math.random() < 0.5 ? 'first' : 'last';
-        var itemsB = shuffle([0, 1, 2]);
-        var wantStep = ask === 'first' ? 0 : 2;
-        q = {
-          type: 'L114B', sig: 'B:' + story + ':' + ask, story: story, ask: ask,
-          items: itemsB, slots: [1, 2, 3],
-          options: [], answer: itemsB.indexOf(wantStep),
-          audio: [ask === 'first' ? 'l114_b_first' : 'l114_b_last']
-        };
-      } else {
-        /* C：一半概率给正确的顺序，一半给「对调两张」的错误顺序 */
-        var isRight = Math.random() < 0.5;
-        var arr = [0, 1, 2];
-        if (!isRight) {
-          var i1 = Math.floor(Math.random() * 3), i2 = (i1 + 1 + Math.floor(Math.random() * 2)) % 3;
-          var tmp = arr[i1]; arr[i1] = arr[i2]; arr[i2] = tmp;
-        }
-        q = {
-          type: 'L114C', sig: 'C:' + story + ':' + (isRight ? 1 : 0), story: story,
-          arr: arr, correct: isRight, slots: (function () {
-            var sl = l114SlotsDiff(L114_PREV.slots);
-            L114_PREV.slots = sl.slice();
-            return sl;
-          })(),
-          options: [], answer: isRight ? 0 : 1, audio: ['l114_c_check']
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：讲三只小猪 2 演示 → 动手排 3 张 → 过渡 ----------------
      演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），放错只弹回不判错。 */
@@ -27032,48 +25008,7 @@
     return a;
   }
 
-  function makeQuestionL115(type, prev) {
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var a = pick(L115_A_SETS);
-        var wantA = a.want;
-        var kindsA = ['house', 'red', 'porridge'];
-        var itemsA = l115ShuffleAvoid(kindsA, wantA, L115_LAST_ANS.L115A);
-        var ansA = itemsA.indexOf(wantA);
-        L115_LAST_ANS.L115A = ansA;
-        q = {
-          type: 'L115A', ask: 'L115A', kind: 'pic', sig: a.sig,
-          items: itemsA, options: [], answer: ansA,
-          audio: [a.audio]
-        };
-      } else if (type === 1) {
-        var b = pick(L115_B_SETS);
-        var wantB = b.want;
-        var kindsB = ['pig', 'red', 'wolf'];
-        var itemsB = l115ShuffleAvoid(kindsB, wantB, L115_LAST_ANS.L115B);
-        var ansB = itemsB.indexOf(wantB);
-        L115_LAST_ANS.L115B = ansB;
-        q = {
-          type: 'L115B', ask: 'L115B', kind: 'role', sig: b.sig,
-          items: itemsB, options: [], answer: ansB,
-          audio: [b.audio]
-        };
-      } else {
-        var side = l115PickSide();
-        var destOrder = (side === 'left') ? ['grandma', 'brick'] : ['brick', 'grandma'];
-        var whoOrder = l115PickWho();
-        q = {
-          type: 'L115C', ask: 'L115C', sig: 'C:' + side + ':' + whoOrder.join(''),
-          destOrder: destOrder, whoOrder: whoOrder,
-          options: [], answer: 0,
-          audio: [Math.random() < 0.5 ? L115_C_AUDIO[0] : L115_C_AUDIO[1]]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：群星聚会 4 演示 + 1 互动 + 过渡 ----------------
      演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），拖错只弹回不判错。 */
@@ -27657,50 +25592,7 @@
   /* ---------------- 出题：A 听音找人 / B 听对话选回答 / C 拖拽匹配名字 ---------------- */
   var L121_LAST = { ans: -1, pair: '' };
 
-  function makeQuestionL121(type, prev) {
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var target = pick(L121_IDS);
-        var items = shuffle(L121_IDS.slice());
-        /* 防背题：答案位不与上一轮相同 */
-        for (var k = 0; k < 8 && items.indexOf(target) === L121_LAST.ans; k++) items = shuffle(L121_IDS.slice());
-        var ans = items.indexOf(target);
-        L121_LAST.ans = ans;
-        q = {
-          type: 'L121A', sig: 'A:' + target, items: items, options: [], answer: ans,
-          audio: ['l121_a_' + target]
-        };
-      } else if (type === 1) {
-        var itemsB = shuffle(['yes', 'no']);
-        q = {
-          type: 'L121B', sig: 'B:' + itemsB.join(''), items: itemsB, options: [],
-          answer: itemsB.indexOf('yes'), audio: ['l121_b_ask']
-        };
-      } else {
-        /* C：两个小孩（从三人里取两个）+ 同名两张牌（顺序打乱）；音频按孩子从左到右念 */
-        var pool = shuffle(L121_IDS.slice());
-        var kids = [pool[0], pool[1]];
-        var badges = shuffle(kids.slice());
-        for (var k2 = 0; k2 < 6 && badges.join('') === kids.join(''); k2++) badges = shuffle(kids.slice());
-        var pair = kids.join('');
-        for (var k3 = 0; k3 < 6 && pair === L121_LAST.pair; k3++) {
-          pool = shuffle(L121_IDS.slice());
-          kids = [pool[0], pool[1]];
-          badges = shuffle(kids.slice());
-          pair = kids.join('');
-        }
-        L121_LAST.pair = pair;
-        q = {
-          type: 'L121C', sig: 'C:' + kids.join('-'), kidsWho: kids, badges: badges,
-          options: [], answer: 0,
-          audio: kids.map(function (w) { return 'l121_c_' + w; })
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：认识新朋友 3 演示 + 1 互动 + 过渡 ----------------
      演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），点错只抖动不判错。 */
@@ -28191,42 +26083,7 @@
     return a;
   }
 
-  function makeQuestionL122(type, prev) {
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        var ch = pick(L122_LETTERS);
-        var itemsA = l122ShuffleAvoid(L122_LETTERS, ch, L122_LAST.A);
-        var ansA = itemsA.indexOf(ch);
-        L122_LAST.A = ansA;
-        q = {
-          type: 'L122A', items: itemsA, answer: ansA, options: [],
-          audio: ['l122_a_' + ch.toLowerCase()]
-        };
-      } else if (type === 1) {
-        var item = pick(L122_ITEMS);
-        var itemsB = l122ShuffleAvoid(L122_ITEMS, item, L122_LAST.B);
-        var ansB = itemsB.indexOf(item);
-        L122_LAST.B = ansB;
-        q = {
-          type: 'L122B', items: itemsB, answer: ansB, options: [],
-          audio: ['l122_b_' + L122_LETTER_OF[item].toLowerCase()]
-        };
-      } else {
-        var want = pick(L122_ITEMS);
-        for (var g = 0; g < 8 && want === L122_LAST.C; g++) want = pick(L122_ITEMS);
-        L122_LAST.C = want;
-        q = {
-          type: 'L122C', slots: L122_LETTERS.slice(), trayItems: shuffle(L122_ITEMS.slice()),
-          pick: want, answer: 0, options: [],
-          audio: ['l122_c_' + want]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.type === q.type && prev.audio && q.audio &&
-             prev.audio[0] === q.audio[0] && guard < 30);
-    return q;
-  }
+  
 
   /* ---------------- 教学：字母音觉醒 6 环节 ----------------
      演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），点错只抖动不判错。 */
@@ -28914,46 +26771,7 @@
     return v;
   }
 
-  function makeQuestionL123(type, prev) {
-    if (type === 0) {
-      var beast = l123PickDiff(L123_ANIMALS, L123_LAST.beast);
-      L123_LAST.beast = beast;
-      var itemsA = l123ShuffleAvoid(L123_ANIMALS, beast, L123_LAST.A);
-      var ansA = itemsA.indexOf(beast);
-      L123_LAST.A = ansA;
-      return {
-        type: 'L123A', beast: beast, items: itemsA, answer: ansA, options: [],
-        audio: ['l123_a_' + beast]
-      };
-    }
-    if (type === 1) {
-      var prevAsk = L123_LAST.ask;
-      var tpl = pick(L123_BQ.filter(function (t) { return t.ans !== prevAsk; }));
-      if (!tpl) tpl = pick(L123_BQ);
-      L123_LAST.ask = tpl.ans;
-      var others = shuffle(L123_ITEMS.filter(function (x) { return x !== tpl.ans; })).slice(0, 2);
-      var itemsB = l123ShuffleAvoid([tpl.ans].concat(others), tpl.ans, L123_LAST.B);
-      var ansB = itemsB.indexOf(tpl.ans);
-      L123_LAST.B = ansB;
-      return {
-        type: 'L123B', askAns: tpl.ans, items: itemsB, answer: ansB, options: [],
-        audio: [tpl.key]
-      };
-    }
-    var target = L123_LAST.target === 'cry' ? 'laugh' : 'cry';
-    if (!L123_LAST.target) target = pick(['cry', 'laugh']);
-    L123_LAST.target = target;
-    /* 难过框的左右：不与上一轮同侧（真的换边，防背位置） */
-    var sadSide = Math.random() < 0.5 ? 'left' : 'right';
-    if (sadSide === L123_LAST.sadSide) sadSide = sadSide === 'left' ? 'right' : 'left';
-    L123_LAST.sadSide = sadSide;
-    return {
-      type: 'L123C', target: target, box: L123_FACE_BOX[target],
-      sides: { sad: sadSide, happy: sadSide === 'left' ? 'right' : 'left' },
-      chips: shuffle(L123_FACES.slice()), answer: 0, options: [],
-      audio: [target === 'cry' ? 'l123_c_cry' : 'l123_c_laugh']
-    };
-  }
+  
 
   /* ---------------- 教学：综合大复习 6 环节 ----------------
      1) 红苹果出场  2) 苹果在跳  3) 听长句在三张图里找蓝汽车（互动）
@@ -29801,40 +27619,7 @@
     { k: 'g3_c_head_nose', acts: ['head', 'nose'] }
   ];
 
-  function makeQuestionL124(type, prev) {
-    if (type === 0) {
-      var combos = [];
-      L124_ITEMS.forEach(function (it) {
-        L124_PEOPLE.forEach(function (w) { combos.push(it + '|' + w); });
-      });
-      var c = pick(combos.filter(function (x) { return x !== L124_LAST.Akey; }));
-      L124_LAST.Akey = c;
-      var parts = c.split('|');
-      return {
-        type: 'L124A', getItem: parts[0], giveWho: parts[1], answer: 0, options: [],
-        audio: ['l124_a_' + parts[0] + '_' + parts[1]]
-      };
-    }
-    if (type === 1) {
-      var set = pick(L124_BQ.filter(function (b) { return b.k !== L124_LAST.Bkey; }));
-      L124_LAST.Bkey = set.k;
-      var swap = Math.random() < 0.5;
-      var acts = swap ? [set.acts[1], set.acts[0]] : [set.acts[0], set.acts[1]];
-      return {
-        type: 'L124B', acts: acts, swap: swap ? 1 : 0, answer: 0, options: [],
-        audio: [set.k]
-      };
-    }
-    var who = L124_LAST.Cwho === 'dad' ? 'mom' : 'dad';
-    L124_LAST.Cwho = who;
-    var tray = shuffle(l124TrayIds());
-    for (var k = 0; k < 8 && tray.join(',') === L124_LAST.Ctray; k++) tray = shuffle(l124TrayIds());
-    L124_LAST.Ctray = tray.join(',');
-    return {
-      type: 'L124C', giveWho: who, orderArr: ['get:apple', 'give:' + who], trayPics: tray,
-      answer: 0, options: [], audio: ['l124_c_' + who]
-    };
-  }
+  
 
   /* ---------------- 教学：拿苹果（2 演示 + 1 互动）→ 递给爸爸（2 演示 + 1 互动）→ 过渡 ----------------
      演示语音播完必须点屏幕才推进（§三.14），互动 4 秒小手（§二.12），点错只抖动 + again 不推进。 */
@@ -30354,35 +28139,7 @@
     return item;
   }
 
-  function makeQuestionL125(type, prev) {
-    if (type === 0) {
-      var set = l125Draw('a', L125_A, function (x) { return x.key; });
-      var opts = shuffle(set.opts.slice());
-      return {
-        type: 'L125A', want: set.want, optsArr: opts, answer: opts.indexOf(set.want),
-        options: [], audio: [set.key]
-      };
-    }
-    if (type === 1) {
-      var sb = l125Draw('b', L125_B, function (x) { return x.key; });
-      var tray = shuffle(sb.tray.slice());
-      return {
-        type: 'L125B', seq: sb.seq.slice(), trayArr: tray, answer: 0,
-        options: [], audio: [sb.key]
-      };
-    }
-    var sc = l125Draw('c', L125_C, function (x) { return x.part; });
-    var decoys = shuffle(L125_PARTS.filter(function (p) { return p !== sc.part; })).slice(0, 2);
-    var parts = shuffle([sc.part].concat(decoys));
-    for (var k = 0; k < 8 && parts.join(',') === L125_LAST.cparts; k++) {
-      parts = shuffle([sc.part].concat(decoys));
-    }
-    L125_LAST.cparts = parts.join(',');
-    return {
-      type: 'L125C', part: sc.part, partsArr: parts, answer: 0,
-      options: [], audio: [sc.key]
-    };
-  }
+  
 
   /* ---------------- 渲染 ---------------- */
 
@@ -34088,7 +31845,7 @@
   /** 12 轮答题的统一起点（普通关与教学关共用） */
   function beginRounds() {
     clearHint();
-    usedPairs = {};
+    Object.keys(usedPairs).forEach(function (k) { delete usedPairs[k]; });
     state.plan = makePlan(planTypeCount(currentIsland, state.level));
     state.roundIndex = 0;
     state.stars = 0;
@@ -34352,7 +32109,7 @@
     speakToken += 1;
     confettiBox.hidden = true;
     confettiBox.innerHTML = '';
-    usedPairs = {};
+    Object.keys(usedPairs).forEach(function (k) { delete usedPairs[k]; });
     state.plan = makePlan(planTypeCount(currentIsland, state.level));
     state.roundIndex = 0;
     state.stars = 0;
@@ -35091,21 +32848,265 @@
       merge: mergeProgress
     }
   };
-  /* 按岛拆分桥接：岛文件 levels/island-01.js 通过 window.__LLMakers 注册出题器，
-     这里导出它需要的 core 符号（可变对象共享同一引用）。 */
+  /* 按岛拆分桥接：levels/island-01..12.js 通过 window.__LLMakers 注册出题器，
+     这里导出它们需要的 core 符号（对象/数组/函数均为同一引用）。 */
   window.__LLCore = {
+    B1_ANIMALS: B1_ANIMALS,
+    B1_ITEMS: B1_ITEMS,
+    B2_FRUITS_A: B2_FRUITS_A,
+    B2_FRUITS_B: B2_FRUITS_B,
+    B2_FRUITS_C: B2_FRUITS_C,
+    B4_A_CASES: B4_A_CASES,
+    B4_B_CASES: B4_B_CASES,
+    B4_C_CASES: B4_C_CASES,
+    B5X_A_CASES: B5X_A_CASES,
+    B5X_B_CASES: B5X_B_CASES,
+    B5X_C_CASES: B5X_C_CASES,
+    B5X_SCENES: B5X_SCENES,
     COLORS: COLORS,
+    F10_A_CASES: F10_A_CASES,
+    F10_B_STATES: F10_B_STATES,
+    F10_C_UTENSILS: F10_C_UTENSILS,
+    F11_A_CASES: F11_A_CASES,
+    F11_B_CASES: F11_B_CASES,
+    F11_C_CASES: F11_C_CASES,
+    F11_FURN: F11_FURN,
+    F12_A_CASES: F12_A_CASES,
+    F12_B_CASES: F12_B_CASES,
+    F12_C_CASES: F12_C_CASES,
+    F13_A_CASES: F13_A_CASES,
+    F13_B_CASES: F13_B_CASES,
+    F13_C_CASES: F13_C_CASES,
+    F14_A_CASES: F14_A_CASES,
+    F14_B_CASES: F14_B_CASES,
+    F14_C_CASES: F14_C_CASES,
+    F15_A_CASES: F15_A_CASES,
+    F15_B_CASES: F15_B_CASES,
+    F15_C_CASES: F15_C_CASES,
+    F1_ANIMALS: F1_ANIMALS,
+    F2_DESC: F2_DESC,
+    F2_FARM: F2_FARM,
+    F2_JUNGLE: F2_JUNGLE,
+    F3_ACTIONS: F3_ACTIONS,
+    F3_ALL_ITEMS: F3_ALL_ITEMS,
+    F3_CANON: F3_CANON,
+    F3_SCENES: F3_SCENES,
+    F3_ZONE_OF: F3_ZONE_OF,
+    F4_C_ITEMS: F4_C_ITEMS,
+    F4_POOL: F4_POOL,
+    F4_SCENES: F4_SCENES,
+    F4_ZONE_OF: F4_ZONE_OF,
+    F5_A_CASES: F5_A_CASES,
+    F5_B_SETS: F5_B_SETS,
+    F5_C_CASES: F5_C_CASES,
+    F6_A_CASES: F6_A_CASES,
+    F6_B_CASES: F6_B_CASES,
+    F6_C_CASES: F6_C_CASES,
+    F7_A_CASES: F7_A_CASES,
+    F7_B_CASES: F7_B_CASES,
+    F7_C_CASES: F7_C_CASES,
+    F7_C_ITEMS: F7_C_ITEMS,
+    F8_ACTS: F8_ACTS,
+    F8_A_CASES: F8_A_CASES,
+    F8_B_CASES: F8_B_CASES,
+    F8_C_CASES: F8_C_CASES,
+    F9_A_STATES: F9_A_STATES,
+    F9_B_CASES: F9_B_CASES,
+    F9_C_SCENES: F9_C_SCENES,
     FRUITS: FRUITS,
+    G1_PARTS: G1_PARTS,
+    G2_PARTS: G2_PARTS,
+    G3_A_CASES: G3_A_CASES,
+    G3_B_CASES: G3_B_CASES,
+    G3_C_CASES: G3_C_CASES,
+    G3_THEN_KEY: G3_THEN_KEY,
+    G4_A_CASES: G4_A_CASES,
+    G4_B_CASES: G4_B_CASES,
+    G4_SENT: G4_SENT,
+    G5_A_ACTS: G5_A_ACTS,
+    G5_B_CASES: G5_B_CASES,
+    G5_C_CASES: G5_C_CASES,
+    H1_B_POOL: H1_B_POOL,
+    H1_B_TARGETS: H1_B_TARGETS,
+    H1_MOODS: H1_MOODS,
+    H2_FIND_KEY: H2_FIND_KEY,
+    H2_NEED: H2_NEED,
+    H2_STATES: H2_STATES,
+    H3_COMFORT: H3_COMFORT,
+    H3_DISTRACT: H3_DISTRACT,
+    H4_A_KEY: H4_A_KEY,
+    H4_A_SITS: H4_A_SITS,
+    H4_B_CAUSES: H4_B_CAUSES,
+    H4_EMO: H4_EMO,
+    H5_A_CAUSES: H5_A_CAUSES,
+    H5_B_KEY: H5_B_KEY,
+    H5_C_KEYS: H5_C_KEYS,
+    H5_EMO: H5_EMO,
+    L102_D_PAIRS: L102_D_PAIRS,
+    L102_FAST: L102_FAST,
+    L102_SLOW: L102_SLOW,
+    L103_PICS: L103_PICS,
+    L104_A_KEY: L104_A_KEY,
+    L104_B_KEY: L104_B_KEY,
+    L104_C_KEY: L104_C_KEY,
+    L104_ITEM_OF: L104_ITEM_OF,
+    L104_WEATHERS: L104_WEATHERS,
+    L105_B_KEY: L105_B_KEY,
+    L105_C_KEY: L105_C_KEY,
+    L105_ICONS: L105_ICONS,
+    L105_PICS: L105_PICS,
+    L10_A_KEY: L10_A_KEY,
+    L10_B_KEY: L10_B_KEY,
+    L10_C_KEY: L10_C_KEY,
+    L10_SCENES: L10_SCENES,
+    L10_SCENE_OF: L10_SCENE_OF,
+    L10_VEHICLES: L10_VEHICLES,
+    L111_A_KEY: L111_A_KEY,
+    L111_B_KEY: L111_B_KEY,
+    L111_CHARS: L111_CHARS,
+    L111_C_KEY: L111_C_KEY,
+    L111_MATS: L111_MATS,
+    L112_A_KEY: L112_A_KEY,
+    L112_B_KEY: L112_B_KEY,
+    L112_CHARS: L112_CHARS,
+    L112_SCENES: L112_SCENES,
+    L113_A_KEY: L113_A_KEY,
+    L113_B_KEY: L113_B_KEY,
+    L113_SIZES: L113_SIZES,
+    L113_STATES: L113_STATES,
+    L114_PREV: L114_PREV,
+    L114_STORIES: L114_STORIES,
+    L114_STORY_IDS: L114_STORY_IDS,
+    L115_A_SETS: L115_A_SETS,
+    L115_B_SETS: L115_B_SETS,
+    L115_C_AUDIO: L115_C_AUDIO,
+    L115_LAST_ANS: L115_LAST_ANS,
+    L121_IDS: L121_IDS,
+    L121_LAST: L121_LAST,
+    L122_ITEMS: L122_ITEMS,
+    L122_LAST: L122_LAST,
+    L122_LETTERS: L122_LETTERS,
+    L122_LETTER_OF: L122_LETTER_OF,
+    L123_ANIMALS: L123_ANIMALS,
+    L123_BQ: L123_BQ,
+    L123_FACES: L123_FACES,
+    L123_FACE_BOX: L123_FACE_BOX,
+    L123_ITEMS: L123_ITEMS,
+    L123_LAST: L123_LAST,
+    L124_BQ: L124_BQ,
+    L124_ITEMS: L124_ITEMS,
+    L124_LAST: L124_LAST,
+    L124_PEOPLE: L124_PEOPLE,
+    L125_A: L125_A,
+    L125_B: L125_B,
+    L125_C: L125_C,
+    L125_LAST: L125_LAST,
+    L125_PARTS: L125_PARTS,
+    L92_A_KEY: L92_A_KEY,
+    L92_B_KEY: L92_B_KEY,
+    L92_C_KEYS: L92_C_KEYS,
+    L92_ITEMS: L92_ITEMS,
+    L93_A_KEY: L93_A_KEY,
+    L93_B_KEY: L93_B_KEY,
+    L93_C_KEY: L93_C_KEY,
+    L93_ITEMS: L93_ITEMS,
+    L93_NEED: L93_NEED,
+    L93_SKY: L93_SKY,
+    L93_STATES: L93_STATES,
+    L94_A_KEY: L94_A_KEY,
+    L94_C: L94_C,
+    L94_ITEMS: L94_ITEMS,
+    L94_NORMAL: L94_NORMAL,
+    L94_SILLY: L94_SILLY,
+    L94_SLOT: L94_SLOT,
+    L95_C_COMBOS: L95_C_COMBOS,
+    L95_SILLY_SET: L95_SILLY_SET,
+    L9_A_KEY: L9_A_KEY,
+    L9_B_KEY: L9_B_KEY,
+    L9_C_KEY: L9_C_KEY,
+    L9_ITEMS: L9_ITEMS,
+    L9_PART: L9_PART,
     NUMBERS_W2: NUMBERS_W2,
     NUMBERS_W3: NUMBERS_W3,
+    P2_ITEMS: P2_ITEMS,
+    P2_POS: P2_POS,
+    P2_SENTENCE: P2_SENTENCE,
+    P2_VERDICTS: P2_VERDICTS,
+    P3_ITEMS: P3_ITEMS,
+    P3_POS: P3_POS,
+    P3_SENT: P3_SENT,
+    P3_VERDICTS: P3_VERDICTS,
+    P4_ITEMS: P4_ITEMS,
+    P4_POS: P4_POS,
+    P4_VERDICTS: P4_VERDICTS,
+    P5_ITEMS: P5_ITEMS,
+    P5_POS: P5_POS,
+    P5_POS_SENT: P5_POS_SENT,
+    P5_VERDICTS: P5_VERDICTS,
     PAINT_ITEMS: PAINT_ITEMS,
+    SHAPES: SHAPES,
+    SHAPE_COLORS: SHAPE_COLORS,
     SMALL_COUNTS: SMALL_COUNTS,
     W5_CFRUITS: W5_CFRUITS,
     W5_COLORS: W5_COLORS,
     W5_NUMBERS: W5_NUMBERS,
     W5_PILE_POOL: W5_PILE_POOL,
+    b1IndexOfSize: b1IndexOfSize,
+    b1Sentence: b1Sentence,
+    b2CmpIndex: b2CmpIndex,
+    ensureB4Css: ensureB4Css,
+    ensureB5xCss: ensureB5xCss,
+    ensureF11Css: ensureF11Css,
+    ensureF13Css: ensureF13Css,
+    ensureF14Css: ensureF14Css,
+    ensureF1Css: ensureF1Css,
+    ensureF2Css: ensureF2Css,
+    ensureF3Css: ensureF3Css,
+    ensureF4Css: ensureF4Css,
+    ensureF5Css: ensureF5Css,
+    ensureF6Css: ensureF6Css,
+    ensureF7Css: ensureF7Css,
+    ensureF8Css: ensureF8Css,
+    ensureF9Css: ensureF9Css,
+    ensureG1Css: ensureG1Css,
+    ensureG2Css: ensureG2Css,
+    ensureG3Css: ensureG3Css,
+    ensureG4Css: ensureG4Css,
+    ensureG5Css: ensureG5Css,
+    ensureH1Css: ensureH1Css,
+    ensureH2Css: ensureH2Css,
+    ensureH3Css: ensureH3Css,
+    ensureH4Css: ensureH4Css,
+    ensureH5Css: ensureH5Css,
+    ensureL92Css: ensureL92Css,
+    ensureL93Css: ensureL93Css,
+    ensureL94Css: ensureL94Css,
+    ensureL95Css: ensureL95Css,
+    ensureL9Css: ensureL9Css,
+    f2Split: f2Split,
+    f3SplitFrom: f3SplitFrom,
+    f6Distract: f6Distract,
+    f7Distract: f7Distract,
+    f8Distract: f8Distract,
+    g3CmdKey: g3CmdKey,
+    g4Scene: g4Scene,
+    g4Scene2: g4Scene2,
+    g4SceneC: g4SceneC,
+    g4SceneSig: g4SceneSig,
+    l114ShuffleDiff: l114ShuffleDiff,
+    l114SlotsDiff: l114SlotsDiff,
+    l115PickSide: l115PickSide,
+    l115PickWho: l115PickWho,
+    l115ShuffleAvoid: l115ShuffleAvoid,
+    l122ShuffleAvoid: l122ShuffleAvoid,
+    l123PickDiff: l123PickDiff,
+    l123ShuffleAvoid: l123ShuffleAvoid,
+    l124TrayIds: l124TrayIds,
+    l125Draw: l125Draw,
     pick: pick,
+    randInt: randInt,
     shuffle: shuffle,
+    state: state,
     takeFresh: takeFresh,
     usedPairs: usedPairs,
     withColorDistractors: withColorDistractors,
@@ -35115,5 +33116,16 @@
 })();
 </script>
 <script src="levels/island-01.js"></script>
+<script src="levels/island-02.js"></script>
+<script src="levels/island-03.js"></script>
+<script src="levels/island-04.js"></script>
+<script src="levels/island-05.js"></script>
+<script src="levels/island-06.js"></script>
+<script src="levels/island-07.js"></script>
+<script src="levels/island-08.js"></script>
+<script src="levels/island-09.js"></script>
+<script src="levels/island-10.js"></script>
+<script src="levels/island-11.js"></script>
+<script src="levels/island-12.js"></script>
 </body>
 </html>
