@@ -1719,6 +1719,10 @@
       btnContinue.hidden = true;
     }
     btnReview.hidden = weakLevels(1).length === 0;
+    /* 没有「继续」时整行只剩辅助按钮：加个 slim，让它们统一靠右，
+       否则宽屏下会变成孤零零浮在标题正下方的一颗小药丸。 */
+    var acts = document.getElementById('mapActions');
+    if (acts) acts.classList.toggle('slim', btnContinue.hidden);
   }
 
   /* ---- 家长小结 ---- */

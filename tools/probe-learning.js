@@ -77,6 +77,12 @@ window.addEventListener('load', function () {
       return r.width > 0 && r.left >= scr.left - 1 && r.right <= scr.right + 1;
     });
     c.pillRightGap = pills.length ? Math.round(scr.right - pills[pills.length - 1].getBoundingClientRect().right) : -1;
+    /* 没有「继续」时整行是 slim（只剩辅助按钮），此时必须与网格右边缘对齐：
+       否则宽屏下会浮成标题正下方一颗孤零零的小药丸。 */
+    var acts = document.getElementById('mapActions');
+    c.slim = !!(acts && acts.classList.contains('slim'));
+    c.parentGridGap = Math.round(grid.getBoundingClientRect().right -
+      document.getElementById('btnParent').getBoundingClientRect().right);
     /* 这两个只在「第一次量」时记：第 3 步回地图后会再调一次本函数，
        那时进度已经存在，覆盖掉就永远测不出「全新存档不显示继续」。 */
     if (c.contHiddenFresh === undefined) {
@@ -284,7 +290,7 @@ async function waitProbe(c, ms) {
     '--window-size=390,844', base + '#probe'
   ], { stdio: 'ignore' });
 
-  let r390 = null, r1024 = null;
+  let r390 = null, r1024 = null, rFresh1024 = null;
   try {
     const page = await waitJson(dbg, 80);
     const c = client(page.webSocketDebuggerUrl);
@@ -316,6 +322,13 @@ async function waitProbe(c, ms) {
 
     r1024 = await measureAt(1024, 768, 'b');
     await shoot('learning-1024.png');
+
+    /* 第三个视口：清掉存档再看宽屏的「只剩辅助按钮」形态 */
+    await c.send('Emulation.setDeviceMetricsOverride', { width: 1024, height: 768, deviceScaleFactor: 1, mobile: false });
+    await evaluate(c, 'localStorage.clear()');
+    await c.send('Page.navigate', { url: base + '?w=c#layout' });
+    await sleep(2500);
+    rFresh1024 = await waitProbe(c, 60000);
 
     c.close();
   } catch (e) {
@@ -358,6 +371,9 @@ async function waitProbe(c, ms) {
   ok('家长小结不横向溢出', c.parentOverflow === false, String(c.parentOverflow));
   ok('家长小结有今天的数据', /今天/.test(c.parentText || '') && /题/.test(c.parentText || ''), (c.parentText || '').slice(0, 60));
   ok('离线语音状态已落定', c.voiceStatus !== '' && c.voiceStatus.indexOf('正在检查') < 0, c.voiceStatus);
+  var f4 = (rFresh1024 && rFresh1024.checks) || {};
+  ok('全新存档宽屏是 slim 形态', f4.slim === true, String(f4.slim));
+  ok('全新存档宽屏家长与网格右对齐', Math.abs(f4.parentGridGap || 0) <= 2, String(f4.parentGridGap));
   ok('有错题才出现复习', (c.reviewHiddenAfter === false) === ((c.levelMistakes && Object.keys(c.levelMistakes).length > 0) === true), JSON.stringify(c.levelMistakes));
 
   if (fails.length) {
@@ -371,4 +387,5 @@ async function waitProbe(c, ms) {
     ' 词条=' + c.wordCount + ' 每日=' + JSON.stringify(c.daily) +
     ' 入口=' + c.pillCount + '个/右侧余' + c.pillRightGap + 'px 离线=' + c.voiceStatus);
   console.log('  1024: 列数=' + t.cols + ' 网格宽=' + t.gridW + ' 溢出=' + t.overflow);
+  console.log('  1024 全新: slim=' + f4.slim + ' 家长右缘距网格右缘=' + f4.parentGridGap + 'px');
 })();

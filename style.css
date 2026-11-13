@@ -2581,9 +2581,14 @@
     flex: none;
     display: flex;
     align-items: center;
-    justify-content: flex-start;   /* 继续在左，复习/家长由 margin-left:auto 推到右端 */
+    justify-content: flex-end;
+    /* 「继续」自己 flex:1 吃掉全部空白，所以有它时本行等于从左边开始；
+       没有它（全新存档）时剩下的按钮靠右，不会孤零零贴在标题左下角。 */
     gap: 8px;
   }
+
+  /* 只剩辅助按钮时统一靠右：手机上不贴左上角，宽屏上不浮在标题正下方 */
+  .map-actions.slim { justify-content: flex-end; }
 
   .map-pill {
     appearance: none;
@@ -2616,9 +2621,6 @@
     background: linear-gradient(180deg, #fffdf6, #fff1d8);
     border: 2px solid rgba(245, 200, 130, .55);
   }
-
-  /* 把复习/家长顶到右端：没有「继续」时它们也靠右，不会孤零零挂在左边 */
-  #btnReview { margin-left: auto; }
 
   .map-pill.ghost {
     background: rgba(255, 255, 255, .7);
@@ -2728,8 +2730,8 @@
        否则 940 的容器里左边一颗 520 的长条、右边两颗小按钮，
        中间空出 300px，看着像两组不相干的东西。 */
     .map-actions { justify-content: center; }
+    .map-actions.slim { justify-content: flex-end; }
     .map-pill.cont { flex: 0 1 auto; max-width: none; }
-    #btnReview { margin-left: 0; }
   }
 
   @media (min-width: 1180px) {
