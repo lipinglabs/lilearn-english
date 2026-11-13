@@ -14,7 +14,11 @@
    改版本号即可让孩子设备上下一次联网时换新缓存。
    ============================================================ */
 
-var CACHE = 'lilearn-v15';
+var CACHE = 'lilearn-v16';
+/* 家长手动下载的整包语音单独放一个缓存：它体积大（约 41MB）、下载慢，
+   绝不能因为换一次版本号就被 activate 顺手删掉，所以下面删旧缓存时要放行它。
+   fetch 里的 caches.match 会连这个缓存一起搜，因此下载完就能离线发声。 */
+var VOICE_PACK = 'lilearn-voice-pack';
 var SHELL = [
   './',
   './index.html',
@@ -61,7 +65,7 @@ self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(keys.map(function (k) {
-        return k === CACHE ? null : caches.delete(k);
+        return (k === CACHE || k === VOICE_PACK) ? null : caches.delete(k);
       }));
     }).then(function () { return self.clients.claim(); })
   );

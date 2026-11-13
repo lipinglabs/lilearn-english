@@ -81,6 +81,11 @@
   <section id="screenMap" class="screen">
     <div class="screen-title">英语启蒙乐园</div>
     <div id="starTotal" class="star-total" hidden></div>
+    <div id="mapActions" class="map-actions">
+      <button id="btnContinue" class="map-pill cont" type="button" hidden></button>
+      <button id="btnReview" class="map-pill" type="button" hidden>复习</button>
+      <button id="btnParent" class="map-pill ghost" type="button">家长</button>
+    </div>
     <div id="islandGrid" class="island-grid"></div>
     <div id="devTrigger" class="dev-trigger" aria-hidden="true"></div>
   </section>
@@ -143,6 +148,27 @@
   </div>
 </div>
 <div id="toast" class="toast" hidden></div>
+
+<div id="parentSheet" class="sheet" hidden>
+  <div class="sheet-card parent-card">
+    <div class="sheet-title">学习小结</div>
+    <div id="parentBody" class="parent-body"></div>
+    <div class="sheet-actions">
+      <button id="parentClose" class="sheet-btn" type="button">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div id="reviewSheet" class="sheet" hidden>
+  <div class="sheet-card">
+    <div class="sheet-title">复习</div>
+    <p class="sheet-tip">这几关错得最多，再玩一次就记住了。</p>
+    <div id="reviewList" class="review-list"></div>
+    <div class="sheet-actions">
+      <button id="reviewClose" class="sheet-btn" type="button">关闭</button>
+    </div>
+  </div>
+</div>
 
 <script src="voice/chunks/index.js"></script>
 <script src="assets.js"></script>
@@ -555,15 +581,107 @@
   var confettiBox = document.getElementById('confetti');
   var flyLayer = document.getElementById('flyLayer');
   var toastEl = document.getElementById('toast');
+  var btnContinue = document.getElementById('btnContinue');
+  var btnReview = document.getElementById('btnReview');
+  var btnParent = document.getElementById('btnParent');
+  var parentSheet = document.getElementById('parentSheet');
+  var parentBody = document.getElementById('parentBody');
+  var parentClose = document.getElementById('parentClose');
+  var reviewSheet = document.getElementById('reviewSheet');
+  var reviewList = document.getElementById('reviewList');
+  var reviewClose = document.getElementById('reviewClose');
 
   /* ---------------- 进度存档 ---------------- */
 
+  /* 键名保持 v1 不动：换键名等于把已有存档整个丢掉 */
   var STORE_KEY = 'lilearn.progress.v1';
+  /* 存档内部版本。v2 全部是「只加不改」的追加字段，v1 老档读进来就是空值，
+     不需要写迁移代码；将来若给岛上加/改号（例如把新岛插到第 1 位），
+     才需要升到 v3 并按版本号重映射 cleared / stars / unlockedLevel 的岛号。 */
+  var PROGRESS_VERSION = 2;
+
   function defaultProgress() {
-    return { unlockedIsland: 1, unlockedLevel: { 1: 1 }, cleared: {}, stars: {} };
+    return {
+      version: PROGRESS_VERSION,
+      unlockedIsland: 1, unlockedLevel: { 1: 1 }, cleared: {}, stars: {},
+      lastPlayed: null,      // { island, level, at } 地图上的「继续」用它
+      levelMistakes: {},     // '4-3' → 累计答错次数（挑复习关卡用）
+      wordStats: {},         // 词 key → { r: 对, w: 错, t: 最后出现时间 }
+      daily: {}              // 'YYYY-MM-DD' → { ms: 毫秒, r: 对, w: 错 }
+    };
   }
 
   var progress = defaultProgress();
+
+  /** 本地日期键（不用 toISOString：那是 UTC，晚上八点后会算成第二天） */
+  function dayKey(ts) {
+    var d = new Date(ts || Date.now());
+    var m = d.getMonth() + 1, day = d.getDate();
+    return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+  }
+
+  /** 当天的练习记录（没有就建一条） */
+  function todayStat() {
+    var k = dayKey();
+    if (!progress.daily) progress.daily = {};
+    var d = progress.daily[k];
+    if (!d || typeof d !== 'object') d = progress.daily[k] = { ms: 0, r: 0, w: 0 };
+    if (typeof d.ms !== 'number' || d.ms < 0) d.ms = 0;
+    if (typeof d.r !== 'number' || d.r < 0) d.r = 0;
+    if (typeof d.w !== 'number' || d.w < 0) d.w = 0;
+    return d;
+  }
+
+  /** 取「一个字符串键」：很多题型把语音键写成数组（audio: ['n11']），
+      直接当字符串用会判定失败，这里统一摊平只取第一个。 */
+  function firstKey(v) {
+    if (typeof v === 'string' && v) return v;
+    if (Array.isArray(v)) {
+      for (var i = 0; i < v.length; i++) {
+        if (typeof v[i] === 'string' && v[i]) return v[i];
+      }
+    }
+    return null;
+  }
+
+  /** 从一道题里取出「这题考的是哪个词」。
+      60 关的题型不是同一个模板写出来的，字段名不统一，所以按优先级回退；
+      实在取不到就返回 null——这一题只计入「关卡错误数」，不污染词表。 */
+  function questionWordKey(q) {
+    if (!q || typeof q !== 'object') return null;
+    var c = firstKey(q.word) || firstKey(q.reinforce) || firstKey(q.key) ||
+            firstKey(q.voice) || firstKey(q.audio);
+    if (!c && q.item) c = firstKey(q.item.word) || firstKey(q.item.id) || firstKey(q.item.asset);
+    if (!c && q.animal) c = (typeof q.animal === 'string') ? q.animal : firstKey(q.animal.id) || firstKey(q.animal.name);
+    if (!c && q.fruit) c = (typeof q.fruit === 'string') ? q.fruit : firstKey(q.fruit.id);
+    if (!c) c = firstKey(q.subj) || firstKey(q.food) || firstKey(q.utensil) || firstKey(q.obj) || firstKey(q.color);
+    return c || null;
+  }
+
+  /** 判题埋点：当天题数与时长、每关累计错误数、每个词的对错次数。
+      只写内存，真正的落盘与云同步仍由调用方的 saveProgress / cloudSchedulePush 负责。 */
+  function noteAnswer(ok, island, level, q) {
+    var d = todayStat();
+    var spent = (state && state.qStartAt) ? Math.min(120000, Math.max(0, Date.now() - state.qStartAt)) : 0;
+    d.ms += spent;
+    if (ok) d.r += 1; else d.w += 1;
+
+    if (!ok) {
+      var lk = island + '-' + level;
+      if (!progress.levelMistakes) progress.levelMistakes = {};
+      progress.levelMistakes[lk] = Math.min(9999, (progress.levelMistakes[lk] | 0) + 1);
+    }
+
+    var wk = questionWordKey(q);
+    if (wk) {
+      if (!progress.wordStats) progress.wordStats = {};
+      var s = progress.wordStats[wk];
+      if (!s || typeof s !== 'object') s = progress.wordStats[wk] = { r: 0, w: 0, t: 0 };
+      if (ok) s.r = Math.min(9999, (s.r | 0) + 1);
+      else s.w = Math.min(9999, (s.w | 0) + 1);
+      s.t = Date.now();
+    }
+  }
 
   function loadProgress() {
     try {
@@ -821,14 +939,78 @@
     });
     if (!out.unlockedLevel[1]) out.unlockedLevel[1] = 1;
 
+    /* ---- v2 追加字段：坏数据一格一格丢，绝不因为多一个字段就让整档作废 ---- */
+    out.version = PROGRESS_VERSION;
+
+    if (raw.lastPlayed && typeof raw.lastPlayed === 'object') {
+      var lpI = raw.lastPlayed.island | 0, lpL = raw.lastPlayed.level | 0;
+      if (lpI >= 1 && lpI <= ISLANDS.length && lpL >= 1 && lpL <= LEVELS_PER_ISLAND) {
+        out.lastPlayed = { island: lpI, level: lpL, at: Math.max(0, raw.lastPlayed.at | 0) };
+      }
+    }
+
+    if (raw.levelMistakes && typeof raw.levelMistakes === 'object') {
+      Object.keys(raw.levelMistakes).forEach(function (k) {
+        if (!/^\d+-\d+$/.test(k)) return;
+        var v = raw.levelMistakes[k] | 0;
+        if (v > 0) out.levelMistakes[k] = Math.min(9999, v);
+      });
+    }
+
+    if (raw.daily && typeof raw.daily === 'object') {
+      Object.keys(raw.daily).forEach(function (k) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) return;
+        var d = raw.daily[k];
+        if (!d || typeof d !== 'object') return;
+        var dms = d.ms | 0, dr = d.r | 0, dw = d.w | 0;
+        if (dms <= 0 && dr <= 0 && dw <= 0) return;
+        out.daily[k] = { ms: Math.max(0, dms), r: Math.max(0, dr), w: Math.max(0, dw) };
+      });
+      /* 只留最近 60 天：存档每次都要整份传到 Gist，不能无限长 */
+      var dkeys = Object.keys(out.daily).sort();
+      while (dkeys.length > 60) delete out.daily[dkeys.shift()];
+    }
+
+    if (raw.wordStats && typeof raw.wordStats === 'object') {
+      var wkeys = Object.keys(raw.wordStats);
+      var wlist = [];
+      for (var wi = 0; wi < wkeys.length; wi++) {
+        var key0 = wkeys[wi], s0 = raw.wordStats[key0];
+        if (!key0 || typeof key0 !== 'string' || !s0 || typeof s0 !== 'object') continue;
+        var wr = s0.r | 0, ww = s0.w | 0;
+        if (wr <= 0 && ww <= 0) continue;
+        wlist.push({ k: key0, r: Math.min(9999, wr), w: Math.min(9999, ww), t: Math.max(0, s0.t | 0) });
+      }
+      /* 只留最近 600 个词（按最后出现时间），超出部分丢掉最旧的 */
+      if (wlist.length > 600) {
+        wlist.sort(function (a, b) { return b.t - a.t; });
+        wlist = wlist.slice(0, 600);
+      }
+      for (var wj = 0; wj < wlist.length; wj++) {
+        out.wordStats[wlist[wj].k] = { r: wlist[wj].r, w: wlist[wj].w, t: wlist[wj].t };
+      }
+    }
+
     return out;
   }
 
-  /** 合并（最高进度优先，RULES §五.9）：通关取并集，解锁取最远，星星取最高——进度只前进、绝不倒退 */
+  /** 合并（最高进度优先，RULES §五.9）：通关取并集，解锁取最远，星星取最高——进度只前进、绝不倒退
+   *
+   *  v2 的统计字段一律取「较大值」而不是相加。
+   *  原因：cloudPush 的流程是「读云端 → 合并 → 写回」，这个函数会被反复调用；
+   *  相加的语义在重复合并时会把同一个数字越滚越大（3 次错 → 6 次 → 12 次），
+   *  取最大值则天然幂等，合多少次结果都一样。代价是同一天在两台设备上分开玩，
+   *  时长按较大的一台算而不是相加——比数字虚高要好。
+   */
   function mergeProgress(local, remote) {
     var a = normalizeProgress(local);
     var b = normalizeProgress(remote);
-    var out = { unlockedIsland: Math.max(a.unlockedIsland, b.unlockedIsland), unlockedLevel: {}, cleared: {}, stars: {} };
+    var out = {
+      version: PROGRESS_VERSION,
+      unlockedIsland: Math.max(a.unlockedIsland, b.unlockedIsland),
+      unlockedLevel: {}, cleared: {}, stars: {},
+      lastPlayed: null, levelMistakes: {}, wordStats: {}, daily: {}
+    };
 
     Object.keys(a.unlockedLevel).concat(Object.keys(b.unlockedLevel)).forEach(function (k) {
       out.unlockedLevel[k] = Math.max(a.unlockedLevel[k] || 1, b.unlockedLevel[k] || 1);
@@ -842,6 +1024,30 @@
     Object.keys(a.stars).concat(Object.keys(b.stars)).forEach(function (k) {
       out.stars[k] = Math.max(a.stars[k] || 0, b.stars[k] || 0);
     });
+
+    /* 上次玩到哪：取时间更新的那一份 */
+    var la = a.lastPlayed, lb = b.lastPlayed;
+    if (la && lb) out.lastPlayed = (lb.at > la.at) ? lb : la;
+    else out.lastPlayed = la || lb || null;
+
+    Object.keys(a.levelMistakes).concat(Object.keys(b.levelMistakes)).forEach(function (k) {
+      out.levelMistakes[k] = Math.max(a.levelMistakes[k] || 0, b.levelMistakes[k] || 0);
+    });
+
+    Object.keys(a.wordStats).concat(Object.keys(b.wordStats)).forEach(function (k) {
+      var x = a.wordStats[k], y = b.wordStats[k];
+      if (!x) { out.wordStats[k] = y; return; }
+      if (!y) { out.wordStats[k] = x; return; }
+      out.wordStats[k] = { r: Math.max(x.r, y.r), w: Math.max(x.w, y.w), t: Math.max(x.t, y.t) };
+    });
+
+    Object.keys(a.daily).concat(Object.keys(b.daily)).forEach(function (k) {
+      var x = a.daily[k], y = b.daily[k];
+      if (!x) { out.daily[k] = y; return; }
+      if (!y) { out.daily[k] = x; return; }
+      out.daily[k] = { ms: Math.max(x.ms, y.ms), r: Math.max(x.r, y.r), w: Math.max(x.w, y.w) };
+    });
+
     return out;
   }
 
@@ -1471,6 +1677,329 @@
 
   /* ---------------- 地图 ---------------- */
 
+  /* ---------------- 地图入口：继续 / 复习 / 家长 ---------------- */
+
+  /** 最需要复习的关卡：按累计答错次数降序，只保留真实存在的岛与关 */
+  function weakLevels(n) {
+    var out = [];
+    var m = progress.levelMistakes || {};
+    Object.keys(m).forEach(function (k) {
+      var p = k.split('-');
+      var i = p[0] | 0, l = p[1] | 0;
+      if (i < 1 || i > ISLANDS.length) return;
+      if (l < 1 || l > LEVELS_PER_ISLAND) return;
+      var w = m[k] | 0;
+      if (w > 0) out.push({ island: i, level: l, wrong: w });
+    });
+    out.sort(function (a, b) { return b.wrong - a.wrong || a.island - b.island || a.level - b.level; });
+    return out.slice(0, n || 3);
+  }
+
+  function levelLabel(island, level) {
+    var isl = ISLANDS[island - 1];
+    return '第' + island + '岛 ' + (isl ? isl.name : '') + ' · 第' + level + '关';
+  }
+
+  function renderMapActions() {
+    if (!btnContinue) return;
+    var lp = progress.lastPlayed;
+    var usable = !!lp && !!ISLANDS[lp.island - 1] && isLevelUnlocked(lp.island, lp.level);
+    if (usable) {
+      btnContinue.hidden = false;
+      btnContinue.textContent = '';
+      var key = document.createElement('span');
+      key.className = 'pill-key';
+      key.textContent = '继续';
+      var sub = document.createElement('span');
+      sub.className = 'pill-sub';
+      sub.textContent = levelLabel(lp.island, lp.level);
+      btnContinue.appendChild(key);
+      btnContinue.appendChild(sub);
+    } else {
+      btnContinue.hidden = true;
+    }
+    btnReview.hidden = weakLevels(1).length === 0;
+  }
+
+  /* ---- 家长小结 ---- */
+
+  function pBlock(title, lines) {
+    var box = document.createElement('div');
+    box.className = 'p-block';
+    var h = document.createElement('div');
+    h.className = 'p-block-title';
+    h.textContent = title;
+    box.appendChild(h);
+    for (var i = 0; i < lines.length; i++) {
+      var p = document.createElement('div');
+      p.className = 'p-line';
+      p.textContent = lines[i];
+      box.appendChild(p);
+    }
+    return box;
+  }
+
+  /** 时长文案：数字前自带空格，「不到 1 分钟」直接接在「练了」后面，避免出现「练了 不到 1 分钟」 */
+  function minutesText(ms) {
+    var m = Math.round((ms || 0) / 60000);
+    return m >= 1 ? (' ' + m + ' 分钟') : '不到 1 分钟';
+  }
+
+  function weekTotals() {
+    var ms = 0, right = 0, total = 0, days = 0;
+    for (var i = 0; i < 7; i++) {
+      var k = dayKey(Date.now() - i * 86400000);
+      var d = progress.daily && progress.daily[k];
+      if (!d) continue;
+      var dm = d.ms | 0, dr = d.r | 0, dw = d.w | 0;
+      ms += dm; right += dr; total += dr + dw;
+      if (dm > 0 || dr + dw > 0) days++;
+    }
+    return { ms: ms, right: right, total: total, days: days };
+  }
+
+  function renderParentSheet() {
+    if (!parentBody) return;
+    parentBody.textContent = '';
+
+    var t = todayStat();
+    var tt = (t.r | 0) + (t.w | 0);
+    if (tt === 0) {
+      parentBody.appendChild(pBlock('今天', ['今天还没有练习。']));
+    } else {
+      parentBody.appendChild(pBlock('今天', [
+        '练了' + minutesText(t.ms) + '，做了 ' + tt + ' 题',
+        '答对 ' + (t.r | 0) + ' 题，正确率 ' + Math.round((t.r | 0) * 100 / tt) + '%'
+      ]));
+    }
+
+    var w = weekTotals();
+    parentBody.appendChild(pBlock('最近七天', w.days === 0
+      ? ['最近七天还没有记录。']
+      : ['练了 ' + w.days + ' 天，' + w.total + ' 题，' + minutesText(w.ms)]));
+
+    var weak = weakLevels(3);
+    if (weak.length) {
+      parentBody.appendChild(pBlock('最需要复习', weak.map(function (x) {
+        return levelLabel(x.island, x.level) + '（错 ' + x.wrong + ' 次）';
+      })));
+    }
+
+    parentBody.appendChild(voicePackBlock());
+  }
+
+  /* ---- 离线语音包 ----
+     平时语音是按「岛 / 关」分块现拉的，第一次在没网的地方进新关会全程没声音。
+     这里把全部语音块一次性塞进独立的 Cache Storage：Service Worker 的 caches.match
+     会连它一起搜（见 sw.js），所以下载完就能整站离线发声。 */
+  var VOICE_PACK = 'lilearn-voice-pack';
+  var voicePackBusy = false;
+  var voicePackStatusEl = null;
+  var voicePackBtn = null;
+  var voicePackProbeTimer = 0;
+
+  function voiceChunkNames() {
+    var m = window.VOICE_CHUNK_FOR || {};
+    var seen = {}, out = [];
+    Object.keys(m).forEach(function (k) {
+      var n = m[k];
+      if (n && !seen[n]) { seen[n] = 1; out.push(n); }
+    });
+    return out;
+  }
+
+  function setVoicePackStatus(text) {
+    if (voicePackStatusEl) voicePackStatusEl.textContent = text;
+  }
+
+  function voicePackBlock() {
+    var box = document.createElement('div');
+    box.className = 'p-block';
+    var h = document.createElement('div');
+    h.className = 'p-block-title';
+    h.textContent = '离线语音';
+    box.appendChild(h);
+
+    voicePackStatusEl = document.createElement('div');
+    voicePackStatusEl.className = 'p-line';
+    voicePackStatusEl.textContent = '正在检查…';
+    box.appendChild(voicePackStatusEl);
+
+    voicePackBtn = document.createElement('button');
+    voicePackBtn.type = 'button';
+    voicePackBtn.className = 'p-btn';
+    voicePackBtn.textContent = '下载全部语音（约 41 兆）';
+    voicePackBtn.disabled = true;
+    voicePackBtn.addEventListener('click', onVoicePackClick);
+    box.appendChild(voicePackBtn);
+
+    probeVoicePack();
+    /* 兜底：个别浏览器（隐私模式 / 关闭站点数据）打开缓存会一直不 resolve，
+       不能让家长看着「正在检查…」干等，6 秒后给一句明确的结论。 */
+    voicePackProbeTimer = setTimeout(function () {
+      if (voicePackStatusEl && voicePackStatusEl.textContent.indexOf('正在检查') >= 0) {
+        setVoicePackStatus('读不到离线缓存，这台设备可能不支持');
+        if (voicePackBtn) { voicePackBtn.disabled = false; voicePackBtn.dataset.mode = 'download'; }
+      }
+    }, 6000);
+    return box;
+  }
+
+  function probeVoicePack() {
+    if (!window.caches || !window.Request) {
+      setVoicePackStatus('这台设备不支持离线缓存');
+      if (voicePackBtn) voicePackBtn.hidden = true;
+      return;
+    }
+    var names = voiceChunkNames();
+    if (!names.length) { setVoicePackStatus('语音索引还没准备好，请稍后再打开'); return; }
+    caches.open(VOICE_PACK).then(function (c) {
+      /* 缓存能打开就说明这套 API 可用，后面只是在数已下载多少块；
+         此时立刻撤掉「不支持」的兜底，避免块多、机器慢时误报。 */
+      clearTimeout(voicePackProbeTimer);
+      var have = 0, i = 0;
+      (function step() {
+        if (i >= names.length) {
+          clearTimeout(voicePackProbeTimer);
+          if (!voicePackBtn) return;
+          voicePackBtn.disabled = false;
+          if (have >= names.length) {
+            setVoicePackStatus('已全部下载，没网也能玩');
+            voicePackBtn.textContent = '删除离线语音';
+            voicePackBtn.dataset.mode = 'remove';
+          } else {
+            setVoicePackStatus(have > 0
+              ? ('已下载 ' + Math.round(have * 100 / names.length) + '%，还没下全')
+              : '还没下载，没网时只能看画面');
+            voicePackBtn.textContent = '下载全部语音（约 41 兆）';
+            voicePackBtn.dataset.mode = 'download';
+          }
+          return;
+        }
+        c.match('voice/chunks/' + names[i++] + '.js').then(function (hit) {
+          if (hit) have++;
+          step();
+        }, function () { step(); });
+      })();
+    }).catch(function () {
+      clearTimeout(voicePackProbeTimer);
+      setVoicePackStatus('这台设备不支持离线缓存');
+    });
+  }
+
+  function onVoicePackClick() {
+    if (voicePackBusy || !voicePackBtn) return;
+    if (voicePackBtn.dataset.mode === 'remove') { removeVoicePack(); return; }
+    downloadVoicePack();
+  }
+
+  function downloadVoicePack() {
+    if (voicePackBusy || !window.caches || !window.Request) return;
+    var names = voiceChunkNames();
+    if (!names.length) { setVoicePackStatus('语音索引还没准备好'); return; }
+    voicePackBusy = true;
+    voicePackBtn.disabled = true;
+
+    caches.open(VOICE_PACK).then(function (c) {
+      var i = 0;
+      (function step() {
+        if (i >= names.length) {
+          voicePackBusy = false;
+          voicePackBtn.disabled = false;
+          voicePackBtn.textContent = '删除离线语音';
+          voicePackBtn.dataset.mode = 'remove';
+          setVoicePackStatus('已全部下载，没网也能玩');
+          toast('离线语音已下载完');
+          return;
+        }
+        var url = 'voice/chunks/' + names[i++] + '.js';
+        /* 串行下载：并行会把带宽切碎，首块反而更晚到；这里是一次性的后台任务，慢一点没关系 */
+        c.add(new Request(url, { cache: 'reload' })).then(function () {
+          setVoicePackStatus('正在下载 ' + i + ' / ' + names.length + '（' + Math.round(i * 100 / names.length) + '%）');
+          step();
+        }, function () {
+          voicePackBusy = false;
+          voicePackBtn.disabled = false;
+          setVoicePackStatus('下载中断了，检查网络后再点一次');
+        });
+      })();
+    }).catch(function () {
+      voicePackBusy = false;
+      voicePackBtn.disabled = false;
+      setVoicePackStatus('下载失败，这个浏览器可能不允许离线缓存');
+    });
+  }
+
+  function removeVoicePack() {
+    if (!window.caches || !voicePackBtn) return;
+    voicePackBtn.disabled = true;
+    caches.delete(VOICE_PACK).then(function () {
+      voicePackBtn.disabled = false;
+      voicePackBtn.textContent = '下载全部语音（约 41 兆）';
+      voicePackBtn.dataset.mode = 'download';
+      setVoicePackStatus('已删除，不占空间了');
+      toast('离线语音已删除');
+    });
+  }
+
+  /* ---- 复习面板 ---- */
+
+  function openReviewSheet() {
+    if (!reviewSheet || !reviewList) return;
+    reviewList.textContent = '';
+    var weak = weakLevels(3);
+    weak.forEach(function (x) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'review-item';
+      var nm = document.createElement('span');
+      nm.className = 'review-name';
+      nm.textContent = levelLabel(x.island, x.level);
+      var ct = document.createElement('span');
+      ct.className = 'review-count';
+      ct.textContent = '错 ' + x.wrong + ' 次';
+      b.appendChild(nm);
+      b.appendChild(ct);
+      b.addEventListener('click', function () {
+        closeReviewSheet();
+        enterIsland(x.island);
+        enterLevel(x.level);
+      });
+      reviewList.appendChild(b);
+    });
+    reviewSheet.hidden = false;
+  }
+
+  function closeReviewSheet() {
+    if (reviewSheet) reviewSheet.hidden = true;
+  }
+
+  if (btnContinue) btnContinue.addEventListener('click', function () {
+    var lp = progress.lastPlayed;
+    if (!lp) return;
+    enterIsland(lp.island);
+    enterLevel(lp.level);
+  });
+  if (btnReview) btnReview.addEventListener('click', openReviewSheet);
+  if (btnParent) {
+    btnParent.addEventListener('click', function () {
+      renderParentSheet();
+      if (parentSheet) parentSheet.hidden = false;
+    });
+  }
+  if (parentClose) parentClose.addEventListener('click', function () { parentSheet.hidden = true; });
+  if (parentSheet) {
+    parentSheet.addEventListener('click', function (e) {
+      if (e.target === parentSheet) parentSheet.hidden = true;
+    });
+  }
+  if (reviewClose) reviewClose.addEventListener('click', closeReviewSheet);
+  if (reviewSheet) {
+    reviewSheet.addEventListener('click', function (e) {
+      if (e.target === reviewSheet) closeReviewSheet();
+    });
+  }
+
   function renderMap() {
     clearIslandFlag();          // 离开关卡时把舞台上的通关旗收掉，否则会飘到地图上
 
@@ -1486,6 +2015,7 @@
     }
 
     islandGrid.innerHTML = '';
+    renderMapActions();
     ISLANDS.forEach(function (island, i) {
       var index = i + 1;
       var unlocked = isIslandUnlocked(index);
@@ -29663,6 +30193,9 @@
     state.phase = 'asking';
     state.busy = false;
     state.pickedFruit = null;
+    /* 本题开始计时：判题时把「这一题花了多久」累加进当天练习时长。
+       计时只在这一题上，孩子中途跑去吃饭也不会被算成学了半小时（判题时再封顶 2 分钟）。 */
+    state.qStartAt = Date.now();
     clearPicked();
     optionsBar.classList.remove('gone');   // 教学阶段隐藏过，进答题必须恢复
 
@@ -29726,6 +30259,10 @@
   function judge(ok, btn) {
     if (state.phase !== 'asking' || state.busy) return;
     var q = state.question;
+
+    /* 先记账再判题：答对答错都要留下痕迹（时长 / 关卡错误数 / 词对错次数）。
+       这里不影响任何判题分支——记完账下面照原样走。 */
+    noteAnswer(ok, currentIsland, state.level, q);
 
     if (ok) {
       state.busy = true;
@@ -31695,6 +32232,10 @@
 
   function enterLevel(level) {
     state.level = level || 1;
+    /* 记住「上次玩到哪一关」：地图上的「继续」直接读这里。
+       进封面就记，不等到答第一题——孩子可能只是进去看看封面又退出来。 */
+    progress.lastPlayed = { island: currentIsland, level: state.level, at: Date.now() };
+    saveProgress();
     /* 先把这一关的语音请求发出去（一关约 0.5MB），孩子看关卡封面的这几秒正好用来下载 */
     prefetchLevelVoice(currentIsland, state.level);
     ensureIslandScript(currentIsland);

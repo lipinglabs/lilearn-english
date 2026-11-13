@@ -2572,3 +2572,175 @@
   @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
   @keyframes sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
 
+  /* ===================== 地图入口：继续 / 复习 / 家长 =====================
+     三个胶囊只占一行（约 38px），地图网格自己 flex:1 收缩，不挤压 12 张卡。
+     文字全部中文，符合 RULES 二.1。 */
+  .map-actions {
+    width: 100%;
+    max-width: 720px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;   /* 继续在左，复习/家长由 margin-left:auto 推到右端 */
+    gap: 8px;
+  }
+
+  .map-pill {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: clamp(12px, 3.1vw, 14px);
+    font-weight: 700;
+    color: #7b5c34;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #fff6e6, #ffeccd);
+    box-shadow: 0 4px 12px rgba(190, 150, 100, .18);
+    white-space: nowrap;
+    transition: transform .16s ease, box-shadow .2s ease;
+  }
+
+  .map-pill:active { transform: scale(.96); }
+
+  .map-pill.cont {
+    flex: 1 1 auto;
+    min-width: 0;
+    /* 宽屏上别把主按钮拉成一整条：手机放得下就撑满，平板止步 520 */
+    max-width: 520px;
+    justify-content: flex-start;
+    background: linear-gradient(180deg, #fffdf6, #fff1d8);
+    border: 2px solid rgba(245, 200, 130, .55);
+  }
+
+  /* 把复习/家长顶到右端：没有「继续」时它们也靠右，不会孤零零挂在左边 */
+  #btnReview { margin-left: auto; }
+
+  .map-pill.ghost {
+    background: rgba(255, 255, 255, .7);
+    color: #a08a70;
+    font-weight: 600;
+    box-shadow: none;
+    border: 1.5px solid rgba(210, 190, 166, .45);
+  }
+
+  .pill-key { flex: none; font-weight: 800; color: #c07b2e; }
+
+  .pill-sub {
+    font-weight: 600;
+    font-size: .92em;
+    color: #9a8468;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ===================== 家长小结 / 复习面板 ===================== */
+  .parent-card { width: min(100%, 420px); }
+
+  .parent-body {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    max-height: 54vh;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .p-block {
+    padding: 10px 14px;
+    border-radius: 16px;
+    background: #fffdf8;
+    border: 1.5px solid rgba(240, 220, 190, .85);
+  }
+
+  .p-block-title {
+    margin-bottom: 3px;
+    font-size: clamp(11.5px, 2.9vw, 13px);
+    font-weight: 800;
+    letter-spacing: .06em;
+    color: #b08a55;
+  }
+
+  .p-line {
+    font-size: clamp(12.5px, 3.2vw, 14px);
+    line-height: 1.7;
+    color: #5c4c3c;
+  }
+
+  .p-btn {
+    width: 100%;
+    margin-top: 9px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    border: 2px solid rgba(245, 200, 130, .65);
+    background: linear-gradient(180deg, #fff8ea, #ffedcf);
+    color: #8a6430;
+    font-family: inherit;
+    font-size: clamp(12px, 3.1vw, 13.5px);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .p-btn:disabled { opacity: .55; cursor: default; }
+
+  .review-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .review-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 2px solid rgba(245, 220, 185, .8);
+    background: #fffdf8;
+    color: #5c4c3c;
+    font-family: inherit;
+    font-size: clamp(12.5px, 3.2vw, 14px);
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    transition: transform .16s ease;
+  }
+
+  .review-item:active { transform: scale(.985); }
+
+  .review-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+  .review-count { flex: none; font-weight: 800; color: #c07b2e; }
+
+  /* ===================== 宽屏（平板 / 横屏） =====================
+     原来整个表只有一条 max-height:560px 的断点，任何宽度都按手机 3 列排：
+     iPad 横屏下 12 张卡挤在中间 720px，左右各留 150px 空白。
+     这里按宽度补断点，宽屏排 4 列，卡片反而更大。 */
+  @media (min-width: 820px) {
+    .island-grid,
+    .map-actions { max-width: 940px; }
+    .island-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .stage { width: 100%; max-width: 1080px; margin: 0 auto; }
+
+    /* 宽屏上「继续」不再撑满：主按钮收到内容宽、整行三颗居中成一组。
+       否则 940 的容器里左边一颗 520 的长条、右边两颗小按钮，
+       中间空出 300px，看着像两组不相干的东西。 */
+    .map-actions { justify-content: center; }
+    .map-pill.cont { flex: 0 1 auto; max-width: none; }
+    #btnReview { margin-left: 0; }
+  }
+
+  @media (min-width: 1180px) {
+    .island-grid,
+    .map-actions { max-width: 1080px; }
+    .stage { max-width: 1180px; }
+  }
+
+  /* 矮屏（横屏手机）：入口条压扁，别和岛屿卡片抢高度 */
+  @media (max-height: 560px) {
+    .map-pill { padding: 5px 11px; font-size: 11.5px; gap: 6px; }
+    .map-actions { gap: 6px; }
+  }
+
