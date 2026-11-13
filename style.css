@@ -2746,3 +2746,137 @@
     .map-actions { gap: 6px; }
   }
 
+  /* ==========================================================
+     关卡素材加载读条（进入关卡时展示真实下载进度）
+     ----------------------------------------------------------
+     注意：hidden 属性默认只是 display:none 的 UA 样式，会被下面
+     display:grid / display:flex 覆盖，所以必须显式加 !important。
+     ========================================================== */
+  .al-layer [hidden] { display: none !important; }
+  .al-layer[hidden] { display: none !important; }
+
+  .al-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(78, 60, 46, .42);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    opacity: 0;
+    transition: opacity 220ms ease;
+  }
+
+  .al-layer.is-open { opacity: 1; }
+
+  .al-card {
+    width: min(340px, 88vw);
+    padding: 24px 22px 22px;
+    border-radius: 22px;
+    text-align: center;
+    background: #fffaf0;
+    box-shadow: 0 26px 50px rgba(90, 68, 48, .3);
+    transform: translateY(10px) scale(.96);
+    transition: transform 300ms cubic-bezier(.2, .9, .3, 1.2);
+  }
+
+  .al-layer.is-open .al-card { transform: none; }
+
+  .al-art { display: grid; place-items: center; margin-bottom: 12px; }
+
+  .al-jar {
+    position: relative;
+    display: block;
+    width: 60px;
+    height: 68px;
+    border-radius: 20px 20px 26px 26px;
+    overflow: hidden;
+    background: #f2e9db;
+    box-shadow: inset 0 6px 12px rgba(120, 90, 60, .09), 0 6px 12px rgba(150, 120, 95, .14);
+  }
+
+  .al-jar-fill {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 0%;
+    background: linear-gradient(180deg, #ffe9ad 0%, #f2b955 100%);
+    transition: height 280ms ease;
+  }
+
+  .al-jar-fill::after {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: -10%;
+    width: 120%;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffe6a2;
+    animation: al-wave 1.8s ease-in-out infinite;
+  }
+
+  @keyframes al-wave {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-3px) rotate(1deg); }
+  }
+
+  .al-title { font-size: 17px; font-weight: 800; margin-bottom: 12px; color: var(--ink); }
+
+  .al-bar {
+    height: 12px;
+    border-radius: 999px;
+    background: #f0e4d2;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(120, 90, 60, .08);
+  }
+
+  .al-bar-fill {
+    display: block;
+    width: 0%;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #ffd98a 0%, #f2a94f 55%, #e9834a 100%);
+    transition: width 240ms ease;
+  }
+
+  .al-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .al-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.65;
+    color: #93806f;
+    min-height: 20px;
+  }
+
+  .al-layer[data-state="fail"] .al-hint { color: #b4532a; font-weight: 700; }
+
+  .al-actions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+
+  .al-btn {
+    flex: 1 1 0;
+    padding: 10px 8px;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .al-btn--primary { background: var(--gold); border-color: var(--gold); color: #fff; }
+

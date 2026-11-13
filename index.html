@@ -149,6 +149,26 @@
 </div>
 <div id="toast" class="toast" hidden></div>
 
+<!-- ============ 关卡素材加载读条 ============
+     进入关卡时把本关需要的语音分块 / 出题器脚本逐条下载并展示真实进度。
+     全部命中缓存时静默通过；下载失败或超时不再静默放行，而是明确提示，
+     好让家长能判断「进去没声音」到底是素材没下完，还是别的原因。 -->
+<div id="assetLoader" class="al-layer" hidden role="dialog" aria-modal="true" aria-live="polite">
+  <div class="al-card">
+    <div class="al-art" aria-hidden="true">
+      <span class="al-jar"><span id="alJarFill" class="al-jar-fill"></span></span>
+    </div>
+    <h2 id="alTitle" class="al-title">正在准备语音…</h2>
+    <div class="al-bar"><span id="alBarFill" class="al-bar-fill"></span></div>
+    <div class="al-meta"><span id="alPct">0%</span><span id="alDetail">0 / 0</span></div>
+    <p id="alHint" class="al-hint">正在下载本关需要的语音素材</p>
+    <div id="alActions" class="al-actions" hidden>
+      <button id="alRetry" class="al-btn al-btn--primary" type="button">重新下载</button>
+      <button id="alContinue" class="al-btn" type="button">仍然进入</button>
+    </div>
+  </div>
+</div>
+
 <div id="parentSheet" class="sheet" hidden>
   <div class="sheet-card parent-card">
     <div class="sheet-title">学习小结</div>
@@ -200,29 +220,36 @@
      索引在 voice/chunks/index.js：VOICE_CHUNK_FOR[key] → 分块名。
      正常路径靠预取，播放时仍是同步的（iOS 要求 play() 落在用户手势里）；
      万一某个 key 还没到（跨岛复用 / 预取未完成），say() 会补加载后重播一次，绝不静默丢失。 */
-  var voiceChunkState = {};    // name -> 'loading' | 'done'
-  var voiceChunkWaiters = {};  // name -> [callback]
+  var voiceChunkState = {};    // name -> 'loading' | 'done' | 'failed'
+  var voiceChunkWaiters = {};  // name -> [callback(ok)]
 
   function loadVoiceChunk(name, onDone) {
-    if (!name) { if (onDone) onDone(); return; }
-    if (voiceChunkState[name] === 'done') { if (onDone) onDone(); return; }
-    if (voiceChunkWaiters[name]) { if (onDone) voiceChunkWaiters[name].push(onDone); return; }
+    if (!name) { if (onDone) onDone(true); return; }
+    if (voiceChunkState[name] === 'done') { if (onDone) onDone(true); return; }
+    /* 只有 loading 才排队；'failed' / 未加载 会重新发起，这样读条上的「重新下载」真的会重试 */
+    if (voiceChunkState[name] === 'loading' && voiceChunkWaiters[name]) {
+      if (onDone) voiceChunkWaiters[name].push(onDone);
+      return;
+    }
     voiceChunkState[name] = 'loading';
     voiceChunkWaiters[name] = onDone ? [onDone] : [];
     var s = document.createElement('script');
     s.src = 'voice/chunks/' + name + '.js';
     s.async = true;
-    function settle() {
-      voiceChunkState[name] = 'done';
+    function settle(ok) {
+      voiceChunkState[name] = ok ? 'done' : 'failed';
       var list = voiceChunkWaiters[name] || [];
       delete voiceChunkWaiters[name];
-      for (var i = 0; i < list.length; i++) { try { list[i](); } catch (e) { /* 单个回调失败不影响其它 */ } }
+      for (var i = 0; i < list.length; i++) {
+        try { list[i](ok); } catch (e) { /* 单个回调失败不影响其它 */ }
+      }
     }
-    s.onload = settle;
+    s.onload = function () { settle(true); };
     s.onerror = function () {
-      /* 加载失败也标记完成：宁可少一句语音，也不能让教学流程卡在等分块 */
+      /* 失败不再静默标成 done：否则读条会误报「已就绪」，家长也查不出为什么没声音。
+         回调照常触发，教学流程不会被卡住（由调用方决定重试还是继续）。 */
       console.warn('[voice] 分块加载失败：' + name);
-      settle();
+      settle(false);
     };
     document.head.appendChild(s);
   }
@@ -291,11 +318,265 @@
     }
     setTimeout(fire, maxMs);
   }
+
+  /* ---------------- 关卡素材加载读条 ----------------
+     设计对齐数学游戏：进入关卡时把本关素材逐条下载，展示真实进度。
+       · 全部命中缓存 → 不弹遮罩，只给一句「语音素材已就绪（N/N）」的可判断提示
+       · 有素材要下载 → 全屏读条，逐个显示 N/N、百分比、当前状态
+       · 失败 / 超时 → 不再静默放行，明确列出还差几块，并给「重新下载 / 仍然进入」
+     这样「进去没声音」时，家长能直接判断是不是素材没下完。 */
+  var ASSET_TIMEOUT = 15000;        // 单个素材超时
+  var ASSET_TOTAL_TIMEOUT = 20000;  // 整轮兜底
+  var ASSET_MIN_MS = 460;           // 读条最短停留，避免闪一下
+  var lastAssetResult = null;
+
+  var assetLoader = (function () {
+    var ui = null, token = 0;
+    function ensure() {
+      if (ui) return ui;
+      var root = document.getElementById('assetLoader');
+      if (!root) return null;
+      ui = {
+        root: root,
+        jar: document.getElementById('alJarFill'),
+        bar: document.getElementById('alBarFill'),
+        pct: document.getElementById('alPct'),
+        detail: document.getElementById('alDetail'),
+        title: document.getElementById('alTitle'),
+        hint: document.getElementById('alHint'),
+        actions: document.getElementById('alActions'),
+        retry: document.getElementById('alRetry'),
+        cont: document.getElementById('alContinue')
+      };
+      return ui;
+    }
+    function set(done, total, hint) {
+      var u = ensure(); if (!u) return;
+      var r = total ? done / total : 1;
+      if (r > 1) r = 1;
+      var pct = Math.round(r * 100);
+      u.bar.style.width = pct + '%';
+      u.jar.style.height = pct + '%';
+      u.pct.textContent = pct + '%';
+      u.detail.textContent = done + ' / ' + total;
+      if (hint != null) u.hint.textContent = hint;
+    }
+    function open(title, total) {
+      var u = ensure(); if (!u) return;
+      token += 1;
+      u.root.hidden = false;
+      u.root.dataset.state = 'loading';
+      u.actions.hidden = true;
+      u.title.textContent = title || '正在准备语音…';
+      u.hint.textContent = '正在下载本关需要的语音素材';
+      set(0, total);
+      requestAnimationFrame(function () { u.root.classList.add('is-open'); });
+    }
+    function fail(text, onRetry, onContinue) {
+      var u = ensure(); if (!u) return;
+      u.root.hidden = false;
+      u.root.dataset.state = 'fail';
+      u.hint.textContent = text;
+      u.actions.hidden = false;
+      u.retry.onclick = function () { if (onRetry) onRetry(); };
+      u.cont.onclick = function () { if (onContinue) onContinue(); };
+      requestAnimationFrame(function () { u.root.classList.add('is-open'); });
+    }
+    function close() {
+      var u = ensure(); if (!u) return;
+      var my = token;
+      u.root.classList.remove('is-open');
+      setTimeout(function () {
+        if (my !== token) return;          // 期间又被 open 了，别藏
+        u.root.hidden = true;
+        u.actions.hidden = true;
+      }, 240);
+    }
+    return {
+      open: open, set: set, fail: fail, close: close,
+      isOpen: function () { var u = ensure(); return !!u && !u.root.hidden; }
+    };
+  })();
+
+  /** 本关需要的语音分块（含公共 core），去重后返回分块名数组 */
+  function levelAssetNames(island, level) {
+    var lm = window.VOICE_CHUNK_OF_LEVEL;
+    var list = (lm && lm[island + '-' + level]) || null;
+    if (!list || !list.length) {
+      var im = window.VOICE_CHUNK_OF_ISLAND;
+      list = (im && im[island]) || [];
+    }
+    var out = [], seen = {};
+    var core = window.VOICE_CORE_CHUNK || 'core';
+    if (core) { out.push(core); seen[core] = 1; }
+    for (var i = 0; i < list.length; i++) {
+      var c = list[i];
+      if (c && !seen[c]) { seen[c] = 1; out.push(c); }
+    }
+    return out;
+  }
+
+  /**
+   * 预加载本关素材并把进度打在读条上。
+   * result = { ok, total, loaded, failed:[name], timedOut, needed, ms, island, level }
+   */
+  function preloadLevelAssets(island, level, opts) {
+    opts = opts || {};
+    var t0 = Date.now();
+    /* file:// 本地冒烟测试环境无法运行时加载 voice/chunks（项目既有约束，
+       见 tools/smoke-levels.js 顶部说明）。此时读条没有真实进度可显示，
+       直接放行，免得自动化测试被「下载失败」提示挡在开始页。 */
+    if (location.protocol === 'file:') {
+      lastAssetResult = {
+        ok: true, total: 0, loaded: 0, failed: [], timedOut: false,
+        needed: 0, ms: 0, island: island, level: level, skipped: true
+      };
+      if (opts.onComplete) opts.onComplete(lastAssetResult);
+      return;
+    }
+    var names = levelAssetNames(island, level);
+    if (opts.force) {                       // 供排查用的「强制重新下载」
+      for (var f = 0; f < names.length; f++) delete voiceChunkState[names[f]];
+      delete islandScriptFailed[island];
+    }
+    var needScript = !islandScriptReady(island);
+    var total = names.length + (needScript ? 1 : 0);
+    var result = {
+      ok: true, total: total, loaded: 0, failed: [], timedOut: false,
+      needed: 0, ms: 0, island: island, level: level
+    };
+
+    var pendingVoice = [];
+    for (var i = 0; i < names.length; i++) {
+      if (voiceChunkState[names[i]] === 'done') result.loaded += 1;
+      else pendingVoice.push(names[i]);
+    }
+    var pendingScript = needScript;         // 脚本已就绪时 needScript 就是 false
+    result.needed = pendingVoice.length + (pendingScript ? 1 : 0);
+
+    var finished = false, doneCount = 0, timedOut = false;
+    var title = opts.title || ('第 ' + island + ' 岛 · 第 ' + level + ' 关');
+    var showLoader = false;
+
+    function tick(hint) { if (showLoader) assetLoader.set(result.loaded, total, hint); }
+
+    function finish() {
+      if (finished) return;
+      finished = true;
+      result.ms = Date.now() - t0;
+      result.timedOut = timedOut;
+      if (timedOut) {
+        for (var q = 0; q < pendingVoice.length; q++) {
+          var nm = pendingVoice[q];
+          if (voiceChunkState[nm] !== 'done' && result.failed.indexOf(nm) < 0) result.failed.push(nm);
+        }
+        if (pendingScript && !islandScriptReady(island) && result.failed.indexOf('island-script') < 0) {
+          result.failed.push('island-script');
+        }
+      }
+      result.ok = result.failed.length === 0 && !timedOut;
+      lastAssetResult = result;
+
+      if (!showLoader) {                    // 全部命中缓存：不给遮罩，只留一句可判断的提示
+        if (!opts.silentWhenCached) toast('语音素材已就绪（' + total + '/' + total + '）');
+        if (opts.onComplete) opts.onComplete(result);
+        return;
+      }
+
+      var minWait = Math.max(0, ASSET_MIN_MS - (Date.now() - t0));
+      setTimeout(function () {
+        if (result.ok) {
+          assetLoader.set(total, total, '语音素材已就绪，可以开始啦');
+          setTimeout(function () {
+            assetLoader.close();
+            if (opts.onComplete) opts.onComplete(result);
+          }, 260);
+        } else {
+          var bad = result.failed.length;
+          var msg = timedOut
+            ? ('等待超时，还有 ' + bad + ' 个素材没下载完，进去可能没有声音')
+            : (bad + ' 个素材下载失败，进去可能没有声音');
+          assetLoader.set(result.loaded, total, msg);
+          assetLoader.fail(msg, function () {
+            /* 重新下载：只清掉失败项的状态，成功的保留 */
+            for (var k = 0; k < result.failed.length; k++) {
+              var n = result.failed[k];
+              if (n !== 'island-script' && voiceChunkState[n] !== 'done') delete voiceChunkState[n];
+            }
+            delete islandScriptFailed[island];
+            assetLoader.close();
+            preloadLevelAssets(island, level, opts);
+          }, function () {
+            assetLoader.close();
+            toast('素材未下完，本关可能没有声音');
+            if (opts.onComplete) opts.onComplete(result);
+          });
+        }
+      }, minWait);
+    }
+
+    if (!result.needed) {                  // 没有需要下载的素材
+      if (!opts.silentWhenCached) toast('语音素材已就绪（' + total + '/' + total + '）');
+      result.ms = Date.now() - t0;
+      lastAssetResult = result;
+      if (opts.onComplete) opts.onComplete(result);
+      return;
+    }
+
+    showLoader = true;
+    assetLoader.open(title, total);
+    tick('正在下载本关需要的语音素材');
+
+    var guard = setTimeout(function () {
+      if (finished) return;
+      timedOut = true;
+      finish();
+    }, ASSET_TOTAL_TIMEOUT);
+
+    function oneDone(ok, name) {
+      if (finished) return;
+      doneCount += 1;
+      if (ok) result.loaded += 1;
+      else if (result.failed.indexOf(name) < 0) result.failed.push(name);
+      tick(ok ? '正在准备语音素材…' : ('素材下载失败：' + name));
+      if (doneCount >= result.needed) { clearTimeout(guard); finish(); }
+    }
+
+    for (var v = 0; v < pendingVoice.length; v++) {
+      (function (name) {
+        var settled = false;
+        var timer = setTimeout(function () {
+          if (settled) return;
+          settled = true;
+          oneDone(false, name);
+        }, ASSET_TIMEOUT);
+        loadVoiceChunk(name, function (ok) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          oneDone(!!ok, name);
+        });
+      })(pendingVoice[v]);
+    }
+
+    if (pendingScript) {
+      ensureIslandScript(island);
+      var st = Date.now();
+      (function poll() {
+        if (finished) return;
+        if (islandScriptReady(island)) { oneDone(true, 'island-script'); return; }
+        if (islandScriptFailed[island]) { oneDone(false, 'island-script'); return; }
+        if (Date.now() - st >= ASSET_TIMEOUT) { oneDone(false, 'island-script'); return; }
+        setTimeout(poll, 60);
+      })();
+    }
+  }
   /* ---------- 岛文件按需加载 ----------
      12 个出题器文件不再随首页同步加载：进岛时发起请求，点「开始」时在
      waitLevelVoice 的既有等待链里再等它注册完成。SW 仍预缓存全部 12 个，
      所以离线可玩；超时后继续，newQuestion 会回落默认出题器而不会白屏。 */
   var islandScriptLoading = {};
+  var islandScriptFailed = {};   // 出题器脚本下载失败：供素材读条判定，不再静默
   function islandScriptReady(island) {
     var M = window.__LLMakers || {};
     var prefix = island + '-';
@@ -308,9 +589,15 @@
   function ensureIslandScript(island) {
     if (!island || islandScriptReady(island) || islandScriptLoading[island]) return;
     islandScriptLoading[island] = true;
+    delete islandScriptFailed[island];
     var s = document.createElement('script');
     s.src = 'levels/island-' + (island < 10 ? '0' : '') + island + '.js';
-    s.onload = s.onerror = function () { delete islandScriptLoading[island]; };
+    s.onload = function () { delete islandScriptLoading[island]; };
+    s.onerror = function () {
+      delete islandScriptLoading[island];
+      islandScriptFailed[island] = true;
+      console.warn('[level] 岛出题器脚本加载失败：' + island);
+    };
     document.head.appendChild(s);
   }
   function whenIslandScriptReady(island, maxMs, onReady) {
@@ -32969,9 +33256,10 @@
        进封面就记，不等到答第一题——孩子可能只是进去看看封面又退出来。 */
     progress.lastPlayed = { island: currentIsland, level: state.level, at: Date.now() };
     saveProgress();
-    /* 先把这一关的语音请求发出去（一关约 0.5MB），孩子看关卡封面的这几秒正好用来下载 */
-    prefetchLevelVoice(currentIsland, state.level);
-    ensureIslandScript(currentIsland);
+    /* 进入关卡即加载本关素材并展示真实进度读条：
+       全部命中缓存 → 静默通过并给一句「已就绪」；有下载 → 读条；失败/超时 → 明确提示。
+       原来的 prefetchLevelVoice + ensureIslandScript 由 preloadLevelAssets 统一接管。 */
+    preloadLevelAssets(currentIsland, state.level, { phase: 'enter' });
     showScreen('level');
     buildStars();
     state.phase = 'idle';
@@ -33005,21 +33293,26 @@
     if (state.phase !== 'idle') return;
     state.phase = 'intro';
 
-    /* 语音分块可能还在路上（尤其弱网）：先等它就绪，最多 12 秒。
-       否则教学第一句会因为 key 还没到而哑掉——兜底虽然会补播，但孩子已经看完了定格动画。
-       等待期间**不隐藏开始按钮**：屏幕保持原样，不会出现「点了没反应」的空白页。 */
-    waitLevelVoice(currentIsland, state.level, 20000, function () {
-      if (state.phase !== 'intro') return;   // 等待期间被返回键取消了
-      btnStart.hidden = true;
-      /* 岛文件按需加载：等当前岛出题器注册完成再继续（最多 8 秒）。
-         超时仍继续，newQuestion 会回落到默认出题器，不会白屏。 */
-      whenIslandScriptReady(currentIsland, 8000, function () {
-        if (state.phase !== 'intro') return;
-        // 带教学环节的关卡（第 2 岛第 2 关起）：先进教学模式，不放开场白
-        var def = levelDef(currentIsland, state.level);
-        if (def && def.tutorial) { startTutorial(); return; }
-        say(['intro'], function () { beginRounds(); });
-      });
+    /* 点「开始」时再确认一次本关素材：
+       · 进关时已下完 → 立即通过，孩子看不到任何遮挡
+       · 进关时跳过了下载 / 失败后选了「仍然进入」→ 这里再给一次带读条的机会
+       读条结束时无论成功失败都会回调，绝不把人卡在空白页。 */
+    preloadLevelAssets(currentIsland, state.level, {
+      phase: 'start',
+      silentWhenCached: true,
+      onComplete: function () {
+        if (state.phase !== 'intro') return;   // 等待期间被返回键取消了
+        btnStart.hidden = true;
+        /* 岛文件按需加载：等当前岛出题器注册完成再继续（最多 8 秒）。
+           超时仍继续，newQuestion 会回落到默认出题器，不会白屏。 */
+        whenIslandScriptReady(currentIsland, 8000, function () {
+          if (state.phase !== 'intro') return;
+          // 带教学环节的关卡（第 2 岛第 2 关起）：先进教学模式，不放开场白
+          var def = levelDef(currentIsland, state.level);
+          if (def && def.tutorial) { startTutorial(); return; }
+          say(['intro'], function () { beginRounds(); });
+        });
+      }
     });
   }
 
@@ -33538,6 +33831,24 @@
     },
     get progress() { return JSON.parse(JSON.stringify(progress)); },
     get sandbox() { return dev.active; },
+    /* 排查「进去没声音」用：读条状态 + 每个语音分块的加载状态 + 最近一次加载结论 */
+    assetStatus: function () {
+      var names = levelAssetNames(currentIsland, state.level);
+      var st = {};
+      for (var i = 0; i < names.length; i++) st[names[i]] = voiceChunkState[names[i]] || 'idle';
+      return {
+        island: currentIsland, level: state.level, chunks: st,
+        scriptReady: islandScriptReady(currentIsland),
+        scriptFailed: !!islandScriptFailed[currentIsland],
+        loaderVisible: assetLoader.isOpen(),
+        last: lastAssetResult ? JSON.parse(JSON.stringify(lastAssetResult)) : null
+      };
+    },
+    reloadAssets: function (cb) {
+      preloadLevelAssets(currentIsland, state.level, {
+        force: true, onComplete: cb || function () {}
+      });
+    },
     openIsland: enterIsland,
     enterLevel: enterLevel,
     backToMap: function () { showScreen('map'); renderMap(); },
