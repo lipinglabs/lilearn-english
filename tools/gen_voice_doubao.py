@@ -2188,5 +2188,132 @@ def main() -> int:
     return 0
 
 
+# ---- 字母与首音（A–Z）语音：第 13 岛新增 ----
+# 五关字母互不重复：第一关 A–E / 第二关 F–J / 第三关 K–O / 第四关 P–T / 第五关 U–Z。
+# 台词模板照抄第 12 岛第 2 关（音素写法已按 RULES 三.33 用真词/弱央元音做过声学自检）：
+#   教学  "The letter A. A says at, at, apple."
+#   A 型  "Which letter says at? Touch it."
+#   B 型  "Which one starts with at?"
+#   C 型  "Put the apple next to the letter A."
+# 与 12-2 逐字相同的句子不重录（同句同 key）：at/buh/kuh 的 A/B 型题干、
+# apple/ball/cat 的 C 型台词直接用 l122_*，index.html 的 L13_AUDIO 里是对照表。
+# 同音字母（C 与 K 都是 kuh）共用一条题干语音，按音素去重。
+# X 是唯一例外：孤立的 "ks" 这个 TTS 会读成字母名「kay ess」，
+#   所以 X 只给锚词（"X is for box."），孩子听到的是 box 词尾真实的 /ks/。
+
+# ---- 第 13 岛第 1 关 · 字母 A B C D E ----
+add("l13_t_in", "Let's learn the letters and their sounds!", "en", -15, EN_ASK)
+add("l13_t_out_1", "Great! You know these letters. Let\'s play!", "en", -15, EN_ASK)
+add("l13_t_a", "The letter A. A says at, at, apple.", "en", -15, EN_ASK)
+add("l13_t_b", "The letter B. B says buh, buh, ball.", "en", -15, EN_ASK)
+add("l13_a_buh", "Which letter says buh? Touch it.", "en", -15, EN_ASK)
+add("l13_t_c", "The letter C. C says kuh, kuh, cat.", "en", -15, EN_ASK)
+add("l13_a_kuh", "Which letter says kuh? Touch it.", "en", -15, EN_ASK)
+add("l13_t_d", "The letter D. D says duh, duh, dog.", "en", -15, EN_ASK)
+add("l13_a_duh", "Which letter says duh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_duh", "Which one starts with duh?", "en", -15, EN_ASK)
+add("l13_c_dog", "Put the dog next to the letter D.", "en", -15, EN_ASK)
+add("l13_t_e", "The letter E. E says egg, egg, egg.", "en", -15, EN_ASK)
+add("l13_a_egg", "Which letter says egg? Touch it.", "en", -15, EN_ASK)
+add("l13_b_egg", "Which one starts with egg?", "en", -15, EN_ASK)
+add("l13_c_egg", "Put the egg next to the letter E.", "en", -15, EN_ASK)
+
+# ---- 第 13 岛第 2 关 · 字母 F G H I J ----
+add("l13_t_out_2", "Nice! Five new letters for you. Let\'s play!", "en", -15, EN_ASK)
+add("l13_t_f", "The letter F. F says fuh, fuh, frog.", "en", -15, EN_ASK)
+add("l13_a_fuh", "Which letter says fuh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_fuh", "Which one starts with fuh?", "en", -15, EN_ASK)
+add("l13_c_frog", "Put the frog next to the letter F.", "en", -15, EN_ASK)
+add("l13_t_g", "The letter G. G says guh, guh, grape.", "en", -15, EN_ASK)
+add("l13_a_guh", "Which letter says guh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_guh", "Which one starts with guh?", "en", -15, EN_ASK)
+add("l13_c_grape", "Put the grape next to the letter G.", "en", -15, EN_ASK)
+add("l13_t_h", "The letter H. H says huh, huh, horse.", "en", -15, EN_ASK)
+add("l13_a_huh", "Which letter says huh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_huh", "Which one starts with huh?", "en", -15, EN_ASK)
+add("l13_c_horse", "Put the horse next to the letter H.", "en", -15, EN_ASK)
+add("l13_t_i", "The letter I. I says it, it, insect.", "en", -15, EN_ASK)
+add("l13_a_it", "Which letter says it? Touch it.", "en", -15, EN_ASK)
+add("l13_b_it", "Which one starts with it?", "en", -15, EN_ASK)
+add("l13_c_insect", "Put the insect next to the letter I.", "en", -15, EN_ASK)
+add("l13_t_j", "The letter J. J says juh, juh, jam.", "en", -15, EN_ASK)
+add("l13_a_juh", "Which letter says juh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_juh", "Which one starts with juh?", "en", -15, EN_ASK)
+add("l13_c_jam", "Put the jam next to the letter J.", "en", -15, EN_ASK)
+
+# ---- 第 13 岛第 3 关 · 字母 K L M N O ----
+add("l13_t_out_3", "Wonderful! Let\'s play with these letters!", "en", -15, EN_ASK)
+add("l13_t_k", "The letter K. K says kuh, kuh, kangaroo.", "en", -15, EN_ASK)
+add("l13_c_kangaroo", "Put the kangaroo next to the letter K.", "en", -15, EN_ASK)
+add("l13_t_l", "The letter L. L says luh, luh, lion.", "en", -15, EN_ASK)
+add("l13_a_luh", "Which letter says luh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_luh", "Which one starts with luh?", "en", -15, EN_ASK)
+add("l13_c_lion", "Put the lion next to the letter L.", "en", -15, EN_ASK)
+add("l13_t_m", "The letter M. M says muh, muh, mouse.", "en", -15, EN_ASK)
+add("l13_a_muh", "Which letter says muh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_muh", "Which one starts with muh?", "en", -15, EN_ASK)
+add("l13_c_mouse", "Put the mouse next to the letter M.", "en", -15, EN_ASK)
+add("l13_t_n", "The letter N. N says nuh, nuh, nose.", "en", -15, EN_ASK)
+add("l13_a_nuh", "Which letter says nuh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_nuh", "Which one starts with nuh?", "en", -15, EN_ASK)
+add("l13_c_nose", "Put the nose next to the letter N.", "en", -15, EN_ASK)
+add("l13_t_o", "The letter O. O says odd, odd, orange.", "en", -15, EN_ASK)
+add("l13_a_odd", "Which letter says odd? Touch it.", "en", -15, EN_ASK)
+add("l13_b_odd", "Which one starts with odd?", "en", -15, EN_ASK)
+add("l13_c_orange", "Put the orange next to the letter O.", "en", -15, EN_ASK)
+
+# ---- 第 13 岛第 4 关 · 字母 P Q R S T ----
+add("l13_t_out_4", "Super! Let\'s try these letters!", "en", -15, EN_ASK)
+add("l13_t_p", "The letter P. P says puh, puh, pig.", "en", -15, EN_ASK)
+add("l13_a_puh", "Which letter says puh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_puh", "Which one starts with puh?", "en", -15, EN_ASK)
+add("l13_c_pig", "Put the pig next to the letter P.", "en", -15, EN_ASK)
+add("l13_t_q", "The letter Q. Q says kwuh, kwuh, queen.", "en", -15, EN_ASK)
+add("l13_a_kwuh", "Which letter says kwuh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_kwuh", "Which one starts with kwuh?", "en", -15, EN_ASK)
+add("l13_c_queen", "Put the queen next to the letter Q.", "en", -15, EN_ASK)
+add("l13_t_r", "The letter R. R says ruh, ruh, rice.", "en", -15, EN_ASK)
+add("l13_a_ruh", "Which letter says ruh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_ruh", "Which one starts with ruh?", "en", -15, EN_ASK)
+add("l13_c_rice", "Put the rice next to the letter R.", "en", -15, EN_ASK)
+add("l13_t_s", "The letter S. S says suh, suh, strawberry.", "en", -15, EN_ASK)
+add("l13_a_suh", "Which letter says suh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_suh", "Which one starts with suh?", "en", -15, EN_ASK)
+add("l13_c_strawberry", "Put the strawberry next to the letter S.", "en", -15, EN_ASK)
+add("l13_t_t", "The letter T. T says tuh, tuh, tiger.", "en", -15, EN_ASK)
+add("l13_a_tuh", "Which letter says tuh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_tuh", "Which one starts with tuh?", "en", -15, EN_ASK)
+add("l13_c_tiger", "Put the tiger next to the letter T.", "en", -15, EN_ASK)
+
+# ---- 第 13 岛第 5 关 · 字母 U V W X Y Z ----
+add("l13_t_out_5", "You know all the letters now! Let\'s play the big game!", "en", -15, EN_ASK)
+add("l13_t_u", "The letter U. U says up, up, umbrella.", "en", -15, EN_ASK)
+add("l13_a_up", "Which letter says up? Touch it.", "en", -15, EN_ASK)
+add("l13_b_up", "Which one starts with up?", "en", -15, EN_ASK)
+add("l13_c_umbrella", "Put the umbrella next to the letter U.", "en", -15, EN_ASK)
+add("l13_t_v", "The letter V. V says vuh, vuh, van.", "en", -15, EN_ASK)
+add("l13_a_vuh", "Which letter says vuh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_vuh", "Which one starts with vuh?", "en", -15, EN_ASK)
+add("l13_c_van", "Put the van next to the letter V.", "en", -15, EN_ASK)
+add("l13_t_w", "The letter W. W says wuh, wuh, water.", "en", -15, EN_ASK)
+add("l13_a_wuh", "Which letter says wuh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_wuh", "Which one starts with wuh?", "en", -15, EN_ASK)
+add("l13_c_water", "Put the water next to the letter W.", "en", -15, EN_ASK)
+add("l13_t_x", "The letter X. X is for box.", "en", -15, EN_ASK)
+add("l13_a_ks", "Where is the letter X? Touch it.", "en", -15, EN_ASK)
+add("l13_b_ks", "Which one has ks at the end?", "en", -15, EN_ASK)
+add("l13_c_box", "Put the box next to the letter X.", "en", -15, EN_ASK)
+add("l13_t_y", "The letter Y. Y says yuh, yuh, yoyo.", "en", -15, EN_ASK)
+add("l13_a_yuh", "Which letter says yuh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_yuh", "Which one starts with yuh?", "en", -15, EN_ASK)
+add("l13_c_yoyo", "Put the yoyo next to the letter Y.", "en", -15, EN_ASK)
+add("l13_t_z", "The letter Z. Z says zuh, zuh, zebra.", "en", -15, EN_ASK)
+add("l13_a_zuh", "Which letter says zuh? Touch it.", "en", -15, EN_ASK)
+add("l13_b_zuh", "Which one starts with zuh?", "en", -15, EN_ASK)
+add("l13_c_zebra", "Put the zebra next to the letter Z.", "en", -15, EN_ASK)
+# 结局台词：13 岛追加上线后是 65 关（旧的 sixty levels 已不成立，旧音频保留不动）
+add("l13_finale", "Congratulations! You finished all sixty-five levels. You are a real English superstar!", "en", -12, EN_ASK)
+# 结局台词：13 岛追加上线后是 65 关（旧的 sixty levels 已不成立，旧音频保留不动）
+
 if __name__ == "__main__":
     sys.exit(main())

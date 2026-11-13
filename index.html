@@ -556,7 +556,8 @@
     { icon: '👕', name: '衣物穿戴' },
     { icon: '🚗', name: '交通工具' },
     { icon: '🐷', name: '童话故事' },
-    { icon: '📛', name: '自我介绍' }
+    { icon: '📛', name: '自我介绍' },
+    { icon: '🔤', name: '字母与首音' }
   ];
 
   var PRAISE_KEYS = ['praise_1', 'praise_2', 'praise_3', 'praise_4', 'praise_5', 'praise_6'];
@@ -2152,7 +2153,12 @@
     '12-2': { numbers: null, make: 'makeL122', title: '第 2 关', tutorial: true },
     '12-3': { numbers: null, make: 'makeL123', title: '第 3 关', tutorial: true },
     '12-4': { numbers: null, make: 'makeL124', title: '第 4 关', tutorial: true },
-    '12-5': { numbers: null, make: 'makeL125', title: '第 5 关', tutorial: true }
+    '12-5': { numbers: null, make: 'makeL125', title: '第 5 关', tutorial: true },
+    '13-1': { numbers: null, make: 'makeL131', title: '第 1 关', tutorial: true },
+    '13-2': { numbers: null, make: 'makeL132', title: '第 2 关', tutorial: true },
+    '13-3': { numbers: null, make: 'makeL133', title: '第 3 关', tutorial: true },
+    '13-4': { numbers: null, make: 'makeL134', title: '第 4 关', tutorial: true },
+    '13-5': { numbers: null, make: 'makeL135', title: '第 5 关', tutorial: true }
   };
 
   function levelDef(island, level) {
@@ -2295,6 +2301,24 @@
         '<rect x="35" y="72" width="30" height="15" rx="4" fill="#fffdf6" stroke="#e0b98d" stroke-width="2.6"/>' +
         '<path d="M42 80 H58" stroke="#c9a06f" stroke-width="3" stroke-linecap="round"/>';
       return kidIcon;
+    }
+    // 第 13 岛是「字母与首音」，地图图标用三块字母积木 + 一支铅笔（手写 SVG）
+    // 积木上**不写字**：地图不是白名单容器，写 A/B/C 会直接撞「页面无英文字母」断言（§二.1）
+    if (index === 13) {
+      var blocks = document.createElementNS(SVG_NS, 'svg');
+      blocks.setAttribute('viewBox', '0 0 100 100');
+      blocks.setAttribute('class', 'mini-shapes');
+      blocks.innerHTML =
+        '<rect x="10" y="56" width="34" height="30" rx="7" fill="#ef6f6f" stroke="#cf4646" stroke-width="3"/>' +
+        '<rect x="48" y="56" width="34" height="30" rx="7" fill="#5aa9e6" stroke="#3f8ec9" stroke-width="3"/>' +
+        '<rect x="27" y="24" width="34" height="30" rx="7" fill="#f2c14e" stroke="#cd9a26" stroke-width="3"/>' +
+        '<circle cx="44" cy="39" r="4" fill="#fffdf6" opacity=".85"/>' +
+        '<circle cx="27" cy="71" r="3.4" fill="#fffdf6" opacity=".7"/>' +
+        '<circle cx="65" cy="71" r="3.4" fill="#fffdf6" opacity=".7"/>' +
+        '<path d="M74 42 L86 18 L92 22 L80 46 Z" fill="#ffce7a" stroke="#d9a23f" stroke-width="2.6"' +
+        ' stroke-linejoin="round"/>' +
+        '<path d="M74 42 L80 46 L71 50 Z" fill="#3b2b30"/>';
+      return blocks;
     }
     if (index === 2) {
       var box = document.createElementNS(SVG_NS, 'svg');
@@ -28743,6 +28767,648 @@
     return api;
   })();
 
+  /* ================= 第 13 岛「字母与首音」（A–Z 全 26 个字母） =================
+     五关把 26 个字母分成互不重复的五组：A–E / F–J / K–O / P–T / U–Z，
+     孩子在这一岛第一次系统认识「字母长什么样、读什么音、开头的词是什么」。
+
+     三题型沿用 12-2 的字母音引擎（孩子已经熟悉的操作，不新增手势）：
+       A 听音找字母（三张字母卡里点出读该音的）
+       B 听音找物品（三个物品里点出以该音开头的）
+       C 拖拽配对（把物品拖到它开头的字母旁边）
+
+     ⚠ 字母出现在屏幕上**仅限 .l122-glyph 之内**：这是 RULES §三.33 立的白名单容器，
+       探针断言是「含 [A-Za-z] 的文本节点必须在这个容器里」，所以本岛复用 12-2 的
+       字母卡渲染函数与类名，绝不另起一套（另起一套就必须同步改探针白名单，容易漏）。
+       aria-label 全部写中文（「第 1 张字母卡」），不带字母。
+
+     ⚠ 音素发音：一个字母都没新发明读音，全部沿用 12-2 的写法（§三.33 已做声学自检：
+       at = /æ/、buh = /b/、kuh = /k/…）。X 是唯一特例：孤立的 "ks" 这个 TTS 会读成
+       字母名「kay ess」，所以 X 只给锚词（"X is for box."），孩子听到的是 box 词尾真实的 /ks/。
+
+     ⚠ 语音分块：本岛的语音在 voice/chunks/island_13_1..5.js，进关预取本关那一块。
+       与 12-2 逐字相同的 7 句（at/buh/kuh 的题干、apple/ball/cat 的投放句）不重录，
+       直接复用 l122_*，那几句住在 island_12_2.js —— 教学一开始就错峰预取它（见 api）。 */
+
+  /* 26 个字母：音素 / 首音词 / 中文 / 配图来源
+     art 语法：fruit:xxx / animal:xxx / food:xxx / svg:xxx / ball（球复用 12-2 手写的那颗） */
+  var L13_DATA = [
+    { ch: 'A', sound: 'at',   word: 'apple',      zh: '苹果',   art: 'fruit:apple' },
+    { ch: 'B', sound: 'buh',  word: 'ball',       zh: '球',     art: 'ball' },
+    { ch: 'C', sound: 'kuh',  word: 'cat',        zh: '猫',     art: 'animal:cat' },
+    { ch: 'D', sound: 'duh',  word: 'dog',        zh: '狗',     art: 'animal:dog' },
+    { ch: 'E', sound: 'egg',  word: 'egg',        zh: '鸡蛋',   art: 'food:egg' },
+    { ch: 'F', sound: 'fuh',  word: 'frog',       zh: '青蛙',   art: 'animal:frog' },
+    { ch: 'G', sound: 'guh',  word: 'grape',      zh: '葡萄',   art: 'fruit:grape' },
+    { ch: 'H', sound: 'huh',  word: 'horse',      zh: '马',     art: 'animal:horse' },
+    { ch: 'I', sound: 'it',   word: 'insect',     zh: '小虫',   art: 'svg:insect' },
+    { ch: 'J', sound: 'juh',  word: 'jam',        zh: '果酱',   art: 'svg:jam' },
+    { ch: 'K', sound: 'kuh',  word: 'kangaroo',   zh: '袋鼠',   art: 'animal:kangaroo' },
+    { ch: 'L', sound: 'luh',  word: 'lion',       zh: '狮子',   art: 'animal:lion' },
+    { ch: 'M', sound: 'muh',  word: 'mouse',      zh: '老鼠',   art: 'animal:mouse' },
+    { ch: 'N', sound: 'nuh',  word: 'nose',       zh: '鼻子',   art: 'svg:nose' },
+    { ch: 'O', sound: 'odd',  word: 'orange',     zh: '橙子',   art: 'svg:orange' },
+    { ch: 'P', sound: 'puh',  word: 'pig',        zh: '猪',     art: 'animal:pig' },
+    { ch: 'Q', sound: 'kwuh', word: 'queen',      zh: '女王',   art: 'svg:queen' },
+    { ch: 'R', sound: 'ruh',  word: 'rice',       zh: '米饭',   art: 'food:rice' },
+    { ch: 'S', sound: 'suh',  word: 'strawberry', zh: '草莓',   art: 'fruit:strawberry' },
+    { ch: 'T', sound: 'tuh',  word: 'tiger',      zh: '老虎',   art: 'animal:tiger' },
+    { ch: 'U', sound: 'up',   word: 'umbrella',   zh: '雨伞',   art: 'svg:umbrella' },
+    { ch: 'V', sound: 'vuh',  word: 'van',        zh: '小货车', art: 'svg:van' },
+    { ch: 'W', sound: 'wuh',  word: 'water',      zh: '水',     art: 'svg:water' },
+    { ch: 'X', sound: 'ks',   word: 'box',        zh: '盒子',   art: 'svg:box' },
+    { ch: 'Y', sound: 'yuh',  word: 'yoyo',       zh: '溜溜球', art: 'svg:yoyo' },
+    { ch: 'Z', sound: 'zuh',  word: 'zebra',      zh: '斑马',   art: 'svg:zebra' }
+  ];
+
+  var L13_BY_CH = {};
+  var L13_BY_WORD = {};
+  for (var _l13i = 0; _l13i < L13_DATA.length; _l13i++) {
+    L13_BY_CH[L13_DATA[_l13i].ch] = L13_DATA[_l13i];
+    L13_BY_WORD[L13_DATA[_l13i].word] = L13_DATA[_l13i];
+  }
+
+  /* 五关分组：互不重复、一次不漏（26 = 5+5+5+5+6） */
+  var L13_GROUPS = [
+    ['A', 'B', 'C', 'D', 'E'],
+    ['F', 'G', 'H', 'I', 'J'],
+    ['K', 'L', 'M', 'N', 'O'],
+    ['P', 'Q', 'R', 'S', 'T'],
+    ['U', 'V', 'W', 'X', 'Y', 'Z']
+  ];
+
+  function l13Group(level) {
+    var i = (level | 0) - 1;
+    if (i < 0) i = 0;
+    if (i >= L13_GROUPS.length) i = L13_GROUPS.length - 1;
+    return L13_GROUPS[i];
+  }
+
+  /** 题型语音 key。同句同 key（§一.12）：与 12-2 逐字相同的 7 句直接指向 l122_* */
+  var L13_AUDIO_OVERRIDE = {
+    qa: { at: 'l122_t_find' },                                        /* Which letter says at? Touch it. */
+    qb: { at: 'l122_b_a', buh: 'l122_b_b', kuh: 'l122_b_c' },         /* Which one starts with …? */
+    qc: { apple: 'l122_c_apple', ball: 'l122_c_ball', cat: 'l122_c_cat' }
+  };
+
+  function l13Audio(d, kind) {
+    var ov = L13_AUDIO_OVERRIDE[kind] || {};
+    var k = (kind === 'qc') ? d.word : d.sound;
+    return ov[k] || ('l13_' + kind.charAt(1) + '_' + k);
+  }
+  function l13TeachKey(d) { return 'l13_t_' + d.ch.toLowerCase(); }
+
+  /** 组内取两个干扰字母（排除答案，打乱） */
+  function l13TwoOthers(pool, ch) {
+    var rest = pool.filter(function (x) { return x !== ch; });
+    shuffle(rest);
+    return rest.slice(0, 2);
+  }
+
+  /* ---------- 26 个字母卡配色（手挑固定值，不用随机色相：观感稳定、便于回归对比） ---------- */
+  var L13_COLOR = {
+    A: ['#ef6f6f', '#cf4646'], B: ['#5aa9e6', '#3f8ec9'], C: ['#7fc46a', '#5da84c'],
+    D: ['#f5a65b', '#d17f34'], E: ['#c79ce8', '#a376cf'], F: ['#f27fa5', '#d15c84'],
+    G: ['#6fd0c4', '#4aa79c'], H: ['#f2c14e', '#cd9a26'], I: ['#8fb3f0', '#6a8fd1'],
+    J: ['#e8a06a', '#c67a3f'], K: ['#9ed36a', '#78b040'], L: ['#e57f7f', '#c25a5a'],
+    M: ['#6fc0e8', '#4a9bc4'], N: ['#d0a4f0', '#ab7bcf'], O: ['#f7b06a', '#d18a3f'],
+    P: ['#f08fbf', '#cb6496'], Q: ['#7fd0b0', '#57a98a'], R: ['#f2d06a', '#cda83f'],
+    S: ['#ef8f6a', '#c9683f'], T: ['#a0b8f0', '#7a94d1'], U: ['#8fd39f', '#67b177'],
+    V: ['#e8a8c8', '#c47fa4'], W: ['#6ab8d8', '#4590af'], X: ['#b0a8e8', '#8a80c9'],
+    Y: ['#f0c88a', '#cba05f'], Z: ['#8fcfd8', '#68a8b1']
+  };
+
+  /** 字母卡：与 12-2 同一套 DOM 与类名，字母只写在 .l122-glyph 里（白名单容器） */
+  function l13LetterCardSvg(ch) {
+    var p = L13_COLOR[ch] || ['#ef6f6f', '#cf4646'];
+    return '<svg viewBox="0 0 100 100" class="l122-letter-card" aria-hidden="true">' +
+      '<rect x="7" y="7" width="86" height="86" rx="20" fill="#fffdf6" stroke="' + p[0] + '" stroke-width="5.5"/>' +
+      '<rect x="13" y="13" width="74" height="74" rx="15" fill="' + p[0] + '" opacity=".1"/>' +
+      '<text class="l122-glyph" x="50" y="72" text-anchor="middle" font-family="Trebuchet MS,Verdana,sans-serif" ' +
+      'font-size="60" font-weight="800" fill="' + p[1] + '">' + ch + '</text></svg>';
+  }
+
+  /* ---------- 11 个新手写 SVG（A–Z 里 3D 素材库没有的那个首音词） ----------
+     Fluent 3D 素材只覆盖水果/动物/少数食物，剩下的词全部手写：
+     insect / jam / nose / orange / queen / umbrella / van / water / box / yoyo / zebra。
+     统一 100×100、圆润描边、扁平双色，与已有素材摆在一起不违和。 */
+  var L13_SVG = {
+    insect:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M26 48 L12 42 M26 60 L10 58 M28 72 L14 78" stroke="#5da84c" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M74 48 L88 42 M74 60 L90 58 M72 72 L86 78" stroke="#5da84c" stroke-width="3" stroke-linecap="round"/>' +
+      '<ellipse cx="50" cy="58" rx="24" ry="27" fill="#8fd06a" stroke="#5da84c" stroke-width="3.4"/>' +
+      '<path d="M50 32 V84" stroke="#5da84c" stroke-width="2" opacity=".45"/>' +
+      '<circle cx="41" cy="52" r="4" fill="#5da84c" opacity=".4"/>' +
+      '<circle cx="60" cy="64" r="5" fill="#5da84c" opacity=".4"/>' +
+      '<circle cx="44" cy="74" r="3.6" fill="#5da84c" opacity=".4"/>' +
+      '<circle cx="50" cy="31" r="14" fill="#a8dd82" stroke="#5da84c" stroke-width="3.2"/>' +
+      '<path d="M42 20 C38 10 32 8 27 9" fill="none" stroke="#5da84c" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M58 20 C62 10 68 8 73 9" fill="none" stroke="#5da84c" stroke-width="3" stroke-linecap="round"/>' +
+      '<circle cx="27" cy="9" r="3.2" fill="#3b2b30"/><circle cx="73" cy="9" r="3.2" fill="#3b2b30"/>' +
+      '<circle cx="44" cy="30" r="3.2" fill="#3b2b30"/><circle cx="56" cy="30" r="3.2" fill="#3b2b30"/>' +
+      '</svg>',
+    jam:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<rect x="30" y="36" width="40" height="50" rx="9" fill="#e2543f" stroke="#b93b29" stroke-width="3.2"/>' +
+      '<rect x="27" y="26" width="46" height="13" rx="5" fill="#f2c14e" stroke="#cd9a26" stroke-width="3"/>' +
+      '<rect x="36" y="52" width="28" height="21" rx="4" fill="#fffdf6" stroke="#e0c9a8" stroke-width="2.4"/>' +
+      '<path d="M42 64 q5 -6 10 0" fill="none" stroke="#c98b6a" stroke-width="2.6" stroke-linecap="round"/>' +
+      '<circle cx="58" cy="62" r="2.6" fill="#c98b6a"/>' +
+      '<rect x="36" y="42" width="7" height="38" rx="3.5" fill="#fff" opacity=".26"/>' +
+      '</svg>',
+    nose:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M50 24 C39 40 30 53 30 64 C30 77 39 85 50 85 C61 85 70 77 70 64 C70 53 61 40 50 24 Z" ' +
+      'fill="#f7c9b0" stroke="#d99a7a" stroke-width="3.2"/>' +
+      '<ellipse cx="41" cy="67" rx="4.6" ry="6.4" fill="#c98b6a" transform="rotate(-12 41 67)"/>' +
+      '<ellipse cx="59" cy="67" rx="4.6" ry="6.4" fill="#c98b6a" transform="rotate(12 59 67)"/>' +
+      '<path d="M50 48 V61" stroke="#d99a7a" stroke-width="2.4" stroke-linecap="round" opacity=".7"/>' +
+      '<path d="M44 78 q6 4 12 0" fill="none" stroke="#d99a7a" stroke-width="2.4" stroke-linecap="round"/>' +
+      '</svg>',
+    orange:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<circle cx="50" cy="58" r="33" fill="#f79a2b" stroke="#d1791a" stroke-width="3.4"/>' +
+      '<path d="M50 25 C50 16 55 12 61 9" fill="none" stroke="#8a5a3b" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M53 23 C60 14 74 14 78 18 C74 28 61 31 53 23 Z" fill="#7fc46a" stroke="#5da84c" stroke-width="2.6"/>' +
+      '<ellipse cx="37" cy="47" rx="8" ry="6" fill="#fff" opacity=".35" transform="rotate(-25 37 47)"/>' +
+      '<circle cx="62" cy="70" r="1.8" fill="#d1791a" opacity=".45"/>' +
+      '<circle cx="44" cy="76" r="1.6" fill="#d1791a" opacity=".4"/>' +
+      '<circle cx="68" cy="52" r="1.6" fill="#d1791a" opacity=".4"/>' +
+      '</svg>',
+    queen:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M22 92 C26 74 36 70 50 70 C64 70 74 74 78 92 Z" fill="#c78fe8" stroke="#a376cf" ' +
+      'stroke-width="3.2" stroke-linejoin="round"/>' +
+      '<path d="M28 34 H72 C74 34 75 36 75 39 V50 H25 V39 C25 36 26 34 28 34 Z" fill="#8a5a3b"/>' +
+      '<circle cx="50" cy="58" r="22" fill="#ffe0c2" stroke="#e8b98d" stroke-width="3.2"/>' +
+      '<circle cx="43" cy="56" r="2.6" fill="#3b2b30"/><circle cx="57" cy="56" r="2.6" fill="#3b2b30"/>' +
+      '<path d="M44 65 q6 5 12 0" fill="none" stroke="#c4736a" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<path d="M36 40 q4 -8 10 -4 M64 40 q-4 -8 -10 -4" fill="none" stroke="#8a5a3b" ' +
+      'stroke-width="2.6" stroke-linecap="round"/>' +
+      '<path d="M30 34 L26 14 L38 22 L50 8 L62 22 L74 14 L70 34 Z" fill="#f2c14e" stroke="#cd9a26" ' +
+      'stroke-width="3" stroke-linejoin="round"/>' +
+      '<circle cx="50" cy="9" r="3.2" fill="#ef6f6f"/>' +
+      '<circle cx="26" cy="14" r="2.6" fill="#5aa9e6"/><circle cx="74" cy="14" r="2.6" fill="#5aa9e6"/>' +
+      '</svg>',
+    umbrella:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<defs><clipPath id="l13UmbClip">' +
+      '<path d="M50 12 C24 12 8 30 8 50 C16 44 24 44 30 50 C36 44 44 44 50 50 ' +
+      'C56 44 64 44 70 50 C76 44 84 44 92 50 C92 30 76 12 50 12 Z"/></clipPath></defs>' +
+      '<g clip-path="url(#l13UmbClip)">' +
+      '<rect x="0" y="0" width="35" height="62" fill="#ef6f6f"/>' +
+      '<rect x="32" y="0" width="38" height="62" fill="#ffd166"/>' +
+      '<rect x="68" y="0" width="36" height="62" fill="#5aa9e6"/>' +
+      '</g>' +
+      '<path d="M50 12 C24 12 8 30 8 50 C16 44 24 44 30 50 C36 44 44 44 50 50 ' +
+      'C56 44 64 44 70 50 C76 44 84 44 92 50 C92 30 76 12 50 12 Z" fill="none" ' +
+      'stroke="#c9a06f" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M50 50 V74" stroke="#8a5a3b" stroke-width="4.4" stroke-linecap="round"/>' +
+      '<path d="M50 74 C50 84 40 84 40 76" fill="none" stroke="#8a5a3b" stroke-width="4.4" ' +
+      'stroke-linecap="round"/>' +
+      '<circle cx="50" cy="11" r="3.4" fill="#cd9a26"/>' +
+      '</svg>',
+    van:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M10 34 C10 30 13 27 17 27 H52 V64 H10 Z" fill="#6fb3e0" stroke="#3f8ec9" ' +
+      'stroke-width="3.2" stroke-linejoin="round"/>' +
+      '<path d="M52 27 H66 L82 43 V64 H52 Z" fill="#8fc8ee" stroke="#3f8ec9" stroke-width="3.2" ' +
+      'stroke-linejoin="round"/>' +
+      '<rect x="57" y="33" width="15" height="12" rx="2.4" fill="#fffdf6" opacity=".92"/>' +
+      '<rect x="14" y="36" width="20" height="9" rx="2.4" fill="#fffdf6" opacity=".5"/>' +
+      '<rect x="14" y="50" width="9" height="7" rx="2" fill="#ffd166"/>' +
+      '<circle cx="27" cy="68" r="9.5" fill="#3b2b30"/><circle cx="27" cy="68" r="3.6" fill="#d9d4c8"/>' +
+      '<circle cx="68" cy="68" r="9.5" fill="#3b2b30"/><circle cx="68" cy="68" r="3.6" fill="#d9d4c8"/>' +
+      '</svg>',
+    water:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M50 10 C50 10 24 44 24 62 C24 76 36 88 50 88 C64 88 76 76 76 62 C76 44 50 10 50 10 Z" ' +
+      'fill="#5ab8e8" stroke="#3a92c4" stroke-width="3.4" stroke-linejoin="round"/>' +
+      '<ellipse cx="38" cy="62" rx="6" ry="10" fill="#fff" opacity=".42" transform="rotate(-18 38 62)"/>' +
+      '<path d="M62 54 q6 8 4 14" fill="none" stroke="#fff" stroke-width="3" opacity=".32" ' +
+      'stroke-linecap="round"/>' +
+      '</svg>',
+    box:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M14 34 L50 20 L86 34 L50 48 Z" fill="#e8c08a" stroke="#c49a63" stroke-width="3" ' +
+      'stroke-linejoin="round"/>' +
+      '<path d="M14 34 V70 L50 86 V48 Z" fill="#d9a86a" stroke="#c49a63" stroke-width="3" ' +
+      'stroke-linejoin="round"/>' +
+      '<path d="M86 34 V70 L50 86 V48 Z" fill="#c99655" stroke="#c49a63" stroke-width="3" ' +
+      'stroke-linejoin="round"/>' +
+      '<path d="M32 27 L68 41 M50 20 L50 48" stroke="#b8863f" stroke-width="3.4" stroke-linecap="round"/>' +
+      '<path d="M62 62 L74 67" stroke="#b8863f" stroke-width="3" stroke-linecap="round" opacity=".6"/>' +
+      '</svg>',
+    yoyo:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M50 32 C50 22 56 14 64 10" fill="none" stroke="#8a5a3b" stroke-width="3.4" ' +
+      'stroke-linecap="round"/>' +
+      '<circle cx="65" cy="9" r="4" fill="#8a5a3b"/>' +
+      '<circle cx="50" cy="63" r="30" fill="#ef6f6f" stroke="#cf4646" stroke-width="3.4"/>' +
+      '<circle cx="50" cy="63" r="11" fill="#fffdf6" stroke="#e0c9a8" stroke-width="2.6"/>' +
+      '<circle cx="50" cy="63" r="4" fill="#cd9a26"/>' +
+      '<path d="M31 53 q-6 10 -2 18" fill="none" stroke="#fff" stroke-width="3" opacity=".34" ' +
+      'stroke-linecap="round"/>' +
+      '</svg>',
+    zebra:
+      '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M30 74 V86 M44 74 V86 M58 74 V86" stroke="#3b2b30" stroke-width="3.4" ' +
+      'stroke-linecap="round"/>' +
+      '<ellipse cx="44" cy="58" rx="26" ry="17" fill="#fffdf6" stroke="#3b2b30" stroke-width="3"/>' +
+      '<path d="M64 48 C74 42 80 32 82 24" fill="none" stroke="#fffdf6" stroke-width="15" ' +
+      'stroke-linecap="round"/>' +
+      '<path d="M64 48 C74 42 80 32 82 24" fill="none" stroke="#3b2b30" stroke-width="15" ' +
+      'stroke-linecap="round" stroke-dasharray="2 9" opacity=".9"/>' +
+      '<ellipse cx="84" cy="22" rx="11" ry="8.4" fill="#fffdf6" stroke="#3b2b30" stroke-width="3"/>' +
+      '<path d="M78 15 L74 6" stroke="#3b2b30" stroke-width="3" stroke-linecap="round"/>' +
+      '<circle cx="88" cy="20" r="2" fill="#3b2b30"/>' +
+      '<path d="M60 42 C56 30 55 22 57 13" fill="none" stroke="#3b2b30" stroke-width="6" ' +
+      'stroke-linecap="round"/>' +
+      '<path d="M28 52 q6 9 4 17 M40 48 q6 10 4 19 M52 48 q6 10 4 19" fill="none" stroke="#3b2b30" ' +
+      'stroke-width="4" stroke-linecap="round"/>' +
+      '</svg>'
+  };
+
+  /** 物品节点：优先用 3D 素材，没有的走手写 SVG */
+  function l13ArtNode(d, cls) {
+    var art = d.art || '';
+    var cut = art.indexOf(':');
+    var kind = cut < 0 ? art : art.slice(0, cut);
+    var key = cut < 0 ? '' : art.slice(cut + 1);
+    var c = cls || 'l13-art';
+    var el = null;
+    if (kind === 'fruit') el = assetImg(key, c);
+    else if (kind === 'animal') el = animalImg(key, c);
+    else if (kind === 'food') el = foodImg(key, c);
+    if (el) return el;
+    var box = document.createElement('div');
+    box.className = c;
+    if (kind === 'ball') box.innerHTML = l122ItemSvg('ball');
+    else box.innerHTML = L13_SVG[key] || '';
+    return box;
+  }
+
+  function ensureL13Css() {
+    if (document.getElementById('l13css')) return;
+    var s = document.createElement('style');
+    s.id = 'l13css';
+    s.textContent = [
+      /* 3D 素材是 <img>，必须显式撑满格子：12-2 只写了 `> svg`，img 会按原始尺寸溢出 */
+      '.l122-card > img.l13-art,.l122-card > div.l13-art,' +
+        '.l122-chip > img.l13-art,.l122-chip > div.l13-art,' +
+        '.l122-on > img.l13-art,.l122-on > div.l13-art,' +
+        '.l122-bigitem > img.l13-art,.l122-bigitem > div.l13-art' +
+        '{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}',
+      '.l13-art svg,.l122-bigitem svg{width:100%;height:100%;display:block}',
+      /* 开场：本关字母卡排队出现（只有 opacity + transform，禁闪烁 §二.3） */
+      '.l13-intro-row{flex-wrap:wrap;max-width:min(92vw,560px);gap:min(2.4vw,14px)}',
+      '.l13-intro-card{width:min(13vw,62px);height:min(13vw,62px);opacity:0;' +
+        'transform:translateY(8px);animation:l13in .44s ease-out forwards}',
+      '.l13-intro-card svg{width:100%;height:100%;display:block}',
+      '@keyframes l13in{to{opacity:1;transform:translateY(0)}}',
+      '@media (prefers-reduced-motion:reduce){.l13-intro-card{animation:none;opacity:1;transform:none}}',
+      '@media (max-height:600px){.l13-intro-card{width:min(9vw,44px);height:min(9vw,44px)}' +
+        '.l122-bigitem{width:min(24vw,120px);height:min(24vw,120px)}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  function l13Bounce(el) {
+    if (!el || !el.classList) return;
+    el.classList.remove('l122-wrong');
+    void el.offsetWidth;
+    el.classList.add('l122-wrong');
+    setTimeout(function () { if (el.classList) el.classList.remove('l122-wrong'); }, 460);
+  }
+
+  /* ---------------- 三题型渲染 ---------------- */
+
+  /** A 听音找字母：三张字母卡 */
+  function renderL13A(q) {
+    ensureL122Css();
+    ensureL13Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l122-ask l122-stage';
+    w.dataset.l13ask = 'L13A';
+    w.dataset.l13target = q.target;
+    w.dataset.l13items = q.items.join(',');
+    var row = document.createElement('div');
+    row.className = 'l122-cards';
+    q.items.forEach(function (ch, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l122-card';
+      b.dataset.letter = ch;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', '第 ' + (i + 1) + ' 张字母卡');
+      b.innerHTML = l13LetterCardSvg(ch);
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    w.appendChild(row);
+    askDisplay.appendChild(w);
+  }
+
+  /** B 听音找物品：三个物品 */
+  function renderL13B(q) {
+    ensureL122Css();
+    ensureL13Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l122-ask l122-stage';
+    w.dataset.l13ask = 'L13B';
+    w.dataset.l13target = q.target;
+    w.dataset.l13items = q.items.join(',');
+    var row = document.createElement('div');
+    row.className = 'l122-cards';
+    q.items.forEach(function (word, i) {
+      var def = L13_BY_WORD[word];
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'l122-card';
+      b.dataset.item = word;
+      b.dataset.idx = String(i);
+      b.setAttribute('aria-label', '第 ' + (i + 1) + ' 张图片');
+      if (def) b.appendChild(l13ArtNode(def));
+      b.addEventListener('click', function () {
+        if (state.phase !== 'asking' || state.busy) return;
+        judge(i === q.answer, b);
+      });
+      row.appendChild(b);
+    });
+    w.appendChild(row);
+    askDisplay.appendChild(w);
+  }
+
+  /** C 拖拽配对：上方三个字母槽，下方三个物品 */
+  function renderL13C(q) {
+    ensureL122Css();
+    ensureL13Css();
+    askDisplay.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'l122-ask l122-cstage l122-stage';
+    w.dataset.l13ask = 'L13C';
+    w.dataset.l13pick = q.pick;
+    w.dataset.l13slots = q.slots.join(',');
+
+    var slots = document.createElement('div');
+    slots.className = 'l122-slots';
+    q.slots.forEach(function (ch, i) {
+      var d = document.createElement('div');
+      d.className = 'l122-slot';
+      d.dataset.drop = 'l13slot';
+      d.dataset.letter = ch;
+      d.setAttribute('aria-label', '第 ' + (i + 1) + ' 个字母槽');
+      d.innerHTML = l13LetterCardSvg(ch);
+      slots.appendChild(d);
+    });
+    w.appendChild(slots);
+
+    var tray = document.createElement('div');
+    tray.className = 'l122-tray';
+    q.tray.forEach(function (word) {
+      var def = L13_BY_WORD[word];
+      if (!def) return;
+      var d = document.createElement('div');
+      d.className = 'l122-chip';
+      d.dataset.drag = 'l13chip';
+      d.dataset.item = word;
+      d.setAttribute('aria-label', '一张可以拖动的图片');
+      d.appendChild(l13ArtNode(def));
+      tray.appendChild(d);
+    });
+    w.appendChild(tray);
+    askDisplay.appendChild(w);
+  }
+
+  /** 放进字母槽：新建展示节点（§三.31），拖拽件本身不搬进场景 */
+  function l13Place(el, slot, def) {
+    var on = document.createElement('span');
+    on.className = 'l122-on';
+    on.dataset.item = def.word;
+    on.appendChild(l13ArtNode(def, 'l13-art'));
+    slot.appendChild(on);
+    slot.classList.add('l122-filled');
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+  }
+
+  /** 拖拽判定：任意物品放进「它自己开头的那个字母」都算对（宽容判定 §二.11） */
+  function resolveL13(el, target) {
+    if (!el || !el.dataset) return false;
+    var q = state.question;
+    if (!q || q.type !== 'L13C') return false;
+    var def = L13_BY_WORD[el.dataset.item];
+    if (!def) return false;
+    var slot = (target && target.dataset) ? target.dataset.letter : null;
+    if (!slot) { l13Bounce(el); return false; }
+    if (target.querySelector('.l122-on')) { l13Bounce(el); return false; }
+    if (slot !== def.ch) { judge(false, el); return false; }
+    l13Place(el, target, def);
+    setTimeout(function () {
+      if (state.phase !== 'asking') return;
+      judge(true, target);
+    }, 260);
+    return true;
+  }
+
+  /* ---------------- 出题：12 轮 4/4/4（防背题见 makeL13） ---------------- */
+
+  /* ---------------- 教学：每两个字母「两演示 + 一互动」，最后过渡 ----------------
+     5 字母关 8 环节、6 字母关 9 环节。演示必须点屏推进（§三.14），互动 4 秒小手（§二.12），
+     点错只抖动不判错。 */
+  var runL13Tutorial = (function () {
+    function actsFor(level) {
+      var g = l13Group(level);
+      var acts = [];
+      if ((level | 0) === 1) acts.push({ t: 'demo', sid: 'in', intro: true, word: 'l13_t_in' });
+      for (var i = 0; i < g.length; i += 2) {
+        acts.push({ t: 'demo', sid: 'd' + g[i], ch: g[i] });
+        if (g[i + 1]) acts.push({ t: 'demo', sid: 'd' + g[i + 1], ch: g[i + 1] });
+        /* 末组只剩一个字母时不再单独加互动：那个字母在答题里还会反复出现，
+           否则 5 字母关会多出一个「刚教完立刻再考一次」的冗余环节 */
+        if (g[i + 1]) {
+          acts.push({ t: 'ask', sid: 'a' + g[i], ch: g[i], pool: g, word: l13Audio(L13_BY_CH[g[i]], 'qa') });
+        }
+      }
+      acts.push({ t: 'out', sid: 'out', word: 'l13_t_out_' + (level | 0) });
+      return acts;
+    }
+
+    function clearTap(me) {
+      if (me && me._onTap) { document.removeEventListener('click', me._onTap, true); me._onTap = null; }
+      var t = askDisplay.querySelector('.f11-tap');
+      if (t && t.parentNode) t.parentNode.removeChild(t);
+    }
+    function blank(me) {
+      me.hintTarget = null; me.hintFrom = null; me.hintTo = null; me.hintToY = 0.5;
+      me.waitTap = false; me.replay = null;
+      me.canDrag = false; me.l13On = false;
+      clearTap(me); clearHint();
+    }
+    function stage(me, sid, label) {
+      blank(me);
+      ensureL122Css();
+      ensureL13Css();
+      askDisplay.innerHTML = '';
+      var w = document.createElement('div');
+      w.className = 'l122-ask l122-stage';
+      w.dataset.sid = sid;
+      w.setAttribute('aria-label', label || '字母与发音');
+      askDisplay.appendChild(w);
+      return w;
+    }
+    function showTap() {
+      if (askDisplay.querySelector('.f11-tap')) return;
+      var t = document.createElement('div');
+      t.className = 'f11-tap';
+      t.textContent = '轻点继续';
+      askDisplay.appendChild(t);
+    }
+    function gate(me, next) {
+      if (me.waitTap) return;
+      me.waitTap = true;
+      showTap();
+      var onTap = function (e) {
+        if (state.tut !== me || !me.waitTap) return;
+        if (isChromeTap(e)) return;
+        me.waitTap = false;
+        document.removeEventListener('click', onTap, true);
+        me._onTap = null;
+        if (e && e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+        var t = askDisplay.querySelector('.f11-tap');
+        if (t && t.parentNode) t.parentNode.removeChild(t);
+        next();
+      };
+      me._onTap = onTap;
+      document.addEventListener('click', onTap, true);
+    }
+
+    /* 演示：大字母卡 + 首音词配图，配图随语音里的三拍音素跳三下 */
+    function playDemo(me, act, next) {
+      var w = stage(me, act.sid, act.intro ? '本关的字母' : '字母和它的首音词');
+      if (act.intro) {
+        var row = document.createElement('div');
+        row.className = 'l122-cards l13-intro-row';
+        l13Group(me.l13Level).forEach(function (ch, i) {
+          var d = document.createElement('div');
+          d.className = 'l13-intro-card';
+          d.dataset.letter = ch;
+          d.style.animationDelay = (i * 70) + 'ms';
+          d.innerHTML = l13LetterCardSvg(ch);
+          row.appendChild(d);
+        });
+        w.appendChild(row);
+      } else {
+        var def = L13_BY_CH[act.ch];
+        var box = document.createElement('div');
+        box.className = 'l122-big';
+        var l = document.createElement('div');
+        l.className = 'l122-bigletter l122-pulse';
+        l.dataset.letter = act.ch;
+        l.innerHTML = l13LetterCardSvg(act.ch);
+        box.appendChild(l);
+        var it = document.createElement('div');
+        it.className = 'l122-bigitem';
+        it.dataset.item = def ? def.word : '';
+        if (def) it.appendChild(l13ArtNode(def));
+        box.appendChild(it);
+        w.appendChild(box);
+        [420, 900, 1420].forEach(function (ms) {
+          setTimeout(function () {
+            if (state.tut !== me) return;
+            it.classList.remove('l122-beat');
+            void it.offsetWidth;
+            it.classList.add('l122-beat');
+          }, ms);
+        });
+      }
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        setTimeout(function () { if (state.tut === me) gate(me, next); }, 700);
+      });
+    }
+
+    /* 互动：三张字母卡里点出刚听到的音（4 秒不出手就出小手） */
+    function playAsk(me, act, next) {
+      var w = stage(me, act.sid, '点出听到的字母');
+      var row = document.createElement('div');
+      row.className = 'l122-cards';
+      var order = shuffle([act.ch].concat(l13TwoOthers(act.pool, act.ch)));
+      var right = null;
+      order.forEach(function (ch, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'l122-card';
+        b.dataset.letter = ch;
+        b.dataset.idx = String(i);
+        b.setAttribute('aria-label', '第 ' + (i + 1) + ' 张字母卡');
+        b.innerHTML = l13LetterCardSvg(ch);
+        if (ch === act.ch) right = b;
+        b.addEventListener('click', function () {
+          if (state.phase !== 'tutorial' || state.tut !== me || !me.l13On) return;
+          if (ch !== act.ch) { l13Bounce(b); armHint(); return; }
+          me.l13On = false; me.hintTarget = null;
+          clearHint();
+          b.classList.add('l122-right');
+          setTimeout(function () { if (state.tut === me) next(); }, 620);
+        });
+        row.appendChild(b);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () {
+        if (state.tut !== me) return;
+        me.l13On = true;
+        me.hintTarget = right;
+        armHint();
+      });
+    }
+
+    /* 过渡：本关字母卡排队 + 过渡语，说完进答题 */
+    function playOut(me, act) {
+      var w = stage(me, act.sid, '本关的字母');
+      var row = document.createElement('div');
+      row.className = 'l122-cards l13-intro-row';
+      l13Group(me.l13Level).forEach(function (ch, i) {
+        var d = document.createElement('div');
+        d.className = 'l13-intro-card';
+        d.dataset.letter = ch;
+        d.style.animationDelay = (i * 70) + 'ms';
+        d.innerHTML = l13LetterCardSvg(ch);
+        row.appendChild(d);
+      });
+      w.appendChild(row);
+      me.replay = function () { say([act.word]); };
+      say([act.word], function () { if (state.tut === me) tutFinish(me, false); });
+    }
+
+    function play(me, i) {
+      if (state.tut !== me) return;
+      var acts = me.l13Acts || [];
+      if (i >= acts.length) { tutFinish(me, false); return; }
+      var act = acts[i];
+      var next = function () { play(me, i + 1); };
+      if (act.t === 'demo') { playDemo(me, act, next); return; }
+      if (act.t === 'ask') { playAsk(me, act, next); return; }
+      playOut(me, act);
+    }
+
+    var api = function (me) {
+      me.l13Level = state.level | 0;
+      me.l13Acts = actsFor(state.level);
+      /* 与 12-2 共用的 7 句住在 island_12_2.js：错峰预取，别和本关分块抢带宽（§三.34） */
+      setTimeout(function () { loadVoiceChunk('island_12_2'); }, 1800);
+      play(me, 0);
+    };
+    api.check = function () { return false; };
+    return api;
+  })();
+
   /* ---------------- 年度通关大结局：12 面小旗 + 中文横幅 + 收尾台词 ---------------- */
 
   function isFinalLevel() {
@@ -28783,7 +29449,7 @@
     box.appendChild(ban);
     vd.appendChild(box);
     /* 结尾台词：等通关音效播完再念，念完就不再有任何声音（§二.10 只管「答对」，不限制结束语） */
-    setTimeout(function () { if (state.phase === 'done') say(['l125_finale']); }, 3000);
+    setTimeout(function () { if (state.phase === 'done') say(['l13_finale']); }, 3000);
   }
 
   var runB4Tutorial = (function () {
@@ -29177,6 +29843,11 @@
     if (q.type === 'L125A') { optionsBar.classList.add('gone'); renderL125A(q); return; }
     if (q.type === 'L125B') { optionsBar.classList.add('gone'); renderL125B(q); return; }
     if (q.type === 'L125C') { optionsBar.classList.add('gone'); renderL125C(q); return; }
+
+    /* ---- 第 13 岛：字母与首音（A 听音找字母 / B 听音找物品 / C 拖拽配对） ---- */
+    if (q.type === 'L13A') { optionsBar.classList.add('gone'); renderL13A(q); return; }
+    if (q.type === 'L13B') { optionsBar.classList.add('gone'); renderL13B(q); return; }
+    if (q.type === 'L13C') { optionsBar.classList.add('gone'); renderL13C(q); return; }
 
     /* ---- 第 4 岛第 1 关：农场动物（A/B 用独立宫格，C 用农场门） ---- */
     if (q.type === 'F1A' || q.type === 'F1B') { optionsBar.classList.add('gone'); return; }
@@ -29661,6 +30332,11 @@
     }
     // 第 12 岛第 2 关：三题型都自带舞台
     if (q.type === 'L122A' || q.type === 'L122B' || q.type === 'L122C') {
+      optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
+      return;
+    }
+    // 第 13 岛：三题型都自带舞台
+    if (q.type === 'L13A' || q.type === 'L13B' || q.type === 'L13C') {
       optionEls.forEach(function (b) { b.hidden = true; b.removeAttribute('data-drag'); b.removeAttribute('data-drop'); });
       return;
     }
@@ -30360,7 +31036,8 @@
             qt !== 'L122A' && qt !== 'L122B' && qt !== 'L122C' &&
             qt !== 'L123A' && qt !== 'L123B' && qt !== 'L123C' &&
             qt !== 'L124A' && qt !== 'L124B' && qt !== 'L124C' &&
-            qt !== 'L125A' && qt !== 'L125B' && qt !== 'L125C') {
+            qt !== 'L125A' && qt !== 'L125B' && qt !== 'L125C' &&
+            qt !== 'L13A' && qt !== 'L13B' && qt !== 'L13C') {
           reshuffleOptions(state.question);
           renderOptions(state.question);
           renderTray(state.question);
@@ -30517,7 +31194,7 @@
       if (d.mode === 'L92' || d.mode === 'L93' || d.mode === 'L94' || d.mode === 'L95' || d.mode === 'L105' ||
           d.mode === 'L111' || d.mode === 'L112' || d.mode === 'L113' || d.mode === 'L114' || d.mode === 'L115' ||
           d.mode === 'L121' || d.mode === 'L122' || d.mode === 'L123' || d.mode === 'L124' ||
-          d.mode === 'L125') return;
+          d.mode === 'L125' || d.mode === 'L13') return;
       if (d.mode === 'W5A') resolveW5A(d.idx, d.el);
       else if (d.mode === 'TUT') tutPickBall(d.el, e.clientX, e.clientY);
       else if (d.mode === 'F14T') tutPickF14(d.el);
@@ -30609,6 +31286,8 @@
         resolveL121(d.el, target);
       } else if (d.mode === 'L122') {
         resolveL122(d.el, target);
+      } else if (d.mode === 'L13') {
+        resolveL13(d.el, target);
       } else if (d.mode === 'L123') {
         resolveL123(d.el, target);
       } else if (d.mode === 'L124') {
@@ -31882,6 +32561,32 @@
       steps: [],
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
+    },
+    '13-1': {
+      // 字母与首音 · 第一关 A–E：8 环节
+      // 开场（本关五张字母卡排队）→ A+B 两演示 → 点出读该音的字母（互动）→ C+D 两演示 → 互动 → E 演示 → 过渡
+      custom: runL13Tutorial,
+      steps: [], onDrop: function () { return false; }, onSuccess: function () { }
+    },
+    '13-2': {
+      // 第二关 F–J：8 环节（无开场，直接进 F）
+      custom: runL13Tutorial,
+      steps: [], onDrop: function () { return false; }, onSuccess: function () { }
+    },
+    '13-3': {
+      // 第三关 K–O：8 环节
+      custom: runL13Tutorial,
+      steps: [], onDrop: function () { return false; }, onSuccess: function () { }
+    },
+    '13-4': {
+      // 第四关 P–T：8 环节
+      custom: runL13Tutorial,
+      steps: [], onDrop: function () { return false; }, onSuccess: function () { }
+    },
+    '13-5': {
+      // 第五关 U–Z：9 环节（六个字母，分成三组「两演示 + 一互动」）
+      custom: runL13Tutorial,
+      steps: [], onDrop: function () { return false; }, onSuccess: function () { }
     }
   };
 
@@ -32142,6 +32847,8 @@
     if (q.type === 'L115C') return 'L115';
     if (q.type === 'L121C') return 'L121';
     if (q.type === 'L122C') return 'L122';
+    if (q.type === 'L13C') return 'L13';
+    if (q.type === 'L13C') return 'L13';
     if (q.type === 'L123C') return 'L123';
     if (q.type === 'L124A') return 'L124';
     if (q.type === 'L125C') return 'L125';
@@ -33153,6 +33860,8 @@
     L122_ITEMS: L122_ITEMS,
     L122_LETTERS: L122_LETTERS,
     L122_LETTER_OF: L122_LETTER_OF,
+    L13_BY_CH: L13_BY_CH,
+    L13_GROUPS: L13_GROUPS,
     L124_ITEMS: L124_ITEMS,
     L124_PEOPLE: L124_PEOPLE,
     L125_LAST: L125_LAST,
@@ -33211,6 +33920,7 @@
     l115PickWho: l115PickWho,
     l115ShuffleAvoid: l115ShuffleAvoid,
     l122ShuffleAvoid: l122ShuffleAvoid,
+    l13Audio: l13Audio,
     l123PickDiff: l123PickDiff,
     l123ShuffleAvoid: l123ShuffleAvoid,
     l124TrayIds: l124TrayIds,

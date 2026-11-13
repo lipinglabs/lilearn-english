@@ -12,7 +12,7 @@
  * 产出：.shots/smoke-report.json；临时诊断页自动删除。
  *
  * 说明：file:// 下 voice/chunks 无法运行时加载（voiceBank() 为空），因此语音层改用
- * 「静态资源完整性校验」：检查 12 岛 × 5 关对应的分块文件是否齐全、非空。
+ * 「静态资源完整性校验」：检查 13 岛 × 5 关对应的分块文件是否齐全、非空。
  * 运行时语音播放需在线上 URL 或用 CDP 注入验证，属后续增强项。
  */
 const fs = require('fs');
@@ -33,7 +33,7 @@ const EDGE = [
 if (!EDGE) { console.error('Edge not found'); process.exit(1); }
 const deep = process.argv.indexOf('--deep') >= 0;
 const mIslands = process.argv.find(function (a) { return a.indexOf('--islands=') === 0; });
-const islandLimit = mIslands ? Math.min(12, Math.max(1, parseInt(mIslands.split('=')[1], 10))) : 12;
+const islandLimit = mIslands ? Math.min(13, Math.max(1, parseInt(mIslands.split('=')[1], 10))) : 13;
 fs.mkdirSync(SHOTS, { recursive: true });
 
 const DRIVER = `<script>
@@ -89,7 +89,7 @@ const DRIVER = `<script>
 })();
 </script>`;
 
-/* 语音层：静态校验 12 岛 × 5 关的分块是否齐全、非空 */
+/* 语音层：静态校验 13 岛 × 5 关的分块是否齐全、非空 */
 function voiceAssets() {
   const dir = path.join(ROOT, 'voice', 'chunks');
   if (!fs.existsSync(dir)) return { available: false };
@@ -100,7 +100,7 @@ function voiceAssets() {
      因此校验口径是「每个岛至少有一份语音资源」，而不是逐关一个文件。 */
   const byIsland = {};
   const missingIslands = [];
-  for (let i = 1; i <= 12; i++) {
+  for (let i = 1; i <= 13; i++) {
     const hits = files.filter(function (f) {
       return f === 'island_' + i + '.js' || f.indexOf('island_' + i + '_') === 0;
     });
@@ -109,7 +109,7 @@ function voiceAssets() {
   }
   return {
     available: true, files: files.length, bytes: bytes,
-    islandsCovered: 12 - missingIslands.length, islandsTotal: 12,
+    islandsCovered: 13 - missingIslands.length, islandsTotal: 13,
     missingIslands: missingIslands, byIsland: byIsland
   };
 }
