@@ -743,22 +743,30 @@
     toast('测试模式已开启，云端同步已暂停');
   }
 
-  /** 退出沙盒：销毁临时解锁 → 恢复真实进度 → 重新拉取云端合并 */
+  /** 退出沙盒：销毁临时解锁 → 恢复真实进度 → 重新拉取云端合并
+   *  铁律：无论恢复过程出任何岔子，都必须先退出沙盒态、把角标收起来——
+   *  否则角标没了、沙盒还在，「退不出来」就是这么来的。 */
   function devExit() {
     if (!dev.active) return;
     dev.active = false;
     showDevBadge(false);
-    if (dev.backup) {
-      progress = normalizeProgress(dev.backup);          // 恢复进入前的真实进度
-      dev.backup = null;
+    try {
+      progress = dev.backup ? normalizeProgress(dev.backup) : normalizeProgress(null);
+    } catch (e) {
+      progress = normalizeProgress(null);      // 恢复失败也不卡住：回默认进度
     }
-    saveProgress();                                      // 落盘的一定是真实进度
-    if (view === 'level') { stop(); enterIsland(currentIsland); }   // 沙盒内那局游玩直接丢弃
-    else { renderMap(); if (view === 'island') renderIsland(); }
-    if (cloud.token && cloud.gistId) {
-      cloudPull();                                       // 重新拉取云端真实存档（最高进度优先合并）
-      cloudStartSilent();
-    }
+    dev.backup = null;
+    try { saveProgress(); } catch (e) { /* 落盘失败不影响退出 */ }
+    try {
+      if (view === 'level') { stop(); enterIsland(currentIsland); }   // 沙盒内那局游玩直接丢弃
+      else { renderMap(); if (view === 'island') renderIsland(); }
+    } catch (e) { /* 重绘失败不影响退出 */ }
+    try {
+      if (cloud.token && cloud.gistId) {
+        cloudPull();                                       // 重新拉取云端真实存档（最高进度优先合并）
+        cloudStartSilent();
+      }
+    } catch (e) { /* 网络异常不影响退出 */ }
     toast('已退出测试模式，进度已恢复');
   }
 
@@ -889,7 +897,17 @@
 
   /** 进度规范化：容错处理云端/旧版本数据 */
   function normalizeProgress(raw) {
-    var out = { unlockedIsland: 1, unlockedLevel: { 1: 1 }, cleared: {}, stars: {} };
+    /* v2 字段必须在这里就全部建好空壳：
+       下面的 daily / wordStats / levelMistakes 都是「按需写入」，如果只在
+       if (raw.daily) 分支里才创建 out.daily，那么「raw.daily 存在但条目全被过滤」
+       或「raw 完全没有这些字段」时，out.daily 就是 undefined，
+       紧接着的 Object.keys(out.daily) / out.daily[k]= 会直接抛 TypeError。
+       实测后果：devExit 中途抛错 → 沙盒退不出去；云端存档读回即崩 →
+       被 catch 误报成「连接失败」，还会顺手清掉令牌。 */
+    var out = {
+      unlockedIsland: 1, unlockedLevel: { 1: 1 }, cleared: {}, stars: {},
+      lastPlayed: null, levelMistakes: {}, wordStats: {}, daily: {}
+    };
     if (!raw || typeof raw !== 'object') return out;
     out.unlockedIsland = Math.max(1, Math.min(ISLANDS.length, raw.unlockedIsland | 0 || 1));
     if (raw.unlockedLevel && typeof raw.unlockedLevel === 'object') {
