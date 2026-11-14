@@ -1,187 +1,96 @@
 /* ============================================================
-   英语冒险 · 岛 8 出题器（外置）
+   英语冒险 · 岛 9 出题器（外置）
    ------------------------------------------------------------
    由 index.html 主脚本之后加载。core 通过 window.__LLCore 导出所需符号，
    本文件用同名局部变量取值，因此函数体与原版逐字节相同、未作任何改写。
    ============================================================ */
 (function () {
   var L = window.__LLCore || {};
-  var H1_B_POOL = {
-      happy: ['ice_eat', 'gift'],
-      sad: ['ice_fall', 'balloon'],
-      angry: ['toy', 'block']
-    };
-  var H1_B_TARGETS = [
-      { scene: 'ice_eat',  mood: 'happy', key: 'h1_b_ice_eat' },
-      { scene: 'ice_fall', mood: 'sad',   key: 'h1_b_ice_fall' },
-      { scene: 'toy',      mood: 'angry', key: 'h1_b_toy' },
-      { scene: 'balloon',  mood: 'sad',   key: 'h1_b_balloon' }
+  var L92_A_KEY = { hat: 'l92_a_hat', shoes: 'l92_a_shoes', coat: 'l92_a_coat', pants: 'l92_a_pants' };
+  var L92_B_KEY = { hat: 'l92_b_hat', shoes: 'l92_b_shoes', coat: 'l92_b_coat', pants: 'l92_b_pants' };
+  var L92_C_KEYS = [
+      { act: 'on',  item: 'hat',  key: 'l92_c_on_hat' },
+      { act: 'off', item: 'hat',  key: 'l92_c_off_hat' },
+      { act: 'on',  item: 'coat', key: 'l92_c_on_coat' },
+      { act: 'off', item: 'coat', key: 'l92_c_off_coat' }
     ];
-  var H1_MOODS = L.H1_MOODS;
-  var H2_FIND_KEY = { hungry: 'l5w4_a', thirsty: 'h2_t_thirsty_find', sleepy: 'h2_t_sleepy_find' };
-  var H2_NEED = L.H2_NEED;
-  var H2_STATES = L.H2_STATES;
-  var H3_COMFORT = ['toy', 'candy'];
-  var H3_DISTRACT = ['pepper', 'book', 'rock'];
-  var H4_A_KEY = { ice_fall: 'h4_a_ice', eat_apple: 'h4_a_apple', play_toy: 'h4_a_play', toy_gone: 'h4_a_gone' };
-  var H4_A_SITS = ['ice_fall', 'eat_apple', 'play_toy', 'toy_gone'];
-  var H4_B_CAUSES = [
-      { sit: 'ice_fall',  emo: 'sad',    key: 'h4_b_sad' },
-      { sit: 'toy_gone',  emo: 'angry',  key: 'h4_b_angry' },
-      { sit: 'sleep_bed', emo: 'sleepy', key: 'h4_b_sleepy' },
-      { sit: 'eat_apple', emo: 'happy',  key: 'h4_b_happy' }
+  var L92_ITEMS = L.L92_ITEMS;
+  var L93_A_KEY = { hot: 'l93_t_hot_put', cold: 'l92_b_coat' };
+  var L93_B_KEY = { hot: 'l93_b_hot', cold: 'l93_b_cold', rain: 'l93_b_rain' };
+  var L93_C_KEY = { hot: 'l93_c_hot', cold: 'l93_c_cold' };
+  var L93_ITEMS = ['tshirt', 'coat'];
+  var L93_NEED = { hot: 'tshirt', cold: 'coat' };
+  var L93_SKY = ['hot', 'cold'];
+  var L93_STATES = ['hot', 'cold', 'rain'];
+  var L94_A_KEY = { hat: 'l94_a_hat', shoes: 'l94_a_shoes', pants: 'l94_a_pants' };
+  var L94_C = [
+      { key: 'l94_c_hand', look: 'shoes@head' },
+      { key: 'l94_c_nose', look: 'hat@foot' },
+      { key: 'l94_c_jump', look: 'pants@arms' }
     ];
-  var H4_EMO = L.H4_EMO;
-  var H5_A_CAUSES = [
-      { emo: 'sad',    key: 'h5_a_ice' },
-      { emo: 'angry',  key: 'h5_a_toy' },
-      { emo: 'happy',  key: 'h5_a_gift' },
-      { emo: 'sleepy', key: 'h5_a_bed' }
+  var L94_ITEMS = ['hat', 'shoes', 'pants'];
+  var L94_NORMAL = ['hat@head', 'pants@legs', 'shoes@feet'];
+  var L94_SILLY = [
+      { look: 'shoes@head', key: 'l94_b_shoes', item: 'shoes' },
+      { look: 'pants@arms', key: 'l94_b_pants', item: 'pants' },
+      { look: 'hat@foot', key: 'l94_b_hat', item: 'hat' }
     ];
-  var H5_B_KEY = { happy: 'h5_b_happy', hungry: 'h5_b_hungry', angry: 'h5_b_angry', sleepy: 'h5_b_sleepy' };
-  var H5_C_KEYS = [
-      { emo: 'thirsty', key: 'h5_c_thirsty' },
-      { emo: 'hungry',  key: 'h5_c_hungry' },
-      { emo: 'sleepy',  key: 'h5_c_sleepy' },
-      { emo: 'happy',   key: 'h5_c_happy' }
+  var L94_SLOT = L.L94_SLOT;
+  var L95_C_COMBOS = [
+      { key: 'l95_c_pants_hat',  steps: [{ op: 'put', item: 'pants', slot: 'legs' }, { op: 'take', item: 'hat',  slot: 'head' }] },
+      { key: 'l95_c_shoes_coat', steps: [{ op: 'put', item: 'shoes', slot: 'feet' }, { op: 'take', item: 'coat', slot: 'body' }] },
+      { key: 'l95_c_coat_hat',   steps: [{ op: 'put', item: 'coat',  slot: 'body' }, { op: 'take', item: 'hat',  slot: 'head' }] }
     ];
-  var H5_EMO = L.H5_EMO;
-  var ensureH1Css = L.ensureH1Css;
-  var ensureH2Css = L.ensureH2Css;
-  var ensureH3Css = L.ensureH3Css;
-  var ensureH4Css = L.ensureH4Css;
-  var ensureH5Css = L.ensureH5Css;
+  var L95_SILLY_SET = ['pants@head', 'shoes@hand'];
+  var L9_A_KEY = { shirt: 'l9_t_shirt_put', pants: 'l9_t_pants_put', shoes: 'l9_t_shoes', hat: 'l9_t_hat' };
+  var L9_B_KEY = { shirt: 'l9_b_shirt', pants: 'l9_b_pants', shoes: 'l9_b_shoes', hat: 'l9_b_hat' };
+  var L9_C_KEY = { shirt: 'l9_c_shirt', pants: 'l9_c_pants', shoes: 'l9_c_shoes', hat: 'l9_c_hat' };
+  var L9_ITEMS = L.L9_ITEMS;
+  var L9_PART = L.L9_PART;
+  var ensureL92Css = L.ensureL92Css;
+  var ensureL93Css = L.ensureL93Css;
+  var ensureL94Css = L.ensureL94Css;
+  var ensureL95Css = L.ensureL95Css;
+  var ensureL9Css = L.ensureL9Css;
   var pick = L.pick;
-  var randInt = L.randInt;
   var shuffle = L.shuffle;
   var state = L.state;
 
-function makeQuestionH1(type, prev) {
-    ensureH1Css();
+function makeQuestionL9(type, prev) {
+    ensureL9Css();
     var q, guard = 0;
     do {
       if (type === 0) {
-        /* A：3 张情绪脸（开心/难过/生气），听 "Find the X face." 点目标 */
-        var want = pick(H1_MOODS);
-        var faces = shuffle(H1_MOODS.slice());
+        /* A：中央小人（打底衫）+ 3 件衣物，听指令把孩子拖到小人身上 */
+        var item = pick(L9_ITEMS);
+        var rest = L9_ITEMS.filter(function (x) { return x !== item; });
+        shuffle(rest);
+        var items = shuffle([item, rest[0], rest[1]]);
         q = {
-          type: 'H1A', sig: 'A:' + want + ':' + faces.join(','), mood: want, faces: faces,
-          answer: faces.indexOf(want), correct: faces.indexOf(want),
-          options: [], audio: ['h1_a_' + want]
+          type: 'L9A', sig: 'A:' + item + ':' + items.join(','), item: item, items: items,
+          part: L9_PART[item],
+          options: items.map(function (it) { return { kind: 'l9item', item: it }; }),
+          answer: items.indexOf(item), correct: items.indexOf(item),
+          audio: [L9_A_KEY[item]]
         };
       } else if (type === 1) {
-        /* B：3 张情景卡（3 种情绪各一张），听情景描述点对应脸谱 */
-        var tgt = pick(H1_B_TARGETS);
-        var others = [];
-        H1_MOODS.forEach(function (m) {
-          if (m !== tgt.mood) others.push(pick(H1_B_POOL[m]));
-        });
-        var scenes = shuffle([tgt.scene].concat(others));
-        q = {
-          type: 'H1B', sig: 'B:' + tgt.scene + ':' + scenes.join(','), mood: tgt.mood,
-          scene: tgt.scene, scenes: scenes, answer: scenes.indexOf(tgt.scene),
-          correct: scenes.indexOf(tgt.scene), options: [], audio: [tgt.key]
-        };
-      } else {
-        /* C：缺嘴巴的脸 + 3 个嘴巴选项（拖/点拼上去） */
-        var wantM = pick(H1_MOODS);
-        var opts = shuffle(H1_MOODS.slice());
-        q = {
-          type: 'H1C', sig: 'C:' + wantM + ':' + opts.join(','), mouth: wantM,
-          options: opts.map(function (m) { return { kind: 'h1mouth', mood: m }; }),
-          correct: opts.indexOf(wantM), audio: ['h1_c_' + wantM]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
-
-function makeQuestionH2(type, prev) {
-    ensureH2Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：3 个不同感受的小人，听 "Find the X boy." 点目标 */
-        var want = pick(H2_STATES);
-        var states = shuffle(H2_STATES.slice());
-        q = {
-          type: 'H2A', sig: 'A:' + want + ':' + states.join(','), state: want, states: states,
-          answer: states.indexOf(want), correct: states.indexOf(want),
-          options: [], audio: [H2_FIND_KEY[want]]
-        };
-      } else if (type === 1) {
-        /* B：中央一个感受的小人 + 3 件物品，听句把对的东西拖给他 */
-        var kid = pick(H2_STATES);
-        var needed = H2_NEED[kid];
-        var items = shuffle(['bread', 'water', 'pillow']);
-        q = {
-          type: 'H2B', sig: 'B:' + kid + ':' + items.join(','), state: kid, items: items,
-          options: items.map(function (it) { return { kind: 'h2item', item: it }; }),
-          correct: items.indexOf(needed), audio: ['h2_b_' + kid]
-        };
-      } else {
-        /* C：中央一个完整小场景（小人 + 正确物品）+ ✅/❌ 判断语音描述是否与画面一致。
-           claimState 有 50/50 与画面相同 / 不同，只有听懂语音才能判断（无视觉作弊 §三.16）。 */
-        var scene = pick(H2_STATES);
-        state.h2Flip = !state.h2Flip;
-        var same = state.h2Flip;
-        var claim = scene;
-        if (!same) {
-          var others = H2_STATES.filter(function (s2) { return s2 !== scene; });
-          claim = pick(others);
-        }
-        var truth = (claim === scene);
-        var optsC = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
-        q = {
-          type: 'H2C', sig: 'C:' + scene + ':' + claim + ':' + truth, state: scene, claim: claim,
-          item: H2_NEED[scene], truth: truth,
-          options: optsC, correct: optsC[0].val === truth ? 0 : 1,
-          audio: ['h2_c_' + claim, 'yesno']
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
-
-function makeQuestionH3(type, prev) {
-    ensureH3Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：中央哭泣婴儿 + 3 件物品，听 "Give him a toy/some candy." 送对的 */
-        var target = pick(H3_COMFORT);
-        var pool = H3_DISTRACT.slice();
+        /* B：3 个各穿一件衣物的小人，听句子点目标 */
+        var target = pick(L9_ITEMS);
+        var pool = L9_ITEMS.filter(function (x) { return x !== target; });
         shuffle(pool);
-        var items = shuffle([target, pool[0], pool[1]]);
+        var kids = shuffle([target, pool[0], pool[1]]);
         q = {
-          type: 'H3A', sig: 'A:' + target + ':' + items.join(','), target: target, items: items,
-          options: items.map(function (it) { return { kind: 'h3item', item: it }; }),
-          answer: items.indexOf(target), correct: items.indexOf(target),
-          audio: ['h3_a_' + target]
-        };
-      } else if (type === 1) {
-        /* B：中央难过婴儿 + 巨大👍按钮（TPR，永远判对 §三.12） */
-        state.h3bFlip = !state.h3bFlip;
-        var hkey = state.h3bFlip ? 'h3_b_hug' : 'h3_b_hug2';
-        q = {
-          type: 'H3B', sig: 'B:' + hkey, state: 'sad', hug: hkey,
-          options: [], correct: 0, audio: [hkey]
+          type: 'L9B', sig: 'B:' + target + ':' + kids.join(','), target: target, wearKids: kids,
+          options: [], answer: kids.indexOf(target), correct: kids.indexOf(target),
+          audio: [L9_B_KEY[target]]
         };
       } else {
-        /* C：中央一个完整小场景（哭婴 + 一件物品）+ ✅/❌。
-           claim 与画面物品 50/50 相同 / 不同，只有听懂语音才能判断（无视觉作弊 §三.16）。 */
-        var sceneItem = pick(H3_COMFORT);
-        state.h3Flip = !state.h3Flip;
-        var truth = state.h3Flip;
-        var claim = truth ? sceneItem : (sceneItem === 'toy' ? 'candy' : 'toy');
-        var optsC = shuffle([{ kind: 'yesNo', val: true }, { kind: 'yesNo', val: false }]);
+        /* C：TPR 模仿穿衣服（巨大👍，永远判对 §三.12） */
+        state.l9cIdx = ((state.l9cIdx || 0) + 1) % L9_ITEMS.length;
+        var it = L9_ITEMS[state.l9cIdx];
         q = {
-          type: 'H3C', sig: 'C:' + sceneItem + ':' + claim + ':' + truth,
-          state: 'cry', item: sceneItem, claim: claim, truth: truth,
-          options: optsC, correct: optsC[0].val === truth ? 0 : 1,
-          audio: ['h3_c_' + claim, 'yesno']
+          type: 'L9C', sig: 'C:' + it, item: it,
+          options: [], correct: 0, audio: [L9_C_KEY[it]]
         };
       }
       guard += 1;
@@ -189,81 +98,36 @@ function makeQuestionH3(type, prev) {
     return q;
   }
 
-function makeQuestionH4(type, prev) {
-    ensureH4Css();
+function makeQuestionL92(type, prev) {
+    ensureL92Css();
     var q, guard = 0;
     do {
       if (type === 0) {
-        /* A：3 幅情景（目标 + 2 干扰），听 voice 描述事件点目标画面 */
-        var target = pick(H4_A_SITS);
-        var others = H4_A_SITS.filter(function (s) { return s !== target; });
-        shuffle(others);
-        var sits = shuffle([target, others[0], others[1]]);
+        /* A：小人身上已穿着某件，听指令把它拖回底部物品栏 */
+        var off = pick(L92_ITEMS);
         q = {
-          type: 'H4A', sig: 'A:' + target + ':' + sits.join(','), sitTarget: target, sits: sits,
-          answer: sits.indexOf(target), correct: sits.indexOf(target),
-          options: [], audio: [H4_A_KEY[target]]
+          type: 'L92A', sig: 'A:' + off, item: off, act: 'off', from: 'body', to: 'tray',
+          options: [], correct: 0, audio: [L92_A_KEY[off]]
         };
       } else if (type === 1) {
-        /* B：中央「无表情」情景 + 3 张情绪脸，听因果选对的脸 */
-        var cause = H4_B_CAUSES[randInt(0, H4_B_CAUSES.length - 1)];
-        var emo = cause.emo;
-        var pool = H4_EMO.filter(function (e) { return e !== emo; });
-        shuffle(pool);
-        var faces = shuffle([emo, pool[0], pool[1]]);
+        /* B：小人光着，底部 3 件衣物，听指令把对的那件拖到身上 */
+        var on = pick(L92_ITEMS);
+        var rest = L92_ITEMS.filter(function (x) { return x !== on; });
+        shuffle(rest);
+        var items = shuffle([on, rest[0], rest[1]]);
         q = {
-          type: 'H4B', sig: 'B:' + cause.sit + ':' + emo + ':' + faces.join(','),
-          sit: cause.sit, emo: emo, faces: faces,
-          options: faces.map(function (f) { return { kind: 'h4face', emo: f }; }),
-          answer: faces.indexOf(emo), correct: faces.indexOf(emo),
-          audio: [cause.key]
+          type: 'L92B', sig: 'B:' + on + ':' + items.join(','), item: on, act: 'on', from: 'tray', to: 'kid',
+          items: items,
+          options: items.map(function (it) { return { kind: 'l92item', item: it }; }),
+          answer: items.indexOf(on), correct: items.indexOf(on),
+          audio: [L92_B_KEY[on]]
         };
       } else {
-        /* C：TPR 情绪大爆发（巨大👍，永远判对 §三.12） */
-        state.h4cFlip = !state.h4cFlip;
-        var hkey = state.h4cFlip ? 'h4_c_hug' : 'h4_c_hug2';
+        /* C：TPR 模仿穿脱（巨大👍，永远判对 §三.12） */
+        state.l92cIdx = ((state.l92cIdx || 0) + 1) % L92_C_KEYS.length;
+        var c = L92_C_KEYS[state.l92cIdx];
         q = {
-          type: 'H4C', sig: 'C:' + hkey, emo: 'sad',
-          options: [], correct: 0, audio: [hkey]
-        };
-      }
-      guard += 1;
-    } while (prev && prev.sig === q.sig && guard < 30);
-    return q;
-  }
-
-function makeQuestionH5(type, prev) {
-    ensureH5Css();
-    var q, guard = 0;
-    do {
-      if (type === 0) {
-        /* A：中央无表情小人 + 3 张面具；听情景把对的面具拖/点上去 */
-        var cause = H5_A_CAUSES[randInt(0, H5_A_CAUSES.length - 1)];
-        var emo = cause.emo;
-        var pool = H5_EMO.filter(function (e) { return e !== emo; });
-        shuffle(pool);
-        var masks = shuffle([emo, pool[0], pool[1]]);
-        q = {
-          type: 'H5A', sig: 'A:' + emo + ':' + masks.join(','), emo: emo, masks: masks,
-          options: masks.map(function (m) { return { kind: 'h5mask', emo: m }; }),
-          answer: masks.indexOf(emo), correct: masks.indexOf(emo),
-          audio: [cause.key]
-        };
-      } else if (type === 1) {
-        /* B：4 个不同状态的小人（开心吃冰淇淋 / 饿得哭 / 生气 / 困），听长句找目标 */
-        var target = pick(['happy', 'hungry', 'angry', 'sleepy']);
-        var states = shuffle(['happy', 'hungry', 'angry', 'sleepy']);
-        q = {
-          type: 'H5B', sig: 'B:' + target + ':' + states.join(','), states: states, target: target,
-          options: [], answer: states.indexOf(target), correct: states.indexOf(target),
-          audio: [H5_B_KEY[target]]
-        };
-      } else {
-        /* C：TPR 情绪大爆发（巨大👍，永远判对 §三.12） */
-        state.h5cIdx = ((state.h5cIdx || 0) + 1) % H5_C_KEYS.length;
-        var c = H5_C_KEYS[state.h5cIdx];
-        q = {
-          type: 'H5C', sig: 'C:' + c.key, emo: c.emo,
+          type: 'L92C', sig: 'C:' + c.key, item: c.item, act: c.act,
           options: [], correct: 0, audio: [c.key]
         };
       }
@@ -272,10 +136,145 @@ function makeQuestionH5(type, prev) {
     return q;
   }
 
+function makeQuestionL93(type, prev) {
+    ensureL93Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：屏幕随机出现太阳 / 雪花，下方 T 恤 + 外套，听指令拖对的那件 */
+        var sky = pick(L93_SKY);
+        var need = L93_NEED[sky];
+        var other = L93_ITEMS.filter(function (x) { return x !== need; })[0];
+        var items = shuffle([need, other]);
+        q = {
+          type: 'L93A', sig: 'A:' + sky + ':' + items.join(','),
+          sky: sky, state: sky, item: need, items: items,
+          options: items.map(function (it) { return { kind: 'l93item', item: it }; }),
+          answer: items.indexOf(need), correct: items.indexOf(need),
+          audio: [L93_A_KEY[sky]]
+        };
+      } else if (type === 1) {
+        /* B：3 个不同感受的小人（流汗 / 发抖 / 打伞），听句子点目标 */
+        var target = pick(L93_STATES);
+        var kids = shuffle(L93_STATES.slice());
+        q = {
+          type: 'L93B', sig: 'B:' + target + ':' + kids.join(','),
+          target: target, kidStates: kids,
+          options: [], answer: kids.indexOf(target), correct: kids.indexOf(target),
+          audio: [L93_B_KEY[target]]
+        };
+      } else {
+        /* C：TPR 模仿天气（巨大👍，永远判对 §三.12） */
+        state.l93cIdx = ((state.l93cIdx || 0) + 1) % L93_SKY.length;
+        var st = L93_SKY[state.l93cIdx];
+        q = {
+          type: 'L93C', sig: 'C:' + st, state: st,
+          options: [], correct: 0, audio: [L93_C_KEY[st]]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+function makeQuestionL94(type, prev) {
+    ensureL94Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：小人只穿打底衫，下方 3 件衣物，听指令把指定那件「穿到错的地方」 */
+        var item = pick(L94_ITEMS);
+        var rest = L94_ITEMS.filter(function (x) { return x !== item; });
+        shuffle(rest);
+        var items = shuffle([item, rest[0], rest[1]]);
+        q = {
+          type: 'L94A', sig: 'A:' + item + ':' + items.join(','),
+          l94Item: item, l94Slot: L94_SLOT[item], items: items,
+          look: item + '@' + L94_SLOT[item],
+          options: items.map(function (it) { return { kind: 'l94item', item: it }; }),
+          answer: items.indexOf(item), correct: items.indexOf(item),
+          audio: [L94_A_KEY[item]]
+        };
+      } else if (type === 1) {
+        /* B：3 张穿搭图（1 张荒诞 + 2 张正常），听句子点出「捣蛋的那张」 */
+        var S = pick(L94_SILLY);
+        var decoys = L94_NORMAL.filter(function (l) { return l.split('@')[0] !== S.item; });
+        var looks = shuffle([S.look, decoys[0], decoys[1]]);
+        q = {
+          type: 'L94B', sig: 'B:' + S.look + ':' + looks.join(','),
+          l94Looks: looks, l94Silly: S.look,
+          options: [], answer: looks.indexOf(S.look), correct: looks.indexOf(S.look),
+          audio: [S.key]
+        };
+      } else {
+        /* C：TPR 极速搞怪（巨大👍，永远判对 §三.12） */
+        state.l94cIdx = ((state.l94cIdx || 0) + 1) % L94_C.length;
+        var c = L94_C[state.l94cIdx];
+        q = {
+          type: 'L94C', sig: 'C:' + c.key, l94Look: c.look,
+          options: [], correct: 0, audio: [c.key]
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
+function makeQuestionL95(type, prev) {
+    ensureL95Css();
+    var q, guard = 0;
+    do {
+      if (type === 0) {
+        /* A：屏幕出现太阳/雪花，下方 3 件衣物，听指令把对的拖到身上 */
+        var w = pick(['hot', 'cold']);
+        var need = (w === 'hot') ? 'tshirt' : 'coat';
+        var pool = ['coat', 'tshirt', 'pants', 'hat'].filter(function (x) { return x !== need; });
+        shuffle(pool);
+        var tray = shuffle([need, pool[0], pool[1]]);
+        q = {
+          type: 'L95A', sig: 'A:' + w + ':' + tray.join(','), weather: w, need: need, items: tray,
+          options: tray.map(function (it) { return { kind: 'l95item', item: it }; }),
+          answer: tray.indexOf(need), correct: tray.indexOf(need),
+          audio: [w === 'hot' ? 'l93_t_hot_put' : 'l92_b_coat']
+        };
+      } else if (type === 1) {
+        /* B：听长句，把指定衣物「穿到错的部位」（任意落点都算中，触发搞笑音效） */
+        var B = pick(['shoes', 'pants', 'hat']);
+        var slot = { shoes: 'head', pants: 'arms', hat: 'foot' }[B];
+        var restB = ['shoes', 'pants', 'hat'].filter(function (x) { return x !== B; });
+        shuffle(restB);
+        var itemsB = shuffle([B, restB[0], restB[1]]);
+        q = {
+          type: 'L95B', sig: 'B:' + B + ':' + itemsB.join(','), item: B, slot: slot, look: B + '@' + slot, items: itemsB,
+          options: itemsB.map(function (it) { return { kind: 'l95item', item: it }; }),
+          answer: itemsB.indexOf(B), correct: itemsB.indexOf(B),
+          audio: ['l95_b_' + B]
+        };
+      } else if (type === 2) {
+        /* C：多步指令（先穿 X 再脱 Y），双向拖拽 */
+        var C = pick(L95_C_COMBOS);
+        q = {
+          type: 'L95C', sig: 'C:' + C.key, steps: C.steps.slice(), audio: [C.key]
+        };
+      } else {
+        /* D：听音找捣蛋（正常 + 裤子套头上 + 手里拎鞋；任一个捣蛋都算对） */
+        var normalLook = pick(['shirt@body,pants@legs,shoes@feet', 'pants@legs,shoes@feet,hat@head', 'shirt@body,pants@legs']);
+        var looksD = shuffle([normalLook, 'pants@head', 'shoes@hand']);
+        var firstSilly = looksD.findIndex(function (l) { return L95_SILLY_SET.indexOf(l) >= 0; });
+        q = {
+          type: 'L95D', sig: 'D:' + looksD.join('|'), looks: looksD, sillySet: L95_SILLY_SET.slice(),
+          options: [], answer: firstSilly, correct: firstSilly, audio: ['l95_d_find']
+        };
+      }
+      guard += 1;
+    } while (prev && prev.sig === q.sig && guard < 30);
+    return q;
+  }
+
   var M = window.__LLMakers = window.__LLMakers || {};
-  M.makeH1 = makeQuestionH1;
-  M.makeH2 = makeQuestionH2;
-  M.makeH3 = makeQuestionH3;
-  M.makeH4 = makeQuestionH4;
-  M.makeH5 = makeQuestionH5;
+  M.makeL9 = makeQuestionL9;
+  M.makeL92 = makeQuestionL92;
+  M.makeL93 = makeQuestionL93;
+  M.makeL94 = makeQuestionL94;
+  M.makeL95 = makeQuestionL95;
 })();

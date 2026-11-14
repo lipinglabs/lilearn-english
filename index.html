@@ -58,6 +58,172 @@
 <link rel="stylesheet" href="skin-live.css" />
 <link rel="stylesheet" href="motion.css" />
 <link rel="stylesheet" href="motion-b.css" />
+<!-- ============================================================
+     4 岁起步内联样式（随 index.html 一起被 SW 缓存，PRECACHE_URLS 零新增）
+     A/B/D/E 共用：暖黄 #FFC94A 聚焦 / 过程性反馈 / 休息画面 / 图鉴 /
+     示范动画 / 成长树 / 家长看板 / 防误触确认 / 拖拽提示。
+     4 岁起步理由：孩子刚满 4 周岁，触控目标 ≥64px、间距 ≥24px、
+     拖放区 ≥96px，全部动效 prefers-reduced-motion 降级，无红叉/强闪/倒计时红环。
+     ============================================================ -->
+<style id="m4y-style">
+  /* ---- B10 视觉规格：暖黄 #FFC94A 描边 + 0.3s 淡入 + 放大 1.08 回弹 ---- */
+  .m4y-focus {
+    outline: 3px solid #FFC94A; outline-offset: 3px;
+    animation: m4y-pop .3s cubic-bezier(.34,1.56,.64,1) both;
+    border-radius: 18px;
+  }
+  @keyframes m4y-pop {
+    0% { opacity: .35; transform: scale(.96); }
+    60% { opacity: 1; transform: scale(1.08); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  /* 非目标：仅降饱和约 30% + 轻轻退后，不消失、不打叉、不变灰废弃 */
+  .m4y-dim { filter: saturate(.7); transform: scale(.97); opacity: .92; transition: all .3s ease; }
+  .m4y-preselect { outline: 3px solid #FFC94A; outline-offset: 3px; transform: scale(1.04); transition: transform .2s ease; }
+  /* B11：覆盖旧 .option.wrong 的粉红 + shake（失败暗示），改为暖黄轻退后 */
+  .option.wrong, body.live-skin .option.wrong {
+    background: #fffaf1; box-shadow: 0 0 0 3px rgba(255,201,74,.55);
+    animation: m4y-nudge .3s ease; filter: saturate(.7);
+  }
+  @keyframes m4y-nudge { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  /* B10：触控目标 ≥64×64px、间距 ≥24px、拖放区 ≥96px */
+  .m4y-tap, .m4y-confirm-ok, .m4y-confirm-undo { min-width: 64px; min-height: 64px; }
+  .m4y-dropzone { min-width: 96px; min-height: 96px; }
+  .m4y-row { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+  /* B10：把规格落到真实控件上（只设下限，不改原有尺寸与配色） */
+  #options .option { min-width: 64px; min-height: 64px; }
+  #options { gap: max(24px, clamp(10px, 3vw, 30px)); }
+  /* 拖放区 ≥96px：原有舞台拖放目标已经很大，这里只兜住本模块新建的落点 */
+  .m4y-dropzone, .m4y-draghint ~ [data-drop] { min-width: 96px; min-height: 96px; }
+
+  /* ---- B8：「再听一次」常亮常驻，眼睛 + 小海螺，禁闪电/沙漏/秒表/倒计时红环 ---- */
+  #btnReplay { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+  .m4y-replay-svg { width: 1.5em; height: 1.5em; display: block; }
+
+  /* ---- B2 防误触：0.4s 单点确认浮层（预选高亮 + 大目标二次确认 + 撤销） ---- */
+  .m4y-confirm-layer {
+    position: fixed; inset: 0; z-index: 9500; display: flex;
+    align-items: flex-end; justify-content: center; padding-bottom: 8vh;
+    pointer-events: none;
+  }
+  .m4y-confirm-layer[hidden] { display: none; }
+  .m4y-confirm-inner { display: flex; gap: 24px; pointer-events: auto; }
+  .m4y-confirm-ok, .m4y-confirm-undo {
+    border-radius: 999px; border: 3px solid #fff; cursor: pointer;
+    display: grid; place-items: center; background: #FFC94A;
+    box-shadow: 0 8px 22px rgba(180,140,60,.28);
+  }
+  .m4y-confirm-undo { background: #F7F3EA; }
+  .m4y-confirm-ok svg, .m4y-confirm-undo svg { width: 34px; height: 34px; }
+
+  /* ---- B9 F1–F10 过程性反馈（三轨：过程轨 / 结果语音轨 / 结算视觉轨） ---- */
+  .m4y-f1 .option { animation: m4y-rise .3s ease both; }
+  .m4y-f1 .option:nth-child(2) { animation-delay: .06s; }
+  .m4y-f1 .option:nth-child(3) { animation-delay: .12s; }
+  @keyframes m4y-rise { from { opacity: .4; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .m4y-dots { position: fixed; z-index: 9400; pointer-events: none; display: flex; gap: 6px; }
+  .m4y-dots i { width: 8px; height: 8px; border-radius: 50%; background: #8FB8E8; animation: m4y-dot .4s ease both; }
+  @keyframes m4y-dot { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+  .m4y-sparkle { position: fixed; z-index: 9400; width: 12px; height: 12px; border-radius: 50%;
+                  background: #FFD76E; pointer-events: none; animation: m4y-spark .6s ease forwards; }
+  @keyframes m4y-spark { to { opacity: 0; transform: translate(60px,-90px) scale(.3); } }
+
+  /* ---- A5 / F10 RestScene：内联角色打哈欠 / 伸展 / 看远处，20s，无文字无语音 ---- */
+  .m4y-rest {
+    position: fixed; inset: 0; z-index: 9600; background: #F7F3EA;
+    display: grid; place-items: center; cursor: pointer;
+  }
+  .m4y-rest[hidden] { display: none; }
+  .m4y-rest svg { width: min(58vmin, 360px); height: min(58vmin, 360px); }
+  .m4y-rest .m4y-yawn { animation: m4y-yawn 4s ease-in-out infinite; transform-origin: 50% 60%; }
+  @keyframes m4y-yawn { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05) rotate(-2deg); } }
+  .m4y-rest .m4y-look { animation: m4y-look 6s ease-in-out infinite; }
+  @keyframes m4y-look { 0%,100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+
+  /* ---- DRAINING 正向收尾「今天玩到这里」：可返回可继续不锁死 ---- */
+  .m4y-wrapup {
+    position: fixed; inset: 0; z-index: 9700; background: rgba(247,243,234,.97);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+  }
+  .m4y-wrapup[hidden] { display: none; }
+  .m4y-wrapup .m4y-title { font-size: clamp(20px,4vmin,32px); font-weight: 800; color: #7a6a55; }
+  .m4y-wrapup .m4y-btn {
+    min-width: 64px; min-height: 64px; padding: 12px 26px; border-radius: 999px;
+    border: 3px solid #FFC94A; background: #fff; font-size: clamp(15px,3vmin,20px);
+    cursor: pointer; color: #6b5b45;
+  }
+
+  /* ---- C9/C10 示范动画：4 镜（听→轮到手→让开→可重演），总 ≤3.5s ---- */
+  .m4y-demo {
+    position: fixed; inset: 0; z-index: 9300; pointer-events: none;
+    display: grid; place-items: center; background: rgba(255,255,255,.18);
+  }
+  .m4y-demo[hidden] { display: none; }
+  .m4y-demo svg { width: min(46vmin, 300px); height: min(46vmin, 300px); }
+  .m4y-demo .m4y-hand { animation: m4y-handmove 3.2s ease-in-out both; }
+  @keyframes m4y-handmove {
+    0%   { transform: translate(0,0) scale(1); opacity: .9; }    /* 听 */
+    30%  { transform: translate(0,0) scale(1); opacity: .9; }    /* 听 0.6–0.9s */
+    45%  { transform: translate(36px,-26px) scale(1.08); }       /* 轮到手 */
+    65%  { transform: translate(36px,-26px) scale(1.08); }
+    82%  { transform: translate(0,0) scale(.96); opacity: .55; } /* 让开 */
+    100% { transform: translate(0,0) scale(1); opacity: .9; }    /* 可重演 */
+  }
+  .m4y-demo .m4y-ring { animation: m4y-ringin .8s ease both; }
+  @keyframes m4y-ringin { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
+
+  /* ---- C10 DragHint：路径高亮、可撤销 ---- */
+  .m4y-draghint { position: fixed; z-index: 9200; pointer-events: none; }
+  .m4y-draghint[hidden] { display: none; }
+  .m4y-draghint svg { display: block; }
+  .m4y-drag-undo { position: fixed; z-index: 9250; min-width: 64px; min-height: 64px;
+                    border-radius: 999px; border: 3px solid #FFC94A; background: #fff; cursor: pointer; }
+
+  /* ---- D4 并列式图鉴：无编号无文字群岛地图 + 向导点点 + 重听伙伴小海螺 ---- */
+  .m4y-atlas-map .island .num, .m4y-atlas-map .island .name { display: none !important; }
+  .m4y-atlas-map .island-grid { position: relative; }
+  .m4y-buddy { position: fixed; z-index: 900; pointer-events: none; }
+  .m4y-buddy.m4y-dot-guide { left: 3vw; bottom: 3vh; width: 64px; height: 64px; }
+  .m4y-buddy.m4y-shell { right: 3vw; bottom: 3vh; width: 64px; height: 64px; }
+  .m4y-atlas-btn { min-width: 64px; min-height: 64px; border-radius: 999px; border: 3px solid #FFC94A;
+                   background: #fff; cursor: pointer; display: grid; place-items: center; }
+  .m4y-atlas-sheet {
+    position: fixed; inset: 0; z-index: 9800; background: rgba(247,243,234,.98);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+  }
+  .m4y-atlas-sheet[hidden] { display: none; }
+  .m4y-atlas-page { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; max-width: 90vw; }
+  .m4y-atlas-cell { width: 96px; height: 96px; border-radius: 18px; background: #fff;
+                    display: grid; place-items: center; box-shadow: 0 4px 12px rgba(150,120,80,.14); }
+  .m4y-atlas-cell svg, .m4y-atlas-cell img { width: 64px; height: 64px; object-fit: contain; }
+  .m4y-atlas-nav { display: flex; gap: 24px; }
+
+  /* ---- E1 贴纸墙 / 成长树 + E2 家长陪玩钩子 + E3 家长看板 ---- */
+  .m4y-tree { width: 120px; height: 120px; }
+  .m4y-hook { display: flex; align-items: center; gap: 12px; font-size: clamp(13px,2.6vmin,17px); color: #7a6a55; }
+  .m4y-hook button { min-width: 64px; min-height: 64px; border-radius: 999px; border: 3px solid #7FC8A9;
+                     background: #fff; cursor: pointer; }
+  .m4y-board-block { margin: 10px 0; padding: 10px 14px; border-radius: 14px; background: #fffaf1; }
+  .m4y-board-block h4 { margin: 0 0 6px; font-size: 15px; color: #6b5b45; }
+  .m4y-board-block p { margin: 2px 0; font-size: 13px; color: #8a7a65; }
+  .m4y-gate { position: fixed; inset: 0; z-index: 9900; background: rgba(247,243,234,.98);
+              display: grid; place-items: center; }
+  .m4y-gate[hidden] { display: none; }
+  .m4y-gate-box { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .m4y-gate-opts { display: flex; gap: 24px; }
+  .m4y-gate-opts button { width: 72px; height: 72px; border-radius: 18px; border: 3px solid #fff;
+                          background: #fff; cursor: pointer; font-size: 30px; }
+
+  /* ---- B10 prefers-reduced-motion 降级：全部动效降为静态 ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .m4y-focus, .m4y-preselect, .option.wrong, .m4y-f1 .option,
+    .m4y-dots i, .m4y-sparkle, .m4y-rest .m4y-yawn, .m4y-rest .m4y-look,
+    .m4y-demo .m4y-hand, .m4y-demo .m4y-ring, .island.current {
+      animation: none !important; transition: none !important;
+    }
+    .m4y-dim { transform: none; }
+  }
+</style>
 </head>
 <body class="live-skin motion-skin">
 
@@ -193,8 +359,8 @@
 <!-- 语音分块版本号：改过任何 voice/chunks/*.js 的内容后，必须把下面 3 处 REV 一起递增
      （内联常量、index.js 的 ?v=、sw.js SHELL 里的 core.js ?v=）。
      否则 SW / 浏览器 HTTP 缓存会继续返回旧分块，读条显示「已就绪」但孩子听不到声音。 -->
-<script>window.VOICE_CHUNK_REV = '20261114a';</script>
-<script src="voice/chunks/index.js?v=20261114a"></script>
+<script>window.VOICE_CHUNK_REV = '20261114b';</script>
+<script src="voice/chunks/index.js?v=20261114b"></script>
 <script src="assets.js"></script>
 <!-- 第 3 岛第 3 关（长/短）插画：3 套画风，缺失时自动回退内联 legacy 原图 -->
 <script src="art33.js"></script>
@@ -843,19 +1009,19 @@
   var LEVELS_PER_ISLAND = 5;
 
   var ISLANDS = [
-    { icon: '🔤', name: '字母与首音' },
     { icon: '🍎', name: '数字与水果' },
+    { icon: '📛', name: '自我介绍' },
     { icon: '🔺', name: '形状与空间' },
     { icon: '🐘', name: '比较与分类' },
     { icon: '🦁', name: '动物与动作' },
     { icon: '🍰', name: '食物与饮料' },
     { icon: '🏠', name: '温馨家居' },
     { icon: '👶', name: '身体与五官' },
-    { icon: '🙂', name: '情绪与感受' },
     { icon: '👕', name: '衣物穿戴' },
     { icon: '🚗', name: '交通工具' },
     { icon: '🐷', name: '童话故事' },
-    { icon: '📛', name: '自我介绍' }
+    { icon: '🙂', name: '情绪与感受' },
+    { icon: '🔤', name: '字母与首音' }
   ];
 
   var PRAISE_KEYS = ['praise_1', 'praise_2', 'praise_3', 'praise_4', 'praise_5', 'praise_6'];
@@ -897,7 +1063,7 @@
   /* 存档内部版本。v2 全部是「只加不改」的追加字段，v1 老档读进来就是空值，
      不需要写迁移代码；将来若给岛上加/改号（例如把新岛插到第 1 位），
      才需要升到 v3 并按版本号重映射 cleared / stars / unlockedLevel 的岛号。 */
-  var PROGRESS_VERSION = 3;
+  var PROGRESS_VERSION = 4;
 
   function defaultProgress() {
     return {
@@ -1208,8 +1374,12 @@
       lastPlayed: null, levelMistakes: {}, wordStats: {}, daily: {}
     };
     if (!raw || typeof raw !== 'object') return out;
-    /* 岛序重编号（2026-11-13）：第 13 岛提到第 1，其余顺移。旧档的 12-5 现在
-       对应「自我介绍」，进度会整片错位，所以版本不符一律按空档处理。 */
+    /* 岛序重排（2026-11-14，4 岁起步·最小改动版）：只移 3 个岛——
+       字母首音→13、自我介绍→2、情绪→12，数字与水果升为起步岛。
+       PROGRESS_VERSION 3→4：旧档 cleared / stars / unlockedIsland /
+       unlockedLevel 的岛号整片错位，按版本号一律清空回空档（私人自用、
+       孩子刚满 4 周岁，可接受）。normalizeProgress() 仍先补齐空壳，
+       保证旧 Gist 合并不崩、Gist payload 结构与版本号不变。 */
     if (raw.version !== PROGRESS_VERSION) return out;
     out.unlockedIsland = Math.max(1, Math.min(ISLANDS.length, raw.unlockedIsland | 0 || 1));
     if (raw.unlockedLevel && typeof raw.unlockedLevel === 'object') {
@@ -2414,11 +2584,11 @@
 
   /* 可玩关卡登记表：新增关卡只往这里加一行（RULES §三.5） */
   var LEVEL_DEFS = {
-    '2-1': { numbers: NUMBERS,    make: null,     title: '第 1 关' },
-    '2-2': { numbers: NUMBERS_W2, make: 'makeW2', title: '第 2 关' },
-    '2-3': { numbers: NUMBERS_W3, make: 'makeW3', title: '第 3 关' },
-    '2-4': { numbers: null,       make: 'makeW4', title: '第 4 关' },
-    '2-5': { numbers: null,       make: 'makeW5', title: '第 5 关' },
+    '1-1': { numbers: NUMBERS,    make: null,     title: '第 1 关' },
+    '1-2': { numbers: NUMBERS_W2, make: 'makeW2', title: '第 2 关' },
+    '1-3': { numbers: NUMBERS_W3, make: 'makeW3', title: '第 3 关' },
+    '1-4': { numbers: null,       make: 'makeW4', title: '第 4 关' },
+    '1-5': { numbers: null,       make: 'makeW5', title: '第 5 关' },
     '3-1': { numbers: null,       make: 'makeS1', title: '第 1 关' },
     '3-2': { numbers: null,       make: 'makeP2', title: '第 2 关', tutorial: true },
     '3-3': { numbers: null,       make: 'makeP3', title: '第 3 关', tutorial: true },
@@ -2449,40 +2619,57 @@
     '8-3': { numbers: null, make: 'makeG3', title: '第 3 关', tutorial: true },
     '8-4': { numbers: null, make: 'makeG4', title: '第 4 关', tutorial: true },
     '8-5': { numbers: null, make: 'makeG5', title: '第 5 关', tutorial: true },
-    '9-1': { numbers: null, make: 'makeH1', title: '第 1 关', tutorial: true },
-    '9-2': { numbers: null, make: 'makeH2', title: '第 2 关', tutorial: true },
-    '9-3': { numbers: null, make: 'makeH3', title: '第 3 关', tutorial: true },
-    '9-4': { numbers: null, make: 'makeH4', title: '第 4 关', tutorial: true },
-    '9-5': { numbers: null, make: 'makeH5', title: '第 5 关', tutorial: true },
-    '10-1': { numbers: null, make: 'makeL9', title: '第 1 关', tutorial: true },
-    '10-2': { numbers: null, make: 'makeL92', title: '第 2 关', tutorial: true },
-    '10-3': { numbers: null, make: 'makeL93', title: '第 3 关', tutorial: true },
-    '10-4': { numbers: null, make: 'makeL94', title: '第 4 关', tutorial: true },
-    '10-5': { numbers: null, make: 'makeL95', title: '第 5 关', tutorial: true, types: 4 },
-    '11-1': { numbers: null, make: 'makeL10', title: '第 1 关', tutorial: true },
-    '11-2': { numbers: null, make: 'makeL102', title: '第 2 关', tutorial: true, types: 4 },
-    '11-3': { numbers: null, make: 'makeL103', title: '第 3 关', tutorial: true },
-    '11-4': { numbers: null, make: 'makeL104', title: '第 4 关', tutorial: true },
-    '11-5': { numbers: null, make: 'makeL105', title: '第 5 关', tutorial: true },
-    '12-1': { numbers: null, make: 'makeL111', title: '第 1 关', tutorial: true },
-    '12-2': { numbers: null, make: 'makeL112', title: '第 2 关', tutorial: true },
-    '12-3': { numbers: null, make: 'makeL113', title: '第 3 关', tutorial: true },
-    '12-4': { numbers: null, make: 'makeL114', title: '第 4 关', tutorial: true },
-    '12-5': { numbers: null, make: 'makeL115', title: '第 5 关', tutorial: true },
-    '13-1': { numbers: null, make: 'makeL121', title: '第 1 关', tutorial: true },
-    '13-2': { numbers: null, make: 'makeL122', title: '第 2 关', tutorial: true },
-    '13-3': { numbers: null, make: 'makeL123', title: '第 3 关', tutorial: true },
-    '13-4': { numbers: null, make: 'makeL124', title: '第 4 关', tutorial: true },
-    '13-5': { numbers: null, make: 'makeL125', title: '第 5 关', tutorial: true },
-    '1-1': { numbers: null, make: 'makeL131', title: '第 1 关', tutorial: true },
-    '1-2': { numbers: null, make: 'makeL132', title: '第 2 关', tutorial: true },
-    '1-3': { numbers: null, make: 'makeL133', title: '第 3 关', tutorial: true },
-    '1-4': { numbers: null, make: 'makeL134', title: '第 4 关', tutorial: true },
-    '1-5': { numbers: null, make: 'makeL135', title: '第 5 关', tutorial: true }
+    '12-1': { numbers: null, make: 'makeH1', title: '第 1 关', tutorial: true },
+    '12-2': { numbers: null, make: 'makeH2', title: '第 2 关', tutorial: true },
+    '12-3': { numbers: null, make: 'makeH3', title: '第 3 关', tutorial: true },
+    '12-4': { numbers: null, make: 'makeH4', title: '第 4 关', tutorial: true },
+    '12-5': { numbers: null, make: 'makeH5', title: '第 5 关', tutorial: true },
+    '9-1': { numbers: null, make: 'makeL9', title: '第 1 关', tutorial: true },
+    '9-2': { numbers: null, make: 'makeL92', title: '第 2 关', tutorial: true },
+    '9-3': { numbers: null, make: 'makeL93', title: '第 3 关', tutorial: true },
+    '9-4': { numbers: null, make: 'makeL94', title: '第 4 关', tutorial: true },
+    '9-5': { numbers: null, make: 'makeL95', title: '第 5 关', tutorial: true, types: 4 },
+    '10-1': { numbers: null, make: 'makeL10', title: '第 1 关', tutorial: true },
+    '10-2': { numbers: null, make: 'makeL102', title: '第 2 关', tutorial: true, types: 4 },
+    '10-3': { numbers: null, make: 'makeL103', title: '第 3 关', tutorial: true },
+    '10-4': { numbers: null, make: 'makeL104', title: '第 4 关', tutorial: true },
+    '10-5': { numbers: null, make: 'makeL105', title: '第 5 关', tutorial: true },
+    '11-1': { numbers: null, make: 'makeL111', title: '第 1 关', tutorial: true },
+    '11-2': { numbers: null, make: 'makeL112', title: '第 2 关', tutorial: true },
+    '11-3': { numbers: null, make: 'makeL113', title: '第 3 关', tutorial: true },
+    '11-4': { numbers: null, make: 'makeL114', title: '第 4 关', tutorial: true },
+    '11-5': { numbers: null, make: 'makeL115', title: '第 5 关', tutorial: true },
+    '2-1': { numbers: null, make: 'makeL121', title: '第 1 关', tutorial: true },
+    '2-2': { numbers: null, make: 'makeL122', title: '第 2 关', tutorial: true },
+    '2-3': { numbers: null, make: 'makeL123', title: '第 3 关', tutorial: true },
+    '2-4': { numbers: null, make: 'makeL124', title: '第 4 关', tutorial: true },
+    '2-5': { numbers: null, make: 'makeL125', title: '第 5 关', tutorial: true },
+    /* D3（4 岁起步）：同一题型连续 ≥2 关再更换 —— 关 1–2 听音找物品(B)、
+       关 3–4 听音找字母(A)、关 5 拖拽配对(C，不降级)。fixedType 由 makePlan 读取。 */
+    '13-1': { numbers: null, make: 'makeL131', title: '第 1 关', tutorial: true, fixedType: 1 },
+    '13-2': { numbers: null, make: 'makeL132', title: '第 2 关', tutorial: true, fixedType: 1 },
+    '13-3': { numbers: null, make: 'makeL133', title: '第 3 关', tutorial: true, fixedType: 0 },
+    '13-4': { numbers: null, make: 'makeL134', title: '第 4 关', tutorial: true, fixedType: 0 },
+    '13-5': { numbers: null, make: 'makeL135', title: '第 5 关', tutorial: true, fixedType: 2 }
   };
 
   function levelDef(island, level) {
     return LEVEL_DEFS[island + '-' + level] || null;
+  }
+
+  /* 4 岁起步：起步关 / 岛内首关一律用派生标志判断，禁止硬编码岛号
+     （项目经历过岛屿彻底重编号，见 PROGRESS_VERSION 3→4）。 */
+  function firstPlayableIsland() {
+    for (var i = 1; i <= ISLANDS.length; i++) {
+      if (levelDef(i, 1)) return i;
+    }
+    return 1;
+  }
+  function isFirstLevelOfIsland(island, level) {
+    return level === 1 && !!levelDef(island, 1);
+  }
+  function isStartingLevel(island, level) {
+    return isFirstLevelOfIsland(island, level) && island === firstPlayableIsland();
   }
 
   function playableContent(island, level) {
@@ -2491,23 +2678,27 @@
 
   /** 岛屿图标：第 1 岛用 3D 苹果，第 2 岛用三色形状，第 3 岛用 3D 大象，第 4 岛用 3D 狮子，其余暂用 emoji */
   function islandIconNode(index, island) {
-    if (index === 1) return fruitImg(FRUITS[0]);
-    if (index === 3) {
+    /* 4 岁起步岛序重排：图标一律按「主题名」查表，与岛号彻底解耦。
+       上轮 renumber-islands.py 只改了 11/12/13 三个 index 条件，
+       1–10 号图标整体错位一位（字母首音岛错显苹果）；本次全部改为按 name 命中。 */
+    var name = island && island.name;
+    if (name === '数字与水果') return fruitImg(FRUITS[0]);
+    if (name === '比较与分类') {
       var el = animalImg('elephant', 'fruit-img');
       if (el) return el;
     }
     // 第 4 岛是「动物与动作」，岛上已经有 14 张 3D 动物图，地图图标也用 3D 狮子（RULES §二.5 禁止 emoji 充当配图）
-    if (index === 4) {
+    if (name === '动物与动作') {
       var lion = animalImg('lion', 'fruit-img');
       if (lion) return lion;
     }
     // 第 5 岛是「食物与饮料」，用 3D 牛奶杯当图标（同样不用 emoji 字符）
-    if (index === 5) {
+    if (name === '食物与饮料') {
       var breadIcon = foodImg('bread', 'fruit-img');
       if (breadIcon) return breadIcon;
     }
     // 第 6 岛是「温馨家居」，地图图标用手写小房子 SVG（免费 SVG，RULES §二.17，不用 emoji 字符）
-    if (index === 6) {
+    if (name === '温馨家居') {
       var house = document.createElementNS(SVG_NS, 'svg');
       house.setAttribute('viewBox', '0 0 100 100');
       house.setAttribute('class', 'mini-shapes');
@@ -2520,7 +2711,7 @@
       return house;
     }
     // 第 7 岛是「身体与五官」，地图图标用手写笑脸 SVG（免费 SVG，RULES §二.17，不用 emoji 字符）
-    if (index === 7) {
+    if (name === '身体与五官') {
       var faceIcon = document.createElementNS(SVG_NS, 'svg');
       faceIcon.setAttribute('viewBox', '0 0 100 100');
       faceIcon.setAttribute('class', 'mini-shapes');
@@ -2538,7 +2729,7 @@
       return faceIcon;
     }
     // 第 8 岛是「情绪与感受」，地图图标用手写三连情绪小脸（开心/难过/生气，免费 SVG）
-    if (index === 8) {
+    if (name === '情绪与感受') {
       var emo = document.createElementNS(SVG_NS, 'svg');
       emo.setAttribute('viewBox', '0 0 100 100');
       emo.setAttribute('class', 'mini-shapes');
@@ -2559,7 +2750,7 @@
       return emo;
     }
     // 第 9 岛是「衣物穿戴」，地图图标用手写小上衣 SVG（免费 SVG，RULES §二.17 不用 emoji 字符）
-    if (index === 9) {
+    if (name === '衣物穿戴') {
       var tee = document.createElementNS(SVG_NS, 'svg');
       tee.setAttribute('viewBox', '0 0 100 100');
       tee.setAttribute('class', 'mini-shapes');
@@ -2573,7 +2764,7 @@
       return tee;
     }
     // 第 10 岛是「交通工具」，地图图标用手写小汽车 SVG（免费 SVG，RULES §二.5 不用 emoji 字符）
-    if (index === 10) {
+    if (name === '交通工具') {
       var carIcon = document.createElementNS(SVG_NS, 'svg');
       carIcon.setAttribute('viewBox', '0 0 100 100');
       carIcon.setAttribute('class', 'mini-shapes');
@@ -2591,7 +2782,7 @@
       return carIcon;
     }
     // 第 11 岛是「童话故事」，地图图标用手写小猪脸 SVG（免费 SVG，RULES §二.17，不用 emoji 字符）
-    if (index === 12) {
+    if (name === '童话故事') {
       var pigIcon = document.createElementNS(SVG_NS, 'svg');
       pigIcon.setAttribute('viewBox', '0 0 100 100');
       pigIcon.setAttribute('class', 'mini-shapes');
@@ -2607,7 +2798,7 @@
       return pigIcon;
     }
     // 第 12 岛是「自我介绍」，地图图标用手写「挂名字牌的小孩」SVG（免费 SVG，RULES §二.5 不用 emoji 字符）
-    if (index === 13) {
+    if (name === '自我介绍') {
       var kidIcon = document.createElementNS(SVG_NS, 'svg');
       kidIcon.setAttribute('viewBox', '0 0 100 100');
       kidIcon.setAttribute('class', 'mini-shapes');
@@ -2624,7 +2815,7 @@
     }
     // 第 13 岛是「字母与首音」，地图图标用三块字母积木 + 一支铅笔（手写 SVG）
     // 积木上**不写字**：地图不是白名单容器，写 A/B/C 会直接撞「页面无英文字母」断言（§二.1）
-    if (index === 1) {
+    if (name === '字母与首音') {
       var blocks = document.createElementNS(SVG_NS, 'svg');
       blocks.setAttribute('viewBox', '0 0 100 100');
       blocks.setAttribute('class', 'mini-shapes');
@@ -2640,7 +2831,7 @@
         '<path d="M74 42 L80 46 L71 50 Z" fill="#3b2b30"/>';
       return blocks;
     }
-    if (index === 2) {
+    if (name === '形状与空间') {
       var box = document.createElementNS(SVG_NS, 'svg');
       box.setAttribute('viewBox', '0 0 100 60');
       box.setAttribute('class', 'mini-shapes');
@@ -2734,6 +2925,780 @@
     pickedFruit: null   // 第 5 关题型 B：已点选的水果下标
   };
 
+  /* ============================================================
+     4 岁起步模块 LL4Y（A / B / D / E 组共用，内联进 index.html 随 HTML 一起缓存）
+     ------------------------------------------------------------
+     前提：孩子刚满 4 周岁、私人自用。单一 4 岁基线，不做 ageBand 三档选择 UI。
+     取值全部来自《专家团意见清单》「4 岁起步」列：
+       单局 600s / 每日 1200s / 绝对上限 900·1800 / 休息 20s /
+       REST_GAP_MS 180000（仅去抖）/ 防误触 0.4s / 答错三级 /
+       单题停留上限 3 / 达标线 8/6 仅内部软统计。
+     settings / usage 是独立 localStorage 分区，不进 progress、不进云同步白名单，
+     Gist payload 结构 / 字段 / 版本号一律不变。
+     ============================================================ */
+  var LL4Y = (function () {
+    'use strict';
+
+    /* ---- 4 岁起步硬参数（关键取值均注明「4 岁起步」理由） ---- */
+    var SESSION_CAP_SEC = 600;      // 单局 600s（10 分钟，4 岁起步列）
+    var DAILY_CAP_SEC = 1200;       // 每日 1200s（20 分钟，4 岁起步列）
+    var SESSION_CAP_MAX = 900;      // 绝对上限：任何情况不得突破
+    var DAILY_CAP_MAX = 1800;       // 绝对上限：任何情况不得突破
+    var REST_SEC = 20;              // 休息画面 20s（4 岁起步）
+    var REST_GAP_MS = 180000;       // 仅作两次休息间的去抖窗口，不能绕过硬要求
+    var CONFIRM_MS = 400;           // 防误触 0.4s（4 岁起步列）
+    var MAX_DWELL = 3;              // 单题停留上限 3（4 岁起步列）
+    var GOAL_DONE = 8, GOAL_RIGHT = 6;  // 达标线：仅内部软统计 + 家长看板，孩子界面不可见
+    var SETTINGS_KEY = 'lilearn.settings.4y';   // 独立分区，不进 Gist 白名单
+    var USAGE_KEY = 'lilearn.usage.4y';         // 独立分区，不进 Gist 白名单
+
+    /* ---- settings / usage 独立 localStorage 分区 ---- */
+    function readLS(k, def) {
+      try { var s = localStorage.getItem(k); return s ? JSON.parse(s) : def; } catch (e) { return def; }
+    }
+    function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } }
+    var settings = readLS(SETTINGS_KEY, null);
+    if (!settings || typeof settings !== 'object') settings = {};
+    if (typeof settings.challengeBadge !== 'boolean') settings.challengeBadge = false; // B4 默认 false
+    var usage = readLS(USAGE_KEY, null);
+    if (!usage || typeof usage !== 'object') usage = {};
+    if (!usage.daily || typeof usage.daily !== 'object') usage.daily = {};
+    if (typeof usage.leaves !== 'number') usage.leaves = 0;
+    if (!usage.badges || typeof usage.badges !== 'object') usage.badges = {};
+    if (!usage.stickers || !Array.isArray(usage.stickers)) usage.stickers = [];
+    if (!usage.levelEntries || typeof usage.levelEntries !== 'object') usage.levelEntries = {};
+    if (!usage.wrongTags || typeof usage.wrongTags !== 'object') usage.wrongTags = {};
+    function saveUsage() { writeLS(USAGE_KEY, usage); }
+    function saveSettings() { writeLS(SETTINGS_KEY, settings); }
+
+    function dayKeyLocal() {
+      var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
+      return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+    }
+    /* A1：daily{'YYYY-MM-DD':{accumSec,sessionCount,restCount,capped,lastDate}}
+       只留最近 1 天；EVT_LEVEL_ENTER 比对本地自然日惰性重置，无需定时任务。 */
+    function todayUsage() {
+      var k = dayKeyLocal();
+      if (usage._lastDate !== k) {
+        usage.daily = {};                       // 旧记录只留最近 1 天
+        usage.daily[k] = { accumSec: 0, sessionCount: 0, restCount: 0, capped: false, lastDate: k };
+        usage._lastDate = k;
+        usage._todayDone = 0; usage._todayRight = 0;
+        /* A4：换日后「首次越过 50%」/「第 2 局兜底」/ 去抖时间戳一并重置，
+           否则自然日切过去后这三种一次性判定会被昨天的锁存永久吞掉。 */
+        usage._halfRestDone = false; usage._rest2Done = false; usage._lastRestAt = 0;
+        saveUsage();
+      }
+      if (!usage.daily[k]) usage.daily[k] = { accumSec: 0, sessionCount: 0, restCount: 0, capped: false, lastDate: k };
+      return usage.daily[k];
+    }
+
+    /* ---- 运行时内存态（纯前端，不写 progress） ---- */
+    var sessionAccumSec = 0;
+    var timeUpPending = false, draining = false, restActive = false;
+    var confirmState = null;
+    var qDwell = 0, qFlags = freshFlags();
+    var firstTryCleanCount = 0, levelCorrect = 0, levelDone = 0;
+    var processNodes = [];          // 三轨：过程性动效节点
+    var tickTimer = 0, lastTick = 0, replaying = false;
+    var restScene = null, wrapScene = null, wrapCb = null;
+    var demoNode = null, gateNode = null, gateCb = null, atlasNode = null;
+    var confirmLayer = null, treeHost = null, resultSpeechAt = 0;
+    var lastOutcome = 'correct';   // B6：状态名仅 correct / near / wrong / shown，禁用 fail
+
+    function freshFlags() { return { replay: false, hint: false, undo: false }; }
+
+    /* ---- 通用 DOM 助手（内联 SVG + CSS/WAAPI，不引 CDN） ---- */
+    function el(tag, cls, txt) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (txt != null) n.textContent = txt;
+      return n;
+    }
+    function svg(markup, cls) {
+      var n = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      n.setAttribute('viewBox', '0 0 100 100');
+      if (cls) n.setAttribute('class', cls);
+      n.innerHTML = markup;
+      return n;
+    }
+
+    /* ---- A2 两套计时口径：共用同一 EVT_TICK，分别累加，禁止互相覆盖 ---- */
+    function isInteractive() {
+      try {
+        return !!(state && state.phase === 'asking' && !state.busy &&
+                  !restActive && !draining && !replaying);
+      } catch (e) { return false; }
+    }
+    function startTick() {
+      if (tickTimer) return;
+      lastTick = Date.now();
+      tickTimer = setInterval(function () {
+        var now = Date.now(), dt = (now - lastTick) / 1000;
+        lastTick = now;
+        if (dt <= 0 || dt > 5) return;      // 切后台 / 挂起的大间隔不计
+        var vis = (typeof document.hidden === 'undefined') ? true : !document.hidden;
+        var d = todayUsage();
+        /* A2 daily.accumSec：真实屏幕占用——题干播放、示范动画、休息画面、收尾画面
+           都还在屏幕上，一律计入；draining 只掐「有效互动」口径，不能把屏幕占用一起停掉。 */
+        if (vis) d.accumSec = Math.min(DAILY_CAP_MAX, (d.accumSec || 0) + dt);
+        /* sessionAccumSec：只算有效互动（重听/休息/结算/切后台/加载暂停时不累加） */
+        if (vis && !draining && !restActive && isInteractive()) {
+          sessionAccumSec = Math.min(SESSION_CAP_MAX, sessionAccumSec + dt);
+        }
+        /* A3/A5：单局到点可反复收尾（继续 = 新一局）；每日到点用 d.capped 锁存，
+           当天只收尾一次，之后「可返回、可继续、不锁死」，不会被下一 tick 反复弹回。 */
+        if (!timeUpPending && !d.capped) {
+          var cap = Math.min(SESSION_CAP_SEC, SESSION_CAP_MAX);
+          var dcap = Math.min(DAILY_CAP_SEC, DAILY_CAP_MAX);
+          if (sessionAccumSec >= cap || (d.accumSec || 0) >= dcap) {
+            timeUpPending = true;           // A3 到点只置标志，不打扰
+            d.capped = (d.accumSec || 0) >= dcap;
+            d.lastDate = dayKeyLocal();
+            saveUsage();
+          }
+        }
+      }, 1000);
+    }
+
+    /* ---- A4：连续两局至少一次休息；REST_GAP_MS 仅去抖，第 2 局强制兜底 ---- */
+    function shouldInsertRest() {
+      var d = todayUsage();
+      var halfLine = Math.min(DAILY_CAP_SEC, DAILY_CAP_MAX) * 0.5;
+      var half = (d.accumSec || 0) >= halfLine;
+      /* REST_GAP_MS 只作「两次休息之间」的去抖窗口，不能用来绕过硬要求。 */
+      var debounce = (Date.now() - (usage._lastRestAt || 0)) < REST_GAP_MS;
+      /* A4 硬要求：连续两局至少一次休息。第 2 局强制插入一次兜底（一次性锁存，
+         不受去抖窗口绕过；换日由 todayUsage 重置）。 */
+      if ((d.sessionCount || 0) >= 2 && !usage._rest2Done) {
+        usage._rest2Done = true; saveUsage();
+        return true;
+      }
+      /* A4：当日累计「首次」越过 50%。_halfRestDone 锁存，避免此后每次结算都重复命中；
+         若刚休息过（去抖窗口内）就让位给上面的兜底，不连插两次休息。 */
+      if (half && !usage._halfRestDone) {
+        usage._halfRestDone = true; saveUsage();
+        return !debounce;
+      }
+      return false;
+    }
+
+    /* ---- A5 / F10 RestScene：角色打哈欠/伸展/看远处，20s，无文字无语音 ---- */
+    function showRestScene(cb) {
+      restActive = true;
+      if (!restScene) {
+        restScene = el('div', 'm4y-rest');
+        restScene.appendChild(svg(
+          '<circle cx="50" cy="50" r="34" fill="#FFE0C2" stroke="#E8B98D" stroke-width="3"/>' +
+          '<g class="m4y-yawn"><ellipse cx="38" cy="44" rx="4" ry="6" fill="#5a4a42"/>' +
+          '<ellipse cx="62" cy="44" rx="4" ry="6" fill="#5a4a42"/>' +
+          '<ellipse cx="50" cy="63" rx="9" ry="11" fill="#E8605C"/></g>' +
+          '<g class="m4y-look"><path d="M18 28 q32 -12 64 0" fill="none" stroke="#8FB8E8" stroke-width="3" stroke-linecap="round"/></g>'
+        ));
+        document.body.appendChild(restScene);
+      }
+      restScene.hidden = false;
+      var d = todayUsage(); d.restCount = (d.restCount || 0) + 1;
+      usage._lastRestAt = Date.now(); saveUsage();
+      var t = setTimeout(finish, REST_SEC * 1000);
+      restScene.onclick = function () { clearTimeout(t); finish(); };  // 轻触可提前结束，不强制
+      function finish() {
+        restScene.hidden = true; restActive = false;
+        if (cb) cb();
+      }
+    }
+
+    /* ---- A5 正向收尾「今天玩到这里」：可返回、可继续、不锁死 ---- */
+    function showWrapUp(cb) {
+      wrapCb = cb;
+      if (!wrapScene) {
+        wrapScene = el('div', 'm4y-wrapup');
+        wrapScene.appendChild(el('div', 'm4y-title', '今天玩到这里'));   // E1 正向收尾
+        var row = el('div', 'm4y-row');
+        var b1 = el('button', 'm4y-btn', '回地图');
+        var b2 = el('button', 'm4y-btn', '再玩一会儿');
+        row.appendChild(b1); row.appendChild(b2);
+        wrapScene.appendChild(row);
+        /* E2 ① 陪玩钩子：讲给爸爸妈妈听 → 家长按「听到啦」→ 成长树 +1 叶；
+           不判对错、不录音、不强制，家长不按孩子也能自己继续。 */
+        var hook = el('div', 'm4y-hook');
+        hook.appendChild(el('span', '', '把刚才玩的讲给爸爸妈妈听'));
+        var heard = el('button', '', '听到啦');
+        heard.addEventListener('click', function () { addLeaf(1); heard.disabled = true; });
+        hook.appendChild(heard);
+        wrapScene.appendChild(hook);
+        wrapScene.appendChild(treeSvg());     // E1 成长树
+        document.body.appendChild(wrapScene);
+        b1.addEventListener('click', function () { wrapScene.hidden = true; if (wrapCb) wrapCb(false); });
+        b2.addEventListener('click', function () { wrapScene.hidden = true; if (wrapCb) wrapCb(true); });
+      }
+      wrapScene.hidden = false;
+      refreshTree();
+    }
+
+    /* ---- A3 DRAINING：本题 resolved 之后、下一题 enter 之前收尾；onAdvance 唯一拦截点 ---- */
+    function beforeAdvance() {
+      if (!timeUpPending || draining) return false;
+      draining = true; timeUpPending = false;
+      feedbackBus.cancelProcess();
+      addLeaf(1);                            // 到点收尾照样给等量成长点
+      showRestScene(function () {
+        showWrapUp(function (again) {
+          draining = false;
+          if (again) {
+            sessionAccumSec = 0;            // 继续 = 新一局，不锁死
+            var d = todayUsage(); d.sessionCount = (d.sessionCount || 0) + 1; saveUsage();
+            try { nextRound(); } catch (e) { }
+          } else {
+            try { stop(); showScreen('map'); renderMap(); } catch (e) { }
+          }
+        });
+      });
+      return true;                          // 拦截 nextRound，不进下一题
+    }
+
+    /* ---- B2 防误触：0.4s 单点确认（预选高亮 + 大目标二次确认 + 撤销），不依赖双击/长按 ---- */
+    function ensureConfirmLayer() {
+      if (confirmLayer) return confirmLayer;
+      confirmLayer = el('div', 'm4y-confirm-layer');
+      var inner = el('div', 'm4y-confirm-inner');
+      var ok = el('button', 'm4y-confirm-ok');
+      ok.appendChild(svg('<path d="M25 52 l16 16 34 -36" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>', null));
+      var undo = el('button', 'm4y-confirm-undo');
+      undo.appendChild(svg('<path d="M32 32 l36 36 M68 32 l-36 36" fill="none" stroke="#8a7a65" stroke-width="7" stroke-linecap="round"/>', null));
+      inner.appendChild(undo); inner.appendChild(ok);
+      confirmLayer.appendChild(inner);
+      confirmLayer.hidden = true;
+      confirmLayer._ok = ok; confirmLayer._undo = undo;
+      document.body.appendChild(confirmLayer);
+      return confirmLayer;
+    }
+    function clearConfirm() {
+      if (confirmState && confirmState.timer) clearTimeout(confirmState.timer);
+      if (confirmState && confirmState.btn && confirmState.btn.classList) {
+        confirmState.btn.classList.remove('m4y-preselect');
+      }
+      confirmState = null;
+      if (confirmLayer) {
+        confirmLayer.hidden = true;
+        confirmLayer._ok.onclick = null; confirmLayer._undo.onclick = null;
+      }
+    }
+    function confirmTap(btn, commit) {
+      if (!btn || !commit) return false;
+      if (confirmState && confirmState.btn === btn) {   // 二次点同一目标 = 立即确认
+        var c0 = confirmState.commit; clearConfirm(); c0(); return true;
+      }
+      clearConfirm();
+      var layer = ensureConfirmLayer();
+      layer.hidden = false;
+      if (btn.classList) btn.classList.add('m4y-preselect');
+      confirmState = { btn: btn, commit: commit, at: Date.now() };
+      layer._ok.onclick = function () { var c = confirmState && confirmState.commit; clearConfirm(); if (c) c(); };
+      layer._undo.onclick = function () {             // EVT_UNDO：撤销不写任何数据
+        clearConfirm(); if (qFlags) qFlags.undo = true;
+      };
+      /* 0.4s 确认窗口：超时自动确认（4 岁孩子无需二次精准操作，也不卡自动化回归） */
+      confirmState.timer = setTimeout(function () {
+        if (!confirmState) return;
+        var c = confirmState.commit; clearConfirm(); if (c) c();
+      }, CONFIRM_MS);
+      return true;
+    }
+
+    /* ---- B6 三态与 near 判定：状态名仅 correct/near/wrong/shown，禁用 fail ---- */
+    function classify(ok, btn, q) {
+      /* 用过「再听一次」后答对直接算 correct（不以耗时判定，B3/B6）。 */
+      if (ok) { lastOutcome = 'correct'; return 'correct'; }
+      try {
+        if (btn && btn.getAttribute && btn.getAttribute('data-m4y-near') === '1') {
+          lastOutcome = 'near'; return 'near';
+        }
+        var ans = q ? (typeof q.correct === 'number' ? q.correct :
+                      (typeof q.answer === 'number' ? q.answer : NaN)) : NaN;
+        /* 选项按钮带 data-idx（index.html 275–277），拖拽落点没有则回退到 DOM 位置。 */
+        var idx = (btn && btn.dataset && btn.dataset.idx != null)
+          ? parseInt(btn.dataset.idx, 10) : NaN;
+        if (isNaN(idx) && btn) {
+          var opts = optionsBar.querySelectorAll('.option');
+          for (var i = 0; i < opts.length; i++) { if (opts[i] === btn) { idx = i; break; } }
+        }
+        if (!isNaN(idx) && !isNaN(ans) && Math.abs(idx - ans) === 1) {
+          lastOutcome = 'near'; return 'near';         // 同族相邻干扰项 → near
+        }
+      } catch (e) { }
+      lastOutcome = 'wrong';
+      return 'wrong';
+    }
+
+    /* ---- B9 三轨时序：判定瞬间 cancel 过程轨，复用 PRAISE_*，集星等 ended 后 ---- */
+    var feedbackBus = {
+      cancelProcess: function () {
+        for (var i = 0; i < processNodes.length; i++) {
+          try { if (processNodes[i] && processNodes[i].parentNode) processNodes[i].parentNode.removeChild(processNodes[i]); } catch (e) { }
+        }
+        processNodes = [];
+        try { optionsBar.classList.remove('m4y-f1'); } catch (e) { }
+        if (demoNode) demoNode.hidden = true;
+      },
+      /* B9 三轨时序 · 判定瞬间：过程轨（F1–F10 / 示范 / DragHint）立刻掐断，
+         结果语音轨从这一刻起算。答错 / 差一点 / 展示答案：无表扬语音、无星。 */
+      startResult: function (kind) {
+        feedbackBus.cancelProcess();
+        resultSpeechAt = Date.now();
+        if (kind !== 'correct') return;
+        /* 正确：不新增 PRAISE_* key（0 项改题干语音文案、0 项新增语音 key）。
+           单题只放原有 coin 音效，结果轨就绪后由 settle 起集星动效；
+           关末的中文 PRAISE_* + 英文 WIN_* 由 settleFinale 统一等到 ended 才起结算视觉。 */
+      },
+      /* 结算视觉轨：等结果语音轨就绪后再起；答错分支直接返回，做到「答错无星」。 */
+      settle: function (kind, fn) {
+        if (kind !== 'correct') return;
+        var wait = resultSpeechAt > 0 ? Math.max(0, resultSpeechAt - Date.now()) : 0;
+        setTimeout(function () { try { fn(); } catch (e) { } }, wait);
+      },
+      /* 关末：把彩带 / 通关旗 / 收官横幅挂到 PRAISE_* → WIN_* 整条语音链的 ended 之后。
+         playChain 收一个 ended 回调；另设兜底定时器，语音异常也不让结算视觉缺失。 */
+      settleFinale: function (playChain, visualFn) {
+        feedbackBus.cancelProcess();
+        var fired = false;
+        function fire() { if (fired) return; fired = true; try { visualFn(); } catch (e) { } }
+        try { playChain(fire); } catch (e) { fire(); }
+        setTimeout(fire, 4000);
+      }
+    };
+
+    /* ---- B5 答错三级分级反馈 + B10 视觉规格 ---- */
+    function focusCorrect(q) {
+      try {
+        var opts = optionsBar.querySelectorAll('.option');
+        var ci = q ? (typeof q.correct === 'number' ? q.correct : q.answer) : -1;
+        for (var i = 0; i < opts.length; i++) {
+          opts[i].classList.remove('m4y-focus', 'm4y-dim');
+          if (i === ci) opts[i].classList.add('m4y-focus');       // 暖黄高亮正确区域
+          else opts[i].classList.add('m4y-dim');                   // 非目标仅降饱和约 30% 轻轻退后
+        }
+      } catch (e) { }
+    }
+    function replayQuestion(q) {
+      if (!q || !q.audio) return;
+      replaying = true;
+      if (qFlags) qFlags.replay = true;                 // B3 重听豁免
+      try { say(q.audio, function () { replaying = false; }); } catch (e) { replaying = false; }
+    }
+    function demoOnce(q) { playDemo(q, null); }
+    function degradeOptions(q) {
+      /* 第 2 次：3 选 1 → 2 选 1（一个非目标轻轻退后并禁用，不重洗、不改语音） */
+      try {
+        var opts = optionsBar.querySelectorAll('.option');
+        var ci = q ? (typeof q.correct === 'number' ? q.correct : q.answer) : -1;
+        var done = 0;
+        for (var i = 0; i < opts.length; i++) {
+          if (i !== ci && done < 1 && opts.length > 2) {
+            opts[i].classList.add('m4y-dim');
+            opts[i].style.pointerEvents = 'none';
+            done++;
+          }
+        }
+      } catch (e) { }
+    }
+    function revealAnswer(q, cb) {
+      /* 第 3 次：展示答案并前进（outcome=shown、正确项放大停留 1.5s、无条件前进） */
+      lastOutcome = 'shown';                          // B6：四态之一，禁用 fail
+      focusCorrect(q);
+      try {
+        var opts = optionsBar.querySelectorAll('.option');
+        var ci = q ? (typeof q.correct === 'number' ? q.correct : q.answer) : -1;
+        if (opts[ci]) { opts[ci].classList.add('m4y-focus'); opts[ci].style.transform = 'scale(1.12)'; }
+      } catch (e) { }
+      try { playRandomPraise(function () { }); } catch (e) { }  // F7 复用 PRAISE_*，不新增 key
+      setTimeout(function () { if (cb) cb(); }, 1500);
+    }
+    function nearDots(fromEl) {
+      /* F4 差一点：浮 2–3 小圆点作距离提示，400ms，不判对错、不消失任何选项 */
+      try {
+        var r = fromEl.getBoundingClientRect();
+        var d = el('div', 'm4y-dots');
+        d.style.left = (r.left + r.width / 2 - 12) + 'px';
+        d.style.top = (r.top - 14) + 'px';
+        for (var i = 0; i < 3; i++) d.appendChild(el('i', ''));
+        document.body.appendChild(d); processNodes.push(d);
+        setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 400);
+      } catch (e) { }
+    }
+    function sparkle(fromEl) {
+      /* F8 做到了：小光点飞向图鉴 */
+      try {
+        var r = fromEl.getBoundingClientRect();
+        var s = el('i', 'm4y-sparkle');
+        s.style.left = r.left + 'px'; s.style.top = r.top + 'px';
+        document.body.appendChild(s); processNodes.push(s);
+        setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 700);
+      } catch (e) { }
+    }
+    function onCorrect(btn, q) {
+      feedbackBus.startResult('correct');
+      /* B3：重听/提示/撤销豁免 firstTryCleanCorrect，但答对仍计正确、仍前进、不降星 */
+      if (!qFlags.replay && !qFlags.hint && !qFlags.undo && qDwell === 0) firstTryCleanCount++;
+      levelCorrect++;
+      addSticker(); sparkle(btn);
+    }
+    function onWrong(btn, q, kind) {
+      feedbackBus.startResult(kind === 'near' ? 'near' : 'wrong');
+      try { state.busy = true; } catch (e) { }          // 反馈期间先阻塞重复点击
+      if (kind === 'near') {
+        /* B6：near 只给距离提示，不写 wrongCount、不进复习池；随即放行继续作答。 */
+        nearDots(btn);
+        try { state.busy = false; } catch (e) { }
+        return;
+      }
+      /* D3 / B5：C 拖拽题型不降级——4 岁起步不触发 3-4 岁「降级为实物图」，
+         也跳过「3 选 1 → 2 选 1」的选项降级；只重听 + 再提示，第 3 次照常展示答案前进。 */
+      var isDrag = q && /C$/.test(String(q.type || ''));
+      qDwell += 1;
+      if (qDwell === 1) {
+        /* 第 1 次：提示（高亮 + 自动重听 + 示范） */
+        focusCorrect(q); replayQuestion(q); demoOnce(q);
+        showParentHook('listen');                       // E2 ②
+      } else if (qDwell === 2 && !isDrag) {
+        /* 第 2 次：降级 3 选 1 → 2 选 1 */
+        degradeOptions(q); focusCorrect(q); replayQuestion(q);
+      } else if (qDwell === 2 && isDrag) {
+        /* C 不降级：只再高亮 + 重听一次，不改动任何选项 */
+        focusCorrect(q); replayQuestion(q);
+      } else {
+        /* 第 3 次 / 到 maxDwell=3（4 岁起步）必放行：展示答案并前进，不卡关 */
+        revealAnswer(q, function () {
+          qDwell = 0;
+          try { nextRound(); } catch (e) { }
+        });
+        return;                                       // 保持 busy=true，展示答案期间不可再点
+      }
+      try { state.busy = false; } catch (e) { }        // 第 1 / 2 次允许本题再次作答
+    }
+
+    /* ---- B7 错题写入条件收窄 + wrongTag（写 usage 分区，不动 Gist payload 结构） ---- */
+    function recordMistake(island, level, q, meta) {
+      usage.wrongTags = usage.wrongTags || {};
+      var wk = null;
+      try { wk = questionWordKey(q); } catch (e) { }
+      var tag = 'concept';
+      if (meta && meta.needListen) tag = 'needListen';
+      else if (meta && meta.needHint) tag = 'needHint';
+      usage.wrongTags[island + '-' + level + (wk ? ':' + wk : '')] = tag;
+      saveUsage();
+    }
+    function noteMeta(ok, kind) {
+      /* 只记「非误触撤销、非超时」的真答错；near / shown 不写错题 */
+      return {
+        countMistake: !ok && kind === 'wrong' && !(qFlags && qFlags.undo),
+        needListen: !!(qFlags && qFlags.replay),
+        needHint: !!(qFlags && qFlags.hint)
+      };
+    }
+
+    /* ---- B8：「再听一次」常亮常驻；眼睛 + 小海螺（禁闪电/沙漏/秒表/倒计时红环） ---- */
+    function replayIcon() {
+      return svg(
+        '<path d="M14 50 q36 -26 72 0 q-36 26 -72 0 z" fill="#8FB8E8" stroke="#5a86b8" stroke-width="3"/>' +
+        '<circle cx="50" cy="50" r="10" fill="#fff"/><circle cx="50" cy="50" r="4.5" fill="#5a4a42"/>' +
+        '<path d="M68 72 q16 -6 20 -20 q-2 18 -14 26 z" fill="#FFC94A" stroke="#d9a23f" stroke-width="2"/>',
+        'm4y-replay-svg'
+      );
+    }
+    function ensureReplayIcon() {
+      try {
+        if (!btnReplay || btnReplay.getAttribute('data-m4y') === '1') return;
+        btnReplay.innerHTML = '';
+        btnReplay.appendChild(replayIcon());
+        btnReplay.setAttribute('data-m4y', '1');
+      } catch (e) { }
+    }
+
+    /* ---- D3：字母首音岛按主题派生（不硬编码岛号），三题型 B→A→C ---- */
+    function isPhonicsIsland(island) {
+      var def = ISLANDS[island - 1];
+      return !!(def && def.name === '字母与首音');
+    }
+
+    /* ---- C9 / C10：示范动画 4 镜 ≤3.5s + DragHint（路径高亮、可撤销） ---- */
+    function needDemo(island, level, qIndex) {
+      if (qIndex !== 0) return false;                       // 只首题
+      if (isStartingLevel(island, level)) return true;      // 派生：新起步岛首关
+      if (isFirstLevelOfIsland(island, level)) return true; // 各岛教学关首关
+      var def = levelDef(island, level);
+      if (def && (def.make === 'makeS1' || def.numbers)) return true;  // makeS1 关 / numbers 关
+      return false;
+    }
+    function playDemo(q, cb) {
+      /* 4 镜（听→轮到手→让开→可重演）：总 3.2s ≤3.5s，每镜 0.6–0.9s；
+         只演「怎么做」绝不演答案，纯内联 SVG + CSS，不引 CDN。 */
+      if (!demoNode) {
+        demoNode = el('div', 'm4y-demo');
+        demoNode.appendChild(svg(
+          '<circle class="m4y-ring" cx="50" cy="50" r="30" fill="none" stroke="#FFC94A" stroke-width="4" stroke-dasharray="6 6"/>' +
+          '<g class="m4y-hand"><circle cx="34" cy="66" r="11" fill="#FFE0C2" stroke="#E8B98D" stroke-width="3"/>' +
+          '<path d="M34 60 V44 M34 56 l-8 -6 M34 56 l8 -6" stroke="#E8B98D" stroke-width="3" stroke-linecap="round"/></g>'
+        ));
+        document.body.appendChild(demoNode);
+      }
+      demoNode.hidden = false;
+      setTimeout(function () { demoNode.hidden = true; if (cb) cb(); }, 3200);
+    }
+    function showDragHint(q) {
+      /* C 拖拽补 DragHint：路径高亮 + 可撤销，不演答案；4 岁起步 C 不降级 */
+      var h = document.querySelector('.m4y-draghint');
+      if (h && h.parentNode) h.parentNode.removeChild(h);
+      var u = document.querySelector('.m4y-drag-undo');
+      if (u && u.parentNode) u.parentNode.removeChild(u);
+      h = el('div', 'm4y-draghint');
+      h.appendChild(svg('<path d="M10 90 Q50 10 90 90" fill="none" stroke="#FFC94A" stroke-width="4" stroke-dasharray="8 8"/>', null));
+      h.style.left = '30vw'; h.style.top = '55vh';
+      u = el('button', 'm4y-drag-undo', '撤销');
+      u.style.left = '4vw'; u.style.top = '70vh';
+      u.addEventListener('click', function () {
+        h.hidden = true; u.hidden = true; if (qFlags) qFlags.undo = true;
+      });
+      document.body.appendChild(h); document.body.appendChild(u);
+      processNodes.push(h); processNodes.push(u);
+      setTimeout(function () { h.hidden = true; u.hidden = true; }, 3400);
+    }
+
+    /* ---- D4 并列式图鉴世界观：无编号无文字群岛地图 + 点点 + 小海螺 + 可翻页图鉴 ---- */
+    function decorateMap(grid, card, index, island, unlocked) {
+      grid.classList.add('m4y-atlas-map');   // CSS 隐藏 .num / .name，地图不画直线
+      try { card.setAttribute('aria-label', island.name); } catch (e) { }
+      mountBuddies(); ensureAtlasBtn();
+    }
+    function mountBuddies() {
+      if (document.querySelector('.m4y-buddy')) return;
+      var dot = el('div', 'm4y-buddy m4y-dot-guide');   // 向导「点点」
+      dot.appendChild(svg('<circle cx="50" cy="50" r="30" fill="#8FB8E8"/>' +
+        '<circle cx="40" cy="44" r="5" fill="#fff"/><circle cx="60" cy="44" r="5" fill="#fff"/>' +
+        '<path d="M40 64 q10 8 20 0" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>', null));
+      var shell = el('div', 'm4y-buddy m4y-shell');     // 重听伙伴「小海螺」
+      shell.appendChild(svg('<path d="M18 72 q32 -52 64 0 z" fill="#FFC94A" stroke="#d9a23f" stroke-width="3"/>' +
+        '<circle cx="50" cy="42" r="13" fill="#FFE0C2"/>', null));
+      document.body.appendChild(dot); document.body.appendChild(shell);
+    }
+    function ensureAtlasBtn() {
+      if (document.getElementById('m4yAtlasBtn')) return;
+      var b = el('button', 'm4y-atlas-btn', '图鉴');
+      b.id = 'm4yAtlasBtn';
+      b.style.position = 'fixed'; b.style.right = '3vw'; b.style.top = '3vh'; b.style.zIndex = '905';
+      b.addEventListener('click', openAtlas);
+      document.body.appendChild(b);
+    }
+    function openAtlas() {
+      /* 可翻页图鉴：顺序语义全由图标与图鉴页序承载，无编号无文字、不出现接着/最后/下一站 */
+      if (!atlasNode) {
+        atlasNode = el('div', 'm4y-atlas-sheet');
+        var page = el('div', 'm4y-atlas-page');
+        atlasNode.appendChild(page);
+        var nav = el('div', 'm4y-atlas-nav');
+        var prev = el('button', 'm4y-btn', '\u2039');
+        var next = el('button', 'm4y-btn', '\u203a');
+        var close = el('button', 'm4y-btn', '\u00d7');
+        nav.appendChild(prev); nav.appendChild(next); nav.appendChild(close);
+        atlasNode.appendChild(nav);
+        document.body.appendChild(atlasNode);
+        var p = 0, pages = Math.ceil(ISLANDS.length / 6);
+        function draw() {
+          page.innerHTML = '';
+          for (var i = 0; i < 6; i++) {
+            var idx = p * 6 + i;
+            if (idx >= ISLANDS.length) break;
+            var cell = el('div', 'm4y-atlas-cell');
+            var ic = el('span', '', ISLANDS[idx].icon);
+            ic.style.fontSize = '44px';
+            cell.appendChild(ic); page.appendChild(cell);
+          }
+        }
+        prev.addEventListener('click', function () { p = (p + pages - 1) % pages; draw(); });
+        next.addEventListener('click', function () { p = (p + 1) % pages; draw(); });
+        close.addEventListener('click', function () { atlasNode.hidden = true; });
+        draw();
+      }
+      atlasNode.hidden = false;
+    }
+
+    /* ---- E1 成长树 / 贴纸墙（可预期、不抽奖不随机、不与现实奖励等价） ---- */
+    function addLeaf(n) { usage.leaves = (usage.leaves || 0) + (n || 1); saveUsage(); refreshTree(); }
+    function addSticker() {
+      usage.stickers.push(Date.now());
+      if (usage.stickers.length > 200) usage.stickers.shift();
+      saveUsage();
+    }
+    function treeSvg() {
+      var s = svg('<rect x="47" y="60" width="6" height="34" fill="#c98f57"/>' +
+                  '<circle cx="50" cy="40" r="26" fill="#7FC8A9"/>', 'm4y-tree');
+      treeHost = s;
+      return s;
+    }
+    function refreshTree() {
+      if (!treeHost) return;
+      var old = treeHost.querySelector('.m4y-leaves');
+      if (old) treeHost.removeChild(old);
+      var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'm4y-leaves');
+      var n = Math.min(12, usage.leaves || 0);
+      for (var i = 0; i < n; i++) {
+        var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', String(30 + (i % 4) * 13));
+        c.setAttribute('cy', String(28 + Math.floor(i / 4) * 12));
+        c.setAttribute('r', '5'); c.setAttribute('fill', '#FFD76E');
+        g.appendChild(c);
+      }
+      treeHost.appendChild(g);
+    }
+
+    /* ---- E2 ② 家长陪玩钩子（第 1 次答错自动重听时的小图标，不强制不打断） ---- */
+    function showParentHook(kind) {
+      if (kind !== 'listen') return;
+      var h = el('div', 'm4y-hook');
+      h.style.position = 'fixed'; h.style.left = '50%'; h.style.bottom = '12vh';
+      h.style.transform = 'translateX(-50%)'; h.style.zIndex = '9350';
+      h.appendChild(el('span', '', '和爸爸妈妈一起再听一遍'));
+      document.body.appendChild(h); processNodes.push(h);
+      setTimeout(function () { if (h.parentNode) h.parentNode.removeChild(h); }, 2600);
+    }
+
+    /* ---- A6 ParentGate：图形验证仅防孩子误改设置 ---- */
+    function parentGate(onPass) {
+      gateCb = onPass;
+      if (!gateNode) {
+        gateNode = el('div', 'm4y-gate');
+        var box = el('div', 'm4y-gate-box');
+        box.appendChild(el('div', '', '请点一下小海螺'));
+        var opts = el('div', 'm4y-gate-opts');
+        var shapes = ['\u25B2', '\uD83D\uDC1A', '\u2B50'];  // 正确 = 小海螺
+        for (var i = 0; i < shapes.length; i++) {
+          (function (s) {
+            var b = el('button', '', s);
+            b.addEventListener('click', function () {
+              var pass = (s === '\uD83D\uDC1A');
+              gateNode.hidden = true;
+              if (pass && gateCb) gateCb();                // 点错静默关闭，不惩罚不报错
+            });
+            opts.appendChild(b);
+          })(shapes[i]);
+        }
+        box.appendChild(opts); gateNode.appendChild(box);
+        document.body.appendChild(gateNode);
+      }
+      gateNode.hidden = false;
+    }
+
+    /* ---- A7 / E3 家长看板：「今日参与度」+ 错题分布，不显示达标/未达标、不比较 ---- */
+    function renderBoard(host) {
+      if (!host) return;
+      var d = todayUsage();
+      var b1 = el('div', 'm4y-board-block');
+      b1.appendChild(el('h4', '', '今日参与度'));
+      b1.appendChild(el('p', '', '今天玩了 ' + Math.round((d.accumSec || 0) / 60) + ' 分钟，' +
+        (d.sessionCount || 0) + ' 局，休息 ' + (d.restCount || 0) + ' 次'));
+      /* 达标线 8/6 仅内部软统计：这里只报完成/答对，不给「达标 / 未达标」、不与他人比较 */
+      b1.appendChild(el('p', '', '完成 ' + (usage._todayDone || 0) + ' 关，答对 ' + (usage._todayRight || 0) + ' 题'));
+      host.appendChild(b1);
+      var b2 = el('div', 'm4y-board-block');
+      b2.appendChild(el('h4', '', '错题分布'));
+      var tags = usage.wrongTags || {}, cnt = { needListen: 0, needHint: 0, concept: 0 };
+      Object.keys(tags).forEach(function (k) { if (cnt[tags[k]] != null) cnt[tags[k]]++; });
+      b2.appendChild(el('p', '', '需再听 ' + cnt.needListen + ' · 需提示 ' + cnt.needHint + ' · 概念 ' + cnt.concept));
+      host.appendChild(b2);
+      var b3 = el('div', 'm4y-board-block');
+      var btn = el('button', 'm4y-btn', settings.challengeBadge ? '挑战徽章：开' : '挑战徽章：关');
+      btn.addEventListener('click', function () {
+        parentGate(function () {
+          settings.challengeBadge = !settings.challengeBadge;
+          saveSettings();
+          btn.textContent = settings.challengeBadge ? '挑战徽章：开' : '挑战徽章：关';
+        });
+      });
+      b3.appendChild(btn); host.appendChild(b3);
+      host.appendChild(treeSvg()); refreshTree();
+    }
+
+    /* ---- 对外接线 API ---- */
+    return {
+      /* A1 / A2 / A6：进关即惰性重置 + 启动计时 + 记录进入次数 */
+      onLevelEnter: function (island, level) {
+        startTick();
+        var d = todayUsage();                 // 比对本地自然日惰性重置
+        d.sessionCount = (d.sessionCount || 0) + 1;
+        d.lastDate = dayKeyLocal();
+        var k = island + '-' + level;
+        usage.levelEntries[k] = (usage.levelEntries[k] || 0) + 1;  // B7 进入该关次数
+        saveUsage();
+        firstTryCleanCount = 0; levelCorrect = 0; levelDone = 0;
+        qDwell = 0; qFlags = freshFlags();
+        ensureReplayIcon();
+      },
+      /* F1 / C9 / C10 / B8：本题 enter */
+      onQuestionEnter: function (island, level, qIndex, q) {
+        qDwell = 0; qFlags = freshFlags();
+        feedbackBus.cancelProcess();
+        ensureReplayIcon();                 // 常亮常驻
+        try { optionsBar.classList.add('m4y-f1'); } catch (e) { }   // F1 轮到你了
+        if (q && /C$/.test(String(q.type || ''))) showDragHint(q);    // C10 DragHint
+        if (needDemo(island, level, qIndex)) playDemo(q, null);        // C9 示范动画
+      },
+      beforeAdvance: beforeAdvance,
+      confirmTap: confirmTap,
+      classify: classify,
+      onCorrect: onCorrect,
+      onWrong: onWrong,
+      noteMeta: noteMeta,
+      recordMistake: recordMistake,
+      feedbackBus: feedbackBus,
+      /* B6：对外暴露当前 outcome，取值域仅 correct / near / wrong / shown */
+      outcome: function () { return lastOutcome; },
+      isPhonicsIsland: isPhonicsIsland,
+      replayIcon: replayIcon,
+      renderBoard: renderBoard,
+      decorateMap: decorateMap,
+      parentGate: parentGate,
+      /* B3 / B8：点「再听一次」标记豁免（题干/教学可无限重听） */
+      markReplay: function () {
+        replaying = true; if (qFlags) qFlags.replay = true;
+        setTimeout(function () { replaying = false; }, 1200);
+      },
+      onUndo: function () { clearConfirm(); if (qFlags) qFlags.undo = true; },
+      /* B1 / B4 / E1 / F9 / A4：完成即解锁（与对错/星级/提示/重听/撤销全无关） */
+      onLevelComplete: function (island, level) {
+        levelDone++;
+        usage._todayDone = (usage._todayDone || 0) + 1;
+        usage._todayRight = (usage._todayRight || 0) + levelCorrect;
+        /* B4 银星 = 完成即得；金星仅可选徽章（默认 false）、整关全 firstTryClean 才追加，非解锁条件 */
+        if (settings.challengeBadge && firstTryCleanCount >= TOTAL_ROUNDS) {
+          usage.badges[island + '-' + level] = true;
+        }
+        addLeaf(1); addSticker();           // F9 图鉴贴纸 + E1 成长树
+        saveUsage();
+        /* A4：连续两局至少一次休息（sessionCountToday>=2 / 当日累计首越 50%，第 2 局强制兜底） */
+        if (shouldInsertRest()) {
+          setTimeout(function () { showRestScene(function () { }); }, 300);
+        }
+      },
+      /* D4：过场 ≤3s、无语音无文字、不出现「接着/最后/下一站」 */
+      suppressFinale: function () {
+        try {
+          var ns = document.querySelectorAll('.finale-banner, .finale-title, .finale-text, .l125-fin-banner, #finaleText');
+          for (var i = 0; i < ns.length; i++) ns[i].textContent = '';
+        } catch (e) { }
+      },
+      settings: settings,
+      usage: usage,
+      CONST: {
+        SESSION_CAP_SEC: SESSION_CAP_SEC, DAILY_CAP_SEC: DAILY_CAP_SEC,
+        SESSION_CAP_MAX: SESSION_CAP_MAX, DAILY_CAP_MAX: DAILY_CAP_MAX,
+        REST_SEC: REST_SEC, REST_GAP_MS: REST_GAP_MS,
+        CONFIRM_MS: CONFIRM_MS, MAX_DWELL: MAX_DWELL,
+        GOAL_DONE: GOAL_DONE, GOAL_RIGHT: GOAL_RIGHT
+      }
+    };
+  })();
+
   /** 按当前关卡生成一道题 */
     /* 关卡出题器全部外置到 levels/island-01..12.js（12 岛 / 59 个标签），
    * 通过 window.__LLMakers 注册；newQuestion 优先查该注册表。
@@ -2808,6 +3773,14 @@
   /** 生成 12 轮题型序列。默认 3 种题型轮转；四种题型的关卡由 planTypeCount 决定。 */
   function makePlan(typeCount) {
     if (!typeCount) typeCount = planTypeCount(currentIsland, state.level);
+    /* D3：fixedType 关卡整关只出一种题型（第 13 岛 关 1–2 = B、关 3–4 = A、关 5 = C）。
+       fixedType 是「题型下标」：0=A 听音找字母、1=B 听音找物品、2=C 拖拽配对。 */
+    var fixedDef = levelDef(currentIsland, state.level);
+    if (fixedDef && fixedDef.fixedType != null) {
+      var pinned = [];
+      for (var f = 0; f < TOTAL_ROUNDS; f++) pinned.push(fixedDef.fixedType);
+      return pinned;
+    }
     var plan = [];
     for (var i = 0; i < TOTAL_ROUNDS; i++) plan.push(i % typeCount);
     shuffle(plan);
@@ -27563,7 +28536,7 @@
        才现下载要 1.1 秒，过渡台词会晚一拍（弱网直接被 say() 的 2.5 秒兜底跳过）。
        所以进关就把那一块预取回来；延后 5 秒发起，别和第 1 步的 island_12_3 抢带宽。 */
     var api = function (me) {
-      setTimeout(function () { loadVoiceChunk('island_10_5'); }, 5000);
+      setTimeout(function () { loadVoiceChunk('island_9_5'); }, 5000);
       playAct(me, 0);
     };
     api.check = function () { return false; };
@@ -29108,7 +30081,7 @@
      ⚠ 语音分块：本岛（重编号后的第 1 岛）语音在 voice/chunks/island_1_1..5.js，进关预取本关那一块。
        与「新 13-2」逐字相同的 7 句（at/buh/kuh 的题干、apple/ball/cat 的投放句）不重录，
        直接复用 l122_*；它们单独打包在 voice/chunks/l13_shared.js，已随 1-1 关一起预取
-       （见 tools/add-l13-shared-voice.py 与 VOICE_CHUNK_OF_LEVEL['1-1']）。 */
+       （见 tools/add-l13-shared-voice.py 与 VOICE_CHUNK_OF_LEVEL['13-1']）。 */
 
   /* 26 个字母：音素 / 首音词 / 中文 / 配图来源
      art 语法：fruit:xxx / animal:xxx / food:xxx / svg:xxx / ball（球复用 12-2 手写的那颗） */
@@ -29727,7 +30700,7 @@
       me.l13Level = state.level | 0;
       me.l13Acts = actsFor(state.level);
       /* 岛序重编号后，与「新 13-2」共用的 7 句已随 island_1_1 一起预取（见
-         tools/add-l13-shared-voice.py）；旧的 setTimeout(loadVoiceChunk('island_12_2'))
+         tools/add-l13-shared-voice.py）；旧的 setTimeout(loadVoiceChunk('island_11_2'))
          指向重编号前的分块，只会白下 534KB 的 l112_* 语音，已移除。
          万一跨岛复用仍缺某句，say() 会按 VOICE_CHUNK_FOR 自动补加载。 */
       play(me, 0);
@@ -32661,7 +33634,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '9-1': {
+    '12-1': {
       // 基础情绪（Happy / Sad / Angry）：空白脸谱 + 情绪零件；13 环节
       // （3 个情绪 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、模仿互动👍永远判对（§三.12）
@@ -32670,7 +33643,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '9-2': {
+    '12-2': {
       // 身体感受（Hungry / Thirsty / Sleepy）：手写小人三姿态 + 面包 / 水 / 枕头；13 环节
       // （3 个感受 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、答错 again + 不推进
@@ -32679,7 +33652,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '9-3': {
+    '12-3': {
       // 安慰别人（Give him a toy / a hug / candy）：手写婴儿三状态 + 玩具/糖果/辣椒/书/石头 + 爱心；13 环节
       // （3 个安抚动作 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、拥抱👍永远判对（§三.12）
@@ -32688,7 +33661,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '9-4': {
+    '12-4': {
       // 综合感知·表情变变变（因果 → 情绪：冰淇淋掉了/玩具被抢）；9 环节
       // （2 个情境故事 × 2 演示 + 2 互动 + 过渡，RULES §三.10 双倍量）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、生气脸👍永远判对（§三.12）
@@ -32697,7 +33670,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '9-5': {
+    '12-5': {
       // 游乐场·情绪与感受终极考验（变脸魔法师，第 8 岛结业关）：面具 4 张 + 6 种状态小人 + 拥抱；
       // 10 环节（换面具 2 演示 + 贴面具 1 互动 + 找感受 2 演示 + 找感受 1 互动
       // + 安慰 2 演示 + TPR 1 互动 + 过渡，RULES §三.10 双倍量）；
@@ -32707,7 +33680,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '10-1': {
+    '9-1': {
       // 衣物穿戴（Shirt / Pants / Shoes / Hat）：打底衫小人 + 4 件可穿脱衣物图层；10 环节
       // （Shirt 2 演示 + 1 互动 / Pants 2 演示 + 1 互动 / Shoes 1 演示 / Hat 1 演示 + 1 互动 / 过渡）；
       // 演示点按推进（§三.14）、互动 4 秒小手指（§二.12）、拖拽热区 = 整个小人 +14%（§二.11）
@@ -32716,7 +33689,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '10-2': {
+    '9-2': {
       // 穿脱动作（Put on / Take off）：沿用 9-1 小人 + 衣物，新增外套；底部物品栏 = 「脱」的接收区；
       // 10 环节（Put on 2 演示 + 1 互动 / Take off 2 演示 + 1 互动 / 再 2 演示 + 1 互动 / 过渡）；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、双向拖拽未命中平滑弹回（§二.11）
@@ -32725,7 +33698,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '10-3': {
+    '9-3': {
       // 天气与衣服（Hot / Cold, Coat / T-shirt）：天气层用极轻量 CSS 动画（太阳光晕慢转 + 8 颗雪花下落），
       // 10 环节（Hot 2 演示 + 1 互动 / Cold 2 演示 + 1 互动 / 综合 2 演示 + 1 互动 / 过渡）；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖拽没命中平滑弹回（§二.11）
@@ -32734,7 +33707,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '10-4': {
+    '9-4': {
       // 找错误 · 捣蛋鬼换装：把衣物穿到「错」的部位（鞋子戴头上 / 裤子套胳膊 / 帽子穿脚）；
       // 9 环节（Shoes 2 演示 + 2 互动 / Pants 2 演示 + 2 互动 / 过渡）；演示点按推进（§三.14）、
       // 互动 4 秒小手（§二.12）、拖到小人身上任意处都算成功（§二.11，绝不要求对准部位）；
@@ -32744,7 +33717,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '10-5': {
+    '9-5': {
       // 游乐场·变装大秀综合考验：超模变装秀（2 穿上演示 + 1 穿上互动 / 2 脱下演示 + 1 脱下互动 / 过渡）；
       // 答题 4 题型（A 天气穿搭 / B 搞笑错位 / C 多步穿脱 / D 找捣蛋）；演示点按推进（§三.14）、
       // 互动 4 秒小手（§二.12）、双向拖拽（穿上落点大、脱下可拖回栏里）、空白处平滑弹回（§二.11）
@@ -32753,7 +33726,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '11-1': {
+    '10-1': {
       // 交通工具与场景分类（Car / Bus / Train / Plane）：10 环节
       // Car 2 演示 + 1 互动 → Plane 2 演示 + 1 互动 → Train/Bus 各 1 演示 → 综合互动 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错场景只弹回不判错（§二.11）
@@ -32762,7 +33735,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '11-2': {
+    '10-2': {
       // 快慢与方向（Fast / Slow / Left / Right）：11 环节
       // 赛跑 2 演示 → TPR 快/慢 2 互动 → 变道 2 演示 → 变道 1 互动 → 交警 2 演示 → 交警 1 互动 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错车道只弹回不判错（§二.11）
@@ -32771,7 +33744,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '11-3': {
+    '10-3': {
       // 听指令过马路（Red light / Green light）：9 环节
       // 红灯 2 演示 + 1 互动 → 绿灯 2 演示 + 1 互动 → 行人 2 演示 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错区域只弹回不判错（§二.11）
@@ -32780,7 +33753,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '11-4': {
+    '10-4': {
       // 天气（Sunny / Rainy / Cloudy）：10 环节
       // 晴天 2 演示 + 1 互动 → 雨天 2 演示 + 1 互动 → 阴天 2 演示 + 1 互动（点图）→ 过渡；
       // 本关**严禁 TPR**：互动只有「拖物品到小人」与「点图」两种。
@@ -32789,7 +33762,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '11-5': {
+    '10-5': {
       // 游乐场 · 交通与自然终极考验：岛末综合关，9 环节
       // 快/左转 2 演示 → 右转互动 → 红灯 2 演示 → 绿灯互动 → 下雨 2 演示 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错车道只弹回不判错（§二.11）
@@ -32798,7 +33771,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '12-1': {
+    '11-1': {
       // 三只小猪（童话故事岛开篇）：7 环节
       // 草房 2 演示（三只小猪 → 稻草飞过去搭房子）→ 砖房互动（拖砖头给第三只猪）→
       // 敲门 2 演示（敲门声 + 门抖 → 大灰狼现身）→ 找狼互动 → 过渡；
@@ -32808,7 +33781,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '12-2': {
+    '11-2': {
       // 小红帽（童话故事）：7 环节
       // 小红帽+猎人出场 → 猎人问路（她沿去奶奶家的路走）→ 拖她去奶奶家 → 狼进树林 → 狼特写 → 找狼 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、拖错路只弹回不判错（§二.11）
@@ -32817,7 +33790,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '12-3': {
+    '11-3': {
       // 金发姑娘与三只小熊（童话故事）：7 环节
       // 太烫/太凉 2 演示 → 点冒热气的那碗 → 尝一口 2 演示（第二段冒爱心）→ 点刚好的椅子 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
@@ -32826,7 +33799,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '12-4': {
+    '11-4': {
       // 故事排序（童话故事）：4 环节
       // 讲三只小猪（三张图按序高亮）→ 演示图自己飞进 1/2/3 → 动手把三张图拖进框 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、放错只弹回不判错（§二.11）
@@ -32835,7 +33808,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '12-5': {
+    '11-5': {
       // 童话故事游乐场大结局（岛末综合关）：6 环节
       // 三个主角入场 → 逐个点名 → 点出小红帽 → 大灰狼出场 → 狼在森林 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
@@ -32844,7 +33817,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '13-1': {
+    '2-1': {
       // 自我介绍（第 12 岛开篇）：6 环节
       // 男孩+女孩出场 → 男孩问 → 女孩答 → 点出 Lily（互动）→ 男孩答 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
@@ -32853,7 +33826,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '13-2': {
+    '2-2': {
       // 字母音觉醒：6 环节
       // 大字母 A → A 的音 + 苹果跳 → 点出读该音的字母（互动）→ B + 球 → C + 猫 → 过渡；
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
@@ -32862,7 +33835,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '13-3': {
+    '2-3': {
       // 综合听力大复习：6 环节
       // 红苹果 → 苹果在跳 → 听长句找蓝汽车（互动）→ 男孩饿了 → 想要面包 → 过渡
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动不判错
@@ -32871,7 +33844,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '13-4': {
+    '2-4': {
       // 情景闯关 · 多步指令：7 环节
       // 拿苹果 2 演示 + 1 互动 → 递给爸爸 2 演示 + 1 互动 → 过渡
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、两步都是拖拽（第一步交到手上、第二步递给人）
@@ -32880,7 +33853,7 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '13-5': {
+    '2-5': {
       // 年度游乐场 · 小岛寻宝大结局：6 环节
       // 藏宝图 + 金钥匙 → 地图特写（红叉）→ 点出红苹果（互动）→ 奖杯 → 奖杯 + 12 面小旗 → 过渡
       // 演示点按推进（§三.14）、互动 4 秒小手（§二.12）、点错只抖动播 again 不推进
@@ -32889,28 +33862,28 @@
       onDrop: function () { return false; },
       onSuccess: function () { /* 教学无投放环节 */ }
     },
-    '1-1': {
+    '13-1': {
       // 字母与首音 · 第一关 A–E：8 环节
       // 开场（本关五张字母卡排队）→ A+B 两演示 → 点出读该音的字母（互动）→ C+D 两演示 → 互动 → E 演示 → 过渡
       custom: runL13Tutorial,
       steps: [], onDrop: function () { return false; }, onSuccess: function () { }
     },
-    '1-2': {
+    '13-2': {
       // 第二关 F–J：8 环节（无开场，直接进 F）
       custom: runL13Tutorial,
       steps: [], onDrop: function () { return false; }, onSuccess: function () { }
     },
-    '1-3': {
+    '13-3': {
       // 第三关 K–O：8 环节
       custom: runL13Tutorial,
       steps: [], onDrop: function () { return false; }, onSuccess: function () { }
     },
-    '1-4': {
+    '13-4': {
       // 第四关 P–T：8 环节
       custom: runL13Tutorial,
       steps: [], onDrop: function () { return false; }, onSuccess: function () { }
     },
-    '1-5': {
+    '13-5': {
       // 第五关 U–Z：9 环节（六个字母，分成三组「两演示 + 一互动」）
       custom: runL13Tutorial,
       steps: [], onDrop: function () { return false; }, onSuccess: function () { }
