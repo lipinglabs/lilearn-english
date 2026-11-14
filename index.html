@@ -190,7 +190,11 @@
   </div>
 </div>
 
-<script src="voice/chunks/index.js"></script>
+<!-- 语音分块版本号：改过任何 voice/chunks/*.js 的内容后，必须把下面 3 处 REV 一起递增
+     （内联常量、index.js 的 ?v=、sw.js SHELL 里的 core.js ?v=）。
+     否则 SW / 浏览器 HTTP 缓存会继续返回旧分块，读条显示「已就绪」但孩子听不到声音。 -->
+<script>window.VOICE_CHUNK_REV = '20261114a';</script>
+<script src="voice/chunks/index.js?v=20261114a"></script>
 <script src="assets.js"></script>
 <!-- 第 3 岛第 3 关（长/短）插画：3 套画风，缺失时自动回退内联 legacy 原图 -->
 <script src="art33.js"></script>
@@ -223,6 +227,13 @@
   var voiceChunkState = {};    // name -> 'loading' | 'done' | 'failed'
   var voiceChunkWaiters = {};  // name -> [callback(ok)]
 
+  /* 分块 URL 统一带版本号：内容一变，URL 就变，任何历史缓存都不会命中。
+     整包离线下载、读条预取、say() 兜底补加载走的都是这里，必须保持同一套 URL。 */
+  function voiceChunkUrl(name) {
+    var rev = window.VOICE_CHUNK_REV;
+    return 'voice/chunks/' + name + '.js' + (rev ? '?v=' + rev : '');
+  }
+
   function loadVoiceChunk(name, onDone) {
     if (!name) { if (onDone) onDone(true); return; }
     if (voiceChunkState[name] === 'done') { if (onDone) onDone(true); return; }
@@ -234,7 +245,7 @@
     voiceChunkState[name] = 'loading';
     voiceChunkWaiters[name] = onDone ? [onDone] : [];
     var s = document.createElement('script');
-    s.src = 'voice/chunks/' + name + '.js';
+    s.src = voiceChunkUrl(name);
     s.async = true;
     function settle(ok) {
       voiceChunkState[name] = ok ? 'done' : 'failed';
@@ -2190,7 +2201,7 @@
           }
           return;
         }
-        c.match('voice/chunks/' + names[i++] + '.js').then(function (hit) {
+        c.match(voiceChunkUrl(names[i++])).then(function (hit) {
           if (hit) have++;
           step();
         }, function () { step(); });
@@ -2226,7 +2237,7 @@
           toast('离线语音已下载完');
           return;
         }
-        var url = 'voice/chunks/' + names[i++] + '.js';
+        var url = voiceChunkUrl(names[i++]);
         /* 串行下载：并行会把带宽切碎，首块反而更晚到；这里是一次性的后台任务，慢一点没关系 */
         c.add(new Request(url, { cache: 'reload' })).then(function () {
           setVoicePackStatus('正在下载 ' + i + ' / ' + names.length + '（' + Math.round(i * 100 / names.length) + '%）');
@@ -29094,9 +29105,10 @@
        at = /æ/、buh = /b/、kuh = /k/…）。X 是唯一特例：孤立的 "ks" 这个 TTS 会读成
        字母名「kay ess」，所以 X 只给锚词（"X is for box."），孩子听到的是 box 词尾真实的 /ks/。
 
-     ⚠ 语音分块：本岛的语音在 voice/chunks/island_13_1..5.js，进关预取本关那一块。
-       与 12-2 逐字相同的 7 句（at/buh/kuh 的题干、apple/ball/cat 的投放句）不重录，
-       直接复用 l122_*，那几句住在 island_12_2.js —— 教学一开始就错峰预取它（见 api）。 */
+     ⚠ 语音分块：本岛（重编号后的第 1 岛）语音在 voice/chunks/island_1_1..5.js，进关预取本关那一块。
+       与「新 13-2」逐字相同的 7 句（at/buh/kuh 的题干、apple/ball/cat 的投放句）不重录，
+       直接复用 l122_*；它们单独打包在 voice/chunks/l13_shared.js，已随 1-1 关一起预取
+       （见 tools/add-l13-shared-voice.py 与 VOICE_CHUNK_OF_LEVEL['1-1']）。 */
 
   /* 26 个字母：音素 / 首音词 / 中文 / 配图来源
      art 语法：fruit:xxx / animal:xxx / food:xxx / svg:xxx / ball（球复用 12-2 手写的那颗） */
@@ -29535,8 +29547,10 @@
       var acts = [];
       if ((level | 0) === 1) acts.push({ t: 'demo', sid: 'in', intro: true, word: 'l13_t_in' });
       for (var i = 0; i < g.length; i += 2) {
-        acts.push({ t: 'demo', sid: 'd' + g[i], ch: g[i] });
-        if (g[i + 1]) acts.push({ t: 'demo', sid: 'd' + g[i + 1], ch: g[i + 1] });
+        /* 每个字母演示都必须带自己的教学语音（l13_t_<字母>），否则 say([undefined])
+           会静音：画面只剩字母卡和配图，孩子不知道要做什么，点小喇叭也没声音。 */
+        acts.push({ t: 'demo', sid: 'd' + g[i], ch: g[i], word: l13TeachKey(L13_BY_CH[g[i]]) });
+        if (g[i + 1]) acts.push({ t: 'demo', sid: 'd' + g[i + 1], ch: g[i + 1], word: l13TeachKey(L13_BY_CH[g[i + 1]]) });
         /* 末组只剩一个字母时不再单独加互动：那个字母在答题里还会反复出现，
            否则 5 字母关会多出一个「刚教完立刻再考一次」的冗余环节 */
         if (g[i + 1]) {
@@ -29635,8 +29649,10 @@
           }, ms);
         });
       }
-      me.replay = function () { say([act.word]); };
-      say([act.word], function () {
+      /* 双保险：万一 act 漏配 word，用字母现场推回 l13_t_<ch>，绝不把 undefined 交给 say() */
+      var demoKey = act.word || (act.ch && L13_BY_CH[act.ch] ? l13TeachKey(L13_BY_CH[act.ch]) : 'l13_t_in');
+      me.replay = function () { say([demoKey]); };
+      say([demoKey], function () {
         if (state.tut !== me) return;
         setTimeout(function () { if (state.tut === me) gate(me, next); }, 700);
       });
@@ -29710,8 +29726,10 @@
     var api = function (me) {
       me.l13Level = state.level | 0;
       me.l13Acts = actsFor(state.level);
-      /* 与 12-2 共用的 7 句住在 island_12_2.js：错峰预取，别和本关分块抢带宽（§三.34） */
-      setTimeout(function () { loadVoiceChunk('island_12_2'); }, 1800);
+      /* 岛序重编号后，与「新 13-2」共用的 7 句已随 island_1_1 一起预取（见
+         tools/add-l13-shared-voice.py）；旧的 setTimeout(loadVoiceChunk('island_12_2'))
+         指向重编号前的分块，只会白下 534KB 的 l112_* 语音，已移除。
+         万一跨岛复用仍缺某句，say() 会按 VOICE_CHUNK_FOR 自动补加载。 */
       play(me, 0);
     };
     api.check = function () { return false; };

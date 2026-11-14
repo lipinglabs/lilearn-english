@@ -14,7 +14,7 @@
    改版本号即可让孩子设备上下一次联网时换新缓存。
    ============================================================ */
 
-var CACHE = 'lilearn-v22';
+var CACHE = 'lilearn-v24';
 /* 家长手动下载的整包语音单独放一个缓存：它体积大（约 41MB）、下载慢，
    绝不能因为换一次版本号就被 activate 顺手删掉，所以下面删旧缓存时要放行它。
    fetch 里的 caches.match 会连这个缓存一起搜，因此下载完就能离线发声。 */
@@ -43,8 +43,8 @@ var SHELL = [
   /* 语音分块：索引 + 公共语音随 SW 一起预缓存（0.7MB），
      其余 voice/chunks/island_*.js 走运行时缓存（首次进岛时缓存，之后离线可玩）。
      注意：v4 及更早缓存里存着单体 voice.js（35MB），activate 时会整体删掉。 */
-  './voice/chunks/index.js',
-  './voice/chunks/core.js',
+  './voice/chunks/index.js?v=20261114a',
+  './voice/chunks/core.js?v=20261114a',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',
@@ -93,6 +93,26 @@ self.addEventListener('fetch', function (e) {
       }).catch(function () {
         return caches.match(req).then(function (hit) {
           return hit || caches.match('./index.html');
+        });
+      })
+    );
+    return;
+  }
+
+  /* 语音分块索引决定「哪句语音住在哪个分块」。它一旦被 cache-first 卡在旧副本，
+     就算新分块已经部署，页面仍会去下错的分块、或补加载找不到 key —— 表现就是
+     「进去没声音」。索引只有几十 KB，联网时永远拿最新，断网才回落缓存。 */
+  if (/\/voice\/chunks\/index\.js$/.test(url.pathname)) {
+    e.respondWith(
+      fetch(new Request(req.url, { cache: 'reload' })).then(function (res) {
+        if (res && res.status === 200) {
+          var copy = res.clone();
+          caches.open(CACHE).then(function (c) { c.put(req, copy); }).catch(function () { });
+        }
+        return res;
+      }).catch(function () {
+        return caches.match(req).then(function (hit) {
+          return hit || caches.match(req, { ignoreSearch: true });
         });
       })
     );
