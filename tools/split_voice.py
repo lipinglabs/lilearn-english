@@ -13,6 +13,14 @@ key → 岛 的归属从 `tools/gen_voice_doubao.py` 的章节注释解析：
   文件开头（没有任何「第 N 岛」标记）的章节属于第 1 岛；
   解析不到的一律进 core（core 永远最先加载，保证不会有 key 丢失）。
 
+⚠️ 岛序重编号（原 13 岛 → 新 1 岛，原 1..12 → 新 2..13）之后**不要直接重跑本脚本**：
+   下方 parse_key_island() 依据 gen_voice_doubao.py 里的「第 N 岛」章节注释归类，
+   那些注释仍是旧岛号，直接重跑会把 l13_* 归回第 13 岛、把 index.js 的
+   OF_ISLAND / OF_LEVEL 键写回旧岛号，页面预取会整体错开一格（表现：进去没声音）。
+   当前 voice/chunks/index.js 已由 tools/fix-voice-index-keys.js 修正过；
+   确需重新拆分时，先给本脚本加旧→新岛号映射，并同步 tools/add-l13-shared-voice.py
+   与 index.html 的 VOICE_CHUNK_REV（内容变了必须换 URL，否则 SW 缓存仍返回旧分块）。
+
 用法：
     python tools/split_voice.py            # 生成 voice/chunks/*.js
     python tools/split_voice.py --check    # 只校验现有分块是否完整、是否与 mp3 一致
