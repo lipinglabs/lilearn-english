@@ -66,6 +66,13 @@
      拖放区 ≥96px，全部动效 prefers-reduced-motion 降级，无红叉/强闪/倒计时红环。
      ============================================================ -->
 <style id="m4y-style">
+  /* ---- 拖拽基础规格 ----
+     可拖元素必须声明 touch-action:none：否则手机浏览器会把「按住往下拖」当成页面滚动，
+     先吃掉一串 pointermove 再发 pointercancel，表现就是拖到一半卡住/跳一下。
+     .drag-layer 本身不接收指针事件，幽灵单独由 JS 置 pointer-events:none。 */
+  [data-drag] { touch-action: none; -webkit-user-drag: none; }
+  .drag-layer { position: fixed; inset: 0; pointer-events: none; }
+
   /* ---- B10 视觉规格：暖黄 #FFC94A 描边 + 0.3s 淡入 + 放大 1.08 回弹 ---- */
   .m4y-focus {
     outline: 3px solid #FFC94A; outline-offset: 3px;
@@ -32390,12 +32397,62 @@
     judge(ok, basketEl);
   }
 
+  /* ---------------- 拖拽（性能敏感路径） ----------------
+     旧实现每个 pointermove 都做四件重活，等于每帧强制一次布局：
+       1) 读 ghost.offsetWidth/offsetHeight —— 刚写完 left/top 就读，浏览器必须立刻重排；
+       2) document.elementsFromPoint —— 命中测试同样要求最新布局；
+       3) querySelectorAll('[data-drop]') —— 每帧全文档扫描；
+       4) 给每个落点写 class（值没变也照写） —— 每帧样式重算。
+     手机上一秒上百个 pointermove，拖起来就发黏、跟不上手指。
+     现在：尺寸按下时缓存（拖拽期间不变）；位移与命中合并到 rAF，每帧最多算一次；
+     命中检测节流到约 30 次/秒（肉眼无感），且**目标没变就不碰 DOM**。
+     判定语义完全不变：仍然用 dropAt() 的精确命中，只是不再每帧都问一次。 */
+
+  var dragDrops = null;         // 按下时收集的落点节点引用（只为少一次全文档查询）
+  var dragLastHitAt = 0;
+
+  function collectDrops() {
+    dragDrops = [];
+    var list = document.querySelectorAll('[data-drop]');
+    for (var i = 0; i < list.length; i++) dragDrops.push(list[i]);
+  }
+
+  function paintDrag(d) {
+    if (!d.ghost) return;
+    d.ghost.style.left = (d.px - d.gw / 2) + 'px';
+    d.ghost.style.top = (d.py - d.gh / 2) + 'px';
+  }
+
+  /** 命中检测：节流约 30 次/秒，尾随补一次（停在落点上也能亮），换目标才写 class */
+  function checkDragHit(d) {
+    var now = Date.now();
+    if (now - dragLastHitAt < 34) {
+      if (!d.hitTimer) {
+        d.hitTimer = setTimeout(function () {
+          d.hitTimer = 0;
+          if (state.drag === d) checkDragHit(d);
+        }, 36);
+      }
+      return;
+    }
+    dragLastHitAt = now;
+    var hit = dropAt(d.px, d.py, d.el ? d.el.dataset.from : null);
+    if (hit === d.lastHit) return;
+    d.lastHit = hit;
+    if (!dragDrops) collectDrops();
+    for (var i = 0; i < dragDrops.length; i++) dragDrops[i].classList.toggle('drop-hot', dragDrops[i] === hit);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-drop].drop-hot'), function (n) {
+      if (n !== hit) n.classList.remove('drop-hot');   // 快照外动态出现的落点也要熄灯
+    });
+  }
+
   function startDrag(e) {
     var mode = dragMode();
     if (!mode) return;
 
     var el = e.target.closest ? e.target.closest('[data-drag]') : null;
     if (!el) return;
+    if (state.drag) return;                    // 第二根手指按下：不覆盖正在拖的那次
 
     e.preventDefault();
     var idx = parseInt(el.dataset.idx, 10);
@@ -32407,32 +32464,36 @@
     ghost.style.height = rect.height + 'px';
     ghost.style.left = (e.clientX - rect.width / 2) + 'px';
     ghost.style.top = (e.clientY - rect.height / 2) + 'px';
+    ghost.style.pointerEvents = 'none';        // 幽灵绝不能吃掉命中测试
+    ghost.style.transition = 'none';           // 有关卡素材自带 left/top 过渡，拖动时会一直「追」手指
     dragLayer.appendChild(ghost);
 
     state.drag = {
       el: el, idx: idx, ghost: ghost, moved: false, mode: mode,
-      x0: e.clientX, y0: e.clientY, kind: el.dataset.drag
+      x0: e.clientX, y0: e.clientY, kind: el.dataset.drag,
+      px: e.clientX, py: e.clientY, gw: rect.width, gh: rect.height,
+      lastHit: null, raf: 0, hitTimer: 0
     };
+    dragLastHitAt = 0;
+    collectDrops();
   }
 
   function moveDrag(e) {
     var d = state.drag;
     if (!d) return;
-    var dx = e.clientX - d.x0, dy = e.clientY - d.y0;
-    if (!d.moved && Math.abs(dx) + Math.abs(dy) > 8) {
+    d.px = e.clientX; d.py = e.clientY;
+    var dx = d.px - d.x0, dy = d.py - d.y0;
+    if (!d.moved) {
+      if (Math.abs(dx) + Math.abs(dy) <= 8) return;
       d.moved = true;
       d.el.classList.add('dragging');
     }
-    if (!d.moved) return;
-    d.ghost.style.left = (e.clientX - d.ghost.offsetWidth / 2) + 'px';
-    d.ghost.style.top = (e.clientY - d.ghost.offsetHeight / 2) + 'px';
-    highlightDrop(e.clientX, e.clientY, d.el ? d.el.dataset.from : null);
-  }
-
-  function highlightDrop(x, y, fromMode) {
-    var hit = dropAt(x, y, fromMode);
-    Array.prototype.forEach.call(document.querySelectorAll('[data-drop]'), function (n) {
-      n.classList.toggle('drop-hot', n === hit);
+    if (d.raf) return;                         // 本帧已排队：高刷屏也只算一次
+    d.raf = requestAnimationFrame(function () {
+      d.raf = 0;
+      if (state.drag !== d) return;
+      paintDrag(d);
+      checkDragHit(d);
     });
   }
 
@@ -32455,8 +32516,15 @@
     var d = state.drag;
     if (!d) return;
     state.drag = null;
+    if (d.raf) { cancelAnimationFrame(d.raf); d.raf = 0; }
+    if (d.hitTimer) { clearTimeout(d.hitTimer); d.hitTimer = 0; }
     d.el.classList.remove('dragging');
-    Array.prototype.forEach.call(document.querySelectorAll('[data-drop]'), function (n) {
+    /* 只清掉真正亮着的落点：恢复旧行为会顺带把其它地方的 drop-hot 也扫一遍，
+       这里用快照列表，避免又一次全文档查询 */
+    if (dragDrops) {
+      for (var hi = 0; hi < dragDrops.length; hi++) dragDrops[hi].classList.remove('drop-hot');
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('[data-drop].drop-hot'), function (n) {
       n.classList.remove('drop-hot');
     });
 
@@ -32506,8 +32574,8 @@
       // 吸附动画：把小幽灵挪到目标中心再消失
       var tr = target.getBoundingClientRect();
       d.ghost.style.transition = 'left .16s ease-out, top .16s ease-out, transform .16s ease-out, opacity .16s';
-      d.ghost.style.left = (tr.left + tr.width / 2 - d.ghost.offsetWidth / 2) + 'px';
-      d.ghost.style.top = (tr.top + tr.height / 2 - d.ghost.offsetHeight / 2) + 'px';
+      d.ghost.style.left = (tr.left + tr.width / 2 - d.gw / 2) + 'px';
+      d.ghost.style.top = (tr.top + tr.height / 2 - d.gh / 2) + 'px';
       d.ghost.style.transform = 'scale(.5)';
       d.ghost.style.opacity = '0';
       setTimeout(function () { d.ghost.remove(); }, 180);
@@ -32668,10 +32736,13 @@
   document.addEventListener('pointerup', endDrag, { passive: true });
   document.addEventListener('pointercancel', function () {
     if (state.drag) {
-      state.drag.ghost.remove();
-      state.drag.el.classList.remove('dragging');
+      var dc = state.drag;
       state.drag = null;
-      Array.prototype.forEach.call(document.querySelectorAll('[data-drop]'), function (n) {
+      if (dc.raf) cancelAnimationFrame(dc.raf);
+      if (dc.hitTimer) clearTimeout(dc.hitTimer);
+      dc.ghost.remove();
+      dc.el.classList.remove('dragging');
+      Array.prototype.forEach.call(document.querySelectorAll('[data-drop].drop-hot'), function (n) {
         n.classList.remove('drop-hot');
       });
     }
