@@ -19776,6 +19776,10 @@
       });
       w.appendChild(tray);
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l92On = true;
+      me.canDrag = true;
+      me.customMode = 'L92';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l92On = true;
@@ -20290,6 +20294,10 @@
       var tray = l92Tray(act.tray || [], true);
       w.appendChild(tray);
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l93On = true;
+      me.canDrag = true;
+      me.customMode = 'L93';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l93On = true;
@@ -20765,6 +20773,10 @@
       var tray = l92Tray(act.tray || [], true);
       w.appendChild(tray);
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l94On = true;
+      me.canDrag = true;
+      me.customMode = 'L94';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l94On = true;
@@ -21189,6 +21201,8 @@
       var tray = l92Tray(act.tray || [], true);
       w.appendChild(tray);
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l95On = true; me.canDrag = true; me.customMode = 'L95';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l95On = true; me.canDrag = true; me.customMode = 'L95';
@@ -21206,6 +21220,8 @@
       var tray = l92Tray(act.tray || [], false);
       w.appendChild(tray);
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l95On = true; me.canDrag = true; me.customMode = 'L95';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l95On = true; me.canDrag = true; me.customMode = 'L95';
@@ -21701,6 +21717,8 @@
       me.l10Need = { item: act.item, scene: act.scene };
       me._l10Next = next;
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l10On = true; me.canDrag = true; me.customMode = 'L10';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l10On = true; me.canDrag = true; me.customMode = 'L10';
@@ -22371,6 +22389,8 @@
       me.l102Need = { lane: act.lane };
       me._l102Next = next;
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l102On = true; me.canDrag = true; me.customMode = 'L102';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l102On = true; me.canDrag = true; me.customMode = 'L102';
@@ -22839,6 +22859,8 @@
       me.l103Need = { item: act.item, zone: act.zone };
       me._l103Next = next;
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l103On = true; me.canDrag = true; me.customMode = 'L103';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l103On = true; me.canDrag = true; me.customMode = 'L103';
@@ -23288,6 +23310,8 @@
       me.l104Weather = act.weather;
       me._l104Next = next;
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l104On = true; me.canDrag = true; me.customMode = 'L104';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l104On = true; me.canDrag = true; me.customMode = 'L104';
@@ -23836,6 +23860,8 @@
       me.l105Need = act.need;
       me._l105Next = next;
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l105On = true; me.canDrag = true; me.customMode = 'L105';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l105On = true; me.canDrag = true; me.customMode = 'L105';
@@ -24472,6 +24498,8 @@
       me.l111Need = act.need;
       me._l111Next = next;
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l111On = true; me.canDrag = true; me.customMode = 'L111';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l111On = true; me.canDrag = true; me.customMode = 'L111';
@@ -25067,6 +25095,8 @@
       me.l112Need = act.need;
       me._l112Next = next;
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l112On = true; me.canDrag = true; me.customMode = 'L112';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l112On = true; me.canDrag = true; me.customMode = 'L112';
@@ -26258,6 +26288,8 @@
       w.appendChild(tray);
       me._l114Next = next;
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l114On = true; me.canDrag = true; me.customMode = 'L114';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l114On = true; me.canDrag = true; me.customMode = 'L114';
@@ -26749,6 +26781,8 @@
       });
       w.appendChild(row);
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l115On = true;
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l115On = true;
@@ -27331,6 +27365,8 @@
       });
       w.appendChild(row);
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l121On = true;
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l121On = true;
@@ -27828,6 +27864,8 @@
       });
       w.appendChild(row);
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l122On = true;
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l122On = true;
@@ -28501,6 +28539,8 @@
       });
       w.appendChild(row);
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l123On = true;
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l123On = true;
@@ -29335,6 +29375,10 @@
       w.appendChild(bar);
       me._l124Next = next;
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l124On = true;
+      me.canDrag = true;
+      me.customMode = 'L124';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l124On = true;
@@ -29404,6 +29448,10 @@
       w.appendChild(bar);
       me._l124Next = next;
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l124On = true;
+      me.canDrag = true;
+      me.customMode = 'L124';
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l124On = true;
@@ -30666,6 +30714,8 @@
       });
       w.appendChild(row);
       me.replay = function () { say([act.word]); };
+      /* 进这一步就能拖：语音并行播，不等播完（4 秒小手仍从语音结束算） */
+      me.l13On = true;
       say([act.word], function () {
         if (state.tut !== me) return;
         me.l13On = true;
