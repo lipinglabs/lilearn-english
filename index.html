@@ -32452,7 +32452,16 @@
 
     var el = e.target.closest ? e.target.closest('[data-drag]') : null;
     if (!el) return;
-    if (state.drag) return;                    // 第二根手指按下：不覆盖正在拖的那次
+    /* 上一次拖拽没正常收尾（pointerup 被系统/浮层吞掉）时残留的幽灵会挡下一次操作：
+       这里先把它收干净再开始，而不是直接 return（直接 return 会让整关再也拖不动） */
+    if (state.drag) {
+      var old = state.drag;
+      state.drag = null;
+      if (old.raf) cancelAnimationFrame(old.raf);
+      if (old.hitTimer) clearTimeout(old.hitTimer);
+      if (old.ghost && old.ghost.parentNode) old.ghost.remove();
+      if (old.el) old.el.classList.remove('dragging');
+    }
 
     e.preventDefault();
     var idx = parseInt(el.dataset.idx, 10);
